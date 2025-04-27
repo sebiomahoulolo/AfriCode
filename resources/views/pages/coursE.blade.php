@@ -247,5 +247,3 @@ document.addEventListener("scroll", () => {
   }
 });
 </script>
-</body>
-</html>

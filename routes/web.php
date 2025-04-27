@@ -21,10 +21,6 @@ Route::view('dashboard', 'dashboard')
         return view('index');
     });
 
-    //AdminController;
-        Route::get('/', function () {
-            return view('welcome');
-        });
         
         // --- Routes d'Authentification ---
         // require __DIR__.'/auth.php'; // Si vous utilisez Breeze

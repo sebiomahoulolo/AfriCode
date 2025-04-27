@@ -14,7 +14,7 @@
       <div class="col-md-5">
         <div class="card h-100 shadow-sm border-0 p-4">
           <h5 class="mb-3">Informations de contact</h5>
-          <p><i class="bi bi-envelope-fill text-primary me-2"></i> contact@africode.org</p>
+          <p><i class="bi bi-envelope-fill text-primary me-2"></i> contact@africode.tech</p>
           <p><i class="bi bi-telephone-fill text-primary me-2"></i> +229 90 00 00 00</p>
           <p><i class="bi bi-geo-alt-fill text-primary me-2"></i> Parakou, Bénin</p>
           <hr>
