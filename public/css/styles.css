@@ -1,0 +1,30 @@
+.container {
+    margin-top: 50px;
+}
+
+.course-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.course-item {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    width: calc(50% - 20px);
+}
+
+.course-item h2 {
+    margin-top: 0;
+}
+
+.course-item p {
+    color: #555;
+}
+
+.btn {
+    display: inline-block;
+    margin-top: 10px;
+}
