@@ -1,0 +1,1 @@
+cd /home/fadel/Workspaces/AfriCode && php artisan make:seeder CourseSeeder

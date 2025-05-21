@@ -9,8 +9,11 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
-            $table->date('issue_date');
-            $table->string('certificate_identifier')->unique(); // ID unique ou chemin fichier
+            $table->foreignId('enrollment_id')->constrained('enrollments')->onDelete('cascade')->unique();
+            $table->timestamp('issued_at')->useCurrent();
+            $table->string('certificate_path');
+            $table->string('verification_code')->unique();
+            $table->string('qr_code_path')->nullable();
             $table->timestamps();
         });
     }

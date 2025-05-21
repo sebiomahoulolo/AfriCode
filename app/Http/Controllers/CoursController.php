@@ -14,45 +14,51 @@ class CoursController extends Controller
     {   
         return view('pages.coursD');
     }
-public function coursT()
-{   
-    return view('pages.coursT');
-}
-public function coursE()
-{   
-    return view('pages.coursE');
-}
-public function compdisp()
-{  
-    return view('pages.compdisp');
-}
+    public function coursT()
+    {   
+        return view('pages.coursT');
+    }
+    public function coursE()
+    {   
+        return view('pages.coursE');
+    }
+    public function compdisp()
+    {  
+        return view('pages.compdisp');
+    }
 
-public function test()
-{  
-    return view('pages.test');
-}
-public function verifier()
-{  
-    return view('pages.verifier');
-}
-public function forumexp()
-{  
-    return view('pages.forumexp');
-}
-public function forumapp()
-{  
-    return view('pages.forumapp');
-}
+    public function test()
+    {  
+        return view('pages.test');
+    }
+    public function verifier()
+    {  
+        return view('pages.verifier');
+    }
+    public function forumexp()
+    {  
+        return view('pages.forumexp');
+    }
+    public function forumapp()
+    {  
+        return view('pages.forumapp');
+    }
 
-public function contact()
-{  
-    return view('pages.contact');
-}
+    public function contact()
+    {  
+        return view('pages.contact');
+    }
 
-public function apropos()
-{  
-    return view('pages.apropos');
-}
+    public function apropos()
+    {  
+        return view('pages.apropos');
+    }
 
+    /**
+     * Afficher la page détaillée d'un cours
+     *
+     * @param string $slug Le slug du cours
+     * @return \Illuminate\View\View
+     */
 
 }
