@@ -35,14 +35,14 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><h6 class="dropdown-header">Par Niveau</h6></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.coursD') }}">Débutant</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.coursT') }}">Intermédiaire</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.coursE') }}">Avancé / Expert</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'beginner']) }}">Débutant</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'intermediate']) }}">Intermédiaire</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'advanced']) }}">Avancé / Expert</a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Types</h6></li>
-                        <li><a class="dropdown-item" href="#">Cours Gratuits</a></li>
-                        <li><a class="dropdown-item" href="#">Cours Certifiants</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'free']) }}">Cours Gratuits</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'paid']) }}">Cours Payants</a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header">Communauté & Outils</h6></li>

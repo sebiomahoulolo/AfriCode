@@ -11,10 +11,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Appel des seeders dans l'ordre approprié
         $this->call([
-            CategorySeeder::class, // D'abord les catégories
-            CourseSeeder::class,   // Ensuite les cours qui dépendent des catégories
+            // Utilisateurs, catégories et cours
+            UserSeeder::class,
+            CategorySeeder::class,
+            CourseSeeder::class,
+            
+            // Structure des cours
+            ModuleSeeder::class,
+            LessonSeeder::class,
+            ResourceSeeder::class,
+            
+            // Quiz et évaluations
+            QuizSeeder::class,
+            
+            // Interactions des utilisateurs
+            EnrollmentSeeder::class,
+            
+            // Autres entités  
+            CompetitionSeeder::class,
+            MentorshipSeeder::class,
+            CertificationSeeder::class,
         ]);
     }
 }

@@ -214,7 +214,7 @@
                             <a href="{{ route('courses.show', $course->slug) }}" class="text-decoration-none text-dark">
                                 <div class="course-img-container position-relative">
                                     @if($course->cover_image_path)
-                                        <img src="{{ asset($course->cover_image_path) }}" class="card-img-top" alt="{{ $course->title }}">
+                                        <img src="{{ asset($course->cover_image_path) }}" class="card-img-top" alt="{{ $course->title }}" onerror="this.src='{{ asset('assets/courses/images/course-placeholder.avif') }}'">
                                     @else
                                         <img src="{{ asset('assets/images/course-placeholder.jpg') }}" class="card-img-top" alt="Image du cours par défaut">
                                     @endif

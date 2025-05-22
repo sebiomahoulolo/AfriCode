@@ -52,6 +52,7 @@ class CourseSeeder extends Seeder
                 'level' => 'debutant',
                 'price' => 49.99,
                 'currency' => 'EUR',
+                'cover_image_path' => 'assets/images/courses/laravel.jpg',
                 'status' => 'published',
                 'learning_objectives' => [
                     'Comprendre l\'architecture MVC de Laravel',
@@ -117,6 +118,7 @@ class CourseSeeder extends Seeder
                 'level' => 'intermediaire',
                 'price' => 59.99,
                 'currency' => 'EUR',
+                'cover_image_path' => 'assets/images/courses/flutter.jpeg',
                 'status' => 'published',
                 'learning_objectives' => [
                     'Comprendre les concepts fondamentaux de Flutter et Dart',
@@ -182,6 +184,7 @@ class CourseSeeder extends Seeder
                 'level' => 'avance',
                 'price' => 69.99,
                 'currency' => 'EUR',
+                'cover_image_path' => 'assets/images/courses/machine-learning.jpeg',
                 'status' => 'published',
                 'learning_objectives' => [
                     'Comprendre les concepts fondamentaux du Machine Learning',
@@ -257,6 +260,7 @@ class CourseSeeder extends Seeder
             $course->price = $courseData['price'];
             $course->currency = $courseData['currency'];
             $course->status = $courseData['status'];
+            $course->cover_image_path = $courseData['cover_image_path'];
             
             // Sélection aléatoire d'un formateur et d'une catégorie
             $course->formateur_id = $formateurs->random()->id;

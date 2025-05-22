@@ -305,7 +305,7 @@
     </div>
 
     <!-- Devenez instructeur (Call to Action) -->
-    <div class="bg-primary text-white py-5 instructor-cta">
+    <!-- <div class="bg-primary text-white py-5 instructor-cta">
         <div class="container py-3">
             <div class="row align-items-center">
                 <div class="col-lg-7 mb-4 mb-lg-0 text-center text-lg-start">
@@ -325,10 +325,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Entreprises qui nous font confiance -->
-    <div class="partner-logos-section bg-white py-5">
+    <!-- <div class="partner-logos-section bg-white py-5">
         <div class="container">
             <h3 class="text-center text-muted fw-normal mb-5 ud-heading-lg">Des entreprises qui nous font confiance pour former leurs équipes</h3>
             <div class="d-flex flex-wrap align-items-center justify-content-center g-5">
@@ -349,7 +349,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Newsletter -->
     <div class="bg-light py-5 newsletter-section">
@@ -434,7 +434,11 @@
     .bg-light { background-color: var(--udemy-light-gray) !important; }
 
     .hero-section {
-        background-color: var(--udemy-dark-gray);
+        /* background-color: var(--udemy-dark-gray); */
+        background-image: url('{{ asset('assets/images/hero.jpg') }}'); /* Image de fond */
+        background-size: cover;
+        background-position: center;
+        color: white;
         margin-top: 0 !important; /* Assurez-vous qu'il n'y a pas de marge négative si le header est fixe */
     }
     .hero-section h1 { color: white; }
