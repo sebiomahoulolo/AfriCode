@@ -1,1 +1,28 @@
-cd /home/fadel/Workspaces/AfriCode && php artisan make:seeder CourseSeeder
+cd /home/fadel/Workspaces/AfriCode && composer require laravel/breeze --dev
+cd /home/fadel/Workspaces/AfriCode && composer require laravel/breeze --dev
+cd /home/fadel/Workspaces/AfriCode && php artisan breeze:install blade
+cd /home/fadel/Workspaces/AfriCode && npm install
+cd /home/fadel/Workspaces/AfriCode && npm run build
+cd /home/fadel/Workspaces/AfriCode && php artisan migrate
+cd /home/fadel/Workspaces/AfriCode && composer require laravel/socialite
+cd /home/fadel/Workspaces/AfriCode && cat >> .env << 'EOL'
+
+# OAuth Keys
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+FACEBOOK_CLIENT_ID=
+FACEBOOK_CLIENT_SECRET=
+
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+EOL
+mv /home/fadel/Workspaces/AfriCode/app/Http/Controllers/AdminController.php.new /home/fadel/Workspaces/AfriCode/app/Http/Controllers/AdminController.php
+rm /home/fadel/Workspaces/AfriCode/routes/SocialAuthController.php
+rm /home/fadel/Workspaces/AfriCode/app/Http/Controllers/RegisterUserController.php
+ls -la /home/fadel/Workspaces/AfriCode/app/Http/Controllers/RegisterUserController.php
+cd /home/fadel/Workspaces/AfriCode && php artisan cache:clear && php artisan config:clear && php artisan route:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan route:list | grep dashboard
+cd /home/fadel/Workspaces/AfriCode && php artisan route:list
+cd /home/fadel/Workspaces/AfriCode && php artisan cache:clear && php artisan route:clear && php artisan config:clear && php artisan view:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan make:test Features/ApprenenantLearningJourneyTest

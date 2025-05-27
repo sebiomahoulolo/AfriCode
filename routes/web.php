@@ -1,15 +1,20 @@
 <?php
-    use App\Http\Controllers\EtudiantController;
-    use App\Http\Controllers\AdminController;
-    use App\Http\Controllers\ProfileController;
-    use Illuminate\Support\Facades\Route;
-    use App\Http\Controllers\DashboardController;
-    use App\Http\Controllers\RegisterUserController;
-    use App\Http\Controllers\SocialAuthController;
-    use App\Http\Controllers\CoursController;
-    use App\Http\Controllers\Controller;
-    use App\Http\Controllers\CourseController;
-    use Livewire\Volt\Volt;
+
+use App\Http\Controllers\EtudiantController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
+// Removed: use App\Http\Controllers\RegisterUserController;
+// Removed: use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\CoursController;
+use App\Http\Controllers\Controller;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\ProfileCompletionController;
+use App\Http\Controllers\FormateurController;
+use App\Http\Controllers\Auth\SocialAuthController as AuthSocialAuthController;
+use Illuminate\Support\Facades\Auth;
+use Livewire\Volt\Volt;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,17 +34,44 @@ Route::get('/', [CourseController::class, 'home'])->name('home');
 Route::resource('courses', CourseController::class);
 Route::get('/coursest/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
 
+// Ces routes sont nécessaires pour la compatibilité avec le code existant
+Route::get('/cours', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/cours/{slug}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/categories/{category:slug}', [CourseController::class, 'byCategory'])->name('courses.category');
+
+// Routes pour l'authentification sociale (Breeze)
+Route::middleware('guest')->group(function () {
+    Route::get('auth/{provider}', [AuthSocialAuthController::class, 'redirectToProvider'])
+        ->name('social.login');
+    Route::get('auth/{provider}/callback', [AuthSocialAuthController::class, 'handleProviderCallback']);
+});
+
+// Routes pour la complétion du profil
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/complete', [ProfileCompletionController::class, 'showForm'])
+        ->name('profile.complete');
+    Route::post('/profile/complete', [ProfileCompletionController::class, 'complete'])
+        ->name('profile.complete.store');
+});
+
+// Dashboard central avec redirection intelligente
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->middleware(\App\Http\Middleware\ProfileCompletedMiddleware::class)
+    ->name('dashboard');
+
 // --- Routes d'Authentification ---
 require __DIR__.'/auth.php'; // Si vous utilisez Breeze
 
 // --- Routes de l'Administration (Toutes gérées par AdminController) ---
 Route::prefix('admin')
-    //->middleware(['auth', 'isAdmin']) // Toujours protéger !
+    ->middleware(['auth', \App\Http\Middleware\AdminMiddleware::class]) // Protection de route
     ->name('admin.')
     ->group(function () {
 
         // Tableau de Bord
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard'); // Les deux routes utilisent la même méthode
 
         // --- Utilisateurs ---
         Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
@@ -106,28 +138,77 @@ Route::prefix('admin')
         // --- Paramètres ---
         Route::get('/settings', [AdminController::class, 'settingsEdit'])->name('settings.edit');
         Route::put('/settings', [AdminController::class, 'settingsUpdate'])->name('settings.update');
-
     }); 
 
+// Routes pour formateurs
+Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->prefix('formateur')->group(function () {
+    // Tableau de bord principal
+    Route::get('/dashboard', [FormateurController::class, 'index'])->name('formateur.dashboard');
+    
+    // Gestion des cours
+    Route::get('/cours/creer', [FormateurController::class, 'createCourse'])->name('formateur.courses.create');
+    Route::post('/cours/creer', [FormateurController::class, 'storeCourse'])->name('formateur.courses.store');
+    Route::get('/cours/{courseId}/modifier', [FormateurController::class, 'editCourse'])->name('formateur.courses.edit');
+    Route::put('/cours/{courseId}/modifier', [FormateurController::class, 'updateCourse'])->name('formateur.courses.update');
+    Route::get('/cours/{courseId}/gerer', [FormateurController::class, 'manageCourse'])->name('formateur.manage.course');
+    Route::post('/cours/{courseId}/publier', [FormateurController::class, 'publishCourse'])->name('formateur.courses.publish');
+    
+    // Gestion des modules
+    Route::get('/cours/{courseId}/modules/creer', [FormateurController::class, 'createModule'])->name('formateur.modules.create');
+    Route::post('/cours/{courseId}/modules/creer', [FormateurController::class, 'storeModule'])->name('formateur.modules.store');
+    Route::get('/modules/{moduleId}/gerer', [FormateurController::class, 'manageModule'])->name('formateur.manage.module');
+    
+    // Gestion des leçons
+    Route::get('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'createLesson'])->name('formateur.lessons.create');
+    Route::post('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'storeLesson'])->name('formateur.lessons.store');
+    
+    // Gestion des quiz
+    Route::get('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'createQuiz'])->name('formateur.quizzes.create');
+    Route::post('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'storeQuiz'])->name('formateur.quizzes.store');
+    
+    // Gestion des étudiants et statistiques
+    Route::get('/cours/{courseId}/etudiants', [FormateurController::class, 'courseStudents'])->name('formateur.courses.students');
+    Route::get('/cours/{courseId}/evaluations', [FormateurController::class, 'courseRatings'])->name('formateur.courses.ratings');
+    Route::post('/cours/evaluations/{ratingId}/repondre', [FormateurController::class, 'replyToRating'])->name('formateur.courses.ratings.reply');
+    Route::get('/cours/{courseId}/revenus', [FormateurController::class, 'courseRevenues'])->name('formateur.courses.revenues');
+    Route::get('/cours/{courseId}/revenus/exporter', [FormateurController::class, 'exportRevenues'])->name('formateur.courses.revenues.export');
+});
+
+// Routes pour apprenants
+Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->prefix('apprenant')->group(function () {
+    // Tableau de bord
+    Route::get('/dashboard', [EtudiantController::class, 'index'])->name('apprenant.dashboard');
+    
+    // Profil
+    Route::get('/profile', [EtudiantController::class, 'showProfile'])->name('apprenant.profile');
+    Route::put('/profile', [EtudiantController::class, 'updateProfile'])->name('apprenant.profile.update');
+    
+    // Cours et leçons
+    Route::get('/course/{courseId}', [EtudiantController::class, 'accessCourse'])->name('apprenant.course.access');
+    Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])->name('apprenant.lesson');
+    Route::post('/lesson/{lessonId}/complete', [EtudiantController::class, 'completeLesson'])->name('apprenant.lesson.complete');
+    
+    // Certifications
+    Route::get('/certification/{certificationId}', [EtudiantController::class, 'downloadCertification'])->name('apprenant.certification.download');
+});
 
 Route::get('/apprenants', [EtudiantController::class, 'index']);
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::resource('etudiants', EtudiantController::class);
-// Route d'inscription classique
-Route::get('register', [RegisterUserController::class, 'showRegistrationForm'])->name('register');
-Route::post('register', [RegisterUserController::class, 'register']);
 
-// Routes pour les authentifications sociales
-Route::get('login/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('social.login');
-Route::get('login/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+// Les routes d'inscription classique sont maintenant gérées par Breeze (voir routes/auth.php)
+
+// Routes pour les authentifications sociales - nous utilisons la version dans le namespace Auth
+// Route::get('login/{provider}', [SocialAuthController::class, 'redirectToProvider'])->name('social.login');
+// Route::get('login/{provider}/callback', [SocialAuthController::class, 'handleProviderCallback']);
+
+// Pages diverses
 Route::get('/Contactez-nous', [CoursController::class, 'contact'])->name('pages.contact');
 Route::get('/les-cours-des-experts', [CoursController::class, 'coursE'])->name('pages.coursE');
 Route::get('/les-cours-des-intermédiaires', [CoursController::class, 'coursT'])->name('pages.coursT');
 Route::get('/les-cours-des-débutants', [CoursController::class, 'coursD'])->name('pages.coursD');
 Route::get('/courses/free', [CoursController::class, 'free'])->name('courses.free');
 Route::get('/courses/premium', [CoursController::class, 'premium'])->name('courses.premium');
-// Route::get('/cours/{slug}', [CoursController::class, 'show'])->name('courses.show');
 
 //les fonctionnalites 
 Route::get('/les-compétitions-disponibles', [CoursController::class, 'compdisp'])->name('pages.compdisp');
@@ -137,12 +218,14 @@ Route::get('/le-forum-des-experts', [CoursController::class, 'forumexp'])->name(
 Route::get('/le-forum-des-apprenants', [CoursController::class, 'forumapp'])->name('pages.forumapp');
 Route::get('/a-propos-de-AfriCode', [CoursController::class, 'apropos'])->name('pages.apropos');
 
+// Routes de profil (Breeze)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Routes paramétrages (Volt)
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

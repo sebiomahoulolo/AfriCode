@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AfriCode</title>
+    <title>Tableau de bord | AfriCode</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
@@ -206,49 +206,32 @@
                 </div>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link active" href="{{ route('apprenant.dashboard') }}">
                             <i class="fas fa-home me-2"></i> Tableau de bord
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-book me-2"></i> Mes formations
+                        <a class="nav-link" href="{{ route('courses.index') }}">
+                            <i class="fas fa-book me-2"></i> Catalogue de cours
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-tasks me-2"></i> Défis
+                        <a class="nav-link" href="{{ route('apprenant.profile') }}">
+                            <i class="fas fa-user me-2"></i> Mon profil
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-certificate me-2"></i> Certifications
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('pages.forumapp') }}">
                             <i class="fas fa-users me-2"></i> Communauté
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-briefcase me-2"></i> Carrière
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-book-open me-2"></i> Ressources
-                        </a>
-                    </li>
                     <li class="nav-item mt-4">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-cog me-2"></i> Paramètres
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-question-circle me-2"></i> Aide
-                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-light btn-sm w-100">
+                                <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
@@ -261,16 +244,24 @@
                     <div class="d-flex align-items-center">
                         <div class="position-relative me-3">
                             <i class="fas fa-bell fs-5"></i>
-                            <span class="badge rounded-pill bg-danger notification-badge">3</span>
-                        </div>
-                        <div class="me-3">
-                            <i class="fas fa-envelope fs-5"></i>
+                            <span class="badge rounded-pill bg-danger notification-badge">{{ $certifications->count() }}</span>
                         </div>
                         <div class="d-flex align-items-center">
-                            <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar me-2">
-                            <div>
-                                <span class="d-none d-md-inline">Kofi Mensah</span>
-                                <i class="fas fa-chevron-down ms-1 small"></i>
+                            <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" alt="User Avatar" class="avatar me-2">
+                            <div class="dropdown">
+                                <a class="dropdown-toggle text-decoration-none text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="d-none d-md-inline">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="{{ route('apprenant.profile') }}"><i class="fas fa-user me-2"></i> Mon profil</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}" class="dropdown-item p-0">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -281,21 +272,34 @@
                     <div class="col-md-4">
                         <div class="card h-100">
                             <div class="card-body text-center">
-                                <img src="https://via.placeholder.com/100" alt="Profile Picture" class="avatar-lg mb-3">
-                                <h5>Kofi Mensah</h5>
-                                <p class="text-muted">Développeur Web Junior</p>
+                                <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" alt="Profile Picture" class="avatar-lg mb-3">
+                                <h5>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h5>
+                                <p class="text-muted">{{ Auth::user()->title ?? 'Apprenant' }}</p>
                                 <div class="d-flex justify-content-center mb-3">
-                                    <span class="badge badge-custom badge-primary me-2">Niveau 4</span>
-                                    <span class="badge badge-custom badge-warning">1250 XP</span>
+                                    @php
+                                        // Calcul du niveau basé sur le nombre de cours complétés (à ajuster selon votre logique)
+                                        $completedCourses = $enrollments->where('completed_at', '!=', null)->count();
+                                        $level = max(1, min(10, ceil($completedCourses / 2)));
+                                        
+                                        // XP fictifs basés sur le nombre de leçons complétées (à ajuster selon votre logique)
+                                        $xp = $completedCourses * 100 + $certifications->count() * 250;
+                                    @endphp
+                                    <span class="badge badge-custom badge-primary me-2">Niveau {{ $level }}</span>
+                                    <span class="badge badge-custom badge-warning">{{ $xp }} XP</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <small>Progression globale</small>
-                                    <small>65%</small>
+                                    @php
+                                        $avgProgress = $enrollments->isEmpty() 
+                                            ? 0 
+                                            : $enrollments->avg('progress_percentage');
+                                    @endphp
+                                    <small>{{ round($avgProgress) }}%</small>
                                 </div>
                                 <div class="progress mb-4">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $avgProgress }}%" aria-valuenow="{{ $avgProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
-                                <button class="btn btn-outline-primary btn-sm">Modifier le profil</button>
+                                <a href="{{ route('apprenant.profile') }}" class="btn btn-outline-primary btn-sm">Modifier le profil</a>
                             </div>
                         </div>
                     </div>
@@ -307,48 +311,32 @@
                                 <a href="#" class="text-decoration-none">Voir tout</a>
                             </div>
                             <div class="card-body">
+                                @forelse($enrollments as $enrollment)
                                 <div class="mb-4">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <div>
-                                            <h6 class="mb-0">JavaScript : Programmation côté client</h6>
-                                            <small class="text-muted">4 semaines - 8 modules</small>
+                                            <h6 class="mb-0">{{ $enrollment->course->title }}</h6>
+                                            <small class="text-muted">{{ $enrollment->course->modules->count() }} modules - {{ $enrollment->course->getLessonsCount() }} leçons</small>
                                         </div>
-                                        <span class="badge badge-custom badge-primary">75%</span>
+                                        <span class="badge badge-custom badge-primary">{{ round($enrollment->progress_percentage) }}%</span>
                                     </div>
                                     <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $enrollment->progress_percentage }}%" aria-valuenow="{{ $enrollment->progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div>
-                                            <h6 class="mb-0">HTML & CSS : Les fondations</h6>
-                                            <small class="text-muted">3 semaines - 6 modules</small>
-                                        </div>
-                                        <span class="badge badge-custom badge-primary">90%</span>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 90%" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
+                                @empty
+                                <div class="text-center py-4">
+                                    <i class="fas fa-book-open fs-1 text-muted mb-3"></i>
+                                    <p>Vous n'êtes actuellement inscrit à aucun cours.</p>
+                                    <a href="{{ route('courses.index') }}" class="btn btn-primary btn-sm">Découvrir les cours</a>
                                 </div>
-                                
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div>
-                                            <h6 class="mb-0">Bootstrap : Framework CSS</h6>
-                                            <small class="text-muted">2 semaines - 4 modules</small>
-                                        </div>
-                                        <span class="badge badge-custom badge-primary">40%</span>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
+                                @endforelse
                             </div>
+                            @if($enrollments->isNotEmpty())
                             <div class="card-footer bg-white">
-                                <button class="btn btn-primary btn-sm">Continuer ma formation</button>
+                                <a href="{{ route('apprenant.course.access', ['courseId' => $enrollments->first()->course->id]) }}" class="btn btn-primary btn-sm">Continuer ma formation</a>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -361,8 +349,8 @@
                                 <i class="fas fa-book"></i>
                             </div>
                             <div>
-                                <p class="mb-0 text-muted">Cours complétés</p>
-                                <h3 class="mb-0">3</h3>
+                                <p class="mb-0 text-muted">Cours en cours</p>
+                                <h3 class="mb-0">{{ $enrollments->where('completed_at', null)->count() }}</h3>
                             </div>
                         </div>
                     </div>
@@ -373,29 +361,29 @@
                             </div>
                             <div>
                                 <p class="mb-0 text-muted">Certifications</p>
-                                <h3 class="mb-0">2</h3>
+                                <h3 class="mb-0">{{ $certifications->count() }}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card stat-card">
                             <div class="stat-icon stat-success">
-                                <i class="fas fa-medal"></i>
+                                <i class="fas fa-check-circle"></i>
                             </div>
                             <div>
-                                <p class="mb-0 text-muted">Badges obtenus</p>
-                                <h3 class="mb-0">12</h3>
+                                <p class="mb-0 text-muted">Cours complétés</p>
+                                <h3 class="mb-0">{{ $enrollments->where('completed_at', '!=', null)->count() }}</h3>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card stat-card">
                             <div class="stat-icon stat-info">
-                                <i class="fas fa-tasks"></i>
+                                <i class="fas fa-graduation-cap"></i>
                             </div>
                             <div>
-                                <p class="mb-0 text-muted">Défis réussis</p>
-                                <h3 class="mb-0">8</h3>
+                                <p class="mb-0 text-muted">Progression moyenne</p>
+                                <h3 class="mb-0">{{ $enrollments->avg('progress_percentage') > 0 ? round($enrollments->avg('progress_percentage')) : 0 }}%</h3>
                             </div>
                         </div>
                     </div>
@@ -476,34 +464,42 @@
                                 <span>Mes certifications</span>
                             </div>
                             <div class="card-body">
+                                @forelse($certifications as $certification)
                                 <div class="d-flex align-items-center mb-3 p-2 bg-light rounded">
                                     <i class="fas fa-certificate text-primary me-3 fs-4"></i>
-                                    <div>
-                                        <h6 class="mb-0">HTML & CSS : Les fondations</h6>
-                                        <small class="text-muted">Obtenue le 15/03/2025</small>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ $certification->course->title }}</h6>
+                                        <small class="text-muted">Obtenue le {{ $certification->issue_date->format('d/m/Y') }}</small>
                                     </div>
+                                    <a href="{{ route('apprenant.certification.download', ['certificationId' => $certification->id]) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-download"></i>
+                                    </a>
                                 </div>
-                                
-                                <div class="d-flex align-items-center mb-3 p-2 bg-light rounded">
-                                    <i class="fas fa-certificate text-primary me-3 fs-4"></i>
-                                    <div>
-                                        <h6 class="mb-0">Introduction au développement web</h6>
-                                        <small class="text-muted">Obtenue le 22/01/2025</small>
-                                    </div>
+                                @empty
+                                <div class="text-center py-4">
+                                    <i class="fas fa-certificate fs-1 text-muted mb-3"></i>
+                                    <p>Vous n'avez pas encore obtenu de certification.</p>
+                                    <p class="small text-muted">Complétez un cours à 100% pour obtenir une certification.</p>
                                 </div>
+                                @endforelse
                                 
+                                @if($enrollments->isNotEmpty() && $enrollments->where('progress_percentage', '>=', 50)->where('progress_percentage', '<', 100)->isNotEmpty())
                                 <div class="mt-4">
                                     <h6>Certifications à venir</h6>
-                                    <div class="d-flex align-items-center p-2 bg-light rounded opacity-75">
+                                    @foreach($enrollments->where('progress_percentage', '>=', 50)->where('progress_percentage', '<', 100)->take(2) as $nearCompletion)
+                                    <div class="d-flex align-items-center p-2 bg-light rounded opacity-75 mb-2">
                                         <i class="fas fa-certificate text-secondary me-3 fs-4"></i>
-                                        <div>
-                                            <h6 class="mb-0">JavaScript : Programmation côté client</h6>
+                                        <div class="w-100">
+                                            <h6 class="mb-0">{{ $nearCompletion->course->title }}</h6>
                                             <div class="progress mt-1" style="height: 5px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $nearCompletion->progress_percentage }}%" aria-valuenow="{{ $nearCompletion->progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
+                                            <small class="text-muted">{{ round($nearCompletion->progress_percentage) }}% complété</small>
                                         </div>
                                     </div>
+                                    @endforeach
                                 </div>
+                                @endif
                             </div>
                         </div>
                     </div>
