@@ -112,10 +112,26 @@ class CourseController extends Controller
      */
     public function show(string $slug)
     {
-        $course = Course::where('slug', $slug)
-            ->where('status', 'published')
-            ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
-            ->firstOrFail();
+        // Si l'utilisateur est connecté et formateur ou admin
+        if (auth()->check() && (auth()->user()->role === 'formateur' || auth()->user()->role === 'admin')) {
+            // Pour les formateurs et admins: permettre de voir tous les cours (même non publiés)
+            // Les formateurs ne peuvent voir que leurs propres cours non publiés
+            $course = Course::where('slug', $slug)
+                ->when(auth()->user()->role === 'formateur', function ($query) {
+                    return $query->where(function ($q) {
+                        $q->where('status', 'published')
+                        ->orWhere('formateur_id', auth()->id());
+                    });
+                })
+                ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
+                ->firstOrFail();
+        } else {
+            // Pour les utilisateurs normaux: seulement les cours publiés
+            $course = Course::where('slug', $slug)
+                ->where('status', 'published')
+                ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
+                ->firstOrFail();
+        }
             
         return view('courses.show', compact('course'));
     }

@@ -198,23 +198,40 @@
     ClassicEditor
         .create(document.querySelector('#full_description'))
         .catch(error => {
-            console.error(error);
+            console.error('Erreur CKEditor pour #full_description:', error);
         });
         
     // Handle learning objectives and prerequisites as JSON
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const learningObjectives = document.getElementById('learning_objectives').value
-            .split('\n')
-            .filter(line => line.trim() !== '')
-            .map(line => line.trim());
-            
-        const prerequisites = document.getElementById('prerequisites').value
-            .split('\n')
-            .filter(line => line.trim() !== '')
-            .map(line => line.trim());
-            
-        document.getElementById('learning_objectives').value = JSON.stringify(learningObjectives);
-        document.getElementById('prerequisites').value = JSON.stringify(prerequisites);
-    });
+    const courseForm = document.querySelector('form.course-form');
+    if (courseForm) {
+        courseForm.addEventListener('submit', function(e) {
+            try {
+                const learningObjectivesEl = document.getElementById('learning_objectives');
+                if (learningObjectivesEl) {
+                    const learningObjectives = learningObjectivesEl.value
+                        .split('\\n')
+                        .map(line => line.trim()) // Trim each line
+                        .filter(line => line !== ''); // Filter out empty lines
+                    learningObjectivesEl.value = JSON.stringify(learningObjectives);
+                }
+
+                const prerequisitesEl = document.getElementById('prerequisites');
+                if (prerequisitesEl) {
+                    const prerequisites = prerequisitesEl.value
+                        .split('\\n')
+                        .map(line => line.trim()) // Trim each line
+                        .filter(line => line !== ''); // Filter out empty lines
+                    prerequisitesEl.value = JSON.stringify(prerequisites);
+                }
+            } catch (error) {
+                console.error('Erreur lors de la préparation des données du formulaire (cours) avant soumission:', error);
+                // Décommentez les lignes suivantes pour empêcher la soumission et alerter en cas d'erreur critique
+                // e.preventDefault();
+                // alert('Une erreur est survenue lors de la préparation des données du formulaire. Veuillez vérifier la console.');
+            }
+        });
+    } else {
+        console.error('Le formulaire .course-form n\\'a pas été trouvé.');
+    }
 </script>
 @endsection

@@ -101,7 +101,7 @@
     </div>
     
     <!-- Course Actions -->
-    <div class="course-actions d-flex justify-content-between">
+    <div class="course-actions d-flex justify-content-between align-items-center">
         <div>
             <a href="{{ route('formateur.courses.edit', ['courseId' => $course->id]) }}" class="btn btn-primary">
                 <i class="fas fa-edit me-1"></i> Modifier le cours
@@ -115,10 +115,13 @@
             </form>
             @endif
         </div>
-        <div>
-            <a href="{{ route('courses.show', ['slug' => $course->slug]) }}" target="_blank" class="btn btn-outline-primary">
+        <div class="d-flex align-items-center">
+            <a href="{{ route('courses.show', ['slug' => $course->slug]) }}" target="_blank" class="btn btn-outline-primary me-2">
                 <i class="fas fa-eye me-1"></i> Voir comme étudiant
             </a>
+            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal">
+                <i class="fas fa-trash-alt me-1"></i> Supprimer le cours
+            </button>
         </div>
     </div>
     
@@ -227,6 +230,30 @@
                     @endforeach
                 </div>
             @endif
+        </div>
+    </div>
+    
+    <!-- Modal de confirmation de suppression -->
+    <div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-labelledby="deleteCourseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCourseModalLabel">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le cours "<strong>{{ $course->title }}</strong>" ?</p>
+                    <p class="text-danger"><strong>Attention :</strong> Cette action est irréversible et supprimera également tous les modules, leçons, quiz, inscriptions et évaluations associés à ce cours.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ route('formateur.courses.destroy', ['courseId' => $course->id]) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

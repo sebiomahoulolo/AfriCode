@@ -152,6 +152,7 @@ Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->pr
     Route::put('/cours/{courseId}/modifier', [FormateurController::class, 'updateCourse'])->name('formateur.courses.update');
     Route::get('/cours/{courseId}/gerer', [FormateurController::class, 'manageCourse'])->name('formateur.manage.course');
     Route::post('/cours/{courseId}/publier', [FormateurController::class, 'publishCourse'])->name('formateur.courses.publish');
+    Route::delete('/cours/{courseId}', [FormateurController::class, 'destroyCourse'])->name('formateur.courses.destroy');
     
     // Gestion des modules
     Route::get('/cours/{courseId}/modules/creer', [FormateurController::class, 'createModule'])->name('formateur.modules.create');
@@ -161,10 +162,16 @@ Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->pr
     // Gestion des leçons
     Route::get('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'createLesson'])->name('formateur.lessons.create');
     Route::post('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'storeLesson'])->name('formateur.lessons.store');
+    Route::get('/lecons/{lessonId}/editer', [FormateurController::class, 'editLesson'])->name('formateur.lessons.edit');
+    Route::put('/lecons/{lessonId}/editer', [FormateurController::class, 'updateLesson'])->name('formateur.lessons.update');
+    Route::delete('/lecons/{lessonId}', [FormateurController::class, 'destroyLesson'])->name('formateur.lessons.destroy');
     
     // Gestion des quiz
     Route::get('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'createQuiz'])->name('formateur.quizzes.create');
     Route::post('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'storeQuiz'])->name('formateur.quizzes.store');
+    Route::get('/quiz/{quizId}/editer', [FormateurController::class, 'editQuiz'])->name('formateur.quizzes.edit');
+    Route::put('/quiz/{quizId}/editer', [FormateurController::class, 'updateQuiz'])->name('formateur.quizzes.update');
+    Route::delete('/quiz/{quizId}', [FormateurController::class, 'destroyQuiz'])->name('formateur.quizzes.destroy');
     
     // Gestion des étudiants et statistiques
     Route::get('/cours/{courseId}/etudiants', [FormateurController::class, 'courseStudents'])->name('formateur.courses.students');

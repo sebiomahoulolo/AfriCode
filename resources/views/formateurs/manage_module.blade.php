@@ -104,10 +104,10 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button class="btn btn-sm btn-outline-primary me-2">
+                                    <a href="{{ route('formateur.lessons.edit', ['lessonId' => $lesson->id]) }}" class="btn btn-sm btn-outline-primary me-2">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteLesson{{ $lesson->id }}Modal">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -126,10 +126,10 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button class="btn btn-sm btn-outline-primary me-2">
+                                    <a href="{{ route('formateur.quizzes.edit', ['quizId' => $quiz->id]) }}" class="btn btn-sm btn-outline-primary me-2">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger">
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteQuiz{{ $quiz->id }}Modal">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>

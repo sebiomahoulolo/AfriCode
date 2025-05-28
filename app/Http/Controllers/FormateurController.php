@@ -47,7 +47,7 @@ class FormateurController extends Controller
             ->get();
             
         // Calculer les revenus totaux (si applicable)
-        $totalRevenue = Payment::where('payable_type', 'App\Models\Course')
+        $totalRevenue = Payment::where('payable_type', Course::class)
             ->whereIn('payable_id', $courses->pluck('id'))
             ->where('status', 'succeeded')
             ->sum('amount');
@@ -127,7 +127,7 @@ class FormateurController extends Controller
         // Récupérer les statistiques du cours
         $enrollmentsCount = Enrollment::where('course_id', $courseId)->count();
         $studentsCount = Enrollment::where('course_id', $courseId)->distinct('user_id')->count('user_id');
-        $revenue = Payment::where('payable_type', 'App\Models\Course')
+        $revenue = Payment::where('payable_type', Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
@@ -511,8 +511,8 @@ class FormateurController extends Controller
         try {
             // Créer le quiz
             $quiz = Quiz::create([
-                'quizzable_type' => 'App\Models\Module',
-                'quizzable_id' => $moduleId,
+                'related_type' => class_basename(Module::class), // Stocker uniquement le nom court de la classe au lieu du FQCN complet
+                'related_id' => $moduleId,
                 'title' => $request->title,
                 'description' => $request->description,
                 'passing_score' => $request->passing_score,
@@ -654,7 +654,7 @@ class FormateurController extends Controller
         }
         
         // Filtrer par période si nécessaire
-        $query = Payment::where('payable_type', 'App\Models\Course')
+        $query = Payment::where('payable_type', Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded');
             
@@ -669,13 +669,13 @@ class FormateurController extends Controller
             ->orderBy('paid_at', 'desc')
             ->paginate(15);
         
-        $totalRevenue = Payment::where('payable_type', 'App\Models\Course')
+        $totalRevenue = Payment::where('payable_type', Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
         
         // Regrouper les paiements par mois pour le graphique
-        $monthlyRevenues = Payment::where('payable_type', 'App\Models\Course')
+        $monthlyRevenues = Payment::where('payable_type', Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->selectRaw('DATE_FORMAT(paid_at, "%Y-%m") as month, SUM(amount) as total')
@@ -708,7 +708,7 @@ class FormateurController extends Controller
         }
         
         // Récupérer les données
-        $payments = Payment::where('payable_type', 'App\Models\Course')
+        $payments = Payment::where('payable_type', Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->with('user')
@@ -776,5 +776,406 @@ class FormateurController extends Controller
         
         return redirect()->route('formateur.courses.ratings', ['courseId' => $rating->course_id])
             ->with('success', 'Votre réponse a été publiée avec succès.');
+    }
+
+    /**
+     * Supprimer un cours.
+     *
+     * @param  int  $courseId
+     * @return \\Illuminate\\Http\\RedirectResponse
+     */
+    public function destroyCourse($courseId)
+    {
+        $user = Auth::user();
+        $course = Course::with(['modules.lessons', 'modules.quizzes.questions.answers', 'enrollments', 'ratings'])->findOrFail($courseId);
+
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à supprimer ce cours.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Supprimer l'image de couverture du cours
+            if ($course->cover_image_path && Storage::disk('public')->exists(str_replace('storage/', '', $course->cover_image_path))) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $course->cover_image_path));
+            }
+
+            // 2. Supprimer les modules, leçons, quiz, questions, réponses
+            foreach ($course->modules as $module) {
+                // Supprimer les leçons et leurs fichiers PDF associés
+                foreach ($module->lessons as $lesson) {
+                    if ($lesson->content_type === 'pdf' && $lesson->pdf_path && Storage::disk('public')->exists(str_replace('storage/', '', $lesson->pdf_path))) {
+                        Storage::disk('public')->delete(str_replace('storage/', '', $lesson->pdf_path));
+                    }
+                    $lesson->delete();
+                }
+
+                // Supprimer les quiz, questions et réponses
+                foreach ($module->quizzes as $quiz) {
+                    foreach ($quiz->questions as $question) {
+                        $question->answers()->delete(); // Supprime les réponses associées à la question
+                    }
+                    $quiz->questions()->delete(); // Supprime les questions associées au quiz
+                    $quiz->delete(); // Supprime le quiz
+                }
+                $module->delete(); // Supprime le module
+            }
+
+            // 3. Supprimer les inscriptions
+            $course->enrollments()->delete();
+
+            // 4. Supprimer les évaluations
+            $course->ratings()->delete();
+
+            // 5. Supprimer les paiements liés au cours
+            Payment::where('payable_type', Course::class)
+                   ->where('payable_id', $course->id)
+                   ->delete();
+
+            // 6. Supprimer le cours lui-même
+            $course->delete();
+
+            DB::commit();
+
+            return redirect()->route('formateur.dashboard')->with('success', 'Le cours et toutes ses données associées ont été supprimés avec succès.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Erreur lors de la suppression du cours {$courseId}: " . $e->getMessage());
+            return redirect()->route('formateur.dashboard')->with('error', 'Une erreur s\'est produite lors de la suppression du cours. Veuillez réessayer.');
+        }
+    }
+    
+    /**
+     * Afficher les détails d'une leçon pour édition
+     * 
+     * @param  int  $lessonId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editLesson($lessonId)
+    {
+        $user = Auth::user();
+        $lesson = Lesson::with(['module.course'])->findOrFail($lessonId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($lesson->module->course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier cette leçon');
+        }
+        
+        return view('formateurs.edit_lesson', compact('lesson'));
+    }
+    
+    /**
+     * Mettre à jour une leçon existante
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $lessonId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateLesson(Request $request, $lessonId)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content_type' => 'required|string|in:video,text,pdf,external',
+            'video_url' => 'nullable|string|required_if:content_type,video',
+            'text_content' => 'nullable|string|required_if:content_type,text',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:10240',
+            'external_url' => 'nullable|url|required_if:content_type,external',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'is_previewable' => 'nullable|boolean',
+        ]);
+        
+        $user = Auth::user();
+        $lesson = Lesson::with(['module.course'])->findOrFail($lessonId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($lesson->module->course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier cette leçon');
+        }
+        
+        // Gérer l'upload du fichier PDF si nécessaire
+        if ($request->content_type === 'pdf' && $request->hasFile('pdf_file')) {
+            // Supprimer l'ancien fichier PDF si existant
+            if ($lesson->pdf_path && Storage::disk('public')->exists(str_replace('storage/', '', $lesson->pdf_path))) {
+                Storage::disk('public')->delete(str_replace('storage/', '', $lesson->pdf_path));
+            }
+            
+            $pdf = $request->file('pdf_file');
+            $pdfName = time() . '_' . Str::slug($request->title) . '.' . $pdf->extension();
+            $pdf->move(public_path('storage/lessons'), $pdfName);
+            $lesson->pdf_path = 'storage/lessons/' . $pdfName;
+        }
+        
+        // Mettre à jour les informations de la leçon
+        $lesson->title = $request->title;
+        
+        // Ne mettre à jour le contenu que si le type ne change pas ou selon le nouveau type
+        if ($lesson->content_type === $request->content_type || $request->content_type === 'video') {
+            $lesson->video_url = $request->video_url;
+        }
+        
+        if ($lesson->content_type === $request->content_type || $request->content_type === 'text') {
+            $lesson->text_content = $request->text_content;
+        }
+        
+        if ($lesson->content_type === $request->content_type || $request->content_type === 'external') {
+            $lesson->external_url = $request->external_url;
+        }
+        
+        $lesson->content_type = $request->content_type;
+        $lesson->duration_minutes = $request->duration_minutes;
+        $lesson->is_previewable = $request->has('is_previewable');
+        $lesson->save();
+        
+        return redirect()->route('formateur.manage.module', ['moduleId' => $lesson->module_id])
+            ->with('success', 'La leçon a été mise à jour avec succès.');
+    }
+    
+    /**
+     * Supprimer une leçon
+     * 
+     * @param  int  $lessonId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyLesson($lessonId)
+    {
+        $user = Auth::user();
+        $lesson = Lesson::with(['module.course'])->findOrFail($lessonId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($lesson->module->course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à supprimer cette leçon');
+        }
+        
+        $moduleId = $lesson->module_id;
+        
+        // Supprimer le fichier PDF associé si existant
+        if ($lesson->content_type === 'pdf' && $lesson->pdf_path && Storage::disk('public')->exists(str_replace('storage/', '', $lesson->pdf_path))) {
+            Storage::disk('public')->delete(str_replace('storage/', '', $lesson->pdf_path));
+        }
+        
+        $lesson->delete();
+        
+        // Réorganiser l'ordre des leçons restantes
+        $remainingLessons = Lesson::where('module_id', $moduleId)
+            ->orderBy('order')
+            ->get();
+            
+        foreach ($remainingLessons as $index => $remainingLesson) {
+            $remainingLesson->order = $index + 1;
+            $remainingLesson->save();
+        }
+        
+        return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
+            ->with('success', 'La leçon a été supprimée avec succès.');
+    }
+    
+    /**
+     * Afficher les détails d'un quiz pour édition
+     * 
+     * @param  int  $quizId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editQuiz($quizId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers', 'related'])->findOrFail($quizId);
+        
+        // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
+        if ($quiz->related_type !== class_basename(Module::class)) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
+        }
+        
+        $module = Module::with('course')->find($quiz->related_id);
+        
+        if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier ce quiz');
+        }
+        
+        return view('formateurs.edit_quiz', compact('quiz', 'module'));
+    }
+    
+    /**
+     * Mettre à jour un quiz existant
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $quizId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateQuiz(Request $request, $quizId)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'passing_score' => 'required|integer|min:0|max:100',
+            'questions' => 'required|array|min:1',
+            'questions.*.id' => 'nullable|exists:questions,id',
+            'questions.*.text' => 'required|string',
+            'questions.*.answers' => 'required|array|min:2',
+            'questions.*.answers.*.id' => 'nullable|exists:answers,id',
+            'questions.*.answers.*.text' => 'required|string',
+            'questions.*.answers.*.is_correct' => 'required|boolean',
+        ]);
+        
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        
+        // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
+        if ($quiz->related_type !== class_basename(Module::class)) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
+        }
+        
+        $module = Module::with('course')->find($quiz->related_id);
+        
+        if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier ce quiz');
+        }
+        
+        // Mise à jour en transaction pour garantir la cohérence
+        DB::beginTransaction();
+        
+        try {
+            // Mettre à jour les informations du quiz
+            $quiz->title = $request->title;
+            $quiz->description = $request->description;
+            $quiz->passing_score = $request->passing_score;
+            $quiz->save();
+            
+            // Liste des IDs de questions à conserver
+            $questionIds = collect($request->questions)
+                ->filter(function ($q) {
+                    return !empty($q['id']);
+                })
+                ->pluck('id')
+                ->toArray();
+                
+            // Supprimer les questions qui ne sont plus dans la liste
+            foreach ($quiz->questions as $question) {
+                if (!in_array($question->id, $questionIds)) {
+                    // Supprimer d'abord les réponses
+                    $question->answers()->delete();
+                    // Puis la question
+                    $question->delete();
+                }
+            }
+            
+            // Mettre à jour ou créer les questions
+            foreach ($request->questions as $index => $questionData) {
+                if (!empty($questionData['id'])) {
+                    // Mise à jour d'une question existante
+                    $question = Question::find($questionData['id']);
+                    $question->text = $questionData['text'];
+                    $question->order = $index + 1;
+                    $question->save();
+                    
+                    // Liste des IDs de réponses à conserver pour cette question
+                    $answerIds = collect($questionData['answers'])
+                        ->filter(function ($a) {
+                            return !empty($a['id']);
+                        })
+                        ->pluck('id')
+                        ->toArray();
+                    
+                    // Supprimer les réponses qui ne sont plus dans la liste
+                    foreach ($question->answers as $answer) {
+                        if (!in_array($answer->id, $answerIds)) {
+                            $answer->delete();
+                        }
+                    }
+                    
+                    // Mettre à jour ou créer les réponses
+                    foreach ($questionData['answers'] as $answerData) {
+                        if (!empty($answerData['id'])) {
+                            // Mise à jour d'une réponse existante
+                            $answer = Answer::find($answerData['id']);
+                            $answer->text = $answerData['text'];
+                            $answer->is_correct = $answerData['is_correct'];
+                            $answer->save();
+                        } else {
+                            // Création d'une nouvelle réponse
+                            Answer::create([
+                                'question_id' => $question->id,
+                                'text' => $answerData['text'],
+                                'is_correct' => $answerData['is_correct'],
+                            ]);
+                        }
+                    }
+                } else {
+                    // Création d'une nouvelle question
+                    $question = Question::create([
+                        'quiz_id' => $quiz->id,
+                        'text' => $questionData['text'],
+                        'type' => 'multiple_choice',
+                        'order' => $index + 1,
+                    ]);
+                    
+                    // Créer les réponses pour cette question
+                    foreach ($questionData['answers'] as $answerData) {
+                        Answer::create([
+                            'question_id' => $question->id,
+                            'text' => $answerData['text'],
+                            'is_correct' => $answerData['is_correct'],
+                        ]);
+                    }
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('formateur.manage.module', ['moduleId' => $module->id])
+                ->with('success', 'Le quiz a été mis à jour avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Une erreur s\'est produite lors de la mise à jour du quiz. ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Supprimer un quiz et ses questions/réponses associées
+     * 
+     * @param  int  $quizId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyQuiz($quizId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        
+        // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
+        if ($quiz->related_type !== class_basename(Module::class)) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
+        }
+        
+        $module = Module::with('course')->find($quiz->related_id);
+        
+        if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à supprimer ce quiz');
+        }
+        
+        $moduleId = $module->id;
+        
+        DB::beginTransaction();
+        
+        try {
+            // Supprimer toutes les réponses aux questions
+            foreach ($quiz->questions as $question) {
+                $question->answers()->delete();
+            }
+            
+            // Supprimer toutes les questions
+            $quiz->questions()->delete();
+            
+            // Supprimer le quiz lui-même
+            $quiz->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
+                ->with('success', 'Le quiz a été supprimé avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Une erreur s\'est produite lors de la suppression du quiz. ' . $e->getMessage());
+        }
     }
 }
