@@ -100,15 +100,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Announcement::class);
     }
     
-    public function isFormateur() {
-        return $this->role === 'formateur';
+    public function notifications() {
+        return $this->hasMany(Notification::class);
     }
-    
-    public function isAdmin() {
+
+    // --- Role Checks ---
+    public function isAdmin()
+    {
         return $this->role === 'administrateur';
     }
-    
-    public function isApprenant() {
+
+    public function isFormateur()
+    {
+        return $this->role === 'formateur';
+    }
+
+    public function isApprenant()
+    {
         return $this->role === 'apprenant';
     }
     
