@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test du formulaire de leçon</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Test du formulaire de création de leçon</h2>
+        <p class="text-muted">Ce fichier teste uniquement la logique JavaScript de changement de type de contenu.</p>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="content_type" class="form-label">Type de contenu</label>
+                    <select class="form-select" id="content_type" name="content_type">
+                        <option value="">Sélectionner un type</option>
+                        <option value="video">Vidéo</option>
+                        <option value="text">Texte</option>
+                        <option value="pdf">PDF</option>
+                        <option value="external">Lien externe</option>
+                    </select>
+                </div>
+
+                <!-- Contenu de type Vidéo -->
+                <div id="video-content" class="content-section">
+                    <div class="card mb-3">
+                        <div class="card-header bg-danger text-white">
+                            <i class="fas fa-video me-2"></i> Contenu Vidéo
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="video_url" class="form-label">URL de la vidéo</label>
+                                <input type="url" class="form-control" id="video_url" name="video_url" placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+                            
+                            <div id="video-preview" style="display:none;">
+                                <label class="form-label">Aperçu de la vidéo:</label>
+                                <div class="ratio ratio-16x9">
+                                    <iframe id="video-iframe" src="" title="Aperçu de la vidéo" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenu de type Texte -->
+                <div id="text-content" class="content-section">
+                    <div class="card mb-3">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-file-alt me-2"></i> Contenu Texte
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="text_content" class="form-label">Contenu texte</label>
+                                <textarea class="form-control" id="text_content" name="text_content" rows="5" placeholder="Entrez le contenu de la leçon..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenu de type PDF -->
+                <div id="pdf-content" class="content-section">
+                    <div class="card mb-3">
+                        <div class="card-header bg-warning">
+                            <i class="fas fa-file-pdf me-2"></i> Document PDF
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="pdf_file" class="form-label">Fichier PDF</label>
+                                <input type="file" class="form-control" id="pdf_file" name="pdf_file" accept="application/pdf">
+                            </div>
+                            
+                            <div id="pdf-preview" style="display:none;">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Fichier PDF sélectionné</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-file-pdf fa-3x text-danger me-3"></i>
+                                            <div>
+                                                <h5 class="mb-1" id="pdf-filename">document.pdf</h5>
+                                                <div class="small text-muted" id="pdf-filesize">0 Ko</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contenu de type Lien externe -->
+                <div id="external-content" class="content-section">
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <i class="fas fa-external-link-alt me-2"></i> Lien externe
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="external_url" class="form-label">Lien externe</label>
+                                <input type="url" class="form-control" id="external_url" name="external_url" placeholder="https://...">
+                            </div>
+                            
+                            <div id="external-preview" style="display:none;">
+                                <label class="form-label">Aperçu du lien:</label>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="external-title">Titre de la page</h5>
+                                        <p class="card-text" id="external-description">Description du lien</p>
+                                        <div class="small text-muted" id="external-url-display"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <h5>Log de débogage:</h5>
+            <div id="debug-log" class="small bg-light p-3" style="height: 200px; overflow-y: auto; border: 1px solid #ccc;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction de debug
+        function debugLog(message) {
+            const debugDiv = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            debugLog('Script chargé et prêt');
+            
+            const contentTypeSelect = document.getElementById('content_type');
+            
+            // Configuration initiale - tout masqué
+            updateContentDisplay('');
+            
+            // Gestionnaire de changement du type de contenu
+            contentTypeSelect.addEventListener('change', function() {
+                const newType = this.value;
+                debugLog(`Changement du type de contenu vers: "${newType}"`);
+                updateContentDisplay(newType);
+            });
+            
+            function updateContentDisplay(contentType) {
+                debugLog(`Mise à jour de l'affichage pour le type: "${contentType}"`);
+                
+                const videoContent = document.getElementById('video-content');
+                const textContent = document.getElementById('text-content');
+                const pdfContent = document.getElementById('pdf-content');
+                const externalContent = document.getElementById('external-content');
+                
+                // Masquer tous les contenus
+                videoContent.style.display = 'none';
+                textContent.style.display = 'none';
+                pdfContent.style.display = 'none';
+                externalContent.style.display = 'none';
+                
+                debugLog('Tous les contenus masqués');
+                
+                // Afficher le contenu approprié
+                switch(contentType) {
+                    case 'video':
+                        videoContent.style.display = 'block';
+                        debugLog('✅ Contenu vidéo affiché');
+                        break;
+                    case 'text':
+                        textContent.style.display = 'block';
+                        debugLog('✅ Contenu texte affiché');
+                        break;
+                    case 'pdf':
+                        pdfContent.style.display = 'block';
+                        debugLog('✅ Contenu PDF affiché');
+                        break;
+                    case 'external':
+                        externalContent.style.display = 'block';
+                        debugLog('✅ Contenu lien externe affiché');
+                        break;
+                    default:
+                        if (contentType === '') {
+                            debugLog('Aucun type sélectionné - tous les contenus masqués');
+                        } else {
+                            debugLog(`⚠️ Type de contenu non reconnu: "${contentType}"`);
+                        }
+                }
+            }
+            
+            // Gestionnaires pour les prévisualisations
+            const videoUrlInput = document.getElementById('video_url');
+            if (videoUrlInput) {
+                videoUrlInput.addEventListener('input', function() {
+                    debugLog(`URL vidéo saisie: ${this.value}`);
+                    updateVideoPreview(this.value);
+                });
+            }
+            
+            const externalUrlInput = document.getElementById('external_url');
+            if (externalUrlInput) {
+                externalUrlInput.addEventListener('input', function() {
+                    debugLog(`URL externe saisie: ${this.value}`);
+                    updateExternalPreview(this.value);
+                });
+            }
+            
+            const pdfFileInput = document.getElementById('pdf_file');
+            if (pdfFileInput) {
+                pdfFileInput.addEventListener('change', function() {
+                    debugLog(`Fichier PDF sélectionné: ${this.files.length > 0 ? this.files[0].name : 'aucun'}`);
+                    updatePdfPreview(this);
+                });
+            }
+            
+            function updateVideoPreview(url) {
+                const videoPreview = document.getElementById('video-preview');
+                const videoIframe = document.getElementById('video-iframe');
+                
+                if (!url) {
+                    videoPreview.style.display = 'none';
+                    debugLog('Aperçu vidéo masqué (URL vide)');
+                    return;
+                }
+                
+                let embedUrl = '';
+                
+                // YouTube
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    const youtubeId = getYouTubeId(url);
+                    if (youtubeId) {
+                        embedUrl = 'https://www.youtube.com/embed/' + youtubeId;
+                        debugLog(`YouTube ID trouvé: ${youtubeId}`);
+                    }
+                } 
+                // Vimeo
+                else if (url.includes('vimeo.com')) {
+                    const vimeoId = getVimeoId(url);
+                    if (vimeoId) {
+                        embedUrl = 'https://player.vimeo.com/video/' + vimeoId;
+                        debugLog(`Vimeo ID trouvé: ${vimeoId}`);
+                    }
+                }
+                
+                if (embedUrl) {
+                    videoIframe.src = embedUrl;
+                    videoPreview.style.display = 'block';
+                    debugLog('✅ Aperçu vidéo affiché');
+                } else {
+                    videoPreview.style.display = 'none';
+                    debugLog('❌ URL vidéo non reconnue');
+                }
+            }
+            
+            function updateExternalPreview(url) {
+                const externalPreview = document.getElementById('external-preview');
+                const externalTitle = document.getElementById('external-title');
+                const externalDescription = document.getElementById('external-description');
+                const externalUrlDisplay = document.getElementById('external-url-display');
+                
+                if (!url) {
+                    externalPreview.style.display = 'none';
+                    debugLog('Aperçu lien externe masqué (URL vide)');
+                    return;
+                }
+                
+                externalUrlDisplay.textContent = url;
+                externalPreview.style.display = 'block';
+                
+                try {
+                    const domain = new URL(url).hostname;
+                    externalTitle.textContent = domain;
+                    externalDescription.textContent = "Lien vers une ressource externe sur " + domain;
+                    debugLog(`✅ Aperçu lien externe affiché pour: ${domain}`);
+                } catch (e) {
+                    externalTitle.textContent = "URL invalide";
+                    externalDescription.textContent = "Veuillez entrer une URL valide";
+                    debugLog('❌ URL externe invalide');
+                }
+            }
+            
+            function updatePdfPreview(input) {
+                const pdfPreview = document.getElementById('pdf-preview');
+                const pdfFilename = document.getElementById('pdf-filename');
+                const pdfFilesize = document.getElementById('pdf-filesize');
+                
+                if (!input.files || input.files.length === 0) {
+                    pdfPreview.style.display = 'none';
+                    debugLog('Aperçu PDF masqué (aucun fichier)');
+                    return;
+                }
+                
+                const file = input.files[0];
+                
+                if (file.type !== 'application/pdf') {
+                    debugLog('❌ Fichier non-PDF rejeté');
+                    return;
+                }
+                
+                pdfFilename.textContent = file.name;
+                pdfFilesize.textContent = formatFileSize(file.size);
+                pdfPreview.style.display = 'block';
+                debugLog(`✅ Aperçu PDF affiché: ${file.name}`);
+            }
+            
+            function getYouTubeId(url) {
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+            
+            function getVimeoId(url) {
+                let regExp = /(?:vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|video\/|)(\d+)(?:|\/\?))/;
+                let match = url.match(regExp);
+                
+                if (match && match[2]) {
+                    return match[2];
+                }
+                
+                regExp = /player\.vimeo\.com\/video\/(\d+)/;
+                match = url.match(regExp);
+                return match ? match[1] : null;
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' octets';
+                else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' Ko';
+                else return (bytes / 1048576).toFixed(2) + ' Mo';
+            }
+            
+            debugLog('Tous les gestionnaires d\'événements configurés');
+        });
+    </script>
+</body>
+</html>

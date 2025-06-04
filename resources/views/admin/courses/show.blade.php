@@ -120,7 +120,7 @@
                 
                 @php $moduleCount = $course->modules->count(); @endphp
                 
-                <div class="mb-3 d-flex align-items-center">
+                <div class="mb-3 d-flex justify-content-between align-items-center">
                     <div>
                         <span class="badge bg-primary me-2">{{ $moduleCount }} {{ \Illuminate\Support\Str::plural('module', $moduleCount) }}</span>
                         
@@ -136,6 +136,11 @@
                         <span class="badge bg-info me-2">{{ $lessonCount }} {{ \Illuminate\Support\Str::plural('leçon', $lessonCount) }}</span>
                         <span class="badge bg-warning">{{ $quizCount }} {{ \Illuminate\Support\Str::plural('quiz', $quizCount) }}</span>
                     </div>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModuleModal">
+                            <i class="fas fa-plus-circle"></i> Ajouter un module
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="accordion" id="moduleAccordion">
@@ -148,22 +153,56 @@
                             </h2>
                             <div id="collapse{{ $module->id }}" class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}" aria-labelledby="heading{{ $module->id }}" data-bs-parent="#moduleAccordion">
                                 <div class="accordion-body">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <div>
+                                            <p class="text-muted mb-1">{{ $module->description }}</p>
+                                        </div>
+                                        <div>
+                                            <a href="{{ route('admin.modules.edit', $module->id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                                <i class="fas fa-edit"></i> Modifier le module
+                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-plus"></i> Ajouter
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.lessons.create', ['module_id' => $module->id]) }}">
+                                                            <i class="fas fa-book-open me-2"></i> Leçon
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('admin.quizzes.create', ['module_id' => $module->id]) }}">
+                                                            <i class="fas fa-question-circle me-2"></i> Quiz
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="list-group">
                                         @foreach($module->lessons as $lesson)
                                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <i class="fas fa-book-open me-2 text-info"></i>
-                                                    <span>{{ $lesson->title }}</span>
+                                                    <a href="{{ route('admin.lessons.show', $lesson->id) }}">
+                                                        {{ $lesson->title }}
+                                                    </a>
                                                 </div>
-                                                <span class="badge bg-light text-dark">
-                                                    @if($lesson->type === 'video')
-                                                        <i class="fas fa-video me-1"></i> Vidéo
-                                                    @elseif($lesson->type === 'pdf')
-                                                        <i class="fas fa-file-pdf me-1"></i> PDF
-                                                    @elseif($lesson->type === 'text')
-                                                        <i class="fas fa-file-alt me-1"></i> Texte
-                                                    @endif
-                                                </span>
+                                                <div>
+                                                    <span class="badge bg-light text-dark me-2">
+                                                        @if($lesson->type === 'video')
+                                                            <i class="fas fa-video me-1"></i> Vidéo
+                                                        @elseif($lesson->type === 'pdf')
+                                                            <i class="fas fa-file-pdf me-1"></i> PDF
+                                                        @elseif($lesson->type === 'text')
+                                                            <i class="fas fa-file-alt me-1"></i> Texte
+                                                        @endif
+                                                    </span>
+                                                    <a href="{{ route('admin.lessons.edit', $lesson->id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endforeach
                                         
@@ -171,11 +210,18 @@
                                             <div class="list-group-item d-flex justify-content-between align-items-center">
                                                 <div>
                                                     <i class="fas fa-question-circle me-2 text-warning"></i>
-                                                    <span>{{ $quiz->title }}</span>
+                                                    <a href="{{ route('admin.quizzes.show', $quiz->id) }}">
+                                                        {{ $quiz->title }}
+                                                    </a>
                                                 </div>
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="fas fa-tasks me-1"></i> Quiz
-                                                </span>
+                                                <div>
+                                                    <span class="badge bg-warning text-dark me-2">
+                                                        <i class="fas fa-tasks me-1"></i> Quiz
+                                                    </span>
+                                                    <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -292,4 +338,39 @@
         </div>
     </div>
 </div>
+
+<!-- Modal pour ajouter un module -->
+<div class="modal fade" id="addModuleModal" tabindex="-1" aria-labelledby="addModuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addModuleModalLabel">Ajouter un nouveau module</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <form action="{{ route('admin.modules.store') }}" method="POST">
+                @csrf
+                <input type="hidden" name="course_id" value="{{ $course->id }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="module-title" class="form-label">Titre du module</label>
+                        <input type="text" class="form-control" id="module-title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="module-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="module-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="module-order" class="form-label">Ordre</label>
+                        <input type="number" class="form-control" id="module-order" name="order" value="{{ $course->modules->count() + 1 }}" min="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter le module</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EtudiantController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -91,6 +92,35 @@ Route::prefix('admin')
         Route::get('/courses/{course}/edit', [AdminController::class, 'coursesEdit'])->name('courses.edit');
         Route::put('/courses/{course}', [AdminController::class, 'coursesUpdate'])->name('courses.update');
         Route::delete('/courses/{course}', [AdminController::class, 'coursesDestroy'])->name('courses.destroy');
+        
+        // --- Modules ---
+        Route::post('/modules', [AdminController::class, 'modulesStore'])->name('modules.store');
+        Route::get('/modules/{module}/edit', [AdminController::class, 'modulesEdit'])->name('modules.edit');
+        Route::put('/modules/{module}', [AdminController::class, 'modulesUpdate'])->name('modules.update');
+        Route::delete('/modules/{module}', [AdminController::class, 'modulesDestroy'])->name('modules.destroy');
+        
+        // --- Leçons ---
+        Route::get('/lessons/create', [AdminController::class, 'lessonsCreate'])->name('lessons.create');
+        Route::post('/lessons', [AdminController::class, 'lessonsStore'])->name('lessons.store');
+        Route::get('/lessons/{lesson}', [AdminController::class, 'lessonsShow'])->name('lessons.show');
+        Route::get('/lessons/{lesson}/edit', [AdminController::class, 'lessonsEdit'])->name('lessons.edit');
+        Route::put('/lessons/{lesson}', [AdminController::class, 'lessonsUpdate'])->name('lessons.update');
+        Route::delete('/lessons/{lesson}', [AdminController::class, 'lessonsDestroy'])->name('lessons.destroy');
+        
+        // --- Quiz ---
+        Route::get('/quizzes/create', [AdminController::class, 'quizzesCreate'])->name('quizzes.create');
+        Route::post('/quizzes', [AdminController::class, 'quizzesStore'])->name('quizzes.store');
+        Route::get('/quizzes/{quiz}', [AdminController::class, 'quizzesShow'])->name('quizzes.show');
+        Route::get('/quizzes/{quiz}/edit', [AdminController::class, 'quizzesEdit'])->name('quizzes.edit');
+        Route::put('/quizzes/{quiz}', [AdminController::class, 'quizzesUpdate'])->name('quizzes.update');
+        Route::delete('/quizzes/{quiz}', [AdminController::class, 'quizzesDestroy'])->name('quizzes.destroy');
+        Route::get('/quizzes/{quiz}/questions/create', [AdminController::class, 'quizQuestionsCreate'])->name('quiz.questions.create');
+        Route::post('/quizzes/{quiz}/questions', [AdminController::class, 'quizQuestionsStore'])->name('quiz.questions.store');
+        
+        // --- Questions du Quiz ---
+        Route::get('/questions/{question}/edit', [AdminController::class, 'questionEdit'])->name('questions.edit');
+        Route::put('/questions/{question}', [AdminController::class, 'questionUpdate'])->name('questions.update');
+        Route::delete('/questions/{question}', [AdminController::class, 'questionDestroy'])->name('questions.destroy');
 
         // --- Certifications ---
         Route::get('/certifications', [AdminController::class, 'certificationsIndex'])->name('certifications.index');
@@ -134,6 +164,9 @@ Route::prefix('admin')
         Route::post('/notifications/mark-all-read', [AdminController::class, 'notificationsMarkAllRead'])->name('notifications.markAllRead');
         Route::patch('/notifications/{notification}/mark-read', [AdminController::class, 'notificationsMarkRead'])->name('notifications.markRead');
         Route::delete('/notifications/{notification}', [AdminController::class, 'notificationsDestroy'])->name('notifications.destroy');
+        
+        // --- Upload d'images pour TinyMCE ---
+        Route::post('/upload/image', [AdminImageController::class, 'upload'])->name('admin.upload.image');
 
         // --- Paramètres ---
         Route::get('/settings', [AdminController::class, 'settingsEdit'])->name('settings.edit');

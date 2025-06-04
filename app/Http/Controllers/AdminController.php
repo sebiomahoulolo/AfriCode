@@ -16,6 +16,11 @@ use App\Models\Message;
 use App\Models\Event;
 use App\Models\Task;
 use App\Models\Notification;
+use App\Models\Category;
+use App\Models\Question;
+use App\Models\Quiz;
+use App\Models\Module;
+use App\Models\Lesson;
 use App\Services\NotificationService;
 
 class AdminController extends Controller
@@ -279,7 +284,9 @@ class AdminController extends Controller
 
     public function coursesCreate()
     {
-         return view('admin.courses.create');
+         $categories = Category::all();
+         $instructors = User::where('role', 'formateur')->get();
+         return view('admin.courses.create', compact('categories', 'instructors'));
     }
 
     public function coursesStore(Request $request)
@@ -289,7 +296,7 @@ class AdminController extends Controller
             'description' => 'required|string',
             'slug' => 'required|string|unique:courses,slug',
             'price' => 'required|numeric|min:0',
-            'level' => 'required|in:beginner,intermediate,advanced',
+            'level' => 'required|in:debutant,intermediaire,avance,expert',
             'category_id' => 'required|exists:categories,id',
             'formateur_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,published',
@@ -331,7 +338,9 @@ class AdminController extends Controller
 
     public function coursesEdit(Course $course)
     {
-         return view('admin.courses.edit', compact('course'));
+         $categories = Category::all();
+         $instructors = User::where('role', 'formateur')->get();
+         return view('admin.courses.edit', compact('course', 'categories', 'instructors'));
     }
 
     public function coursesUpdate(Request $request, Course $course)
@@ -341,7 +350,7 @@ class AdminController extends Controller
             'description' => 'required|string',
             'slug' => 'required|string|unique:courses,slug,' . $course->id,
             'price' => 'required|numeric|min:0',
-            'level' => 'required|in:beginner,intermediate,advanced',
+            'level' => 'required|in:debutant,intermediaire,avance,expert',
             'category_id' => 'required|exists:categories,id',
             'formateur_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,published',
@@ -783,5 +792,685 @@ class AdminController extends Controller
         return redirect()->back()
             ->withInput()
             ->with('error', "Une erreur est survenue lors de {$actionVerb} {$modelLabel}. Veuillez réessayer.");
+    }
+    
+    /**
+     * Show the form for editing a quiz question.
+     * 
+     * @param  \App\Models\Question  $question
+     * @return \Illuminate\View\View
+     */
+    public function questionEdit(Question $question)
+    {
+        // Get related quiz
+        $quiz = $question->quiz;
+        
+        // Determine the parent module/course
+        $module = null;
+        $course = null;
+        
+        if ($quiz->related_type === 'App\Models\Module' || $quiz->related_type === 'Module') {
+            $module = \App\Models\Module::find($quiz->related_id);
+            if ($module) {
+                $course = $module->course;
+            }
+        }
+        
+        // Check if answers exist for this question
+        $answers = $question->answers;
+        
+        return view('admin.quizzes.questions.edit', compact('question', 'quiz', 'module', 'course', 'answers'));
+    }
+
+    /**
+     * Update a quiz question.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Question  $question
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function questionUpdate(Request $request, Question $question)
+    {
+        $validated = $request->validate([
+            'question' => 'required|string',
+            'type' => 'required|in:multiple_choice,true_false,short_answer',
+            'options' => 'required_if:type,multiple_choice|array',
+            'correct_answer' => 'required|string',
+            'points' => 'nullable|integer|min:1',
+            'explanation' => 'nullable|string',
+        ]);
+        
+        try {
+            $question->text = $validated['question']; // Map 'question' field to 'text' column
+            $question->type = $validated['type'];
+            
+            if ($validated['type'] === 'multiple_choice') {
+                $question->options = json_encode($validated['options']);
+            } elseif ($validated['type'] === 'true_false') {
+                $question->options = json_encode(['true', 'false']);
+            } else {
+                $question->options = null;
+            }
+            
+            $question->correct_answer = $validated['correct_answer'];
+            $question->points = $validated['points'] ?? 1;
+            $question->explanation = $validated['explanation'] ?? null;
+            $question->save();
+            
+            // Get quiz for redirect
+            $quiz = $question->quiz;
+            
+            // Create notification
+            NotificationService::userAction('updated', 'question', substr($question->text, 0, 30) . '...', [
+                'model_id' => $question->id,
+                'action_url' => route('admin.quizzes.edit', $quiz->id),
+                'action_text' => 'Voir le quiz',
+                'icon' => 'question',
+                'color' => 'info'
+            ]);
+            
+            return redirect()->route('admin.quizzes.edit', $quiz->id)
+                ->with('success', 'Question mise à jour avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'updated', 'question', substr($validated['text'], 0, 30) . '...');
+        }
+    }
+    
+    /**
+     * Remove a quiz question.
+     * 
+     * @param  \App\Models\Question  $question
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function questionDestroy(Question $question)
+    {
+        try {
+            $quiz = $question->quiz;
+            $title = substr($question->text, 0, 30) . '...';
+            
+            // Delete the question
+            $question->delete();
+            
+            // Create notification
+            NotificationService::userAction('deleted', 'question', $title, [
+                'action_url' => route('admin.quizzes.edit', $quiz->id),
+                'action_text' => 'Voir le quiz',
+                'icon' => 'trash',
+                'color' => 'danger'
+            ]);
+            
+            return redirect()->route('admin.quizzes.edit', $quiz->id)
+                ->with('success', 'Question supprimée avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'deleted', 'question', substr($question->text, 0, 30) . '...');
+        }
+    }
+    
+    /**
+     * Store a newly created quiz.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function quizzesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'related_type' => 'required|string',
+            'related_id' => 'required|integer',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'passing_score' => 'nullable|integer|min:0|max:100',
+            'time_limit' => 'nullable|integer|min:0',
+            'is_required' => 'nullable|boolean',
+        ]);
+        
+        try {
+            $quiz = new Quiz();
+            $quiz->related_type = $validated['related_type'];
+            $quiz->related_id = $validated['related_id'];
+            $quiz->title = $validated['title'];
+            $quiz->description = $validated['description'] ?? '';
+            $quiz->passing_score = $validated['passing_score'] ?? 70;
+            $quiz->time_limit = $validated['time_limit'] ?? null;
+            $quiz->is_required = $request->has('is_required');
+            $quiz->save();
+            
+            // Get module for redirect
+            $module = \App\Models\Module::findOrFail($validated['module_id']);
+            
+            // Create notification
+            NotificationService::userAction('created', 'quiz', $quiz->title, [
+                'model_id' => $quiz->id,
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'question-circle',
+                'color' => 'success'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Quiz créé avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'created', 'quiz', $validated['title']);
+        }
+    }
+    
+    /**
+     * Show the form for editing the specified quiz.
+     * 
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\View\View
+     */
+    public function quizzesEdit(Quiz $quiz)
+    {
+        $module = null;
+        
+        // Determine the parent module/course
+        if ($quiz->related_type === 'App\Models\Module') {
+            $module = \App\Models\Module::find($quiz->related_id);
+            $course = $module ? $module->course : null;
+        }
+        
+        return view('admin.quizzes.edit', compact('quiz', 'module', 'course'));
+    }
+    
+    /**
+     * Update the specified quiz.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function quizzesUpdate(Request $request, Quiz $quiz)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'passing_score' => 'nullable|integer|min:0|max:100',
+            'time_limit' => 'nullable|integer|min:0',
+            'is_required' => 'nullable|boolean',
+        ]);
+        
+        try {
+            $quiz->title = $validated['title'];
+            $quiz->description = $validated['description'] ?? '';
+            $quiz->passing_score = $validated['passing_score'] ?? 70;
+            $quiz->time_limit = $validated['time_limit'] ?? null;
+            $quiz->is_required = $request->has('is_required');
+            $quiz->save();
+            
+            // Get related module for redirect
+            $module = null;
+            if ($quiz->related_type === 'App\Models\Module') {
+                $module = \App\Models\Module::find($quiz->related_id);
+            }
+            
+            // Create notification
+            NotificationService::userAction('updated', 'quiz', $quiz->title, [
+                'model_id' => $quiz->id,
+                'action_url' => $module ? route('admin.courses.show', $module->course_id) : route('admin.dashboard'),
+                'action_text' => $module ? 'Voir le cours' : 'Dashboard',
+                'icon' => 'question-circle',
+                'color' => 'info'
+            ]);
+            
+            return redirect()->route($module ? 'admin.courses.show' : 'admin.dashboard', $module ? $module->course_id : null)
+                ->with('success', 'Quiz mis à jour avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'updated', 'quiz', $quiz->title);
+        }
+    }
+    
+    /**
+     * Remove the specified quiz.
+     * 
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function quizzesDestroy(Quiz $quiz)
+    {
+        try {
+            $title = $quiz->title;
+            
+            // Get related module for redirect
+            $module = null;
+            if ($quiz->related_type === 'App\Models\Module') {
+                $module = \App\Models\Module::find($quiz->related_id);
+            }
+            
+            // Delete the quiz and its questions
+            $quiz->questions()->delete();
+            $quiz->delete();
+            
+            // Create notification
+            NotificationService::userAction('deleted', 'quiz', $title, [
+                'action_url' => $module ? route('admin.courses.show', $module->course_id) : route('admin.dashboard'),
+                'action_text' => $module ? 'Voir le cours' : 'Dashboard',
+                'icon' => 'trash',
+                'color' => 'danger'
+            ]);
+            
+            return redirect()->route($module ? 'admin.courses.show' : 'admin.dashboard', $module ? $module->course_id : null)
+                ->with('success', 'Quiz supprimé avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'deleted', 'quiz', $quiz->title);
+        }
+    }
+    
+    /**
+     * Show the form for creating questions for a quiz.
+     * 
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\View\View
+     */
+    public function quizQuestionsCreate(Quiz $quiz)
+    {
+        return view('admin.quizzes.questions.create', compact('quiz'));
+    }
+    
+    /**
+     * Store a newly created quiz question.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Quiz  $quiz
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function quizQuestionsStore(Request $request, Quiz $quiz)
+    {
+        $validated = $request->validate([
+            'question' => 'required|string',
+            'type' => 'required|in:multiple_choice,true_false,short_answer',
+            'options' => 'required_if:type,multiple_choice|array',
+            'correct_answer' => 'required|string',
+            'points' => 'nullable|integer|min:1',
+            'explanation' => 'nullable|string',
+        ]);
+        
+        try {
+            $question = new Question();
+            $question->quiz_id = $quiz->id;
+            $question->text = $validated['question']; // Utilise text au lieu de question
+            $question->type = $validated['type'];
+            
+            if ($validated['type'] === 'multiple_choice') {
+                $question->options = json_encode($validated['options']);
+            } elseif ($validated['type'] === 'true_false') {
+                $question->options = json_encode(['true', 'false']);
+            }
+            
+            $question->correct_answer = $validated['correct_answer'];
+            $question->points = $validated['points'] ?? 1;
+            $question->explanation = $validated['explanation'] ?? null;
+            $question->save();
+            
+            // Get related module for redirect
+            $module = null;
+            if ($quiz->related_type === 'App\Models\Module') {
+                $module = \App\Models\Module::find($quiz->related_id);
+            }
+            
+            return redirect()->route('admin.quizzes.edit', $quiz->id)
+                ->with('success', 'Question ajoutée avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'created', 'question', $validated['question']);
+        }
+    }
+    
+    /**
+     * Show the form for editing the specified module.
+     * 
+     * @param  \App\Models\Module  $module
+     * @return \Illuminate\View\View
+     */
+    public function modulesEdit(Module $module)
+    {
+        $course = $module->course;
+        return view('admin.modules.edit', compact('module', 'course'));
+    }
+    
+    /**
+     * Update the specified module.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Module  $module
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function modulesUpdate(Request $request, Module $module)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer|min:1',
+        ]);
+        
+        try {
+            $module->update($validated);
+            
+            // Create notification
+            NotificationService::userAction('updated', 'module', $module->title, [
+                'model_id' => $module->id,
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'book',
+                'color' => 'info'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Module mis à jour avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'updated', 'module', $module->title);
+        }
+    }
+    
+    /**
+     * Store a newly created module.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function modulesStore(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer|min:1',
+        ]);
+        
+        try {
+            $module = Module::create($validated);
+            
+            // Create notification
+            NotificationService::userAction('created', 'module', $module->title, [
+                'model_id' => $module->id,
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'book',
+                'color' => 'success'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Module ajouté avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'created', 'module', $validated['title']);
+        }
+    }
+    
+    /**
+     * Remove the specified module.
+     * 
+     * @param  \App\Models\Module  $module
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function modulesDestroy(Module $module)
+    {
+        try {
+            $courseId = $module->course_id;
+            $title = $module->title;
+            
+            // Delete all lessons and quizzes associated with this module
+            foreach ($module->lessons as $lesson) {
+                if ($lesson->type === 'pdf' && \Illuminate\Support\Facades\Storage::disk('public')->exists($lesson->content)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->content);
+                }
+                $lesson->delete();
+            }
+            
+            // Delete all quizzes
+            $module->quizzes()->delete();
+            
+            // Delete the module
+            $module->delete();
+            
+            // Create notification
+            NotificationService::userAction('deleted', 'module', $title, [
+                'action_url' => route('admin.courses.show', $courseId),
+                'action_text' => 'Voir le cours',
+                'icon' => 'trash',
+                'color' => 'danger'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $courseId)
+                ->with('success', 'Module supprimé avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'deleted', 'module', $module->title);
+        }
+    }
+    
+    /**
+     * Show the form for editing the specified lesson.
+     * 
+     * @param  \App\Models\Lesson  $lesson
+     * @return \Illuminate\View\View
+     */
+    public function lessonsEdit(Lesson $lesson)
+    {
+        $module = $lesson->module;
+        $course = $module->course;
+        return view('admin.lessons.edit', compact('lesson', 'module', 'course'));
+    }
+    
+    /**
+     * Update the specified lesson.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Lesson  $lesson
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function lessonsUpdate(Request $request, Lesson $lesson)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content_type' => 'required|in:video,text,pdf,external',
+            'order' => 'nullable|integer|min:1',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'video_url' => 'nullable|required_if:content_type,video|url',
+            'text_content' => 'nullable|required_if:content_type,text|string',
+            'pdf_file' => 'nullable|file|mimes:pdf|max:10240',
+            'external_url' => 'nullable|required_if:content_type,external|url',
+            'is_previewable' => 'nullable|boolean',
+        ]);
+        
+        try {
+            $lesson->title = $validated['title'];
+            $lesson->content_type = $validated['content_type'];
+            $lesson->order = $validated['order'] ?? $lesson->order;
+            $lesson->duration_minutes = $validated['duration_minutes'] ?? $lesson->duration_minutes;
+            $lesson->is_previewable = $request->has('is_previewable');
+            
+            // Handle content based on type
+            if ($validated['content_type'] === 'video') {
+                $lesson->video_url = $validated['video_url'];
+                $lesson->text_content = null;
+                $lesson->pdf_path = null;
+                $lesson->external_url = null;
+            } elseif ($validated['content_type'] === 'text') {
+                $lesson->video_url = null;
+                $lesson->text_content = $validated['text_content'];
+                $lesson->pdf_path = null;
+                $lesson->external_url = null;
+            } elseif ($validated['content_type'] === 'pdf') {
+                if ($request->hasFile('pdf_file')) {
+                    // Delete old file if exists
+                    if ($lesson->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($lesson->pdf_path)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->pdf_path);
+                    }
+                    $path = $request->file('pdf_file')->store('lesson_pdfs', 'public');
+                    $lesson->pdf_path = $path;
+                }
+                $lesson->video_url = null;
+                $lesson->text_content = null;
+                $lesson->external_url = null;
+            } elseif ($validated['content_type'] === 'external') {
+                $lesson->video_url = null;
+                $lesson->text_content = null;
+                $lesson->pdf_path = null;
+                $lesson->external_url = $validated['external_url'];
+            }
+            
+            $lesson->save();
+            
+            // Get module and course for redirect
+            $module = $lesson->module;
+            
+            // Create notification
+            NotificationService::userAction('updated', 'lesson', $lesson->title, [
+                'model_id' => $lesson->id,
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'book-open',
+                'color' => 'info'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Leçon mise à jour avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'updated', 'lesson', $lesson->title);
+        }
+    }
+    
+    /**
+     * Remove the specified lesson.
+     * 
+     * @param  \App\Models\Lesson  $lesson
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function lessonsDestroy(Lesson $lesson)
+    {
+        try {
+            $module = $lesson->module;
+            $title = $lesson->title;
+            
+            // Delete PDF file if exists
+            if ($lesson->content_type === 'pdf' && $lesson->pdf_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($lesson->pdf_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($lesson->pdf_path);
+            }
+            
+            // Delete any related resources if needed
+            foreach ($lesson->resources as $resource) {
+                // Delete file if it's stored on the server
+                if ($resource->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($resource->file_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($resource->file_path);
+                }
+                // Delete the resource
+                $resource->delete();
+            }
+            
+            // Delete the lesson
+            $lesson->delete();
+            
+            // Create notification
+            NotificationService::userAction('deleted', 'lesson', $title, [
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'trash',
+                'color' => 'danger'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Leçon supprimée avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'deleted', 'lesson', $lesson->title);
+        }
+    }
+    
+    /**
+     * Store a newly created lesson.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    /**
+     * Display the specified lesson.
+     * 
+     * @param  \App\Models\Lesson  $lesson
+     * @return \Illuminate\View\View
+     */
+    public function lessonsShow(Lesson $lesson)
+    {
+        $module = $lesson->module;
+        $course = $module->course;
+        $resources = $lesson->resources;
+        
+        return view('admin.lessons.show', compact('lesson', 'module', 'course', 'resources'));
+    }
+    
+    /**
+     * Display the form to create a new lesson.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function lessonsCreate(Request $request)
+    {
+        $moduleId = $request->module_id;
+        $module = Module::findOrFail($moduleId);
+        $course = $module->course;
+        
+        return view('admin.lessons.create', compact('module', 'course'));
+    }
+    
+    /**
+     * Store a newly created lesson.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function lessonsStore(Request $request)
+    {
+        $validated = $request->validate([
+            'module_id' => 'required|exists:modules,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'content_type' => 'required|in:video,text,pdf,external',
+            'order' => 'nullable|integer|min:1',
+            'duration_minutes' => 'nullable|integer|min:1',
+            'video_url' => 'nullable|required_if:content_type,video|url',
+            'text_content' => 'nullable|required_if:content_type,text|string',
+            'pdf_file' => 'nullable|required_if:content_type,pdf|file|mimes:pdf|max:10240',
+            'external_url' => 'nullable|required_if:content_type,external|url',
+            'is_previewable' => 'nullable|boolean',
+        ]);
+        
+        try {
+            $lesson = new Lesson();
+            $lesson->module_id = $validated['module_id'];
+            $lesson->title = $validated['title'];
+            $lesson->content_type = $validated['content_type'];
+            $lesson->order = $validated['order'] ?? Lesson::where('module_id', $validated['module_id'])->max('order') + 1;
+            $lesson->duration_minutes = $validated['duration_minutes'] ?? null;
+            $lesson->is_previewable = $request->has('is_previewable');
+            
+            // Handle content based on type
+            if ($validated['content_type'] === 'video') {
+                $lesson->video_url = $validated['video_url'];
+            } elseif ($validated['content_type'] === 'text') {
+                $lesson->text_content = $validated['text_content'];
+            } elseif ($validated['content_type'] === 'pdf' && $request->hasFile('pdf_file')) {
+                $path = $request->file('pdf_file')->store('lesson_pdfs', 'public');
+                $lesson->pdf_path = $path;
+            } elseif ($validated['content_type'] === 'external') {
+                $lesson->external_url = $validated['external_url'];
+            }
+            
+            $lesson->save();
+            
+            // Get module to access course
+            $module = Module::findOrFail($validated['module_id']);
+            
+            // Create notification
+            NotificationService::userAction('created', 'lesson', $lesson->title, [
+                'model_id' => $lesson->id,
+                'action_url' => route('admin.courses.show', $module->course_id),
+                'action_text' => 'Voir le cours',
+                'icon' => 'book-open',
+                'color' => 'success'
+            ]);
+            
+            return redirect()->route('admin.courses.show', $module->course_id)
+                ->with('success', 'Leçon ajoutée avec succès !');
+        } catch (\Exception $e) {
+            return $this->handleOperationError($e, 'created', 'lesson', $validated['title']);
+        }
     }
 }
