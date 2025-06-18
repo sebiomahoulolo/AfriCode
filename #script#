@@ -1,4 +1,10 @@
-cd /home/fadel/Workspaces/AfriCode && php artisan optimize:clear
-cd /home/fadel/Workspaces/AfriCode && php artisan route:list --name=admin.upload.image
-cd /home/fadel/Workspaces/AfriCode && php artisan tinker --execute="echo 'Laravel fonctionne';"
-cd /home/fadel/Workspaces/AfriCode && rm -f debug_route.php test_route.php test_routes_admin.php
+cd /home/fadel/Workspaces/AfriCode && mv resources/views/apprenants/lesson.blade.php resources/views/apprenants/lesson-old.blade.php && mv resources/views/apprenants/lesson-new.blade.php resources/views/apprenants/lesson.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-old.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification-old.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-old.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php
+cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification-old.blade.php
+rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php
+rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php
+rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php
