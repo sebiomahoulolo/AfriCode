@@ -735,9 +735,56 @@
     }
     
     /* Améliore le style des boutons d'accordéon */
+    .accordion-button {
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        border: none !important;
+        padding: 1.25rem 1.5rem !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: linear-gradient(135deg, #17896E 0%, #229A63 100%) !important;
+        color: white !important;
+        box-shadow: var(--africode-shadow-md) !important;
+    }
+
+    .accordion-button:hover {
+        background: linear-gradient(135deg, #17896E 0%, #229A63 100%) !important;
+        color: white !important;
+        transform: translateY(-1px) !important;
+        box-shadow: var(--africode-shadow-lg) !important;
+    }
+
     .accordion-button:focus {
-        box-shadow: none;
+        box-shadow: 0 0 0 0.25rem rgba(30, 163, 139, 0.25) !important;
         border-color: rgba(0,0,0,.125);
+    }
+
+    .accordion-item {
+        border: 1px solid rgba(30, 163, 139, 0.2) !important;
+        border-radius: var(--africode-border-radius) !important;
+        margin-bottom: 0.75rem !important;
+        overflow: hidden !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+    }
+
+    .accordion-body {
+        background: rgba(30, 163, 139, 0.02) !important;
+        border-top: 1px solid rgba(30, 163, 139, 0.1) !important;
+    }
+
+    .list-group-item {
+        background: white !important;
+        border-color: rgba(30, 163, 139, 0.1) !important;
+        padding: 1rem 1.5rem !important;
+        transition: var(--africode-transition) !important;
+    }
+
+    .list-group-item:hover {
+        background: rgba(30, 163, 139, 0.05) !important;
+        transform: translateX(4px) !important;
     }
     
     /* Pour le sticky sidebar sur desktop */

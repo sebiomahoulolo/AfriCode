@@ -1,10 +1,9 @@
-cd /home/fadel/Workspaces/AfriCode && mv resources/views/apprenants/lesson.blade.php resources/views/apprenants/lesson-old.blade.php && mv resources/views/apprenants/lesson-new.blade.php resources/views/apprenants/lesson.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-old.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification-old.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-old.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile.blade.php
-cp /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification-old.blade.php
-rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/certification.blade.php
-rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php
-rm /home/fadel/Workspaces/AfriCode/resources/views/apprenants/profile-new.blade.php
+cd /home/fadel/Workspaces/AfriCode && php artisan make:migration add_profile_fields_to_users_table
+cd /home/fadel/Workspaces/AfriCode && php artisan migrate
+cd /home/fadel/Workspaces/AfriCode && mkdir -p public/storage/profiles
+cd /home/fadel/Workspaces/AfriCode && php artisan route:list --name=apprenant
+cd /home/fadel/Workspaces/AfriCode && php artisan --version
+cd /home/fadel/Workspaces/AfriCode && php -v
+cd /home/fadel/Workspaces/AfriCode && php artisan view:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan config:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan cache:clear

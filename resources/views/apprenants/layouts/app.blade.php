@@ -19,82 +19,344 @@
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
+    <!-- AfriCode Theme CSS -->
+    <link href="{{ asset('css/africode-learner-theme.css') }}" rel="stylesheet">
+    
+    <!-- AfriCode Visibility Fixes - Corrections critiques -->
+    <link href="{{ asset('css/africode-fixes.css') }}" rel="stylesheet">
+    
     <style>
-        :root {
-            --primary-color: #667eea;
-            --primary-dark: #5a67d8;
-            --secondary-color: #764ba2;
-            --accent-color: #f093fb;
-            --success-color: #48bb78;
-            --warning-color: #ed8936;
-            --danger-color: #f56565;
-            --info-color: #4299e1;
-            --dark-color: #2d3748;
-            --light-color: #f7fafc;
-            --gray-100: #f7fafc;
-            --gray-200: #edf2f7;
-            --gray-300: #e2e8f0;
-            --gray-400: #cbd5e0;
-            --gray-500: #a0aec0;
-            --gray-600: #718096;
-            --gray-700: #4a5568;
-            --gray-800: #2d3748;
-            --gray-900: #1a202c;
-            --border-radius: 16px;
-            --border-radius-sm: 8px;
-            --border-radius-lg: 24px;
-            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Application équilibrée de la charte AfriCode aux pages apprenants */
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--africode-background);
             min-height: 100vh;
             overflow-x: hidden;
+            color: var(--africode-text-primary);
         }
 
-        /* Sidebar Styles */
+        /* Sidebar avec charte AfriCode équilibrée */
         .app-sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(180deg, var(--africode-primary) 0%, var(--africode-primary-dark) 100%);
             backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             z-index: 1000;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--africode-transition);
             transform: translateX(0);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--africode-shadow-lg);
         }
 
         .app-sidebar.collapsed {
-            transform: translateX(-280px);
+            width: 80px;
+        }
+
+        /* Sidebar brand et logo */
+        .sidebar-brand {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .sidebar-brand h3 {
+            color: white;
+            font-weight: 800;
+            font-size: 1.25rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            transition: var(--africode-transition);
+        }
+
+        /* Logo AfriCode - Normal */
+        .africode-logo {
+            transition: var(--africode-transition);
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.9) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            font-size: 1.2rem;
+            transition: var(--africode-transition);
+            margin-left: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Mode réduit */
+        .app-sidebar.collapsed .sidebar-brand {
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-sidebar.collapsed .sidebar-brand h3 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .app-sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        .app-sidebar.collapsed .africode-logo {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            margin: 0.25rem 0.75rem;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1rem;
+            border-radius: var(--africode-border-radius-sm);
+            transition: var(--africode-transition);
+            position: relative;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .nav-link i {
+            width: 20px;
+            margin-right: 0.875rem;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: translateX(4px);
+            box-shadow: var(--africode-shadow-sm);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.35) 100%) !important;
+            color: white !important;
+            font-weight: 700 !important;
+            box-shadow: var(--africode-shadow-md) !important;
+            border-left: 4px solid var(--africode-secondary) !important;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--africode-secondary);
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Mode réduit - navigation */
+        .app-sidebar.collapsed .nav-item {
+            margin: 0.25rem 0.5rem;
+        }
+
+        .app-sidebar.collapsed .nav-link {
+            justify-content: center;
+            position: relative;
+            padding: 0.875rem 0.5rem;
+            border-radius: var(--africode-border-radius-sm);
+        }
+
+        .app-sidebar.collapsed .nav-link span {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute;
+        }
+
+        .app-sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.25rem;
+            width: auto;
+            text-align: center;
+        }
+
+        /* Header et toggle button avec charte AfriCode */
+        .app-header {
+            background: var(--africode-surface);
+            border-bottom: 1px solid var(--africode-border);
+            box-shadow: var(--africode-shadow-sm);
+            backdrop-filter: blur(20px);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .sidebar-toggle-btn {
+            background: var(--africode-surface);
+            border: 2px solid var(--africode-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--africode-text-secondary);
+            transition: var(--africode-transition);
+            box-shadow: var(--africode-shadow-sm);
+            margin-right: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-toggle-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--africode-gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-toggle-btn:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar-toggle-btn:hover {
+            color: white;
+            transform: scale(1.05);
+            box-shadow: var(--africode-shadow-md);
+            border-color: var(--africode-primary);
+        }
+
+        .sidebar-toggle-btn i {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-toggle-btn:hover i {
+            transform: rotate(180deg);
+        }
+
+        /* Tooltip styles */
+        .nav-link[data-bs-toggle="tooltip"] {
+            position: relative;
+        }
+
+        /* Animations for collapsed state */
+        .nav-link span {
+            transition: all 0.3s ease;
+        }
+
+        .app-sidebar.collapsed .nav-link:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gray-900);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            z-index: 1001;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: none;
+        }
+
+        .app-sidebar.collapsed .nav-link:hover::before {
+            content: '';
+            position: absolute;
+            left: 60px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 5px solid transparent;
+            border-right-color: var(--gray-900);
+            z-index: 1001;
+        }
+
+        <!-- Sidebar footer adjustments -->
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-footer .btn-outline-modern {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1rem !important;
+            transition: var(--africode-transition) !important;
+        }
+
+        .sidebar-footer .btn-outline-modern:hover {
+            background: rgba(227, 45, 49, 0.9) !important;
+            border-color: rgba(227, 45, 49, 1) !important;
+            color: white !important;
+            transform: translateY(-2px) !important;
+            box-shadow: var(--africode-shadow-md) !important;
+        }
+
+        .app-sidebar.collapsed .sidebar-footer .btn {
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .app-sidebar.collapsed .sidebar-footer .btn span {
+            display: none;
+        }
+
+        .app-sidebar.collapsed .sidebar-footer .btn i {
+            margin: 0;
         }
 
         .sidebar-brand {
             padding: 2rem;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .app-sidebar.collapsed .sidebar-brand {
+            padding: 1rem 0.5rem;
         }
 
         .sidebar-brand h3 {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-            font-size: 1.5rem;
             margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .sidebar-nav {
@@ -149,27 +411,28 @@
             font-size: 1.1rem;
         }
 
-        /* Main Content */
+        /* Main Content avec charte AfriCode */
         .main-content {
             margin-left: 280px;
             min-height: 100vh;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: var(--light-color);
+            background: var(--africode-background);
         }
 
-        .main-content.expanded {
-            margin-left: 0;
+        .main-content.sidebar-collapsed {
+            margin-left: 80px;
         }
 
-        /* Top Header */
+        /* Top Header avec charte AfriCode */
         .top-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--africode-surface);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid var(--africode-border);
             padding: 1rem 2rem;
             position: sticky;
             top: 0;
             z-index: 999;
+            box-shadow: var(--africode-shadow-sm);
         }
 
         .header-content {
@@ -179,10 +442,14 @@
         }
 
         .page-title {
-            font-size: 1.75rem;
+            font-size: 1.875rem;
             font-weight: 700;
-            color: var(--gray-800);
+            color: var(--africode-text-primary);
             margin: 0;
+            background: var(--africode-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header-actions {
@@ -193,18 +460,21 @@
 
         .notification-btn, .profile-btn {
             position: relative;
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-            color: var(--gray-600);
+            background: var(--africode-surface);
+            border: 1px solid var(--africode-border);
+            padding: 0.75rem;
+            border-radius: var(--africode-border-radius-sm);
+            transition: var(--africode-transition);
+            color: var(--africode-text-secondary);
+            box-shadow: var(--africode-shadow-sm);
         }
 
         .notification-btn:hover, .profile-btn:hover {
-            background: var(--gray-100);
-            color: var(--primary-color);
-            transform: scale(1.05);
+            background: var(--africode-hover-bg);
+            color: var(--africode-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--africode-shadow-md);
+            border-color: var(--africode-primary);
         }
 
         .notification-badge {
@@ -316,7 +586,8 @@
         /* Mobile Styles */
         @media (max-width: 768px) {
             .app-sidebar {
-                transform: translateX(-280px);
+                transform: translateX(-100%);
+                width: 280px;
             }
 
             .app-sidebar.mobile-open {
@@ -324,7 +595,7 @@
             }
 
             .main-content {
-                margin-left: 0;
+                margin-left: 0 !important;
             }
 
             .content-wrapper {
@@ -337,6 +608,16 @@
 
             .page-title {
                 font-size: 1.5rem;
+            }
+
+            .sidebar-toggle-btn {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-toggle {
+                display: none;
             }
         }
 
@@ -445,21 +726,31 @@
     <!-- Sidebar -->
     <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h3><i class="fas fa-graduation-cap me-2"></i>AfriCode</h3>
+            <h3>
+                <!-- Logo AfriCode officiel -->
+                <svg width="32" height="32" viewBox="0 0 24 24" class="me-2 africode-logo">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FF8E2A"/>
+                    <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#27B371"/>
+                    <path d="M7 14.5L12 17L17 14.5" stroke="#E32D31" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <span class="logo-text">AfriCode</span>
+            </h3>
         </div>
         
         <nav class="sidebar-nav">
             <div class="nav-item">
                 <a href="{{ route('apprenant.dashboard') }}" 
-                   class="nav-link {{ request()->routeIs('apprenant.dashboard') ? 'active' : '' }}">
+                   class="nav-link {{ request()->routeIs('apprenant.dashboard') ? 'active' : '' }}"
+                   data-title="Tableau de bord">
                     <i class="fas fa-home"></i>
                     <span>Tableau de bord</span>
                 </a>
             </div>
             
             <div class="nav-item">
-                <a href="{{ route('courses.index') }}" 
-                   class="nav-link {{ request()->routeIs('courses.*') ? 'active' : '' }}">
+                <a href="{{ route('apprenant.courses') }}" 
+                   class="nav-link {{ request()->routeIs('apprenant.courses') ? 'active' : '' }}"
+                   data-title="Mes Cours">
                     <i class="fas fa-book-open"></i>
                     <span>Mes Cours</span>
                 </a>
@@ -467,7 +758,8 @@
             
             <div class="nav-item">
                 <a href="#" 
-                   class="nav-link">
+                   class="nav-link"
+                   data-title="Progression">
                     <i class="fas fa-chart-line"></i>
                     <span>Progression</span>
                 </a>
@@ -475,7 +767,8 @@
             
             <div class="nav-item">
                 <a href="#" 
-                   class="nav-link">
+                   class="nav-link"
+                   data-title="Certifications">
                     <i class="fas fa-certificate"></i>
                     <span>Certifications</span>
                 </a>
@@ -483,7 +776,8 @@
             
             <div class="nav-item">
                 <a href="{{ route('pages.forumapp') }}" 
-                   class="nav-link {{ request()->routeIs('pages.forumapp') ? 'active' : '' }}">
+                   class="nav-link {{ request()->routeIs('pages.forumapp') ? 'active' : '' }}"
+                   data-title="Communauté">
                     <i class="fas fa-users"></i>
                     <span>Communauté</span>
                 </a>
@@ -491,7 +785,8 @@
             
             <div class="nav-item">
                 <a href="#" 
-                   class="nav-link">
+                   class="nav-link"
+                   data-title="Défis">
                     <i class="fas fa-trophy"></i>
                     <span>Défis</span>
                 </a>
@@ -499,19 +794,20 @@
             
             <div class="nav-item">
                 <a href="{{ route('apprenant.profile') }}" 
-                   class="nav-link {{ request()->routeIs('apprenant.profile') ? 'active' : '' }}">
+                   class="nav-link {{ request()->routeIs('apprenant.profile') ? 'active' : '' }}"
+                   data-title="Paramètres">
                     <i class="fas fa-user-cog"></i>
                     <span>Paramètres</span>
                 </a>
             </div>
         </nav>
         
-        <div class="sidebar-footer p-3">
+        <div class="sidebar-footer">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn btn-outline-modern w-100">
-                    <i class="fas fa-sign-out-alt me-2"></i>
-                    Déconnexion
+                <button type="submit" class="btn btn-outline-modern w-100" title="Déconnexion">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="ms-2">Déconnexion</span>
                 </button>
             </form>
         </div>
@@ -526,9 +822,11 @@
         <header class="top-header">
             <div class="header-content">
                 <div class="d-flex align-items-center">
-                    <button class="btn d-md-none me-3" id="sidebarToggle">
+                    <button class="sidebar-toggle-btn d-none d-md-flex" id="sidebarToggleDesktop"
+                            title="Basculer la sidebar">
                         <i class="fas fa-bars"></i>
                     </button>
+
                     <h1 class="page-title">@yield('page-title', 'Tableau de bord')</h1>
                 </div>
                 
@@ -543,7 +841,7 @@
                     <div class="dropdown">
                         <button class="profile-btn dropdown-toggle" data-bs-toggle="dropdown">
                             <span class="d-none d-md-inline me-2">{{ Auth::user()->first_name }}</span>
-                            <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" 
+                            <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.svg') }}" 
                                  alt="Avatar" class="user-avatar">
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -590,38 +888,140 @@
 
         // Sidebar Toggle
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarToggleDesktop = document.getElementById('sidebarToggleDesktop');
+            const sidebarToggleMobile = document.getElementById('sidebarToggleMobile');
             const sidebar = document.getElementById('sidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
             const mainContent = document.getElementById('mainContent');
 
-            function toggleSidebar() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.toggle('mobile-open');
-                    sidebarOverlay.classList.toggle('active');
-                } else {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
+            // Restore sidebar state from localStorage
+            const savedSidebarState = localStorage.getItem('sidebarCollapsed');
+            if (savedSidebarState === 'true' && window.innerWidth > 768) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('sidebar-collapsed');
+                if (sidebarToggleDesktop) {
+                    const icon = sidebarToggleDesktop.querySelector('i');
+                    icon.className = 'fas fa-chevron-right';
                 }
+            }
+
+            function toggleSidebarDesktop() {
+                const isCollapsed = sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('sidebar-collapsed');
+                
+                // Save state to localStorage
+                localStorage.setItem('sidebarCollapsed', isCollapsed);
+                
+                // Update button icon with animation
+                const icon = sidebarToggleDesktop.querySelector('i');
+                icon.style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    if (isCollapsed) {
+                        icon.className = 'fas fa-chevron-right';
+                    } else {
+                        icon.className = 'fas fa-bars';
+                    }
+                    icon.style.transform = '';
+                }, 150);
+                
+                // Trigger resize event for any charts or responsive components
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('resize'));
+                }, 300);
+            }
+
+            function toggleSidebarMobile() {
+                sidebar.classList.toggle('mobile-open');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
             }
 
             function closeSidebar() {
                 sidebar.classList.remove('mobile-open');
                 sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
 
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', toggleSidebar);
+            // Desktop toggle
+            if (sidebarToggleDesktop) {
+                sidebarToggleDesktop.addEventListener('click', toggleSidebarDesktop);
             }
 
+            // Mobile toggle
+            if (sidebarToggleMobile) {
+                sidebarToggleMobile.addEventListener('click', toggleSidebarMobile);
+            }
+
+            // Close sidebar when clicking overlay
             sidebarOverlay.addEventListener('click', closeSidebar);
 
-            // Close sidebar on window resize
+            // Handle window resize
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 768) {
                     sidebar.classList.remove('mobile-open');
                     sidebarOverlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                } else {
+                    // Reset desktop collapsed state on mobile
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('sidebar-collapsed');
+                    if (sidebarToggleDesktop) {
+                        const icon = sidebarToggleDesktop.querySelector('i');
+                        icon.className = 'fas fa-bars';
+                    }
                 }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Ctrl/Cmd + B to toggle sidebar
+                if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+                    e.preventDefault();
+                    if (window.innerWidth > 768) {
+                        toggleSidebarDesktop();
+                    } else {
+                        toggleSidebarMobile();
+                    }
+                }
+                
+                // Escape to close mobile sidebar
+                if (e.key === 'Escape' && window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+
+            // Add smooth hover effects to nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = 'translateX(8px)';
+                    }
+                });
+                
+                link.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = '';
+                    }
+                });
+            });
+
+            // Add loading state to navigation
+            document.querySelectorAll('.nav-link[href]:not([href="#"])').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!this.classList.contains('active')) {
+                        // Add loading animation
+                        const icon = this.querySelector('i');
+                        const originalIcon = icon.className;
+                        icon.className = 'fas fa-spinner fa-spin';
+                        
+                        // Restore original icon after a short delay if navigation is cancelled
+                        setTimeout(() => {
+                            if (icon.className.includes('fa-spinner')) {
+                                icon.className = originalIcon;
+                            }
+                        }, 3000);
+                    }
+                });
             });
         });
 

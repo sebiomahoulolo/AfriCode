@@ -10,7 +10,12 @@
         display: grid;
         grid-template-columns: 350px 1fr;
         gap: 2rem;
-        height: calc(100vh - 140px);
+        height: calc(100vh - 120px);
+        transition: grid-template-columns 0.3s ease;
+    }
+
+    .lesson-container.sidebar-hidden {
+        grid-template-columns: 0 1fr;
     }
 
     .lesson-sidebar {
@@ -20,6 +25,108 @@
         box-shadow: var(--shadow-sm);
         border: 1px solid var(--gray-200);
         overflow-y: auto;
+        transition: all 0.3s ease;
+    }
+
+    .lesson-sidebar.hidden {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar-toggle {
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        color: white !important;
+        border: 2px solid white !important;
+        border-radius: 8px !important;
+        width: 45px !important;
+        height: 45px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.1rem !important;
+        box-shadow: 0 4px 15px rgba(30, 163, 139, 0.3) !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1000 !important;
+    }
+
+    .sidebar-toggle:hover {
+        transform: scale(1.1) !important;
+        box-shadow: 0 6px 20px rgba(30, 163, 139, 0.4) !important;
+        background: linear-gradient(135deg, #27B371 0%, #1EA38B 100%) !important;
+    }
+
+    .sidebar-toggle:hover::after {
+        opacity: 1 !important;
+        transform: translateY(-50%) scale(1) !important;
+    }
+
+    .sidebar-toggle::after {
+        content: attr(data-tooltip) !important;
+        position: absolute !important;
+        left: 55px !important;
+        top: 50% !important;
+        transform: translateY(-50%) scale(0.8) !important;
+        background: var(--gray-800) !important;
+        color: white !important;
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 6px !important;
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: all 0.3s ease !important;
+        z-index: 1001 !important;
+    }
+
+    .sidebar-toggle::before {
+        content: '';
+        position: absolute;
+        left: 42px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 6px solid transparent;
+        border-right-color: var(--gray-800);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 1000;
+    }
+
+    .sidebar-toggle:hover::before {
+        opacity: 1;
+    }
+
+    .lesson-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .lesson-title-section {
+        flex: 1;
+    }
+
+    .lesson-controls {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        margin-top: 0.25rem;
+    }
+
+    .sidebar-control-hint {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+        margin-top: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
     }
 
     .lesson-content {
@@ -33,15 +140,16 @@
     }
 
     .lesson-header {
-        padding: 2rem;
+        padding: 1rem 2rem;
         border-bottom: 1px solid var(--gray-200);
         background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
     }
 
     .lesson-body {
         flex: 1;
-        padding: 2rem;
+        padding: 1.5rem 2rem;
         overflow-y: auto;
+        max-height: calc(100vh - 220px);
     }
 
     .lesson-footer {
@@ -55,57 +163,73 @@
     }
 
     .module-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1rem;
-        border-radius: var(--border-radius-sm);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-weight: 600;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        color: white !important;
+        padding: 1rem 1.25rem !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        cursor: pointer !important;
+        transition: var(--africode-transition) !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 0.5rem !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+        border: 1px solid rgba(30, 163, 139, 0.3) !important;
     }
 
     .module-header:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow);
+        background: linear-gradient(135deg, #17896E 0%, #229A63 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: var(--africode-shadow-md) !important;
     }
 
     .module-lessons {
-        padding: 0.5rem 0;
+        padding: 0.75rem 0 !important;
+        background: rgba(30, 163, 139, 0.02) !important;
+        border-radius: 0 0 var(--africode-border-radius-sm) var(--africode-border-radius-sm) !important;
+        margin-bottom: 1rem !important;
+        border: 1px solid rgba(30, 163, 139, 0.1) !important;
+        border-top: none !important;
     }
 
     .lesson-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.75rem 1rem;
-        margin: 0.25rem 0;
-        border-radius: var(--border-radius-sm);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--gray-700);
-        border: 1px solid transparent;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.875rem 1.25rem !important;
+        margin: 0.25rem 0.5rem !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        transition: var(--africode-transition) !important;
+        cursor: pointer !important;
+        text-decoration: none !important;
+        color: var(--africode-text-primary) !important;
+        border: 1px solid transparent !important;
+        background: white !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
     }
 
     .lesson-item:hover {
-        background: var(--gray-100);
-        color: var(--primary-color);
-        transform: translateX(4px);
-        text-decoration: none;
+        background: rgba(30, 163, 139, 0.08) !important;
+        color: #1EA38B !important;
+        transform: translateX(4px) !important;
+        text-decoration: none !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+        border-color: rgba(30, 163, 139, 0.2) !important;
     }
 
     .lesson-item.active {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        color: var(--primary-color);
-        border-color: var(--primary-color);
-        font-weight: 600;
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.15) 0%, rgba(39, 179, 113, 0.15) 100%) !important;
+        color: #1EA38B !important;
+        border-color: #1EA38B !important;
+        font-weight: 600 !important;
+        box-shadow: var(--africode-shadow-md) !important;
+        border-left: 4px solid #1EA38B !important;
     }
 
     .lesson-item.completed {
-        color: var(--success-color);
+        color: #27B371 !important;
+        border-left: 3px solid #27B371 !important;
     }
 
     .lesson-icon {
@@ -117,7 +241,9 @@
     .video-container {
         position: relative;
         width: 100%;
-        height: 400px;
+        height: 60vh;
+        min-height: 450px;
+        max-height: 600px;
         background: var(--gray-900);
         border-radius: var(--border-radius-sm);
         margin-bottom: 2rem;
@@ -143,8 +269,8 @@
 
     .lesson-meta {
         display: flex;
-        gap: 2rem;
-        margin-bottom: 2rem;
+        gap: 1.5rem;
+        margin-bottom: 0;
         flex-wrap: wrap;
     }
 
@@ -254,19 +380,167 @@
         margin: 1.5rem 0;
     }
 
+    /* Video responsive styles */
+    .video-wrapper {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        margin-bottom: 2rem;
+        border-radius: var(--border-radius-sm);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .video-container-large {
+        position: relative;
+        width: 100%;
+        height: 75vh;
+        min-height: 550px;
+        background: var(--gray-900);
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .video-container-large iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
     @media (max-width: 1024px) {
         .lesson-container {
             grid-template-columns: 1fr;
             gap: 1rem;
         }
 
+        .lesson-container.sidebar-hidden {
+            grid-template-columns: 1fr;
+        }
+
         .lesson-sidebar {
             order: 2;
             max-height: 300px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 300px;
+            height: 100vh;
+            z-index: 999;
+            transform: translateX(-100%);
+        }
+
+        .lesson-sidebar.visible {
+            transform: translateX(0);
         }
 
         .lesson-content {
             order: 1;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .sidebar-toggle::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 65px;
+            top: 50%;
+            transform: translateY(-50%) scale(0.8);
+            background: var(--gray-800);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-toggle::before {
+            content: '';
+            position: absolute;
+            right: 57px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-left-color: var(--gray-800);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-toggle:hover::after,
+        .sidebar-toggle:hover::before {
+            opacity: 1;
+        }
+
+        .lesson-header-top {
+            margin-bottom: 1rem;
+        }
+
+        .lesson-controls {
+            display: none;
+        }
+
+        .sidebar-control-hint {
+            display: none;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lesson-content {
+            margin-top: 0;
         }
     }
 
@@ -277,8 +551,21 @@
             padding: 1rem;
         }
 
-        .video-container {
-            height: 250px;
+        .lesson-content {
+            margin-top: 0;
+        }
+
+        .video-wrapper {
+            padding-bottom: 56.25%; /* Maintenir le ratio 16:9 sur mobile */
+        }
+
+        .video-container-large {
+            height: 50vh;
+            min-height: 350px;
+        }
+
+        .lesson-body {
+            max-height: calc(100vh - 160px);
         }
 
         .lesson-meta {
@@ -336,13 +623,21 @@
     </div>
 
     <!-- Main Lesson Container -->
-    <div class="lesson-container" data-aos="fade-up" data-aos-delay="100">
+    <div class="lesson-container" id="lessonContainer" data-aos="fade-up" data-aos-delay="100">
+        <!-- Sidebar Overlay for mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
         <!-- Sidebar with Course Structure -->
-        <div class="lesson-sidebar">
-            <h6 class="mb-3 text-primary fw-bold">
-                <i class="fas fa-list me-2"></i>
-                Structure du cours
-            </h6>
+        <div class="lesson-sidebar" id="lessonSidebar">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 text-primary fw-bold">
+                    <i class="fas fa-list me-2"></i>
+                    Structure du cours
+                </h6>
+                <button class="btn btn-sm btn-outline-primary d-lg-none" onclick="closeSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             
             @foreach($modules as $module)
             <div class="module-group mb-3">
@@ -368,7 +663,31 @@
 
         <!-- Main Content -->
         <div class="lesson-content">
+            <!-- Sidebar Toggle Button for mobile -->
+        
+
             <div class="lesson-header">
+                <div class="lesson-header-top">
+                    <div class="lesson-title-section">
+                        <h1 class="h3 mb-0">{{ $lesson->title }}</h1>
+                        @if($lesson->description)
+                            <p class="text-muted mt-2 mb-0">{{ $lesson->description }}</p>
+                        @endif
+                    </div>
+                    <div class="lesson-controls d-none d-lg-flex">
+                        <div class="text-end">
+                            <button class="sidebar-toggle" id="sidebarToggleDesktop" onclick="toggleSidebar()" 
+                                    data-tooltip="Masquer la structure du cours">
+                                <i class="fas fa-eye-slash" id="toggleIconDesktop"></i>
+                            </button>
+                            <div class="sidebar-control-hint">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="sidebarControlText">Masquer le menu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="lesson-meta">
                     <div class="meta-item">
                         <i class="fas fa-play-circle text-primary"></i>
@@ -383,42 +702,39 @@
                         <span>{{ $lesson->module->course->formateur->first_name }} {{ $lesson->module->course->formateur->last_name }}</span>
                     </div>
                 </div>
-                
-                <h1 class="h3 mb-0">{{ $lesson->title }}</h1>
-                @if($lesson->description)
-                    <p class="text-muted mt-2 mb-0">{{ $lesson->description }}</p>
-                @endif
             </div>
 
             <div class="lesson-body">
                 @if($lesson->content_type === 'video' && $lesson->video_url)
-                    <div class="video-container">
-                        @php
-                            // Traitement des URL YouTube pour obtenir l'ID de la vidéo
-                            $videoId = '';
-                            if (strpos($lesson->video_url, 'youtube.com') !== false) {
-                                parse_str(parse_url($lesson->video_url, PHP_URL_QUERY), $params);
-                                $videoId = $params['v'] ?? '';
-                            } elseif (strpos($lesson->video_url, 'youtu.be') !== false) {
-                                $videoId = substr(parse_url($lesson->video_url, PHP_URL_PATH), 1);
-                            }
-                        @endphp
+                    @php
+                        // Traitement des URL YouTube pour obtenir l'ID de la vidéo
+                        $videoId = '';
+                        if (strpos($lesson->video_url, 'youtube.com') !== false) {
+                            parse_str(parse_url($lesson->video_url, PHP_URL_QUERY), $params);
+                            $videoId = $params['v'] ?? '';
+                        } elseif (strpos($lesson->video_url, 'youtu.be') !== false) {
+                            $videoId = substr(parse_url($lesson->video_url, PHP_URL_PATH), 1);
+                        }
+                    @endphp
 
-                        @if($videoId)
+                    @if($videoId)
+                        <div class="video-container-large">
                             <iframe 
-                                src="https://www.youtube.com/embed/{{ $videoId }}"
+                                src="https://www.youtube.com/embed/{{ $videoId }}?rel=0&modestbranding=1"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                 allowfullscreen>
                             </iframe>
-                        @else
+                        </div>
+                    @else
+                        <div class="video-container">
                             <div class="video-placeholder">
                                 <div class="text-center">
                                     <i class="fas fa-exclamation-triangle mb-3"></i>
                                     <p class="mb-0">Vidéo non disponible</p>
                                 </div>
                             </div>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 @endif
                 
                 @if($lesson->content_type === 'text' || $lesson->text_content)
@@ -533,6 +849,93 @@
 
 @push('scripts')
 <script>
+    let sidebarVisible = true;
+
+    function toggleSidebar() {
+        const container = document.getElementById('lessonContainer');
+        const sidebar = document.getElementById('lessonSidebar');
+        const toggleIconDesktop = document.getElementById('toggleIconDesktop');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const overlay = document.getElementById('sidebarOverlay');
+        const sidebarToggleDesktop = document.getElementById('sidebarToggleDesktop');
+        const sidebarControlText = document.getElementById('sidebarControlText');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        
+        sidebarVisible = !sidebarVisible;
+        
+        if (sidebarVisible) {
+            // Show sidebar
+            container.classList.remove('sidebar-hidden');
+            sidebar.classList.remove('hidden');
+            
+            if (toggleIconDesktop && sidebarToggleDesktop && sidebarControlText) {
+                toggleIconDesktop.classList.remove('fa-eye');
+                toggleIconDesktop.classList.add('fa-eye-slash');
+                sidebarToggleDesktop.setAttribute('data-tooltip', 'Masquer la structure du cours');
+                sidebarControlText.textContent = 'Masquer le menu';
+            }
+            
+            // Mobile specific
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.add('visible');
+                overlay.classList.add('visible');
+                if (toggleIcon && sidebarToggle) {
+                    toggleIcon.classList.remove('fa-times');
+                    toggleIcon.classList.add('fa-list');
+                    sidebarToggle.setAttribute('data-tooltip', 'Voir la structure du cours');
+                }
+            }
+        } else {
+            // Hide sidebar
+            container.classList.add('sidebar-hidden');
+            sidebar.classList.add('hidden');
+            
+            if (toggleIconDesktop && sidebarToggleDesktop && sidebarControlText) {
+                toggleIconDesktop.classList.remove('fa-eye-slash');
+                toggleIconDesktop.classList.add('fa-eye');
+                sidebarToggleDesktop.setAttribute('data-tooltip', 'Afficher la structure du cours');
+                sidebarControlText.textContent = 'Afficher le menu';
+            }
+            
+            // Mobile specific
+            if (window.innerWidth <= 1024) {
+                sidebar.classList.remove('visible');
+                overlay.classList.remove('visible');
+                if (toggleIcon && sidebarToggle) {
+                    toggleIcon.classList.remove('fa-list');
+                    toggleIcon.classList.add('fa-times');
+                    sidebarToggle.setAttribute('data-tooltip', 'Fermer la structure du cours');
+                }
+            }
+        }
+    }
+
+    function closeSidebar() {
+        if (window.innerWidth <= 1024 && sidebarVisible) {
+            toggleSidebar();
+        }
+    }
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const sidebar = document.getElementById('lessonSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        if (window.innerWidth > 1024) {
+            // Desktop mode
+            overlay.classList.remove('visible');
+            if (sidebarVisible) {
+                sidebar.classList.remove('visible');
+            }
+        } else {
+            // Mobile mode
+            if (sidebarVisible) {
+                sidebar.classList.add('visible');
+                overlay.classList.add('visible');
+            }
+        }
+    });
+
     function toggleModule(moduleId) {
         const lessons = document.getElementById('lessons-' + moduleId);
         const icon = document.getElementById('icon-' + moduleId);
@@ -559,6 +962,23 @@
             lessons.style.display = 'block';
             icon.classList.remove('fa-chevron-right');
             icon.classList.add('fa-chevron-down');
+        }
+
+        // Initialize sidebar state for mobile
+        if (window.innerWidth <= 1024) {
+            const container = document.getElementById('lessonContainer');
+            const sidebar = document.getElementById('lessonSidebar');
+            container.classList.add('sidebar-hidden');
+            sidebar.classList.add('hidden');
+            sidebarVisible = false;
+            
+            const toggleIcon = document.getElementById('toggleIcon');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (toggleIcon && sidebarToggle) {
+                toggleIcon.classList.remove('fa-list');
+                toggleIcon.classList.add('fa-times');
+                sidebarToggle.setAttribute('data-tooltip', 'Fermer la structure du cours');
+            }
         }
     });
 </script>

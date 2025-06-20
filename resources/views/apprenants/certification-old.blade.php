@@ -740,7 +740,7 @@
                         </div>
                         
                         <div class="certificate-date">
-                            <p>Délivré le {{ $certification->issue_date->format('d/m/Y') }}</p>
+                            <p>Délivré le {{ $certification->issued_at->format('d/m/Y') }}</p>
                         </div>
                         
                         <div class="certificate-seal"></div>

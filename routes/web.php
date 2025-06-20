@@ -223,6 +223,9 @@ Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->pr
     Route::get('/profile', [EtudiantController::class, 'showProfile'])->name('apprenant.profile');
     Route::put('/profile', [EtudiantController::class, 'updateProfile'])->name('apprenant.profile.update');
     
+    // Mes cours
+    Route::get('/mes-cours', [EtudiantController::class, 'myCourses'])->name('apprenant.courses');
+    
     // Cours et leçons
     Route::get('/course/{courseId}', [EtudiantController::class, 'accessCourse'])->name('apprenant.course.access');
     Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])->name('apprenant.lesson');

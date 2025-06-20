@@ -11,15 +11,134 @@
         grid-template-columns: 350px 1fr;
         gap: 2rem;
         height: calc(100vh - 140px);
+        transition: grid-template-columns 0.3s ease;
+    }
+
+    .lesson-container.sidebar-hidden {
+        grid-template-columns: 0px 1fr;
     }
 
     .lesson-sidebar {
         background: white;
-        border-radius: var(--border-radius);
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .lesson-sidebar.hidden {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar-toggle {
+        position: fixed !important;
+        top: 50% !important;
+        left: 20px !important;
+        transform: translateY(-50%) !important;
+        z-index: 9999 !important;
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        color: white !important;
+        border: 3px solid white !important;
+        border-radius: 50% !important;
+        width: 55px !important;
+        height: 55px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 6px 20px rgba(30, 163, 139, 0.4) !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        font-size: 1.3rem !important;
+        outline: none !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .sidebar-toggle:hover {
+        transform: translateY(-50%) scale(1.15) !important;
+        box-shadow: 0 8px 25px rgba(30, 163, 139, 0.5) !important;
+        background: linear-gradient(135deg, #27B371 0%, #1EA38B 100%) !important;
+    }
+
+    .sidebar-toggle:focus {
+        outline: 3px solid rgba(30, 163, 139, 0.5) !important;
+        outline-offset: 2px !important;
+    }
+
+    .sidebar-toggle.sidebar-visible {
+        left: 370px !important;
+    }
+
+    /* Styles pour le bouton dans l'en-tête (mobile) */
+    .header-sidebar-toggle {
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        border: 2px solid #1EA38B !important;
+        color: white !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .header-sidebar-toggle:hover {
+        background: #5a67d8 !important;
+        border-color: #5a67d8 !important;
+        color: white !important;
+    }
+
+    .course-header-sticky {
+        background: linear-gradient(135deg, #667eea, #764ba2) !important;
+        color: white;
         padding: 1.5rem;
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--gray-200);
+        border-radius: 8px 8px 0 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .course-progress-mini {
+        background: rgba(255,255,255,0.2);
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        margin-top: 0.75rem;
+    }
+
+    .course-progress-mini .progress-bar {
+        background: white;
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .modules-content {
+        flex: 1;
         overflow-y: auto;
+        padding: 1.5rem;
+    }
+
+    .lesson-link {
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+
+    .lesson-link:hover {
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.05), rgba(39, 179, 113, 0.05));
+        color: #1EA38B;
+        transform: translateX(4px);
+        text-decoration: none;
+        border-color: #1EA38B;
+    }
+
+    .lesson-link.active {
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.1), rgba(39, 179, 113, 0.1));
+        color: #1EA38B;
+        border-color: #1EA38B;
+        font-weight: 600;
     }
 
     .lesson-content {
@@ -55,53 +174,65 @@
     }
 
     .module-header {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
         color: white;
-        padding: 1rem;
-        border-radius: var(--border-radius-sm);
+        padding: 1.2rem 1rem;
+        border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
         font-weight: 600;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border: 1px solid #1EA38B;
+        box-shadow: 0 2px 8px rgba(30, 163, 139, 0.15);
     }
 
     .module-header:hover {
         transform: translateY(-2px);
-        box-shadow: var(--shadow);
+        box-shadow: 0 4px 15px rgba(30, 163, 139, 0.25);
+        background: linear-gradient(135deg, #27B371 0%, #1EA38B 100%);
     }
 
     .module-lessons {
-        padding: 0.5rem 0;
+        padding: 0.75rem 0;
+        background: #f8fffe;
+        border: 1px solid #e6f7f5;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
     }
 
     .lesson-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.75rem 1rem;
-        margin: 0.25rem 0;
-        border-radius: var(--border-radius-sm);
+        padding: 0.875rem 1rem;
+        margin: 0.25rem 0.5rem;
+        border-radius: 6px;
         transition: all 0.3s ease;
         cursor: pointer;
         text-decoration: none;
-        color: var(--gray-700);
-        border: 1px solid transparent;
+        color: #374151;
+        background: white;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .lesson-item:hover {
-        background: var(--gray-100);
-        color: var(--primary-color);
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.05), rgba(39, 179, 113, 0.05));
+        color: #1EA38B;
         transform: translateX(4px);
         text-decoration: none;
+        border-color: #1EA38B;
+        box-shadow: 0 2px 8px rgba(30, 163, 139, 0.15);
     }
 
     .lesson-item.active {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        color: var(--primary-color);
-        border-color: var(--primary-color);
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.1), rgba(39, 179, 113, 0.1));
+        color: #1EA38B;
+        border-color: #1EA38B;
         font-weight: 600;
+        box-shadow: 0 2px 12px rgba(30, 163, 139, 0.2);
     }
 
     .lesson-item.completed {
@@ -157,11 +288,11 @@
     }
 
     .lesson-progress {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-        border-radius: var(--border-radius);
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.1), rgba(39, 179, 113, 0.1));
+        border-radius: 8px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
-        border: 1px solid rgba(102, 126, 234, 0.2);
+        border: 1px solid rgba(30, 163, 139, 0.2);
     }
 
     .breadcrumb-modern {
@@ -215,7 +346,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
         color: white;
         border-radius: 50%;
         margin-right: 1rem;
@@ -260,6 +391,10 @@
             gap: 1rem;
         }
 
+        .lesson-container.sidebar-hidden {
+            grid-template-columns: 1fr;
+        }
+
         .lesson-sidebar {
             order: 2;
             max-height: 300px;
@@ -267,6 +402,10 @@
 
         .lesson-content {
             order: 1;
+        }
+
+        .sidebar-toggle {
+            display: none;
         }
     }
 
@@ -335,53 +474,117 @@
         </div>
     </div>
 
+    <!-- Bouton de basculement de la sidebar -->
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars" id="toggleIcon"></i>
+    </button>
+
     <!-- Main Lesson Container -->
-    <div class="lesson-container" data-aos="fade-up" data-aos-delay="100">
+    <div class="lesson-container" id="lessonContainer" data-aos="fade-up" data-aos-delay="100">
         <!-- Sidebar with Course Structure -->
-        <div class="lesson-sidebar">
-            <h6 class="mb-3 text-primary fw-bold">
-                <i class="fas fa-list me-2"></i>
-                Structure du cours
-            </h6>
-            
-            @foreach($modules as $module)
-            <div class="module-group mb-3">
-                <div class="module-header" onclick="toggleModule({{ $module->id }})">
-                    <span>{{ $module->title }}</span>
-                    <i class="fas fa-chevron-down" id="icon-{{ $module->id }}"></i>
+        <div class="lesson-sidebar" id="lessonSidebar">
+            <!-- En-tête du cours fixe -->
+            <div class="course-header-sticky">
+                <h5 class="mb-2">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    {{ $lesson->module->course->title }}
+                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small>
+                        @php
+                            $totalLessons = $lesson->module->course->modules->sum(function($module) { 
+                                return $module->lessons->count(); 
+                            });
+                            $currentLessonNumber = 1;
+                            $lessonCounter = 0;
+                            foreach($lesson->module->course->modules as $module) {
+                                foreach($module->lessons as $lessonItem) {
+                                    $lessonCounter++;
+                                    if($lessonItem->id == $lesson->id) {
+                                        $currentLessonNumber = $lessonCounter;
+                                        break 2;
+                                    }
+                                }
+                            }
+                            $progressPercent = isset($completedLessons) ? (count($completedLessons) / max(1, $totalLessons)) * 100 : 0;
+                        @endphp
+                        Leçon {{ $currentLessonNumber }} / {{ $totalLessons }}
+                    </small>
+                    <small>
+                        {{ number_format($progressPercent, 0) }}% complété
+                    </small>
                 </div>
-                <div class="module-lessons" id="lessons-{{ $module->id }}">
-                    @foreach($module->lessons as $lessonItem)
-                    <a href="{{ route('apprenant.lesson', ['lessonId' => $lessonItem->id]) }}" 
-                       class="lesson-item {{ $lessonItem->id === $lesson->id ? 'active' : '' }} {{ in_array($lessonItem->id, $completedLessons) ? 'completed' : '' }}">
-                        <div class="d-flex align-items-center">
-                            <i class="lesson-icon fas {{ in_array($lessonItem->id, $completedLessons) ? 'fa-check-circle text-success' : ($lessonItem->id === $lesson->id ? 'fa-play-circle' : 'fa-circle') }}"></i>
-                            <span>{{ $lessonItem->title }}</span>
-                        </div>
-                        <small class="text-muted">{{ $lessonItem->duration_minutes }}min</small>
-                    </a>
-                    @endforeach
+                <div class="course-progress-mini">
+                    <div class="progress-bar" style="width: {{ $progressPercent }}%"></div>
                 </div>
             </div>
-            @endforeach
+
+            <!-- Contenu des modules scrollable -->
+            <div class="modules-content">
+                @foreach($lesson->course->modules as $module)
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-folder-open me-2"></i>
+                            {{ $module->title }}
+                        </h6>
+                        
+                        @foreach($module->lessons as $lessonItem)
+                            <a href="{{ route('apprenant.lesson', $lessonItem->id) }}" 
+                               class="lesson-link d-flex align-items-center justify-content-between text-decoration-none mb-2 p-2 rounded {{ $lessonItem->id == $lesson->id ? 'active' : '' }}">
+                                <div class="d-flex align-items-center">
+                                    @if($lessonItem->lessonType->name == 'Vidéo')
+                                        <i class="fas fa-play-circle me-2 text-primary"></i>
+                                    @elseif($lessonItem->lessonType->name == 'Quiz')
+                                        <i class="fas fa-question-circle me-2 text-warning"></i>
+                                    @else
+                                        <i class="fas fa-file-alt me-2 text-info"></i>
+                                    @endif
+                                    <span class="small">{{ $lessonItem->title }}</span>
+                                </div>
+                                
+                                <!-- Status indicator -->
+                                @php
+                                    $lessonProgress = auth()->user()->progressLessons()->where('lesson_id', $lessonItem->id)->first();
+                                    $isCompleted = $lessonProgress && $lessonProgress->completed_at;
+                                @endphp
+                                
+                                @if($isCompleted)
+                                    <i class="fas fa-check-circle text-success"></i>
+                                @elseif($lessonItem->id == $lesson->id)
+                                    <i class="fas fa-circle text-primary"></i>
+                                @else
+                                    <i class="far fa-circle text-muted"></i>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="lesson-content">
             <div class="lesson-header">
-                <div class="lesson-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-play-circle text-primary"></i>
-                        <span>{{ $lesson->duration_minutes }} minutes</span>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="lesson-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-play-circle text-primary"></i>
+                            <span>{{ $lesson->duration_minutes }} minutes</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-layer-group text-info"></i>
+                            <span>{{ $lesson->module->title }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-user text-warning"></i>
+                            <span>{{ $lesson->module->course->formateur->first_name }} {{ $lesson->module->course->formateur->last_name }}</span>
+                        </div>
                     </div>
-                    <div class="meta-item">
-                        <i class="fas fa-layer-group text-info"></i>
-                        <span>{{ $lesson->module->title }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <i class="fas fa-user text-warning"></i>
-                        <span>{{ $lesson->module->course->formateur->first_name }} {{ $lesson->module->course->formateur->last_name }}</span>
-                    </div>
+                    <!-- Bouton de basculement de la sidebar - visible sur toutes les tailles -->
+                    <button class="btn btn-primary btn-sm" onclick="toggleSidebar()" title="Afficher/Masquer la structure du cours">
+                        <i class="fas fa-list" id="headerToggleIcon"></i>
+                        <span class="ms-1">Structure</span>
+                    </button>
                 </div>
                 
                 <h1 class="h3 mb-0">{{ $lesson->title }}</h1>
@@ -533,6 +736,96 @@
 
 @push('scripts')
 <script>
+    let sidebarVisible = true;
+
+    function toggleSidebar() {
+        console.log('toggleSidebar() appelée, état actuel:', sidebarVisible);
+        
+        const sidebar = document.getElementById('lessonSidebar');
+        const container = document.getElementById('lessonContainer');
+        const toggleButton = document.getElementById('sidebarToggle');
+        const toggleIcon = document.getElementById('toggleIcon');
+        const headerToggleIcon = document.getElementById('headerToggleIcon');
+        
+        console.log('Éléments trouvés:', {
+            sidebar: !!sidebar,
+            container: !!container,
+            toggleButton: !!toggleButton,
+            toggleIcon: !!toggleIcon,
+            headerToggleIcon: !!headerToggleIcon
+        });
+        
+        sidebarVisible = !sidebarVisible;
+        
+        if (sidebarVisible) {
+            // Afficher la sidebar
+            if (sidebar) sidebar.classList.remove('hidden');
+            if (container) container.classList.remove('sidebar-hidden');
+            if (toggleButton) toggleButton.classList.add('sidebar-visible');
+            if (toggleIcon) {
+                toggleIcon.classList.remove('fa-times');
+                toggleIcon.classList.add('fa-bars');
+            }
+            if (headerToggleIcon) {
+                headerToggleIcon.classList.remove('fa-times');
+                headerToggleIcon.classList.add('fa-list');
+            }
+            console.log('Sidebar affichée');
+        } else {
+            // Masquer la sidebar
+            if (sidebar) sidebar.classList.add('hidden');
+            if (container) container.classList.add('sidebar-hidden');
+            if (toggleButton) toggleButton.classList.remove('sidebar-visible');
+            if (toggleIcon) {
+                toggleIcon.classList.remove('fa-bars');
+                toggleIcon.classList.add('fa-times');
+            }
+            if (headerToggleIcon) {
+                headerToggleIcon.classList.remove('fa-list');
+                headerToggleIcon.classList.add('fa-times');
+            }
+            console.log('Sidebar masquée');
+        }
+        
+        // Sauvegarder l'état dans localStorage
+        localStorage.setItem('sidebarVisible', sidebarVisible);
+    }
+
+    // Restaurer l'état de la sidebar au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM chargé, initialisation de la sidebar');
+        
+        // S'assurer que le bouton est visible
+        const toggleButton = document.getElementById('sidebarToggle');
+        if (toggleButton) {
+            toggleButton.style.display = 'flex';
+            toggleButton.style.visibility = 'visible';
+            console.log('Bouton sidebar rendu visible');
+        } else {
+            console.error('Bouton sidebar non trouvé dans le DOM');
+        }
+        
+        // Vérifier tous les éléments requis
+        const elements = {
+            sidebar: document.getElementById('lessonSidebar'),
+            container: document.getElementById('lessonContainer'),
+            toggleIcon: document.getElementById('toggleIcon'),
+            headerToggleIcon: document.getElementById('headerToggleIcon')
+        };
+        
+        console.log('État des éléments au chargement:', elements);
+        
+        const savedState = localStorage.getItem('sidebarVisible');
+        if (savedState !== null) {
+            const savedVisible = JSON.parse(savedState);
+            console.log('État sauvegardé récupéré:', savedVisible);
+            if (savedVisible !== sidebarVisible) {
+                sidebarVisible = !savedVisible; // Inverser pour que toggleSidebar() le remette dans le bon état
+                toggleSidebar();
+            }
+        }
+    });
+
     function toggleModule(moduleId) {
         const lessons = document.getElementById('lessons-' + moduleId);
         const icon = document.getElementById('icon-' + moduleId);
@@ -552,13 +845,21 @@
     document.addEventListener('DOMContentLoaded', function() {
         const activeLesson = document.querySelector('.lesson-item.active');
         if (activeLesson) {
-            const moduleId = activeLesson.closest('.module-group').querySelector('.module-header').getAttribute('onclick').match(/\d+/)[0];
-            const lessons = document.getElementById('lessons-' + moduleId);
-            const icon = document.getElementById('icon-' + moduleId);
-            
-            lessons.style.display = 'block';
-            icon.classList.remove('fa-chevron-right');
-            icon.classList.add('fa-chevron-down');
+            const moduleGroup = activeLesson.closest('.module-group');
+            if (moduleGroup) {
+                const moduleHeader = moduleGroup.querySelector('.module-header');
+                if (moduleHeader && moduleHeader.getAttribute('onclick')) {
+                    const moduleId = moduleHeader.getAttribute('onclick').match(/\d+/)[0];
+                    const lessons = document.getElementById('lessons-' + moduleId);
+                    const icon = document.getElementById('icon-' + moduleId);
+                    
+                    if (lessons && icon) {
+                        lessons.style.display = 'block';
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-down');
+                    }
+                }
+            }
         }
     });
 </script>
