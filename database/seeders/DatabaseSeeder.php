@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             CompetitionSeeder::class,
             MentorshipSeeder::class,
             CertificationSeeder::class,
+            BadgeSeeder::class,
+            RewardSeeder::class,
         ]);
     }
 }

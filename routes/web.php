@@ -16,6 +16,16 @@ use App\Http\Controllers\FormateurController;
 use App\Http\Controllers\Auth\SocialAuthController as AuthSocialAuthController;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\AchievementController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuizQuestionController;
+use App\Http\Controllers\BadgeController;
+use App\Http\Controllers\CoursePrerequisiteController;
+use App\Http\Controllers\RewardController;
+use App\Http\Controllers\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -273,3 +283,106 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('settings.password');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
+
+// Routes pour le système de paiement
+Route::middleware(['auth'])->group(function () {
+    Route::post('/payment/initiate/{course}', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
+    Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
+    Route::post('/payment/{payment}/refund', [PaymentController::class, 'refund'])->name('payment.refund');
+    Route::get('/payment/history', [PaymentController::class, 'paymentHistory'])->name('payment.history');
+});
+
+// Routes pour le chat
+Route::middleware(['auth'])->group(function () {
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{user}', [ChatController::class, 'show'])->name('chat.show');
+    Route::get('/chat/{user}/{course}', [ChatController::class, 'show'])->name('chat.show.course');
+    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('chat.store');
+    Route::patch('/chat/{message}/read', [ChatController::class, 'markAsRead'])->name('chat.read');
+    Route::delete('/chat/{message}', [ChatController::class, 'destroy'])->name('chat.destroy');
+});
+
+// Routes pour la gamification
+Route::middleware(['auth'])->group(function () {
+    Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements.index');
+    Route::get('/achievements/{achievement}', [AchievementController::class, 'show'])->name('achievements.show');
+    Route::get('/leaderboard', [AchievementController::class, 'leaderboard'])->name('achievements.leaderboard');
+});
+
+// Routes pour le support
+Route::middleware(['auth'])->group(function () {
+    // Tickets de support
+    Route::get('/support/tickets', [SupportController::class, 'tickets'])->name('support.tickets.index');
+    Route::get('/support/tickets/create', [SupportController::class, 'createTicket'])->name('support.tickets.create');
+    Route::post('/support/tickets', [SupportController::class, 'storeTicket'])->name('support.tickets.store');
+    Route::get('/support/tickets/{ticket}', [SupportController::class, 'showTicket'])->name('support.tickets.show');
+    Route::post('/support/tickets/{ticket}/reply', [SupportController::class, 'replyTicket'])->name('support.tickets.reply');
+
+    // FAQ
+    Route::get('/support/faq', [SupportController::class, 'faq'])->name('support.faq.index');
+    Route::get('/support/faq/{article}', [SupportController::class, 'showFaqArticle'])->name('support.faq.show');
+    Route::post('/support/faq/{article}/helpful', [SupportController::class, 'markFaqHelpful'])->name('support.faq.helpful');
+    Route::post('/support/faq/{article}/not-helpful', [SupportController::class, 'markFaqNotHelpful'])->name('support.faq.not-helpful');
+
+    // Administration du support
+    Route::middleware(['can:manageSupport'])->group(function () {
+        Route::get('/admin/support/tickets', [SupportController::class, 'adminTickets'])->name('admin.support.tickets.index');
+        Route::post('/admin/support/tickets/{ticket}/assign', [SupportController::class, 'assignTicket'])->name('admin.support.tickets.assign');
+        Route::patch('/admin/support/tickets/{ticket}/status', [SupportController::class, 'updateTicketStatus'])->name('admin.support.tickets.status');
+    });
+});
+
+// Routes pour les quiz
+Route::middleware(['auth'])->group(function () {
+    Route::get('/quizzes', [QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/quizzes/create', [QuizController::class, 'create'])->name('quizzes.create');
+    Route::post('/quizzes', [QuizController::class, 'store'])->name('quizzes.store');
+    Route::get('/quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
+    Route::get('/quizzes/{quiz}/edit', [QuizController::class, 'edit'])->name('quizzes.edit');
+    Route::put('/quizzes/{quiz}', [QuizController::class, 'update'])->name('quizzes.update');
+    Route::delete('/quizzes/{quiz}', [QuizController::class, 'destroy'])->name('quizzes.destroy');
+    
+    // Routes pour les tentatives de quiz
+    Route::post('/quizzes/{quiz}/start', [QuizController::class, 'start'])->name('quizzes.start');
+    Route::get('/quiz-attempts/{attempt}', [QuizController::class, 'attempt'])->name('quizzes.attempt');
+    Route::post('/quiz-attempts/{attempt}/submit', [QuizController::class, 'submit'])->name('quizzes.submit');
+    Route::get('/quiz-attempts/{attempt}/results', [QuizController::class, 'results'])->name('quizzes.results');
+
+    // Routes pour les questions de quiz
+    Route::get('/quizzes/{quiz}/questions', [QuizQuestionController::class, 'index'])->name('quizzes.questions.index');
+    Route::post('/quizzes/{quiz}/questions', [QuizQuestionController::class, 'store'])->name('quizzes.questions.store');
+    Route::put('/quizzes/{quiz}/questions/{question}', [QuizQuestionController::class, 'update'])->name('quizzes.questions.update');
+    Route::delete('/quizzes/{quiz}/questions/{question}', [QuizQuestionController::class, 'destroy'])->name('quizzes.questions.destroy');
+    Route::post('/quizzes/{quiz}/questions/reorder', [QuizQuestionController::class, 'reorder'])->name('quizzes.questions.reorder');
+});
+
+// Routes pour les badges et récompenses
+Route::middleware(['auth'])->group(function () {
+    Route::get('/badges', [BadgeController::class, 'index'])->name('badges.index');
+    Route::get('/badges/{badge}', [BadgeController::class, 'show'])->name('badges.show');
+    Route::get('/users/{user}/badges', [BadgeController::class, 'userBadges'])->name('badges.user');
+    Route::post('/badges/check-progress', [BadgeController::class, 'checkProgress'])->name('badges.check-progress');
+});
+
+// Rewards Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/rewards', [RewardController::class, 'index'])->name('rewards.index');
+    Route::get('/rewards/{reward}', [RewardController::class, 'show'])->name('rewards.show');
+    Route::post('/rewards/{reward}/claim', [RewardController::class, 'claim'])->name('rewards.claim');
+    Route::get('/users/{user}/rewards', [RewardController::class, 'userRewards'])->name('rewards.user');
+    Route::get('/rewards/check-available', [RewardController::class, 'checkAvailable'])->name('rewards.check-available');
+});
+
+// Routes pour les prérequis des cours
+Route::middleware(['auth'])->group(function () {
+    Route::get('/courses/{course}/prerequisites', [CoursePrerequisiteController::class, 'index'])->name('courses.prerequisites.index');
+    Route::get('/courses/{course}/prerequisites/create', [CoursePrerequisiteController::class, 'create'])->name('courses.prerequisites.create');
+    Route::post('/courses/{course}/prerequisites', [CoursePrerequisiteController::class, 'store'])->name('courses.prerequisites.store');
+    Route::get('/courses/{course}/prerequisites/{prerequisite}/edit', [CoursePrerequisiteController::class, 'edit'])->name('courses.prerequisites.edit');
+    Route::put('/courses/{course}/prerequisites/{prerequisite}', [CoursePrerequisiteController::class, 'update'])->name('courses.prerequisites.update');
+    Route::delete('/courses/{course}/prerequisites/{prerequisite}', [CoursePrerequisiteController::class, 'destroy'])->name('courses.prerequisites.destroy');
+    Route::get('/courses/{course}/check-access', [CoursePrerequisiteController::class, 'checkAccess'])->name('courses.check-access');
+});
+
+// Route pour le changement de langue
+Route::get('language/{locale}', [LanguageController::class, 'switchLang'])->name('language.switch');

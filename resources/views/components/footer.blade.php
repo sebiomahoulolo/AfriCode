@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AfriCode Footer Corrected</title>
+    <title>AfriCode</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
@@ -154,6 +154,47 @@
              text-decoration: underline;
          }
 
+        /* Styles pour la newsletter dans le footer */
+        .newsletter-footer {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .newsletter-footer h6 {
+            color: var(--africode-white);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .newsletter-footer .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--africode-white);
+            font-size: 0.85rem;
+        }
+
+        .newsletter-footer .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .newsletter-footer .btn {
+            background: var(--africode-accent-orange);
+            border: none;
+            color: var(--africode-white);
+            font-weight: 600;
+            padding: 0.375rem 1rem;
+        }
+
+        .newsletter-footer .btn:hover {
+            background: #e67e22;
+        }
+
+        /* Supprimer l'ancienne section newsletter */
+        .newsletter-section {
+            display: none;
+        }
+
     </style>
 </head>
 <body>
@@ -203,28 +244,45 @@
                     <a href="#" class="btn btn-outline-light btn-floating m-1" title="YouTube" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                     <a href="#" class="btn btn-outline-light btn-floating m-1" title="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
                 </div>
+
+                <!-- Newsletter intégrée -->
+                <div class="newsletter-footer mb-4">
+                    <h6 class="text-uppercase fw-bold mb-3">Newsletter</h6>
+                    <form class="newsletter-form">
+                        <div class="input-group">
+                            <input type="email" class="form-control form-control-sm" placeholder="Votre email" aria-label="Email address">
+                            <button class="btn btn-sm btn-light" type="button">S'abonner</button>
+                        </div>
+                        <small class="form-text text-light mt-2 d-block">Nous respectons votre vie privée.</small>
+                    </form>
+                </div>
+
                 <!-- Autres liens -->
-                 <ul class="list-unstyled d-flex flex-column align-items-center align-items-lg-start gap-2"> <!-- alignement gauche sur lg -->
-                    <li>
-                        <a href="{{ url('/') }}" class="text-light text-decoration-none link-animated">
-                            <i class="fas fa-home me-2"></i>Accueil
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('pages.apropos') }}" class="text-light text-decoration-none link-animated">
-                            <i class="fas fa-info-circle me-2"></i>À propos
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('pages.contact') }}" class="text-light text-decoration-none link-animated">
-                            <i class="fas fa-envelope me-2"></i>Contact
-                        </a>
-                    </li>
-                 </ul>
+                
             </div>
         </div>
     </div>
-
+    <div class="newsletter-section py-5">
+        <div class="container">
+            <div class="newsletter-card">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-4 mb-lg-0">
+                        <h3 class="newsletter-title">Restez informé</h3>
+                    
+                    </div>
+                    <div class="col-lg-6">
+                        <form class="newsletter-form">
+                            <div class="input-group">
+                                <input type="email" class="form-control" placeholder="Votre adresse email" aria-label="Email address">
+                                <button class="btn btn-primary" type="button">S'abonner</button>
+                            </div>
+                            <small class="form-text">Nous respectons votre vie privée.</small>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Copyright -->
     <div class="footer-copyright text-center p-3">
         © 2025 AfriCode : No code, No future - Tous droits réservés.

@@ -14,5 +14,9 @@
         <a href="{{ route('social.login', ['provider' => 'github']) }}" class="btn btn-outline-dark">
             <i class="fab fa-github"></i>
         </a>
+        <a href="{{ route('social.login', ['provider' => 'linkedin']) }}" class="btn btn-outline-dark">
+    <i class="fab fa-linkedin"></i>
+</a>
+
     </div>
 </div>

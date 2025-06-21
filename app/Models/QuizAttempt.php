@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class QuizAttempt extends Model
 {
@@ -12,104 +14,162 @@ class QuizAttempt extends Model
     protected $fillable = [
         'user_id',
         'quiz_id',
-        'enrollment_id',
         'started_at',
-        'completed_at',
+        'submitted_at',
         'score',
-        'passed',
-        'status'
+        'answers',
+        'anti_cheat_data'
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'score' => 'decimal:2',
-        'passed' => 'boolean'
+        'submitted_at' => 'datetime',
+        'answers' => 'array',
+        'anti_cheat_data' => 'array'
     ];
 
-    public function user()
+    /**
+     * Get the user that made the attempt.
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function quiz()
+    /**
+     * Get the quiz that was attempted.
+     */
+    public function quiz(): BelongsTo
     {
         return $this->belongsTo(Quiz::class);
     }
-    
-    public function enrollment()
+
+    /**
+     * Get the anti-cheat violations for this attempt.
+     */
+    public function violations(): HasMany
     {
-        return $this->belongsTo(Enrollment::class);
+        return $this->hasMany(AntiCheatViolation::class);
     }
-    
-    public function answers()
+
+    /**
+     * Check if the attempt is still in progress.
+     */
+    public function isInProgress(): bool
     {
-        return $this->hasMany(UserQuizAnswer::class);
+        return !$this->submitted_at;
     }
-    
-    public function isCompleted()
+
+    /**
+     * Calculate the score for the attempt.
+     */
+    public function calculateScore(): int
     {
-        return $this->status === 'completed';
-    }
-    
-    public function isInProgress()
-    {
-        return $this->status === 'in_progress';
-    }
-    
-    public function isAbandoned()
-    {
-        return $this->status === 'abandoned';
-    }
-    
-    public function calculateScore()
-    {
-        $totalPoints = $this->quiz->getTotalPoints();
-        if ($totalPoints === 0) {
+        if (!$this->submitted_at) {
             return 0;
         }
-        
-        $earnedPoints = $this->answers()
-            ->whereHas('question')
-            ->whereNotNull('is_correct')
-            ->join('questions', 'questions.id', '=', 'user_quiz_answers.question_id')
-            ->where('user_quiz_answers.is_correct', true)
-            ->sum('questions.points');
-            
-        $score = ($earnedPoints / $totalPoints) * 100;
-        return round($score, 2);
-    }
-    
-    public function markAsCompleted()
-    {
-        $this->completed_at = now();
-        $this->status = 'completed';
-        $this->score = $this->calculateScore();
-        $this->passed = $this->score >= $this->quiz->passing_score;
-        return $this->save();
-    }
-    
-    public function getRemainingTime()
-    {
-        if (!$this->quiz->time_limit_minutes) {
-            return null;
+
+        $score = 0;
+        foreach ($this->answers as $questionId => $answer) {
+            $question = $this->quiz->questions()->find($questionId);
+            if ($question && $question->isCorrect($answer)) {
+                $score += $question->points;
+            }
         }
-        
-        $endTime = $this->started_at->addMinutes($this->quiz->time_limit_minutes);
-        if (now()->greaterThan($endTime)) {
-            return 0;
-        }
-        
-        return now()->diffInSeconds($endTime);
+
+        $this->score = $score;
+        $this->save();
+
+        return $score;
     }
-    
-    public function hasTimedOut()
+
+    /**
+     * Record anti-cheat data.
+     */
+    public function recordAntiCheatData(array $data): void
     {
-        if (!$this->quiz->time_limit_minutes) {
+        $currentData = $this->anti_cheat_data ?? [];
+        $this->anti_cheat_data = array_merge($currentData, $data);
+        $this->save();
+    }
+
+    /**
+     * Check for potential cheating.
+     */
+    public function checkForCheating(): array
+    {
+        $violations = [];
+        $rules = AntiCheatRule::where('is_active', true)->get();
+
+        foreach ($rules as $rule) {
+            if ($this->violatesRule($rule)) {
+                $violations[] = $this->recordViolation($rule);
+            }
+        }
+
+        return $violations;
+    }
+
+    /**
+     * Check if the attempt violates a specific rule.
+     */
+    private function violatesRule(AntiCheatRule $rule): bool
+    {
+        return match($rule->type) {
+            'tab_switch' => $this->checkTabSwitchViolation($rule),
+            'copy_paste' => $this->checkCopyPasteViolation($rule),
+            'time_limit' => $this->checkTimeLimitViolation($rule),
+            default => false
+        };
+    }
+
+    /**
+     * Record a violation.
+     */
+    private function recordViolation(AntiCheatRule $rule): AntiCheatViolation
+    {
+        return $this->violations()->create([
+            'anti_cheat_rule_id' => $rule->id,
+            'violation_type' => $rule->type,
+            'violation_data' => $this->anti_cheat_data[$rule->type] ?? [],
+            'detected_at' => now()
+        ]);
+    }
+
+    /**
+     * Check for tab switch violations.
+     */
+    private function checkTabSwitchViolation(AntiCheatRule $rule): bool
+    {
+        $data = $this->anti_cheat_data['tab_switches'] ?? [];
+        $maxSwitches = $rule->parameters['max_switches'] ?? 3;
+        
+        return count($data) > $maxSwitches;
+    }
+
+    /**
+     * Check for copy-paste violations.
+     */
+    private function checkCopyPasteViolation(AntiCheatRule $rule): bool
+    {
+        $data = $this->anti_cheat_data['copy_paste_events'] ?? [];
+        $maxEvents = $rule->parameters['max_events'] ?? 0;
+        
+        return count($data) > $maxEvents;
+    }
+
+    /**
+     * Check for time limit violations.
+     */
+    private function checkTimeLimitViolation(AntiCheatRule $rule): bool
+    {
+        if (!$this->submitted_at) {
             return false;
         }
+
+        $timeLimit = $rule->parameters['time_limit'] ?? 0;
+        $duration = $this->submitted_at->diffInSeconds($this->started_at);
         
-        $endTime = $this->started_at->addMinutes($this->quiz->time_limit_minutes);
-        return now()->greaterThan($endTime);
+        return $duration > $timeLimit;
     }
 }

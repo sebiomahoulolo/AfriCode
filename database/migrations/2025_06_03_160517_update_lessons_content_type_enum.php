@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         // Modifier l'enum content_type pour accepter 'external' au lieu de 'external_link'
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external') NOT NULL");
+        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
         
         // Mettre à jour les valeurs existantes si nécessaire
         DB::table('lessons')
@@ -31,7 +31,7 @@ return new class extends Migration
     public function down(): void
     {
         // Restaurer l'ancien enum
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'quiz_link', 'external_link') NOT NULL");
+        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
         
         // Restaurer les valeurs
         DB::table('lessons')

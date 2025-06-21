@@ -7,9 +7,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
+                <div class="card-header  text-white text-center py-3" style="background-color:  #1EA38B" >
                     <h4 class="mb-0">Connexion à votre compte</h4>
                 </div>
+                    @include('auth.partials.social-buttons')
+                 <hr class="my-4">
+                   
                 <div class="card-body p-4 p-md-5">
                     <!-- Session Status -->
                     @if (session('status'))
@@ -26,7 +29,7 @@
                             <label for="email" class="form-label fw-bold">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="fas fa-envelope" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus autocomplete="username">
                             </div>
@@ -42,7 +45,7 @@
                             <label for="password" class="form-label fw-bold">Mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-lock" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
                             </div>
@@ -68,7 +71,7 @@
                                 </a>
                             @endif
                             <button type="submit" class="btn btn-primary px-4 py-2">
-                                <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                                <i class="fas fa-sign-in-alt me-2" style="color:  #FF8E2A;"></i>Connexion
                             </button>
                         </div>
                     </form>
@@ -76,12 +79,10 @@
                     <div class="mt-4 pt-3 border-top text-center">
                         <p class="mb-3">Pas encore de compte ?</p>
                         <a href="{{ route('register') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-user-plus me-2"></i>S'inscrire
+                            <i class="fas fa-user-plus me-2" style="color:  #FF8E2A;"></i>S'inscrire
                         </a>
                     </div>
 
-                    <hr class="my-4">
-                    @include('auth.partials.social-buttons')
                 </div>
             </div>
         </div>

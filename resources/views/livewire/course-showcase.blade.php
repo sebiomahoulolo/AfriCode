@@ -233,6 +233,7 @@
                                     $isBestseller = ($course->enrollments_count ?? 0) > 50; // Seuil pour "Meilleure vente"
                                     $isNew = $course->created_at && $course->created_at->diffInDays(now()) < 30; // Cours de moins de 30 jours
                                 @endphp
+                                
                                 @if($isBestseller)
                                     <span class="badge bg-warning text-dark position-absolute bottom-0 start-0 m-2 bestseller-badge">Meilleure vente</span>
                                 @elseif($isNew)
@@ -266,14 +267,17 @@
                                         <small class="text-muted ud-text-xs">({{ number_format($reviewsCount) }})</small>
                                     @endif
                                 </div>
+                                 
                                 <div class="mt-auto">
                                     <div class="d-flex align-items-center">
                                         @if(isset($course->price) && $course->price > 0)
-                                            <strong class="fs-5 text-dark me-2 ud-heading-md">{{ number_format($course->price, 0) }} €</strong>
+                                            <p class="text-success"><strong>{{ number_format($course->price, 0) }} €</strong> | Certificat inclus | <span class="text-danger">{{ number_format($course->price, 0) }}h</span></p>
+                   
                                             @if($course->original_price && $course->original_price > $course->price)
                                                 <span class="text-decoration-line-through text-muted ud-text-sm">{{ number_format($course->original_price, 0) }} €</span>
                                             @endif
                                         @elseif(isset($course->price) && $course->price == 0)
+                                        
                                             <strong class="fs-5 text-success me-2 ud-heading-md">Gratuit</strong>
                                         @else
                                             <strong class="fs-5 text-dark me-2 ud-heading-md"> </strong>

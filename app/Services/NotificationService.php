@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
@@ -218,5 +220,159 @@ class NotificationService
                 'read' => true,
                 'read_at' => now()
             ]);
+    }
+
+    public function send($user, $type, $data, $channels = ['database', 'email'])
+    {
+        try {
+            foreach ($channels as $channel) {
+                switch ($channel) {
+                    case 'database':
+                        $this->sendDatabaseNotification($user, $type, $data);
+                        break;
+                    case 'email':
+                        $this->sendEmailNotification($user, $type, $data);
+                        break;
+                    case 'push':
+                        $this->sendPushNotification($user, $type, $data);
+                        break;
+                    case 'sms':
+                        $this->sendSmsNotification($user, $type, $data);
+                        break;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Notification failed: ' . $e->getMessage());
+        }
+    }
+
+    protected function sendDatabaseNotification($user, $type, $data)
+    {
+        $notification = new Notification([
+            'type' => $type,
+            'data' => $data,
+            'read_at' => null
+        ]);
+
+        $user->notifications()->save($notification);
+    }
+
+    protected function sendEmailNotification($user, $type, $data)
+    {
+        $template = $this->getEmailTemplate($type);
+        
+        Mail::send($template, [
+            'user' => $user,
+            'data' => $data
+        ], function ($message) use ($user, $type) {
+            $message->to($user->email)
+                   ->subject($this->getEmailSubject($type));
+        });
+    }
+
+    protected function sendPushNotification($user, $type, $data)
+    {
+        if ($user->push_token) {
+            // Intégration avec Firebase Cloud Messaging ou autre service de push
+            // Exemple avec Firebase:
+            /*
+            $fcm = new Firebase\CloudMessaging\CloudMessaging();
+            $fcm->send([
+                'token' => $user->push_token,
+                'notification' => [
+                    'title' => $this->getNotificationTitle($type),
+                    'body' => $this->getNotificationBody($type, $data)
+                ],
+                'data' => $data
+            ]);
+            */
+        }
+    }
+
+    protected function sendSmsNotification($user, $type, $data)
+    {
+        if ($user->phone) {
+            // Intégration avec un service SMS
+            // Exemple avec Twilio:
+            /*
+            $twilio = new Twilio\Rest\Client(
+                config('services.twilio.sid'),
+                config('services.twilio.token')
+            );
+            
+            $twilio->messages->create(
+                $user->phone,
+                [
+                    'from' => config('services.twilio.from'),
+                    'body' => $this->getSmsBody($type, $data)
+                ]
+            );
+            */
+        }
+    }
+
+    protected function getEmailTemplate($type)
+    {
+        $templates = [
+            'course_enrolled' => 'emails.course.enrolled',
+            'course_completed' => 'emails.course.completed',
+            'payment_received' => 'emails.payment.received',
+            'support_ticket' => 'emails.support.ticket',
+            'achievement_earned' => 'emails.achievement.earned'
+        ];
+
+        return $templates[$type] ?? 'emails.default';
+    }
+
+    protected function getEmailSubject($type)
+    {
+        $subjects = [
+            'course_enrolled' => 'Bienvenue dans votre nouveau cours !',
+            'course_completed' => 'Félicitations ! Vous avez terminé le cours',
+            'payment_received' => 'Confirmation de paiement',
+            'support_ticket' => 'Mise à jour de votre ticket de support',
+            'achievement_earned' => 'Nouveau badge débloqué !'
+        ];
+
+        return $subjects[$type] ?? 'Notification';
+    }
+
+    protected function getNotificationTitle($type)
+    {
+        $titles = [
+            'course_enrolled' => 'Nouveau cours',
+            'course_completed' => 'Cours terminé',
+            'payment_received' => 'Paiement reçu',
+            'support_ticket' => 'Mise à jour du support',
+            'achievement_earned' => 'Nouveau badge'
+        ];
+
+        return $titles[$type] ?? 'Notification';
+    }
+
+    protected function getNotificationBody($type, $data)
+    {
+        $bodies = [
+            'course_enrolled' => "Vous êtes maintenant inscrit au cours : {$data['course_name']}",
+            'course_completed' => "Félicitations ! Vous avez terminé le cours : {$data['course_name']}",
+            'payment_received' => "Paiement de {$data['amount']}€ reçu pour {$data['course_name']}",
+            'support_ticket' => "Mise à jour de votre ticket : {$data['ticket_subject']}",
+            'achievement_earned' => "Vous avez débloqué le badge : {$data['achievement_name']}"
+        ];
+
+        return $bodies[$type] ?? 'Nouvelle notification';
+    }
+
+    protected function getSmsBody($type, $data)
+    {
+        $bodies = [
+            'course_enrolled' => "Inscription confirmée au cours {$data['course_name']}",
+            'course_completed' => "Félicitations ! Cours {$data['course_name']} terminé",
+            'payment_received' => "Paiement de {$data['amount']}€ reçu",
+            'support_ticket' => "Ticket {$data['ticket_id']} mis à jour",
+            'achievement_earned' => "Nouveau badge : {$data['achievement_name']}"
+        ];
+
+        return $bodies[$type] ?? 'Nouvelle notification';
     }
 }

@@ -7,24 +7,24 @@ class Payment extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'user_id', 'enrollment_id', 'payable_id', 'payable_type', 
-        'amount', 'currency', 'transaction_id', 'status', 'payment_gateway',
-        'paid_at'
+        'user_id',
+        'course_id',
+        'amount',
+        'currency',
+        'payment_method',
+        'status',
+        'transaction_id',
+        'payment_date',
+        'refund_status',
+        'refund_date',
+        'payment_details'
     ];
     protected $casts = [
-        'amount' => 'decimal:2',
-        'paid_at' => 'datetime'
+        'payment_date' => 'datetime',
+        'refund_date' => 'datetime',
+        'payment_details' => 'array'
     ];
 
     public function user() { return $this->belongsTo(User::class); }
-    public function enrollment() { return $this->belongsTo(Enrollment::class); }
-    public function payable() { return $this->morphTo(); }
-    
-    // Pour maintenir la compatibilité avec le code existant
-    public function course() { 
-        if ($this->payable_type === 'App\Models\Course') {
-            return $this->belongsTo(Course::class, 'payable_id');
-        }
-        return null;
-    }
+    public function course() { return $this->belongsTo(Course::class); }
 }

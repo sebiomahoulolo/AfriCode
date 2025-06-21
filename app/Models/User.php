@@ -104,6 +104,121 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Notification::class);
     }
 
+    /**
+     * Les badges obtenus par l'utilisateur.
+     */
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class)
+            ->withPivot('earned_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Les récompenses obtenues par l'utilisateur.
+     */
+    public function rewards()
+    {
+        return $this->belongsToMany(Reward::class)
+            ->withPivot('claimed_at', 'status')
+            ->withTimestamps();
+    }
+
+    /**
+     * La progression de l'utilisateur.
+     */
+    public function progress()
+    {
+        return $this->hasOne(UserProgress::class);
+    }
+
+    /**
+     * Les activités de l'utilisateur.
+     */
+    public function activities()
+    {
+        return $this->hasMany(UserActivity::class);
+    }
+
+    /**
+     * Vérifie si l'utilisateur a un badge spécifique.
+     */
+    public function hasBadge(string $badgeName): bool
+    {
+        return $this->badges()->where('name', $badgeName)->exists();
+    }
+
+    /**
+     * Vérifie si l'utilisateur a une récompense spécifique.
+     */
+    public function hasReward(string $rewardName): bool
+    {
+        return $this->rewards()->where('name', $rewardName)->exists();
+    }
+
+    /**
+     * Récupère les badges non obtenus par l'utilisateur.
+     */
+    public function getAvailableBadges()
+    {
+        return Badge::where('is_active', true)
+            ->whereDoesntHave('users', function ($query) {
+                $query->where('user_id', $this->id);
+            })
+            ->get()
+            ->filter(function ($badge) {
+                return $badge->checkRequirements($this);
+            });
+    }
+
+    /**
+     * Récupère les récompenses disponibles pour l'utilisateur.
+     */
+    public function getAvailableRewards()
+    {
+        return Reward::where('is_active', true)
+            ->whereDoesntHave('users', function ($query) {
+                $query->where('user_id', $this->id);
+            })
+            ->get()
+            ->filter(function ($reward) {
+                return $reward->checkRequirements($this);
+            });
+    }
+
+    /**
+     * Récupère les statistiques de l'utilisateur.
+     */
+    public function getStats(): array
+    {
+        return [
+            'badges' => [
+                'total' => $this->badges()->count(),
+                'recent' => $this->badges()->latest('earned_at')->take(5)->get(),
+            ],
+            'rewards' => [
+                'total' => $this->rewards()->count(),
+                'claimed' => $this->rewards()->where('is_claimed', true)->count(),
+                'available' => $this->getAvailableRewards()->count(),
+            ],
+            'progress' => [
+                'level' => $this->progress->current_level ?? 1,
+                'points' => $this->progress->total_points ?? 0,
+                'experience' => $this->progress->experience_points ?? 0,
+                'next_level' => $this->progress ? $this->progress->getLevelProgressPercentage() : 0,
+            ],
+            'activities' => UserActivity::getUserStats($this),
+        ];
+    }
+
+    /**
+     * Enregistre une nouvelle activité pour l'utilisateur.
+     */
+    public function logActivity(string $type, string $description, array $metadata = [], int $points = 0): UserActivity
+    {
+        return UserActivity::log($this, $type, $description, $metadata, $points);
+    }
+
     // --- Role Checks ---
     public function isAdmin()
     {
@@ -144,5 +259,63 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getEnrollment($courseId)
     {
         return $this->enrollments()->where('course_id', $courseId)->first();
+    }
+
+    public function challenges()
+    {
+        return $this->belongsToMany(Challenge::class)
+            ->withPivot('progress', 'is_completed', 'completed_at')
+            ->withTimestamps();
+    }
+
+    public function getActiveChallenges()
+    {
+        return $this->challenges()
+            ->where('is_active', true)
+            ->where('end_date', '>', now())
+            ->get();
+    }
+
+    public function getCompletedChallenges()
+    {
+        return $this->challenges()
+            ->wherePivot('is_completed', true)
+            ->get();
+    }
+
+    public function getEarnedBadges()
+    {
+        return $this->badges()
+            ->wherePivotNotNull('earned_at')
+            ->get();
+    }
+
+    public function getTotalPoints()
+    {
+        return $this->progress->total_points;
+    }
+
+    public function getCurrentLevel()
+    {
+        return $this->progress->current_level;
+    }
+
+    public function getLevelProgress()
+    {
+        return $this->progress->getLevelProgressPercentage();
+    }
+
+    public function getGlobalRanking()
+    {
+        return User::where('total_points', '>', $this->getTotalPoints())->count() + 1;
+    }
+
+    public function getRecentAchievements($limit = 5)
+    {
+        return $this->activities()
+            ->whereIn('type', ['badge_earned', 'challenge_completed', 'reward_claimed'])
+            ->latest()
+            ->limit($limit)
+            ->get();
     }
 }

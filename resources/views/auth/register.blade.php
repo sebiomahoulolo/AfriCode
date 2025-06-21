@@ -7,9 +7,13 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
+                <div class="card-header  text-white text-center py-3" style="background-color:  #1EA38B" >
                     <h4 class="mb-0">Créer votre compte</h4>
                 </div>
+                
+                    
+                    @include('auth.partials.social-buttons')
+                    <hr class="my-4">
                 <div class="card-body p-4 p-md-5">
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
@@ -19,7 +23,7 @@
                             <label for="first_name" class="form-label fw-bold">Prénom</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-user" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="first_name" type="text" class="form-control @error('first_name') is-invalid @enderror" name="first_name" value="{{ old('first_name') }}" required autofocus autocomplete="given-name">
                             </div>
@@ -35,7 +39,7 @@
                             <label for="last_name" class="form-label fw-bold">Nom</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-user" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="last_name" type="text" class="form-control @error('last_name') is-invalid @enderror" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name">
                             </div>
@@ -51,7 +55,7 @@
                             <label for="email" class="form-label fw-bold">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="fas fa-envelope" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="username">
                             </div>
@@ -68,7 +72,7 @@
                             <select name="role" id="role" class="form-select @error('role') is-invalid @enderror">
                                 <option value="" disabled selected>Choisir votre profil</option>
                                 <option value="apprenant" {{ old('role') == 'apprenant' ? 'selected' : '' }}>Apprenant</option>
-                                <option value="formateur" {{ old('role') == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                                {{-- <option value="formateur" {{ old('role') == 'formateur' ? 'selected' : '' }}>Formateur</option> --}}
                             </select>
                             @error('role')
                                 <div class="invalid-feedback d-block">
@@ -82,7 +86,7 @@
                             <label for="password" class="form-label fw-bold">Mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-lock" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
                             </div>
@@ -99,7 +103,7 @@
                             <label for="password_confirmation" class="form-label fw-bold">Confirmer le mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-lock" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                             </div>
@@ -118,13 +122,11 @@
                                 Déjà inscrit ?
                             </a>
                             <button type="submit" class="btn btn-primary px-4 py-2">
-                                <i class="fas fa-user-plus me-2"></i>S'inscrire
+                                <i class="fas fa-user-plus me-2" style="color:  #FF8E2A;"></i>S'inscrire
                             </button>
                         </div>
                     </form>
 
-                    <hr class="my-4">
-                    @include('auth.partials.social-buttons')
                 </div>
             </div>
         </div>

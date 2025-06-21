@@ -81,6 +81,38 @@ class Course extends Model
         return $this->morphMany(Quiz::class, 'quizzable');
     }
 
+    /**
+     * Les prérequis de ce cours.
+     */
+    public function prerequisites()
+    {
+        return $this->hasMany(CoursePrerequisite::class);
+    }
+
+    /**
+     * Les cours qui ont ce cours comme prérequis.
+     */
+    public function requiredFor()
+    {
+        return $this->hasMany(CoursePrerequisite::class, 'prerequisite_course_id');
+    }
+
+    /**
+     * Vérifie si un utilisateur peut accéder à ce cours.
+     */
+    public function canBeAccessedBy(User $user): bool
+    {
+        return CoursePrerequisite::canAccessCourse($user, $this);
+    }
+
+    /**
+     * Récupère les prérequis manquants pour un utilisateur.
+     */
+    public function getMissingPrerequisitesFor(User $user): array
+    {
+        return CoursePrerequisite::getMissingPrerequisites($user, $this);
+    }
+
     // Générer le slug automatiquement lors de la création/mise à jour
     protected static function boot() {
         parent::boot();
