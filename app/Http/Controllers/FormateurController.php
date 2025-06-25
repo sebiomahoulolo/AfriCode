@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class FormateurController extends Controller
 {
@@ -117,7 +118,7 @@ class FormateurController extends Controller
     public function manageCourse($courseId)
     {
         $user = Auth::user();
-        $course = Course::with(['modules.lessons', 'modules.quizzes'])->findOrFail($courseId);
+        $course = Course::with(['modules.lessons', 'modules.quiz'])->findOrFail($courseId);
         
         // Vérifier que le formateur est bien le propriétaire du cours
         if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
@@ -172,6 +173,7 @@ class FormateurController extends Controller
             'price' => 'required|numeric|min:0',
             'currency' => 'required|string|size:3',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_certifying' => 'nullable|boolean',
         ]);
         
         $user = Auth::user();
@@ -209,6 +211,7 @@ class FormateurController extends Controller
             'status' => 'draft',
             'formateur_id' => $user->id,
             'category_id' => $request->category_id,
+            'is_certifying' => $request->has('is_certifying'),
         ]);
         
         return redirect()->route('formateur.modules.create', ['courseId' => $course->id])
@@ -254,6 +257,7 @@ class FormateurController extends Controller
             'price' => 'required|numeric|min:0',
             'currency' => 'required|string|size:3',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'is_certifying' => 'nullable|boolean',
         ]);
         
         $user = Auth::user();
@@ -301,6 +305,7 @@ class FormateurController extends Controller
         $course->price = $request->price;
         $course->currency = $request->currency;
         $course->category_id = $request->category_id;
+        $course->is_certifying = $request->has('is_certifying');
         $course->save();
         
         return redirect()->route('formateur.manage.course', ['courseId' => $course->id])
@@ -372,7 +377,7 @@ class FormateurController extends Controller
     public function manageModule($moduleId)
     {
         $user = Auth::user();
-        $module = Module::with(['course', 'lessons', 'quizzes'])->findOrFail($moduleId);
+        $module = Module::with(['course', 'lessons', 'quiz.questions'])->findOrFail($moduleId);
         
         // Vérifier que le formateur est bien le propriétaire du cours
         if ($module->course->formateur_id !== $user->id && $user->role !== 'admin') {
@@ -468,11 +473,17 @@ class FormateurController extends Controller
     public function createQuiz($moduleId)
     {
         $user = Auth::user();
-        $module = Module::with('course')->findOrFail($moduleId);
+        $module = Module::with(['course', 'quiz'])->findOrFail($moduleId);
         
         // Vérifier que le formateur est bien le propriétaire du cours
         if ($module->course->formateur_id !== $user->id && $user->role !== 'admin') {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce module');
+        }
+        
+        // Vérifier qu'il n'y a pas déjà un quiz pour ce module
+        if ($module->quiz) {
+            return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
+                ->with('error', 'Ce module a déjà un quiz. Vous pouvez le modifier ou le supprimer.');
         }
         
         return view('formateurs.create_quiz', compact('module'));
@@ -498,12 +509,28 @@ class FormateurController extends Controller
             'questions.*.answers.*.is_correct' => 'required|boolean',
         ]);
         
+        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
+        foreach ($request->questions as $index => $question) {
+            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
+            if (!$hasCorrectAnswer) {
+                return back()->withErrors([
+                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
+                ])->withInput();
+            }
+        }
+        
         $user = Auth::user();
-        $module = Module::with('course')->findOrFail($moduleId);
+        $module = Module::with(['course', 'quiz'])->findOrFail($moduleId);
         
         // Vérifier que le formateur est bien le propriétaire du cours
         if ($module->course->formateur_id !== $user->id && $user->role !== 'admin') {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce module');
+        }
+        
+        // Vérifier qu'il n'y a pas déjà un quiz pour ce module
+        if ($module->quiz) {
+            return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
+                ->with('error', 'Ce module a déjà un quiz. Vous pouvez le modifier ou le supprimer.');
         }
         
         DB::beginTransaction();
@@ -511,11 +538,12 @@ class FormateurController extends Controller
         try {
             // Créer le quiz
             $quiz = Quiz::create([
-                'related_type' => class_basename(Module::class), // Stocker uniquement le nom court de la classe au lieu du FQCN complet
-                'related_id' => $moduleId,
+                'module_id' => $moduleId,
+                'quiz_type' => 'module_end',
                 'title' => $request->title,
                 'description' => $request->description,
                 'passing_score' => $request->passing_score,
+                'is_required' => true, // Les quiz de module sont obligatoires par défaut
             ]);
             
             // Créer les questions et les réponses
@@ -554,7 +582,7 @@ class FormateurController extends Controller
     public function publishCourse($courseId)
     {
         $user = Auth::user();
-        $course = Course::with(['modules.lessons', 'modules.quizzes'])->findOrFail($courseId);
+        $course = Course::with(['modules.lessons', 'modules.quiz'])->findOrFail($courseId);
         
         // Vérifier que le formateur est bien le propriétaire du cours
         if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
@@ -569,7 +597,7 @@ class FormateurController extends Controller
         
         $hasLessons = false;
         foreach ($course->modules as $module) {
-            if (!$module->lessons->isEmpty() || !$module->quizzes->isEmpty()) {
+            if (!$module->lessons->isEmpty() || $module->quiz) {
                 $hasLessons = true;
                 break;
             }
@@ -842,7 +870,7 @@ class FormateurController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Erreur lors de la suppression du cours {$courseId}: " . $e->getMessage());
+            Log::error("Erreur lors de la suppression du cours {$courseId}: " . $e->getMessage());
             return redirect()->route('formateur.dashboard')->with('error', 'Une erreur s\'est produite lors de la suppression du cours. Veuillez réessayer.');
         }
     }
@@ -980,14 +1008,14 @@ class FormateurController extends Controller
     public function editQuiz($quizId)
     {
         $user = Auth::user();
-        $quiz = Quiz::with(['questions.answers', 'related'])->findOrFail($quizId);
+        $quiz = Quiz::with(['questions.answers', 'module.course'])->findOrFail($quizId);
         
         // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
-        if ($quiz->related_type !== class_basename(Module::class)) {
+        if (!$quiz->module_id) {
             return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
         }
         
-        $module = Module::with('course')->find($quiz->related_id);
+        $module = $quiz->module;
         
         if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier ce quiz');
@@ -1018,15 +1046,25 @@ class FormateurController extends Controller
             'questions.*.answers.*.is_correct' => 'required|boolean',
         ]);
         
+        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
+        foreach ($request->questions as $index => $question) {
+            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
+            if (!$hasCorrectAnswer) {
+                return back()->withErrors([
+                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
+                ])->withInput();
+            }
+        }
+        
         $user = Auth::user();
-        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        $quiz = Quiz::with(['questions.answers', 'module.course'])->findOrFail($quizId);
         
         // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
-        if ($quiz->related_type !== class_basename(Module::class)) {
+        if (!$quiz->module_id) {
             return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
         }
         
-        $module = Module::with('course')->find($quiz->related_id);
+        $module = $quiz->module;
         
         if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier ce quiz');
@@ -1140,14 +1178,14 @@ class FormateurController extends Controller
     public function destroyQuiz($quizId)
     {
         $user = Auth::user();
-        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        $quiz = Quiz::with(['questions.answers', 'module.course'])->findOrFail($quizId);
         
         // Vérifier que le quiz est bien associé à un module et que le formateur est propriétaire du cours
-        if ($quiz->related_type !== class_basename(Module::class)) {
+        if (!$quiz->module_id) {
             return redirect()->route('formateur.dashboard')->with('error', 'Ce quiz n\'est pas associé à un module');
         }
         
-        $module = Module::with('course')->find($quiz->related_id);
+        $module = $quiz->module;
         
         if (!$module || ($module->course->formateur_id !== $user->id && $user->role !== 'admin')) {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à supprimer ce quiz');
@@ -1176,6 +1214,327 @@ class FormateurController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Une erreur s\'est produite lors de la suppression du quiz. ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Afficher le formulaire de création d'un examen final (quiz de cours)
+     * 
+     * @param  int  $courseId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function createFinalExam($courseId)
+    {
+        $user = Auth::user();
+        $course = Course::with('finalQuiz')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier qu'il n'y a pas déjà un examen final
+        if ($course->finalQuiz) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Ce cours a déjà un examen final.');
+        }
+        
+        return view('formateurs.create_final_exam', compact('course'));
+    }
+    
+    /**
+     * Enregistrer un nouvel examen final (quiz de cours)
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $courseId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeFinalExam(Request $request, $courseId)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'passing_score' => 'required|integer|min:0|max:100',
+            'questions' => 'required|array|min:1',
+            'questions.*.text' => 'required|string',
+            'questions.*.answers' => 'required|array|min:2',
+            'questions.*.answers.*.text' => 'required|string',
+            'questions.*.answers.*.is_correct' => 'required|boolean',
+        ]);
+        
+        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
+        foreach ($request->questions as $index => $question) {
+            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
+            if (!$hasCorrectAnswer) {
+                return back()->withErrors([
+                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
+                ])->withInput();
+            }
+        }
+        
+        $user = Auth::user();
+        $course = Course::with('finalQuiz')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier qu'il n'y a pas déjà un examen final
+        if ($course->finalQuiz) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Ce cours a déjà un examen final.');
+        }
+        
+        DB::beginTransaction();
+        
+        try {
+            // Créer le quiz final
+            $quiz = Quiz::create([
+                'course_id' => $courseId,
+                'quiz_type' => 'course_final',
+                'title' => $request->title,
+                'description' => $request->description,
+                'passing_score' => $request->passing_score,
+                'is_required' => true, // Les examens finaux sont toujours requis
+            ]);
+            
+            // Créer les questions et les réponses
+            foreach ($request->questions as $questionData) {
+                $question = Question::create([
+                    'quiz_id' => $quiz->id,
+                    'text' => $questionData['text'],
+                    'type' => 'multiple_choice',
+                ]);
+                
+                foreach ($questionData['answers'] as $answerData) {
+                    Answer::create([
+                        'question_id' => $question->id,
+                        'text' => $answerData['text'],
+                        'is_correct' => $answerData['is_correct'],
+                    ]);
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('success', 'L\'examen final a été créé avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Une erreur s\'est produite lors de la création de l\'examen final. ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Afficher les détails d'un examen final pour édition
+     * 
+     * @param  int  $courseId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editFinalExam($courseId)
+    {
+        $user = Auth::user();
+        $course = Course::with('finalQuiz.questions.answers')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier qu'il y a bien un examen final
+        if (!$course->finalQuiz) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Ce cours n\'a pas d\'examen final.');
+        }
+        
+        $quiz = $course->finalQuiz;
+        
+        return view('formateurs.edit_final_exam', compact('quiz', 'course'));
+    }
+    
+    /**
+     * Mettre à jour un examen final existant
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $courseId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateFinalExam(Request $request, $courseId)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'passing_score' => 'required|integer|min:0|max:100',
+            'questions' => 'required|array|min:1',
+            'questions.*.id' => 'nullable|exists:questions,id',
+            'questions.*.text' => 'required|string',
+            'questions.*.answers' => 'required|array|min:2',
+            'questions.*.answers.*.id' => 'nullable|exists:answers,id',
+            'questions.*.answers.*.text' => 'required|string',
+            'questions.*.answers.*.is_correct' => 'required|boolean',
+        ]);
+        
+        $user = Auth::user();
+        $course = Course::with('finalQuiz.questions.answers')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier qu'il y a bien un examen final
+        if (!$course->finalQuiz) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Ce cours n\'a pas d\'examen final.');
+        }
+        
+        $quiz = $course->finalQuiz;
+        
+        // Mise à jour en transaction pour garantir la cohérence
+        DB::beginTransaction();
+        
+        try {
+            // Mettre à jour les informations du quiz
+            $quiz->title = $request->title;
+            $quiz->description = $request->description;
+            $quiz->passing_score = $request->passing_score;
+            $quiz->save();
+            
+            // Liste des IDs de questions à conserver
+            $questionIds = collect($request->questions)
+                ->filter(function ($q) {
+                    return !empty($q['id']);
+                })
+                ->pluck('id')
+                ->toArray();
+                
+            // Supprimer les questions qui ne sont plus dans la liste
+            foreach ($quiz->questions as $question) {
+                if (!in_array($question->id, $questionIds)) {
+                    // Supprimer d'abord les réponses
+                    $question->answers()->delete();
+                    // Puis la question
+                    $question->delete();
+                }
+            }
+            
+            // Mettre à jour ou créer les questions
+            foreach ($request->questions as $index => $questionData) {
+                if (!empty($questionData['id'])) {
+                    // Mise à jour d'une question existante
+                    $question = Question::find($questionData['id']);
+                    $question->text = $questionData['text'];
+                    $question->order = $index + 1;
+                    $question->save();
+                    
+                    // Liste des IDs de réponses à conserver pour cette question
+                    $answerIds = collect($questionData['answers'])
+                        ->filter(function ($a) {
+                            return !empty($a['id']);
+                        })
+                        ->pluck('id')
+                        ->toArray();
+                    
+                    // Supprimer les réponses qui ne sont plus dans la liste
+                    foreach ($question->answers as $answer) {
+                        if (!in_array($answer->id, $answerIds)) {
+                            $answer->delete();
+                        }
+                    }
+                    
+                    // Mettre à jour ou créer les réponses
+                    foreach ($questionData['answers'] as $answerData) {
+                        if (!empty($answerData['id'])) {
+                            // Mise à jour d'une réponse existante
+                            $answer = Answer::find($answerData['id']);
+                            $answer->text = $answerData['text'];
+                            $answer->is_correct = $answerData['is_correct'];
+                            $answer->save();
+                        } else {
+                            // Création d'une nouvelle réponse
+                            Answer::create([
+                                'question_id' => $question->id,
+                                'text' => $answerData['text'],
+                                'is_correct' => $answerData['is_correct'],
+                            ]);
+                        }
+                    }
+                } else {
+                    // Création d'une nouvelle question
+                    $question = Question::create([
+                        'quiz_id' => $quiz->id,
+                        'text' => $questionData['text'],
+                        'type' => 'multiple_choice',
+                        'order' => $index + 1,
+                    ]);
+                    
+                    // Créer les réponses pour cette question
+                    foreach ($questionData['answers'] as $answerData) {
+                        Answer::create([
+                            'question_id' => $question->id,
+                            'text' => $answerData['text'],
+                            'is_correct' => $answerData['is_correct'],
+                        ]);
+                    }
+                }
+            }
+            
+            DB::commit();
+            
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('success', 'L\'examen final a été mis à jour avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Une erreur s\'est produite lors de la mise à jour de l\'examen final. ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Supprimer un examen final et ses questions/réponses associées
+     * 
+     * @param  int  $courseId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroyFinalExam($courseId)
+    {
+        $user = Auth::user();
+        $course = Course::with('finalQuiz.questions.answers')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier qu'il y a bien un examen final
+        if (!$course->finalQuiz) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Ce cours n\'a pas d\'examen final.');
+        }
+        
+        $quiz = $course->finalQuiz;
+        
+        DB::beginTransaction();
+        
+        try {
+            // Supprimer toutes les réponses aux questions
+            foreach ($quiz->questions as $question) {
+                $question->answers()->delete();
+            }
+            
+            // Supprimer toutes les questions
+            $quiz->questions()->delete();
+            
+            // Supprimer le quiz lui-même
+            $quiz->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('success', 'L\'examen final a été supprimé avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Une erreur s\'est produite lors de la suppression de l\'examen final. ' . $e->getMessage());
         }
     }
 }

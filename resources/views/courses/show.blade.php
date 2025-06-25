@@ -527,9 +527,46 @@
                             </div>
                             
                             <div class="action-buttons">
-                                <button type="button" class="btn btn-primary w-100 py-3 mb-2">
-                                    <i class="fas fa-cart-plus me-2"></i> Acheter maintenant
-                                </button>
+                                @auth
+                                    @php
+                                        $userEnrollment = $course->enrollments->where('user_id', auth()->id())->first();
+                                    @endphp
+                                    
+                                    @if($userEnrollment)
+                                        <!-- L'utilisateur est déjà inscrit -->
+                                        <a href="{{ route('apprenant.course.access', ['courseId' => $course->id]) }}" class="btn btn-success w-100 py-3 mb-2">
+                                            <i class="fas fa-play me-2"></i> Accéder au cours
+                                        </a>
+                                        <div class="text-center mb-3">
+                                            <small class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Vous êtes inscrit à ce cours
+                                            </small>
+                                        </div>
+                                    @else
+                                        <!-- L'utilisateur n'est pas inscrit -->
+                                        @if($course->price > 0)
+                                            <a href="{{ route('enrollment.show', $course) }}" class="btn btn-primary w-100 py-3 mb-2">
+                                                <i class="fas fa-shopping-cart me-2"></i> S'inscrire - {{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'EUR' }}
+                                            </a>
+                                        @else
+                                            <a href="{{ route('enrollment.show', $course) }}" class="btn btn-success w-100 py-3 mb-2">
+                                                <i class="fas fa-play me-2"></i> S'inscrire gratuitement
+                                            </a>
+                                        @endif
+                                    @endif
+                                @else
+                                    <!-- L'utilisateur n'est pas connecté -->
+                                    <a href="{{ route('login') }}" class="btn btn-primary w-100 py-3 mb-2">
+                                        <i class="fas fa-sign-in-alt me-2"></i> Se connecter pour s'inscrire
+                                    </a>
+                                    <div class="text-center mb-3">
+                                        <small class="text-muted">
+                                            Vous devez être connecté pour vous inscrire à ce cours
+                                        </small>
+                                    </div>
+                                @endauth
+                                
                                 <button type="button" class="btn btn-outline-dark w-100 py-3 mb-3">
                                     <i class="far fa-heart me-2"></i> Ajouter à la liste de souhaits
                                 </button>

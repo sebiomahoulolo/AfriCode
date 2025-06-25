@@ -170,6 +170,24 @@
                     </div>
                 </div>
                 
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input @error('is_certifying') is-invalid @enderror" type="checkbox" 
+                                   value="1" id="is_certifying" name="is_certifying" {{ old('is_certifying', $course->is_certifying) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_certifying">
+                                <strong>Cours certifiant</strong>
+                            </label>
+                            <div class="form-text">
+                                Cochez cette case si ce cours délivre un certificat de réussite après validation de tous les modules et du quiz final.
+                            </div>
+                            @error('is_certifying')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-secondary">Annuler</a>
                     <button type="submit" class="btn btn-primary">Mettre à jour le cours</button>

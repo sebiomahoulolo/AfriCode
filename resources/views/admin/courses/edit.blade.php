@@ -245,6 +245,13 @@
                                         </label>
                                     </div>
                                 </div>
+                                <div class="mb-3">
+                                    <label>Options de Certification</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_certifying" name="is_certifying" value="1" {{ old('is_certifying', $course->is_certifying) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_certifying">Ce cours donne droit à une certification</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         

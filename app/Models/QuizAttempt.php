@@ -23,7 +23,7 @@ class QuizAttempt extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'completed_at' => 'datetime',
-        'score' => 'decimal:2',
+        'score' => 'float',
         'passed' => 'boolean'
     ];
 
@@ -111,5 +111,32 @@ class QuizAttempt extends Model
         
         $endTime = $this->started_at->addMinutes($this->quiz->time_limit_minutes);
         return now()->greaterThan($endTime);
+    }
+
+    // Accesseur pour obtenir le score en pourcentage
+    public function getScorePercentageAttribute()
+    {
+        return $this->score;
+    }
+
+    // Accesseur pour obtenir le nombre total de questions
+    public function getTotalQuestionsAttribute()
+    {
+        return $this->quiz->questions->count();
+    }
+
+    // Accesseur pour obtenir le nombre de réponses correctes
+    public function getCorrectAnswersAttribute()
+    {
+        return $this->answers()->where('is_correct', true)->distinct('question_id')->count();
+    }
+
+    // Accesseur pour obtenir le temps pris
+    public function getTimeTakenAttribute()
+    {
+        if ($this->started_at && $this->completed_at) {
+            return $this->started_at->diffInSeconds($this->completed_at);
+        }
+        return 0;
     }
 }

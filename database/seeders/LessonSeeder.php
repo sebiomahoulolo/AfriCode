@@ -51,7 +51,7 @@ class LessonSeeder extends Seeder
                         'video_url' => $contentType === 'video' ? 'https://www.youtube.com/watch?v=example-' . rand(1000, 9999) : null,
                         'text_content' => $contentType === 'text' ? $this->generateLoremIpsum() : null,
                         'pdf_path' => $contentType === 'pdf' ? 'lessons/pdf/lesson-' . rand(100, 999) . '.pdf' : null,
-                        'external_url' => $contentType === 'external_link' ? 'https://example.com/resources/' . rand(1000, 9999) : null,
+                        'external_url' => $contentType === 'external' ? 'https://example.com/resources/' . rand(1000, 9999) : null,
                         'duration_minutes' => rand(5, 45),
                         'order' => $i,
                         'is_previewable' => $isPreviewable,
@@ -97,7 +97,7 @@ class LessonSeeder extends Seeder
             ],
             [
                 'title' => 'Quiz: Concepts fondamentaux',
-                'content_type' => 'quiz_link',
+                'content_type' => 'external',
                 'external_url' => 'https://africode.com/quizzes/html-basics',
                 'duration_minutes' => 15,
                 'is_previewable' => false,
@@ -112,7 +112,7 @@ class LessonSeeder extends Seeder
                 'content_type' => $lessonData['content_type'],
                 'video_url' => $lessonData['content_type'] === 'video' ? $lessonData['video_url'] : null,
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
-                'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external_link' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -179,7 +179,7 @@ class LessonSeeder extends Seeder
                 'video_url' => $lessonData['content_type'] === 'video' ? $lessonData['video_url'] : null,
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
                 'pdf_path' => $lessonData['content_type'] === 'pdf' ? $lessonData['pdf_path'] : null,
-                'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external_link' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -238,7 +238,7 @@ class LessonSeeder extends Seeder
                 'content_type' => $lessonData['content_type'],
                 'video_url' => $lessonData['content_type'] === 'video' ? $lessonData['video_url'] : null,
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
-                'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external_link' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -279,11 +279,10 @@ class LessonSeeder extends Seeder
     private function getRandomContentType()
     {
         $types = [
-            'video' => 45,      // 45% chance
+            'video' => 50,      // 50% chance
             'text' => 35,       // 35% chance
             'pdf' => 10,        // 10% chance
-            'quiz_link' => 5,   // 5% chance
-            'external_link' => 5 // 5% chance
+            'external' => 5     // 5% chance
         ];
         
         $rand = rand(1, 100);

@@ -232,6 +232,75 @@
             @endif
         </div>
     </div>
+
+    <!-- Final Exam Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-graduation-cap me-2"></i>Examen final
+                @if($course->is_certifying)
+                    <span class="badge bg-warning ms-2">Certifiant</span>
+                @endif
+            </h5>
+            @if($course->finalQuiz)
+                <div>
+                    <a href="{{ route('formateur.final-exam.edit', ['courseId' => $course->id]) }}" class="btn btn-primary btn-sm me-2">
+                        <i class="fas fa-edit me-1"></i> Modifier l'examen
+                    </a>
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteFinalExamModal">
+                        <i class="fas fa-trash me-1"></i> Supprimer
+                    </button>
+                </div>
+            @else
+                <a href="{{ route('formateur.final-exam.create', ['courseId' => $course->id]) }}" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-1"></i> Créer un examen final
+                </a>
+            @endif
+        </div>
+        <div class="card-body">
+            @if($course->finalQuiz)
+                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                    <div>
+                        <h6 class="mb-1">
+                            <i class="fas fa-flag-checkered me-2 text-primary"></i>
+                            {{ $course->finalQuiz->title }}
+                        </h6>
+                        <p class="mb-0 text-muted">
+                            {{ $course->finalQuiz->questions->count() }} question(s) • 
+                            Score minimum: {{ $course->finalQuiz->passing_score }}%
+                            @if($course->finalQuiz->description)
+                                <br><small>{{ $course->finalQuiz->description }}</small>
+                            @endif
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary lesson-type-badge">
+                            Examen final • {{ $course->finalQuiz->questions->count() }} questions
+                        </span>
+                    </div>
+                </div>
+                
+                @if($course->is_certifying)
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Cours certifiant :</strong> Les apprenants devront réussir cet examen final avec au moins {{ $course->finalQuiz->passing_score }}% pour obtenir leur certificat de réussite.
+                    </div>
+                @endif
+            @else
+                <div class="text-center py-4">
+                    <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                    <p class="mb-1">Aucun examen final configuré</p>
+                    <p class="text-muted">
+                        @if($course->is_certifying)
+                            Ce cours est certifiant mais n'a pas encore d'examen final. Créez un examen final pour permettre aux apprenants d'obtenir leur certificat.
+                        @else
+                            Créez un examen final pour évaluer la compréhension globale du cours par vos apprenants.
+                        @endif
+                    </p>
+                </div>
+            @endif
+        </div>
+    </div>
     
     <!-- Modal de confirmation de suppression -->
     <div class="modal fade" id="deleteCourseModal" tabindex="-1" aria-labelledby="deleteCourseModalLabel" aria-hidden="true">
@@ -256,4 +325,36 @@
             </div>
         </div>
     </div>
+
+    <!-- Delete Final Exam Modal -->
+    @if($course->finalQuiz)
+    <div class="modal fade" id="deleteFinalExamModal" tabindex="-1" aria-labelledby="deleteFinalExamModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteFinalExamModalLabel">Confirmer la suppression de l'examen final</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer l'examen final "<strong>{{ $course->finalQuiz->title }}</strong>" ?</p>
+                    <p class="text-danger"><strong>Attention :</strong> Cette action supprimera définitivement toutes les questions et réponses de l'examen. Cette action ne peut pas être annulée.</p>
+                    @if($course->is_certifying)
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important :</strong> Ce cours est certifiant. Supprimer l'examen final empêchera les apprenants d'obtenir leur certificat.
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ route('formateur.final-exam.destroy', ['courseId' => $course->id]) }}" method="POST" class="d-inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Supprimer l'examen final</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 @endsection

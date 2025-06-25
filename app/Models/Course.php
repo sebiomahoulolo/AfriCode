@@ -25,7 +25,9 @@ class Course extends Model
         'status',
         'formateur_id',
         'category_id',
-        'published_at'
+        'published_at',
+        'is_certifying',
+        'is_premium'
     ];
 
     protected $casts = [
@@ -77,8 +79,14 @@ class Course extends Model
         return $this->hasMany(CourseForum::class);
     }
     
+    // Relation directe pour les quiz finaux du cours
+    public function finalQuiz()
+    {
+        return $this->hasOne(Quiz::class)->where('quiz_type', 'course_final');
+    }
+    
     public function quizzes() {
-        return $this->morphMany(Quiz::class, 'quizzable');
+        return $this->hasMany(Quiz::class);
     }
 
     // Générer le slug automatiquement lors de la création/mise à jour
@@ -101,5 +109,38 @@ class Course extends Model
     
     public function getEstimatedDuration() {
         return $this->hasManyThrough(Lesson::class, Module::class)->sum('duration_minutes');
+    }
+    
+    // Vérifier si tous les modules sont complétés (leçons + quiz)
+    public function allModulesCompletedByUser($userId)
+    {
+        $modules = $this->modules;
+        foreach ($modules as $module) {
+            if (!$module->isCompletedByUser($userId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Vérifier si le quiz final est réussi
+    public function finalQuizPassedByUser($userId)
+    {
+        $finalQuiz = $this->finalQuiz;
+        if (!$finalQuiz) return true; // Pas de quiz final = considéré comme réussi
+        
+        return $finalQuiz->isPassedByUser($userId);
+    }
+    
+    // Vérifier si le cours est complètement terminé
+    public function isCompletedByUser($userId)
+    {
+        return $this->allModulesCompletedByUser($userId) && $this->finalQuizPassedByUser($userId);
+    }
+    
+    // Vérifier si l'utilisateur peut accéder au quiz final
+    public function canUserAccessFinalQuiz($userId)
+    {
+        return $this->allModulesCompletedByUser($userId);
     }
 }

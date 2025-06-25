@@ -303,18 +303,24 @@ class AdminController extends Controller
             'cover_image' => 'nullable|image|max:2048', // 2MB max
             'preview_video_url' => 'nullable|url',
             'duration' => 'nullable|integer|min:0',
+            'is_premium' => 'boolean',
+            'is_certifying' => 'boolean',
         ]);
         
+        $data = $request->except('_token', 'image');
+        $data['is_premium'] = $request->has('is_premium');
+        $data['is_certifying'] = $request->has('is_certifying');
+
         try {
             // Handle cover image upload
             if ($request->hasFile('cover_image')) {
                 $image = $request->file('cover_image');
                 $filename = time() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('course_covers', $filename, 'public');
-                $validated['cover_image_path'] = $path;
+                $data['cover_image_path'] = $path;
             }
             
-            $course = Course::create($validated);
+            $course = Course::create($data);
             
             // Create notification
             NotificationService::userAction('created', 'course', $course->title, [
@@ -357,8 +363,14 @@ class AdminController extends Controller
             'cover_image' => 'nullable|image|max:2048', // 2MB max
             'preview_video_url' => 'nullable|url',
             'duration' => 'nullable|integer|min:0',
+            'is_premium' => 'boolean',
+            'is_certifying' => 'boolean',
         ]);
         
+        $data = $request->except('_token', '_method', 'image');
+        $data['is_premium'] = $request->has('is_premium');
+        $data['is_certifying'] = $request->has('is_certifying');
+
         try {
             // Handle cover image upload
             if ($request->hasFile('cover_image')) {
@@ -370,10 +382,10 @@ class AdminController extends Controller
                 $image = $request->file('cover_image');
                 $filename = time() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('course_covers', $filename, 'public');
-                $validated['cover_image_path'] = $path;
+                $data['cover_image_path'] = $path;
             }
             
-            $course->update($validated);
+            $course->update($data);
             
             // Create notification
             NotificationService::userAction('updated', 'course', $course->title, [
@@ -1374,12 +1386,6 @@ class AdminController extends Controller
         }
     }
     
-    /**
-     * Store a newly created lesson.
-     * 
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     /**
      * Display the specified lesson.
      * 

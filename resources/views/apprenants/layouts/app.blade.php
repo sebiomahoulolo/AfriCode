@@ -766,8 +766,8 @@
             </div>
             
             <div class="nav-item">
-                <a href="#" 
-                   class="nav-link"
+                <a href="{{ route('apprenant.certifications') }}" 
+                   class="nav-link {{ request()->routeIs('apprenant.certifications') ? 'active' : '' }}"
                    data-title="Certifications">
                     <i class="fas fa-certificate"></i>
                     <span>Certifications</span>
