@@ -49,8 +49,18 @@
                         <li><a class="dropdown-item" href="{{ route('pages.test') }}">Test de niveau</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.forumexp') }}">Forum des Experts</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.forumapp') }}">Forum des Apprenants</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.verifier') }}">Vérifier un Certificat</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ route('certificate.verification') }}">
+                            <i class="fas fa-shield-check me-2 text-success"></i>
+                            <strong>Vérifier un Certificat</strong>
+                        </a></li>
                     </ul>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('certificate.verification') ? 'active' : '' }}" href="{{ route('certificate.verification') }}">
+                        <i class="fas fa-shield-check me-1"></i> Vérifier Certificat
+                    </a>
                 </li>
                 
                 <li class="nav-item">

@@ -15,10 +15,14 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('verification.form')" :active="request()->routeIs('verification.form')">
+                        Vérifier un certificat
+                    </x-nav-link>
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
+            @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <!-- Language Selector -->
                 <div class="me-4">
@@ -56,6 +60,19 @@
                     </x-slot>
                 </x-dropdown>
             </div>
+            @endauth
+
+            @guest
+            <!-- Authentication Links for Guests -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+                <a href="{{ route('login') }}" class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                    Connexion
+                </a>
+                <a href="{{ route('register') }}" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">
+                    Inscription
+                </a>
+            </div>
+            @endguest
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -72,11 +89,25 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            @auth
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @endauth
+            <x-responsive-nav-link :href="route('verification.form')" :active="request()->routeIs('verification.form')">
+                Vérifier un certificat
+            </x-responsive-nav-link>
+            @guest
+            <x-responsive-nav-link :href="route('login')">
+                Connexion
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('register')">
+                Inscription
+            </x-responsive-nav-link>
+            @endguest
         </div>
 
+        @auth
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
@@ -106,5 +137,6 @@
                 </form>
             </div>
         </div>
+        @endauth
     </div>
 </nav>

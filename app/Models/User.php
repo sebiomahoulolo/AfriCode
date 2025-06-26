@@ -244,6 +244,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->first_name . ' ' . $this->last_name;
     }
     
+    public function getNameAttribute() {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+    
     /**
      * Check if user is enrolled in a specific course
      * 
