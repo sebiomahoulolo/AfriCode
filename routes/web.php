@@ -16,6 +16,10 @@ use App\Http\Controllers\FormateurController;
 use App\Http\Controllers\Auth\SocialAuthController as AuthSocialAuthController;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\CertificateVerificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,11 +59,43 @@ Route::middleware(['auth'])->group(function () {
         ->name('profile.complete.store');
 });
 
+// Routes pour les inscriptions et paiements
+Route::middleware(['auth'])->group(function () {
+    // Inscription aux cours
+    Route::get('/enrollment/{course}', [\App\Http\Controllers\EnrollmentController::class, 'show'])
+        ->name('enrollment.show');
+    Route::post('/enrollment/{course}/process', [\App\Http\Controllers\EnrollmentController::class, 'store'])
+        ->name('enrollment.process-payment');
+    
+    // Paiements
+    Route::get('/payment/success', [\App\Http\Controllers\EnrollmentController::class, 'paymentSuccess'])
+        ->name('payment.success');
+    Route::get('/payment/failed', [\App\Http\Controllers\EnrollmentController::class, 'paymentFailed'])
+        ->name('payment.failed');
+    
+    // Traitement paiement Stripe côté client
+    Route::post('/payment/stripe/process', [\App\Http\Controllers\EnrollmentController::class, 'processStripePayment'])
+        ->name('payment.stripe.process');
+});
+
+// Webhooks et callbacks (pas de middleware auth)
+Route::post('/webhook/stripe', [\App\Http\Controllers\EnrollmentController::class, 'stripeWebhook'])
+    ->name('webhook.stripe');
+Route::post('/callback/fadapay', [\App\Http\Controllers\EnrollmentController::class, 'fadapayCallback'])
+    ->name('payment.fadapay.callback');
+
 // Dashboard central avec redirection intelligente
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->middleware(\App\Http\Middleware\ProfileCompletedMiddleware::class)
     ->name('dashboard');
+
+// Routes pour la vérification des certificats
+Route::match(['get', 'post'], '/verifier-certificat/{verification_code?}', [CertificateVerificationController::class, 'verifyCertificate'])
+    ->name('verification.form');
+Route::match(['get', 'post'], '/verification-certificat', [CertificateVerificationController::class, 'verifyCertificate'])
+    ->name('certificate.verification');
+Route::get('/c/{certification:verification_code}', [CertificateVerificationController::class, 'showPublicCertificate'])->name('public.certificate.show');
 
 // --- Routes d'Authentification ---
 require __DIR__.'/auth.php'; // Si vous utilisez Breeze
@@ -206,6 +242,13 @@ Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->pr
     Route::put('/quiz/{quizId}/editer', [FormateurController::class, 'updateQuiz'])->name('formateur.quizzes.update');
     Route::delete('/quiz/{quizId}', [FormateurController::class, 'destroyQuiz'])->name('formateur.quizzes.destroy');
     
+    // Gestion des examens finaux
+    Route::get('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'createFinalExam'])->name('formateur.final-exam.create');
+    Route::post('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'storeFinalExam'])->name('formateur.final-exam.store');
+    Route::get('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'editFinalExam'])->name('formateur.final-exam.edit');
+    Route::put('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'updateFinalExam'])->name('formateur.final-exam.update');
+    Route::delete('/cours/{courseId}/examen-final', [FormateurController::class, 'destroyFinalExam'])->name('formateur.final-exam.destroy');
+    
     // Gestion des étudiants et statistiques
     Route::get('/cours/{courseId}/etudiants', [FormateurController::class, 'courseStudents'])->name('formateur.courses.students');
     Route::get('/cours/{courseId}/evaluations', [FormateurController::class, 'courseRatings'])->name('formateur.courses.ratings');
@@ -231,8 +274,16 @@ Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->pr
     Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])->name('apprenant.lesson');
     Route::post('/lesson/{lessonId}/complete', [EtudiantController::class, 'completeLesson'])->name('apprenant.lesson.complete');
     
+    // Quiz
+    Route::get('/quiz/{quizId}', [EtudiantController::class, 'showQuiz'])->name('apprenant.quiz.show');
+    Route::get('/quiz/{quizId}/start', [EtudiantController::class, 'startQuiz'])->name('apprenant.quiz.start');
+    Route::post('/quiz/{quizId}/take', [EtudiantController::class, 'takeQuiz'])->name('apprenant.quiz.take');
+    Route::get('/quiz/{quizId}/result/{attemptId}', [EtudiantController::class, 'showQuizResult'])->name('apprenant.quiz.result');
+    
     // Certifications
+    Route::get('/certifications', [EtudiantController::class, 'showCertifications'])->name('apprenant.certifications');
     Route::get('/certification/{certificationId}', [EtudiantController::class, 'downloadCertification'])->name('apprenant.certification.download');
+    Route::get('/apprenant/certification/{certificationId}/view', [EtudiantController::class, 'showCertification'])->name('apprenant.certification.view');
 });
 
 Route::get('/apprenants', [EtudiantController::class, 'index']);
