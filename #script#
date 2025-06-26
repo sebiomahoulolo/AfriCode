@@ -1,4 +1,9 @@
-cd /home/fadel/Workspaces/AfriCode && php artisan optimize:clear
-cd /home/fadel/Workspaces/AfriCode && php artisan route:list --name=admin.upload.image
-cd /home/fadel/Workspaces/AfriCode && php artisan tinker --execute="echo 'Laravel fonctionne';"
-cd /home/fadel/Workspaces/AfriCode && rm -f debug_route.php test_route.php test_routes_admin.php
+cd /home/fadel/Workspaces/AfriCode && php artisan make:migration add_profile_fields_to_users_table
+cd /home/fadel/Workspaces/AfriCode && php artisan migrate
+cd /home/fadel/Workspaces/AfriCode && mkdir -p public/storage/profiles
+cd /home/fadel/Workspaces/AfriCode && php artisan route:list --name=apprenant
+cd /home/fadel/Workspaces/AfriCode && php artisan --version
+cd /home/fadel/Workspaces/AfriCode && php -v
+cd /home/fadel/Workspaces/AfriCode && php artisan view:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan config:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan cache:clear

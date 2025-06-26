@@ -61,8 +61,8 @@
                             <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
                                 <option value="" disabled selected>Choisir votre profil</option>
                                 <option value="apprenant" {{ old('role') == 'apprenant' ? 'selected' : '' }}>Apprenant</option>
-                                <option value="formateur" {{ old('role') == 'formateur' ? 'selected' : '' }}>Formateur</option>
-                            </select>
+                                {{-- <option value="formateur" {{ old('role') == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                            </select> --}}
                             @error('role')
                                 <div class="invalid-feedback d-block">
                                     {{ $message }}

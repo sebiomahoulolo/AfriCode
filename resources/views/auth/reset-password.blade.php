@@ -7,12 +7,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
+                <div class="card-header text-white text-center py-3" style="background-color:  #1EA38B">
                     <h4 class="mb-0">Réinitialisation de mot de passe</h4>
                 </div>
                 <div class="card-body p-4 p-md-5">
                     <div class="mb-4 text-center">
-                        <i class="fas fa-key fa-3x mb-3 text-muted"></i>
+                        <i class="fas fa-key fa-3x mb-3" style="color:  #FF8E2A;"></i>
                         <p>Choisissez un nouveau mot de passe pour votre compte</p>
                     </div>
 
@@ -27,7 +27,7 @@
                             <label for="email" class="form-label fw-bold">Email</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="fas fa-envelope" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email', $request->email) }}" required autofocus autocomplete="username" readonly>
                             </div>
@@ -43,7 +43,7 @@
                             <label for="password" class="form-label fw-bold">Nouveau mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-lock" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
                             </div>
@@ -60,15 +60,15 @@
                             <label for="password_confirmation" class="form-label fw-bold">Confirmer le mot de passe</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock"></i>
+                                    <i class="fas fa-lock" style="color:  #FF8E2A;"></i>
                                 </span>
                                 <input id="password_confirmation" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                             </div>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary py-2">
-                                <i class="fas fa-save me-2"></i>Réinitialiser le mot de passe
+                            <button type="submit" class="btn py-2" style="background-color:  #1EA38B; color:white">
+                                <i class="fas fa-save me-2" style="color:  #FF8E2A;"></i>Réinitialiser le mot de passe
                             </button>
                         </div>
                     </form>

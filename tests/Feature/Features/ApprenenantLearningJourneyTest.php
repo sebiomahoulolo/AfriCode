@@ -6,7 +6,12 @@ use App\Models\User;
 use App\Models\Course;
 use App\Models\Module;
 use App\Models\Lesson;
-use App\Models\Enrollment;
+use App\Mode        $certification = Certification::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'issued_at' => now(),
+            'certificate_identifier' => 'CERT-' . $user->id . '-' . $course->id . '-' . time()
+        ]);ollment;
 use App\Models\LessonCompletion;
 use App\Models\Certification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -145,7 +150,7 @@ class ApprenenantLearningJourneyTest extends TestCase
         $certification = Certification::factory()->create([
             'user_id' => $user->id,
             'course_id' => $course->id,
-            'issue_date' => now(),
+            'issued_at' => now(),
             'certificate_identifier' => 'CERT-' . $user->id . '-' . $course->id . '-' . time()
         ]);
         

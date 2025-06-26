@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final - Page Profil AfriCode</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --africode-primary: #1EA38B;
+            --africode-secondary: #27B371;
+            --africode-accent: #FF8E2A;
+            --africode-highlight: #E32D31;
+            --africode-background: #F8FAFC;
+            --africode-surface: #FFFFFF;
+            --africode-text-primary: #1F2937;
+            --africode-text-secondary: #6B7280;
+            --africode-border: #E5E7EB;
+            --africode-gradient-primary: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
+            --africode-border-radius: 12px;
+            --africode-border-radius-sm: 8px;
+            --africode-border-radius-lg: 16px;
+            --africode-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --africode-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --africode-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --africode-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--africode-background);
+            color: var(--africode-text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* En-tête de profil */
+        .profile-header {
+            background: var(--africode-gradient-primary);
+            border-radius: var(--africode-border-radius-lg);
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--africode-shadow-lg);
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 142, 42, 0.2);
+            border-radius: 50%;
+            transform: translate(-50px, 50px);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: var(--africode-shadow-lg);
+            transition: var(--africode-transition);
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-details h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-title {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Cartes de statistiques */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--africode-border-radius);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--africode-shadow-sm);
+            border: 1px solid var(--africode-border);
+            transition: var(--africode-transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--africode-gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--africode-shadow-lg);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--africode-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-label {
+            color: var(--africode-text-secondary);
+            font-weight: 500;
+        }
+
+        /* Navigation par onglets */
+        .tab-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--africode-border);
+            overflow-x: auto;
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            color: var(--africode-text-secondary);
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: var(--africode-transition);
+            cursor: pointer;
+        }
+
+        .tab-btn:hover {
+            color: var(--africode-primary);
+            background: var(--africode-background);
+        }
+
+        .tab-btn.active {
+            color: var(--africode-primary);
+            border-bottom-color: var(--africode-primary);
+            background: var(--africode-background);
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            border-radius: var(--africode-border-radius);
+            padding: 2rem;
+            box-shadow: var(--africode-shadow-sm);
+            border: 1px solid var(--africode-border);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Boutons */
+        .btn-modern {
+            background: var(--africode-gradient-primary);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--africode-border-radius-sm);
+            font-weight: 600;
+            transition: var(--africode-transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--africode-shadow-md);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Messages de statut */
+        .status-message {
+            padding: 1rem;
+            border-radius: var(--africode-border-radius-sm);
+            margin-bottom: 1rem;
+        }
+
+        .status-success {
+            background: rgba(39, 179, 113, 0.1);
+            color: var(--africode-secondary);
+            border: 1px solid rgba(39, 179, 113, 0.3);
+        }
+
+        .status-info {
+            background: rgba(30, 163, 139, 0.1);
+            color: var(--africode-primary);
+            border: 1px solid rgba(30, 163, 139, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-details h1 {
+                font-size: 2rem;
+            }
+
+            .tab-nav {
+                justify-content: center;
+            }
+
+            .tab-btn {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Message de statut -->
+        <div class="status-message status-success">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong>Correction appliquée avec succès !</strong> 
+            Le problème de la colonne 'issue_date' a été résolu. La page utilise maintenant 'issued_at' conformément à la structure de la base de données.
+        </div>
+
+        <!-- En-tête du profil -->
+        <div class="profile-header" data-aos="fade-up">
+            <div class="profile-info">
+                <div class="avatar-container">
+                    <img src="assets/images/default-avatar.svg" alt="Avatar" class="profile-avatar" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzUiIGN5PSI3NSIgcj0iNzUiIGZpbGw9IiMxRUEzOEIiLz48Y2lyY2xlIGN4PSI3NSIgY3k9IjU1IiByPSIyNSIgZmlsbD0id2hpdGUiLz48Y2lyY2xlIGN4PSI3NSIgY3k9IjEyMCIgcj0iMzUiIGZpbGw9IndoaXRlIi8+PC9zdmc+'">
+                </div>
+                <div class="profile-details">
+                    <h1>Profil Apprenant AfriCode</h1>
+                    <p class="profile-title">Page de profil moderne et complète</p>
+                    <div class="profile-badges">
+                        <span class="profile-badge">
+                            <i class="fas fa-check-circle me-1"></i>Fonctionnel
+                        </span>
+                        <span class="profile-badge">
+                            <i class="fas fa-palette me-1"></i>Thème AfriCode
+                        </span>
+                        <span class="profile-badge">
+                            <i class="fas fa-mobile-alt me-1"></i>Responsive
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats-container" data-aos="fade-up" data-aos-delay="200">
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--africode-primary);">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="stat-number">12</div>
+                <div class="stat-label">Cours inscrits</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--africode-secondary);">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-number">8</div>
+                <div class="stat-label">Cours terminés</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--africode-accent);">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <div class="stat-number">3</div>
+                <div class="stat-label">Certifications</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--africode-highlight);">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number">245h</div>
+                <div class="stat-label">Temps d'apprentissage</div>
+            </div>
+        </div>
+
+        <!-- Navigation par onglets -->
+        <div data-aos="fade-up" data-aos-delay="300">
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab(event, 'profile-tab')">
+                    <i class="fas fa-user me-2"></i>Informations personnelles
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'activity-tab')">
+                    <i class="fas fa-history me-2"></i>Activité récente
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'certifications-tab')">
+                    <i class="fas fa-certificate me-2"></i>Certifications
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'security-tab')">
+                    <i class="fas fa-shield-alt me-2"></i>Sécurité
+                </button>
+            </div>
+
+            <!-- Contenu des onglets -->
+            <div id="profile-tab" class="tab-content active">
+                <h4><i class="fas fa-user-edit me-2 text-primary"></i>Informations personnelles</h4>
+                <p class="text-muted mb-4">Gérez vos informations de profil et vos préférences.</p>
+                
+                <div class="status-message status-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Fonctionnalités implémentées :</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Formulaire complet avec validation</li>
+                        <li>Gestion d'avatar avec upload</li>
+                        <li>Changement de mot de passe sécurisé</li>
+                        <li>Champs étendus (téléphone, date de naissance, ville, pays)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="activity-tab" class="tab-content">
+                <h4><i class="fas fa-chart-line me-2 text-success"></i>Activité récente</h4>
+                <p class="text-muted mb-4">Suivez votre progression et vos dernières activités.</p>
+                
+                <div class="status-message status-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Fonctionnalités implémentées :</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Historique des 10 dernières leçons complétées</li>
+                        <li>Liens vers les cours associés</li>
+                        <li>Dates et timestamps formatés</li>
+                        <li>Interface vide élégante si aucune activité</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="certifications-tab" class="tab-content">
+                <h4><i class="fas fa-award me-2 text-warning"></i>Certifications</h4>
+                <p class="text-muted mb-4">Consultez et téléchargez vos certifications obtenues.</p>
+                
+                <div class="status-message status-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Correction appliquée :</strong> Le problème de la colonne 'issue_date' a été corrigé. 
+                    Toutes les références utilisent maintenant 'issued_at' conformément à la migration de base de données.
+                </div>
+            </div>
+
+            <div id="security-tab" class="tab-content">
+                <h4><i class="fas fa-shield-check me-2 text-danger"></i>Paramètres de sécurité</h4>
+                <p class="text-muted mb-4">Sécurisez votre compte avec des options avancées.</p>
+                
+                <div class="status-message status-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Fonctionnalités implémentées :</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Interface pour l'authentification à deux facteurs</li>
+                        <li>Gestion des sessions actives</li>
+                        <li>Changement de mot de passe sécurisé</li>
+                        <li>Affichage de l'historique de sécurité</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="text-center mt-4" data-aos="fade-up" data-aos-delay="400">
+            <a href="http://localhost:8000/apprenant/profile" class="btn-modern me-3">
+                <i class="fas fa-external-link-alt"></i>Accéder à la page réelle
+            </a>
+            <a href="http://localhost:8000/login" class="btn-modern">
+                <i class="fas fa-sign-in-alt"></i>Se connecter
+            </a>
+        </div>
+
+        <!-- Informations techniques -->
+        <div class="mt-5" data-aos="fade-up" data-aos-delay="500">
+            <div class="tab-content active">
+                <h4><i class="fas fa-code me-2 text-info"></i>Corrections appliquées</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-database me-2"></i>Base de données</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Migration : champs profil ajoutés</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Modèle User : $fillable mis à jour</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Modèle Certification : issued_at utilisé</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-code me-2"></i>Code</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Contrôleur : issue_date → issued_at</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Vues : toutes les références corrigées</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Tests : références mises à jour</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- AOS Animation -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 600,
+            easing: 'ease-out-cubic',
+            once: true
+        });
+
+        // Fonction pour changer d'onglet
+        function switchTab(event, tabId) {
+            // Retirer la classe active de tous les boutons et contenus
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Ajouter la classe active au bouton cliqué et au contenu correspondant
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Animation au survol des cartes
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

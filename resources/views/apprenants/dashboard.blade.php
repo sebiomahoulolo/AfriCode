@@ -1,607 +1,752 @@
+@extends('apprenants.layouts.app')
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de bord | AfriCode</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #3461FF;
-            --secondary-color: #FF8B34;
-            --light-bg: #f8f9fa;
-            --border-radius: 10px;
+@section('title', 'Tableau de bord | AfriCode')
+@section('page-title', 'Tableau de bord')
+
+@push('styles')
+<style>
+    /* Dashboard AfriCode - Application équilibrée de la charte graphique */
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--africode-surface);
+        border: 1px solid var(--africode-border);
+        border-radius: var(--africode-border-radius);
+        padding: 2rem;
+        text-align: center;
+        transition: var(--africode-transition);
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--africode-shadow-sm);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--africode-gradient-primary);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--africode-shadow-lg);
+        border-color: var(--africode-primary);
+    }
+
+    .stat-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: var(--africode-gradient-primary);
+        color: white;
+        box-shadow: var(--africode-shadow-md);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--africode-text-primary);
+        margin-bottom: 0.5rem;
+        background: var(--africode-gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: var(--africode-text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.875rem;
+    }
+
+    .progress-card {
+        background: var(--africode-gradient-primary);
+        color: white;
+        border-radius: var(--africode-border-radius);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--africode-shadow-md);
+    }
+
+    .progress-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(30px, -30px);
+    }
+
+    .course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .course-card {
+        background: var(--africode-surface);
+        border-radius: var(--africode-border-radius);
+        overflow: hidden;
+        box-shadow: var(--africode-shadow-sm);
+        transition: var(--africode-transition);
+        border: 1px solid var(--africode-border);
+    }
+
+    .course-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--africode-shadow-lg);
+        border-color: var(--africode-primary);
+    }
+
+    .course-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: var(--africode-gradient-primary);
+    }
+
+    .course-content {
+        padding: 1.5rem;
+    }
+
+    .course-title {
+        font-weight: 700;
+        color: var(--africode-text-primary);
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .course-meta {
+        color: var(--africode-text-secondary);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .course-progress {
+        margin-bottom: 1rem;
+    }
+
+    .welcome-section {
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.08), rgba(39, 179, 113, 0.08));
+        border-radius: var(--africode-border-radius-lg);
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-bottom: 3rem;
+        border: 1px solid var(--africode-border);
+        box-shadow: var(--africode-shadow-sm);
+    }
+
+    .welcome-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid var(--africode-primary);
+        box-shadow: var(--africode-shadow-md);
+        margin-bottom: 1rem;
+    }
+
+    .activity-feed {
+        background: var(--africode-surface);
+        border-radius: var(--africode-border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--africode-shadow-sm);
+        border: 1px solid var(--africode-border);
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--africode-border-light);
+        transition: var(--africode-transition-fast);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-item:hover {
+        background: var(--africode-hover-bg);
+        border-radius: var(--africode-border-radius-sm);
+        margin: 0 -0.5rem;
+        padding: 1rem 0.5rem;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1rem;
+        background: var(--africode-gradient-primary);
+        color: white;
+        box-shadow: var(--africode-shadow-sm);
+    }
+
+    /* Corrections spécifiques pour les problèmes de visibilité - VERSION RENFORCÉE */
+    
+    /* Barres de progression corrigées avec visibilité garantie */
+    .progress-modern {
+        height: 8px !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        background: rgba(30, 163, 139, 0.15) !important;
+        overflow: hidden !important;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.1) !important;
+        margin: 0.5rem 0 !important;
+        min-height: 8px !important;
+    }
+
+    .progress-bar-modern {
+        height: 100% !important;
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 1px 3px rgba(30, 163, 139, 0.3) !important;
+        position: relative !important;
+        min-width: 2px !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .progress-bar-modern::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* Boutons modernes corrigés avec visibilité garantie */
+    .btn-modern {
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        border: none !important;
+        color: white !important;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        font-weight: 600 !important;
+        transition: var(--africode-transition) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 1 !important;
+    }
+
+    .btn-modern:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: var(--africode-shadow-md) !important;
+        color: white !important;
+        background: linear-gradient(135deg, #27B371 0%, #1EA38B 100%) !important;
+        filter: brightness(1.1) !important;
+        text-decoration: none !important;
+    }
+
+    .btn-modern:focus,
+    .btn-modern:active {
+        color: white !important;
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(30, 163, 139, 0.25) !important;
+    }
+
+    .btn-modern.btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .btn-outline-modern {
+        background: transparent !important;
+        border: 2px solid var(--africode-primary) !important;
+        color: var(--africode-primary) !important;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: var(--africode-border-radius-sm) !important;
+        font-weight: 600 !important;
+        transition: var(--africode-transition) !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    .btn-outline-modern:hover {
+        background: var(--africode-primary) !important;
+        color: white !important;
+        transform: translateY(-2px) !important;
+        box-shadow: var(--africode-shadow-sm) !important;
+        text-decoration: none !important;
+    }
+
+    .btn-outline-modern:focus,
+    .btn-outline-modern:active {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(30, 163, 139, 0.25) !important;
+    }
+
+    /* Cartes modernes corrigées */
+    .modern-card {
+        background: var(--africode-surface);
+        border-radius: var(--africode-border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--africode-shadow-sm);
+        border: 1px solid var(--africode-border);
+        transition: var(--africode-transition);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--africode-gradient-primary);
+    }
+
+    .modern-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--africode-shadow-lg);
+        border-color: var(--africode-primary);
+    }
+
+    /* Badges modernes */
+    .badge-modern {
+        padding: 0.375rem 0.75rem !important;
+        border-radius: 20px !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        border: none !important;
+        white-space: nowrap !important;
+    }
+
+    .badge-primary {
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%) !important;
+        color: white !important;
+    }
+
+    .badge-success {
+        background: #27B371 !important;
+        color: white !important;
+    }
+
+    .badge-warning {
+        background: #FF8E2A !important;
+        color: white !important;
+    }
+
+    .badge-danger {
+        background: #E32D31 !important;
+        color: white !important;
+    }
+
+    /* Statuts de cours corrigés */
+    .course-status,
+    .status-badge {
+        padding: 0.25rem 0.75rem !important;
+        border-radius: 15px !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.05em !important;
+        display: inline-block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        border: none !important;
+    }
+
+    .course-status.completed,
+    .status-completed {
+        background: #27B371 !important;
+        color: white !important;
+    }
+
+    .course-status.in-progress,
+    .status-progress {
+        background: #FF8E2A !important;
+        color: white !important;
+    }
+
+    .course-status.not-started,
+    .status-pending {
+        background: #6c757d !important;
+        color: white !important;
+    }
+
+    /* Correction des modules actifs qui deviennent blancs */
+    .module-item.active,
+    .lesson-link.active,
+    .nav-link.active {
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.15) 0%, rgba(39, 179, 113, 0.15) 100%) !important;
+        border-left: 4px solid #1EA38B !important;
+        color: #1EA38B !important;
+        font-weight: 600 !important;
+    }
+
+    .module-item.active:hover,
+    .lesson-link.active:hover {
+        background: linear-gradient(135deg, rgba(30, 163, 139, 0.2) 0%, rgba(39, 179, 113, 0.2) 100%) !important;
+        color: #17896E !important;
+    }
+
+    /* Responsive amélioré */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
         }
-        
-        body {
-            background-color: #f5f7fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        .course-grid {
+            grid-template-columns: 1fr;
         }
-        
-        .sidebar {
-            background: linear-gradient(180deg, #3461FF 0%, #2B4BC9 100%);
-            color: white;
-            min-height: 100vh;
-            padding-top: 2rem;
+
+        .welcome-section {
+            padding: 2rem 1rem;
         }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
-            padding: 10px 15px;
-            font-size: 0.95rem;
-        }
-        
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
-        
-        .sidebar .nav-link.active {
-            background-color: #ffffff;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-        
-        .sidebar .logo {
-            color: white;
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 2rem;
-            padding-left: 15px;
-        }
-        
-        .main-content {
-            padding: 2rem;
-        }
-        
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-            transition: transform 0.2s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            font-weight: 600;
-            border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
-        }
-        
-        .progress {
-            height: 10px;
-            border-radius: 5px;
-        }
-        
-        .badge-custom {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-weight: normal;
-            font-size: 0.8rem;
-        }
-        
-        .badge-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .badge-warning {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        
-        .avatar-lg {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .challenge-card {
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-outline-primary {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-outline-primary:hover {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .course-img {
-            height: 160px;
-            object-fit: cover;
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            padding: 0.25rem 0.5rem;
-        }
-        
+
         .stat-card {
-            padding: 1.5rem;
-            display: flex;
-            align-items: center;
+            padding: 1.5rem 1rem;
         }
-        
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.5rem;
+
+        .course-card .row {
+            --bs-gutter-x: 0;
         }
-        
-        .stat-primary {
-            background-color: rgba(52, 97, 255, 0.1);
-            color: var(--primary-color);
+
+        .course-image {
+            height: 150px !important;
         }
-        
-        .stat-secondary {
-            background-color: rgba(255, 139, 52, 0.1);
-            color: var(--secondary-color);
+
+        .quick-actions {
+            grid-template-columns: 1fr 1fr;
         }
-        
-        .stat-success {
-            background-color: rgba(21, 196, 83, 0.1);
-            color: #15c453;
-        }
-        
-        .stat-info {
-            background-color: rgba(13, 202, 240, 0.1);
-            color: #0dcaf0;
-        }
-        
-        .nav-pills .nav-link.active {
-            background-color: var(--primary-color);
-        }
-        
-        .top-nav {
-            height: 60px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
+    }
+
+    /* Fix pour le texte primaire */
+    .text-primary {
+        color: var(--africode-primary) !important;
+    }
+
+    .text-success {
+        color: var(--africode-highlight) !important;
+    }
+
+    .text-warning {
+        color: var(--africode-secondary) !important;
+    }
+
+    .text-muted {
+        color: var(--africode-text-muted) !important;
+    }
     </style>
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="logo">
-                    <i class="fas fa-code me-2"></i> AfriCode
-                </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('apprenant.dashboard') }}">
-                            <i class="fas fa-home me-2"></i> Tableau de bord
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('courses.index') }}">
-                            <i class="fas fa-book me-2"></i> Catalogue de cours
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('apprenant.profile') }}">
-                            <i class="fas fa-user me-2"></i> Mon profil
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('pages.forumapp') }}">
-                            <i class="fas fa-users me-2"></i> Communauté
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="btn btn-light btn-sm w-100">
-                                <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
-                            </button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+@endpush
 
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <!-- Top Navigation -->
-                <div class="d-flex justify-content-between align-items-center py-3 top-nav mb-4">
-                    <h4 class="m-0">Tableau de Bord</h4>
-                    <div class="d-flex align-items-center">
-                        <div class="position-relative me-3">
-                            <i class="fas fa-bell fs-5"></i>
-                            <span class="badge rounded-pill bg-danger notification-badge">{{ $certifications->count() }}</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" alt="User Avatar" class="avatar me-2">
-                            <div class="dropdown">
-                                <a class="dropdown-toggle text-decoration-none text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="d-none d-md-inline">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="{{ route('apprenant.profile') }}"><i class="fas fa-user me-2"></i> Mon profil</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}" class="dropdown-item p-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i> Déconnexion</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile & Progress Overview -->
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card h-100">
-                            <div class="card-body text-center">
-                                <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" alt="Profile Picture" class="avatar-lg mb-3">
-                                <h5>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h5>
-                                <p class="text-muted">{{ Auth::user()->title ?? 'Apprenant' }}</p>
-                                <div class="d-flex justify-content-center mb-3">
-                                    @php
-                                        // Calcul du niveau basé sur le nombre de cours complétés (à ajuster selon votre logique)
-                                        $completedCourses = $enrollments->where('completed_at', '!=', null)->count();
-                                        $level = max(1, min(10, ceil($completedCourses / 2)));
-                                        
-                                        // XP fictifs basés sur le nombre de leçons complétées (à ajuster selon votre logique)
-                                        $xp = $completedCourses * 100 + $certifications->count() * 250;
-                                    @endphp
-                                    <span class="badge badge-custom badge-primary me-2">Niveau {{ $level }}</span>
-                                    <span class="badge badge-custom badge-warning">{{ $xp }} XP</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <small>Progression globale</small>
-                                    @php
-                                        $avgProgress = $enrollments->isEmpty() 
-                                            ? 0 
-                                            : $enrollments->avg('progress_percentage');
-                                    @endphp
-                                    <small>{{ round($avgProgress) }}%</small>
-                                </div>
-                                <div class="progress mb-4">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $avgProgress }}%" aria-valuenow="{{ $avgProgress }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <a href="{{ route('apprenant.profile') }}" class="btn btn-outline-primary btn-sm">Modifier le profil</a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-8">
-                        <div class="card h-100">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Mes formations en cours</span>
-                                <a href="#" class="text-decoration-none">Voir tout</a>
-                            </div>
-                            <div class="card-body">
-                                @forelse($enrollments as $enrollment)
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <div>
-                                            <h6 class="mb-0">{{ $enrollment->course->title }}</h6>
-                                            <small class="text-muted">{{ $enrollment->course->modules->count() }} modules - {{ $enrollment->course->getLessonsCount() }} leçons</small>
-                                        </div>
-                                        <span class="badge badge-custom badge-primary">{{ round($enrollment->progress_percentage) }}%</span>
-                                    </div>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $enrollment->progress_percentage }}%" aria-valuenow="{{ $enrollment->progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                @empty
-                                <div class="text-center py-4">
-                                    <i class="fas fa-book-open fs-1 text-muted mb-3"></i>
-                                    <p>Vous n'êtes actuellement inscrit à aucun cours.</p>
-                                    <a href="{{ route('courses.index') }}" class="btn btn-primary btn-sm">Découvrir les cours</a>
-                                </div>
-                                @endforelse
-                            </div>
-                            @if($enrollments->isNotEmpty())
-                            <div class="card-footer bg-white">
-                                <a href="{{ route('apprenant.course.access', ['courseId' => $enrollments->first()->course->id]) }}" class="btn btn-primary btn-sm">Continuer ma formation</a>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Statistics Row -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card stat-card">
-                            <div class="stat-icon stat-primary">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-muted">Cours en cours</p>
-                                <h3 class="mb-0">{{ $enrollments->where('completed_at', null)->count() }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card">
-                            <div class="stat-icon stat-secondary">
-                                <i class="fas fa-certificate"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-muted">Certifications</p>
-                                <h3 class="mb-0">{{ $certifications->count() }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card">
-                            <div class="stat-icon stat-success">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-muted">Cours complétés</p>
-                                <h3 class="mb-0">{{ $enrollments->where('completed_at', '!=', null)->count() }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card stat-card">
-                            <div class="stat-icon stat-info">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div>
-                                <p class="mb-0 text-muted">Progression moyenne</p>
-                                <h3 class="mb-0">{{ $enrollments->avg('progress_percentage') > 0 ? round($enrollments->avg('progress_percentage')) : 0 }}%</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Challenges and Certifications -->
-                <div class="row mb-4">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Défis en cours</span>
-                                <button class="btn btn-sm btn-outline-primary">Nouveau défi</button>
-                            </div>
-                            <div class="card-body">
-                                <div class="challenge-card p-3 mb-3 border-start border-primary border-3 rounded">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1">Créer une page responsive avec Bootstrap</h6>
-                                            <p class="text-muted mb-0 small">Défi quotidien • 100 XP</p>
-                                        </div>
-                                        <span class="badge bg-success">Facile</span>
-                                    </div>
-                                    <div class="mt-2">
-                                        <div class="d-flex justify-content-between mb-1">
-                                            <small>Progression</small>
-                                            <small>2/5 tâches</small>
-                                        </div>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="challenge-card p-3 mb-3 border-start border-warning border-3 rounded">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1">Développer un jeu de quiz en JavaScript</h6>
-                                            <p class="text-muted mb-0 small">Défi hebdomadaire • 250 XP</p>
-                                        </div>
-                                        <span class="badge bg-warning">Intermédiaire</span>
-                                    </div>
-                                    <div class="mt-2">
-                                        <div class="d-flex justify-content-between mb-1">
-                                            <small>Progression</small>
-                                            <small>3/8 tâches</small>
-                                        </div>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 37.5%" aria-valuenow="37.5" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="challenge-card p-3 border-start border-danger border-3 rounded">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <h6 class="mb-1">Intégrer une API REST avec JavaScript</h6>
-                                            <p class="text-muted mb-0 small">Projet de groupe • 500 XP</p>
-                                        </div>
-                                        <span class="badge bg-danger">Avancé</span>
-                                    </div>
-                                    <div class="mt-2">
-                                        <div class="d-flex justify-content-between mb-1">
-                                            <small>Progression</small>
-                                            <small>1/10 tâches</small>
-                                        </div>
-                                        <div class="progress" style="height: 8px;">
-                                            <div class="progress-bar bg-danger" role="progressbar" style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <span>Mes certifications</span>
-                            </div>
-                            <div class="card-body">
-                                @forelse($certifications as $certification)
-                                <div class="d-flex align-items-center mb-3 p-2 bg-light rounded">
-                                    <i class="fas fa-certificate text-primary me-3 fs-4"></i>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-0">{{ $certification->course->title }}</h6>
-                                        <small class="text-muted">Obtenue le {{ $certification->issue_date->format('d/m/Y') }}</small>
-                                    </div>
-                                    <a href="{{ route('apprenant.certification.download', ['certificationId' => $certification->id]) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                </div>
-                                @empty
-                                <div class="text-center py-4">
-                                    <i class="fas fa-certificate fs-1 text-muted mb-3"></i>
-                                    <p>Vous n'avez pas encore obtenu de certification.</p>
-                                    <p class="small text-muted">Complétez un cours à 100% pour obtenir une certification.</p>
-                                </div>
-                                @endforelse
-                                
-                                @if($enrollments->isNotEmpty() && $enrollments->where('progress_percentage', '>=', 50)->where('progress_percentage', '<', 100)->isNotEmpty())
-                                <div class="mt-4">
-                                    <h6>Certifications à venir</h6>
-                                    @foreach($enrollments->where('progress_percentage', '>=', 50)->where('progress_percentage', '<', 100)->take(2) as $nearCompletion)
-                                    <div class="d-flex align-items-center p-2 bg-light rounded opacity-75 mb-2">
-                                        <i class="fas fa-certificate text-secondary me-3 fs-4"></i>
-                                        <div class="w-100">
-                                            <h6 class="mb-0">{{ $nearCompletion->course->title }}</h6>
-                                            <div class="progress mt-1" style="height: 5px;">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $nearCompletion->progress_percentage }}%" aria-valuenow="{{ $nearCompletion->progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                            </div>
-                                            <small class="text-muted">{{ round($nearCompletion->progress_percentage) }}% complété</small>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Community and Recommended Courses -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <span>Communauté</span>
-                                <a href="#" class="text-decoration-none">Voir tout</a>
-                            </div>
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item">
-                                        <div class="d-flex align-items-start">
-                                            <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar me-3">
-                                            <div>
-                                                <h6 class="mb-1">Ahmed Diallo</h6>
-                                                <p class="mb-1 small">J'ai besoin d'aide avec la mise en page flexbox. Quelqu'un peut m'aider ?</p>
-                                                <small class="text-muted">Il y a 35 minutes • 3 réponses</small>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <div class="d-flex align-items-start">
-                                            <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar me-3">
-                                            <div>
-                                                <h6 class="mb-1">Fatima Nkosi</h6>
-                                                <p class="mb-1 small">Je viens de terminer le défi JavaScript ! Voici mon projet : [lien]</p>
-                                                <small class="text-muted">Il y a 2 heures • 8 réponses</small>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li class="list-group-item">
-                                        <div class="d-flex align-items-start">
-                                            <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar me-3">
-                                            <div>
-                                                <h6 class="mb-1">David Okafor</h6>
-                                                <p class="mb-1 small">Webinaire sur React.js prévu pour demain à 18h. N'oubliez pas de vous inscrire !</p>
-                                                <small class="text-muted">Il y a 5 heures • 12 réponses</small>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="card-footer bg-white">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Poster un message...">
-                                    <button class="btn btn-primary" type="button">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <span>Formations recommandées</span>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card h-100">
-                                            <img src="https://via.placeholder.com/300x160?text=ReactJS" class="course-img" alt="ReactJS Course">
-                                            <div class="card-body">
-                                                <h6>ReactJS : Développement front-end moderne</h6>
-                                                <p class="text-muted small">4 semaines • 30 €</p>
-                                                <div class="d-grid">
-                                                    <button class="btn btn-sm btn-outline-primary">Voir les détails</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card h-100">
-                                            <img src="https://via.placeholder.com/300x160?text=PHP+MySQL" class="course-img" alt="PHP MySQL Course">
-                                            <div class="card-body">
-                                                <h6>PHP et MySQL : Programmation côté serveur</h6>
-                                                <p class="text-muted small">6 semaines • 35 €</p>
-                                                <div class="d-grid">
-                                                    <button class="btn btn-sm btn-outline-primary">Voir les détails</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer bg-white text-center">
-                                <a href="#" class="btn btn-outline-primary btn-sm">Explorer le catalogue</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+@section('content')
+    <!-- Welcome Section -->
+    <div class="welcome-section" data-aos="fade-up">
+        <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.png') }}" 
+             alt="Profile Picture" class="welcome-avatar">
+        <h2 class="mb-3">Bienvenue, {{ Auth::user()->first_name }} ! 👋</h2>
+        <p class="text-muted mb-4">Continuez votre parcours d'apprentissage et atteignez vos objectifs.</p>
+        
+        @php
+            $completedCourses = $enrollments->where('completed_at', '!=', null)->count();
+            $level = max(1, min(10, ceil($completedCourses / 2)));
+            $xp = $completedCourses * 100 + $certifications->count() * 250;
+            $avgProgress = $enrollments->isEmpty() ? 0 : $enrollments->avg('progress_percentage');
+        @endphp
+        
+        <div class="d-flex justify-content-center gap-3">
+            <span class="badge-modern badge-primary">Niveau {{ $level }}</span>
+            <span class="badge-modern badge-warning">{{ $xp }} XP</span>
+            <span class="badge-modern badge-success">{{ round($avgProgress) }}% complété</span>
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Statistics Grid -->
+    <div class="stats-grid" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="stat-number">{{ $enrollments->where('completed_at', null)->count() }}</div>
+            <div class="stat-label">Cours en cours</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div class="stat-number">{{ $certifications->count() }}</div>
+            <div class="stat-label">Certifications</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number">{{ $enrollments->where('completed_at', '!=', null)->count() }}</div>
+            <div class="stat-label">Cours complétés</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-number">{{ round($avgProgress) }}%</div>
+            <div class="stat-label">Progression moyenne</div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Mes Cours -->
+        <div class="col-lg-8 mb-4">
+            <div class="modern-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="h4 mb-0">
+                        <i class="fas fa-book-open me-2 text-primary"></i>
+                        Mes formations en cours
+                    </h3>
+                    <a href="{{ route('apprenant.courses') }}" class="btn btn-outline-modern btn-sm">
+                        Voir tout
+                    </a>
+                </div>
+                
+                @forelse($enrollments->take(3) as $enrollment)
+                    <div class="course-card mb-3">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                <div class="course-image" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                                    <i class="fas fa-play-circle"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="course-content">
+                                    <h5 class="course-title">{{ $enrollment->course->title }}</h5>
+                                    <p class="course-meta">
+                                        <i class="fas fa-layer-group me-1"></i>{{ $enrollment->course->modules->count() }} modules •
+                                        <i class="fas fa-clock me-1"></i>{{ $enrollment->course->getLessonsCount() }} leçons
+                                    </p>
+                                    
+                                    <div class="course-progress mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <small class="text-muted">Progression</small>
+                                            <small class="fw-bold">{{ round($enrollment->progress_percentage) }}%</small>
+                                        </div>
+                                        <div class="progress-modern">
+                                            <div class="progress-bar-modern" style="width: {{ $enrollment->progress_percentage }}%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <a href="{{ route('apprenant.course.access', ['courseId' => $enrollment->course->id]) }}" 
+                                       class="btn btn-modern btn-sm">
+                                        <i class="fas fa-play me-2"></i>Continuer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-book-open display-1 text-muted opacity-50"></i>
+                        </div>
+                        <h5 class="text-muted mb-3">Aucun cours en cours</h5>
+                        <p class="text-muted mb-4">Découvrez notre catalogue de formations pour commencer votre apprentissage.</p>
+                        <a href="{{ route('courses.index') }}" class="btn btn-modern">
+                            <i class="fas fa-search me-2"></i>Découvrir les cours
+                        </a>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Progress Overview -->
+            <div class="progress-card mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Progression globale</h5>
+                    <span class="h4 mb-0">{{ round($avgProgress) }}%</span>
+                </div>
+                
+                <div class="progress-modern mb-3" style="background: rgba(255, 255, 255, 0.2);">
+                    <div class="progress-bar-modern" style="width: {{ $avgProgress }}%; background: white;"></div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="h6 mb-0">{{ $enrollments->count() }}</div>
+                        <small class="opacity-75">Cours inscrits</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h6 mb-0">{{ $completedCourses }}</div>
+                        <small class="opacity-75">Terminés</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="h6 mb-0">{{ $certifications->count() }}</div>
+                        <small class="opacity-75">Certifiés</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="modern-card mb-4" data-aos="fade-up" data-aos-delay="400">
+                <h5 class="mb-4">
+                    <i class="fas fa-bolt me-2 text-warning"></i>
+                    Actions rapides
+                </h5>
+                
+                <div class="quick-actions">
+                    <div class="action-card" onclick="window.location.href='{{ route('courses.index') }}'">
+                        <div class="action-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h6 class="mb-0">Explorer</h6>
+                        <small class="text-muted">Nouveaux cours</small>
+                    </div>
+                    
+                    <div class="action-card" onclick="window.location.href='{{ route('pages.forumapp') }}'">
+                        <div class="action-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h6 class="mb-0">Communauté</h6>
+                        <small class="text-muted">Échanger</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Certifications -->
+            <div class="modern-card" data-aos="fade-up" data-aos-delay="500">
+                <h5 class="mb-4">
+                    <i class="fas fa-award me-2 text-success"></i>
+                    Mes certifications
+                </h5>
+                
+                @forelse($certifications->take(3) as $certification)
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: var(--success-color); color: white;">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ $certification->course->title }}</h6>
+                            <small class="text-muted">Obtenue le {{ $certification->issued_at->format('d/m/Y') }}</small>
+                        </div>
+                        <a href="{{ route('apprenant.certification.download', ['certificationId' => $certification->id]) }}" 
+                           class="btn btn-outline-modern btn-sm">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                @empty
+                    <div class="text-center py-4">
+                        <div class="mb-3">
+                            <i class="fas fa-award display-4 text-muted opacity-50"></i>
+                        </div>
+                        <p class="text-muted mb-3">Aucune certification obtenue</p>
+                        <small class="text-muted">Complétez un cours à 100% pour obtenir votre première certification.</small>
+                    </div>
+                @endforelse
+                
+                @if($certifications->count() > 3)
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-outline-modern btn-sm">
+                            Voir toutes ({{ $certifications->count() }})
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations -->
+    @if($enrollments->isNotEmpty())
+    <div class="modern-card mt-4" data-aos="fade-up" data-aos-delay="600">
+        <h3 class="h4 mb-4">
+            <i class="fas fa-lightbulb me-2 text-warning"></i>
+            Formations recommandées
+        </h3>
+        
+        <div class="course-grid">
+            <div class="course-card">
+                <div class="course-image" style="background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                    <i class="fab fa-react"></i>
+                </div>
+                <div class="course-content">
+                    <h5 class="course-title">ReactJS Avancé</h5>
+                    <p class="course-meta">Maîtrisez React pour des applications modernes</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge-modern badge-primary">Intermédiaire</span>
+                        <span class="fw-bold text-success">45€</span>
+                    </div>
+                    <button class="btn btn-outline-modern w-100 mt-3">
+                        <i class="fas fa-info-circle me-2"></i>Voir détails
+                    </button>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-image" style="background: linear-gradient(135deg, #4facfe, #00f2fe); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
+                    <i class="fab fa-node-js"></i>
+                </div>
+                <div class="course-content">
+                    <h5 class="course-title">Node.js & Express</h5>
+                    <p class="course-meta">Développement backend avec JavaScript</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge-modern badge-warning">Avancé</span>
+                        <span class="fw-bold text-success">55€</span>
+                    </div>
+                    <button class="btn btn-outline-modern w-100 mt-3">
+                        <i class="fas fa-info-circle me-2"></i>Voir détails
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+@endsection

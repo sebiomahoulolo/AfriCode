@@ -5,17 +5,16 @@
 
 @push('styles')
 <style>
-    /* Profil - Application harmonieuse de la charte AfriCode */
+    /* Profile page styles */
     .profile-hero {
-        background: var(--africode-gradient-primary);
-        border-radius: var(--africode-border-radius-lg);
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--border-radius-lg);
         padding: 3rem 2rem;
         text-align: center;
         color: white;
         margin-bottom: 2rem;
         position: relative;
         overflow: hidden;
-        box-shadow: var(--africode-shadow-lg);
     }
 
     .profile-hero::before {
@@ -30,34 +29,16 @@
         transform: translate(50px, -50px);
     }
 
-    .profile-hero::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100px;
-        height: 100px;
-        background: rgba(255, 142, 42, 0.2);
-        border-radius: 50%;
-        transform: translate(-30px, 30px);
-    }
-
     .profile-avatar {
         width: 150px;
         height: 150px;
         border-radius: 50%;
         object-fit: cover;
         border: 6px solid white;
-        box-shadow: var(--africode-shadow-lg);
+        box-shadow: var(--shadow-xl);
         margin-bottom: 1.5rem;
         position: relative;
         z-index: 2;
-        transition: var(--africode-transition);
-    }
-
-    .profile-avatar:hover {
-        transform: scale(1.05);
-        box-shadow: 0 8px 32px rgba(30, 163, 139, 0.3);
     }
 
     .profile-stats {

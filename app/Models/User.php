@@ -18,6 +18,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'bio',
         'profile_image_path',
+        'phone',
+        'date_of_birth',
+        'city',
+        'country',
         'is_active',
         'password_reset_token',
         'password_reset_expires_at'
@@ -27,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
     
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'date_of_birth' => 'date',
         'is_active' => 'boolean',
         'password' => 'hashed',
         'password_reset_expires_at' => 'datetime',
