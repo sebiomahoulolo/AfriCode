@@ -27,7 +27,7 @@ class Quiz extends Model
         'is_realtime',
         'is_collaborative',
         'allow_media',
-        'anti_cheat_enabled'
+        'anti_cheat_enabled',
         'module_id',
         'course_id',
         'quiz_type', // 'module_end' ou 'course_final'
@@ -36,6 +36,7 @@ class Quiz extends Model
         'is_required',
         'order',
         'max_attempts'
+
     ];
 
     protected $casts = [
@@ -44,22 +45,22 @@ class Quiz extends Model
         'allow_retake' => 'boolean',
         'time_limit' => 'integer',
         'passing_score' => 'integer',
+
         'max_attempts' => 'integer',
         'is_adaptive' => 'boolean',
         'is_realtime' => 'boolean',
         'is_collaborative' => 'boolean',
         'allow_media' => 'boolean',
-        'anti_cheat_enabled' => 'boolean'
+        'anti_cheat_enabled' => 'boolean',
+
         'time_limit_minutes' => 'integer',
         'is_required' => 'boolean',
         'order' => 'integer',
         'max_attempts' => 'integer'
+
     ];
 
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
-    }
+   
 
     public function questions(): HasMany
     {
@@ -406,4 +407,5 @@ class Quiz extends Model
 
         return max(0, $this->max_attempts - $attemptCount);
     }
+
 }

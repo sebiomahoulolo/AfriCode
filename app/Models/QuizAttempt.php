@@ -25,7 +25,7 @@ class QuizAttempt extends Model
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
         'answers' => 'array',
-        'anti_cheat_data' => 'array'
+        'anti_cheat_data' => 'array',
         'completed_at' => 'datetime',
         'score' => 'float',
         'passed' => 'boolean'
