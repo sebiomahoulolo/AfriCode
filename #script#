@@ -1,9 +1,5 @@
-cd /home/fadel/Workspaces/AfriCode && php artisan make:migration add_profile_fields_to_users_table
-cd /home/fadel/Workspaces/AfriCode && php artisan migrate
-cd /home/fadel/Workspaces/AfriCode && mkdir -p public/storage/profiles
-cd /home/fadel/Workspaces/AfriCode && php artisan route:list --name=apprenant
 cd /home/fadel/Workspaces/AfriCode && php artisan --version
-cd /home/fadel/Workspaces/AfriCode && php -v
-cd /home/fadel/Workspaces/AfriCode && php artisan view:clear
-cd /home/fadel/Workspaces/AfriCode && php artisan config:clear
-cd /home/fadel/Workspaces/AfriCode && php artisan cache:clear
+cd /home/fadel/Workspaces/AfriCode && php artisan config:cache
+cd /home/fadel/Workspaces/AfriCode && php test_quiz_fix.php
+cd /home/fadel/Workspaces/AfriCode && php -l test_quiz_fix.php
+cd /home/fadel/Workspaces/AfriCode && php test_quiz_module_fix.php

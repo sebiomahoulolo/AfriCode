@@ -54,7 +54,9 @@ class CertificateVerificationController extends Controller
         }
 
         // On retourne toujours la même vue, avec les données appropriées
-        return view($viewName, [
+        // return view($viewName, [
+        // On retourne toujours la même vue, avec les données appropriées
+        return view('pages.verification-form', [
             'certification' => $certification,
             'error' => $error,
             'submitted_code' => $submitted_code, // Pour ré-afficher le code dans le champ

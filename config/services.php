@@ -61,4 +61,17 @@ return [
 ],
 
 
+    'stripe' => [
+        'key' => env('STRIPE_PUBLISHABLE_KEY'),
+        'secret' => env('STRIPE_SECRET_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
+    'fadapay' => [
+        'api_key' => env('FADAPAY_API_KEY'),
+        'merchant_id' => env('FADAPAY_MERCHANT_ID'),
+        'secret' => env('FADAPAY_SECRET'),
+        'base_url' => env('FADAPAY_BASE_URL', 'https://api.fadapay.com'),
+    ],
+
 ];

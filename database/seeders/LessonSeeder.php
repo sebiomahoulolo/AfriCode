@@ -97,7 +97,7 @@ class LessonSeeder extends Seeder
             ],
             [
                 'title' => 'Quiz: Concepts fondamentaux',
-                'content_type' => 'quiz_link',
+                'content_type' => 'external',
                 'external_url' => 'https://africode.com/quizzes/html-basics',
                 'duration_minutes' => 15,
                 'is_previewable' => false,
@@ -113,6 +113,7 @@ class LessonSeeder extends Seeder
                 'video_url' => $lessonData['content_type'] === 'video' ? $lessonData['video_url'] : null,
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
                 'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -180,6 +181,7 @@ class LessonSeeder extends Seeder
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
                 'pdf_path' => $lessonData['content_type'] === 'pdf' ? $lessonData['pdf_path'] : null,
                 'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -239,6 +241,7 @@ class LessonSeeder extends Seeder
                 'video_url' => $lessonData['content_type'] === 'video' ? $lessonData['video_url'] : null,
                 'text_content' => $lessonData['content_type'] === 'text' ? $lessonData['text_content'] : null,
                 'external_url' => $lessonData['content_type'] === 'quiz_link' || $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
+                'external_url' => $lessonData['content_type'] === 'external' ? $lessonData['external_url'] : null,
                 'duration_minutes' => $lessonData['duration_minutes'],
                 'order' => $order++,
                 'is_previewable' => $lessonData['is_previewable'],
@@ -284,6 +287,10 @@ class LessonSeeder extends Seeder
             'pdf' => 15,
             'quiz_link' => 10,
             'external' => 5 // 5% chance
+            'video' => 50,      // 50% chance
+            'text' => 35,       // 35% chance
+            'pdf' => 10,        // 10% chance
+            'external' => 5     // 5% chance
         ];
         
         $rand = rand(1, 100);

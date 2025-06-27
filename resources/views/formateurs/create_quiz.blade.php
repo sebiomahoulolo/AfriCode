@@ -123,11 +123,12 @@
                                         @foreach($question['answers'] ?? [] as $aIndex => $answer)
                                             <div class="answer-row d-flex align-items-center">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="questions[{{ $index }}][answers][{{ $aIndex }}][is_correct]" value="1" {{ isset($answer['is_correct']) && $answer['is_correct'] ? 'checked' : '' }}>
+                                                    <input class="form-check-input correct-answer-radio" type="radio" name="questions[{{ $index }}][correct_answer]" value="{{ $aIndex }}" {{ isset($answer['is_correct']) && $answer['is_correct'] ? 'checked' : '' }}>
+                                                    <label class="form-check-label">Correct</label>
                                                 </div>
                                                 <div class="flex-grow-1 ms-2">
                                                     <input type="text" class="form-control @error('questions.'.$index.'.answers.'.$aIndex.'.text') is-invalid @enderror" name="questions[{{ $index }}][answers][{{ $aIndex }}][text]" value="{{ $answer['text'] ?? '' }}" placeholder="Réponse" required>
-                                                    <input type="hidden" name="questions[{{ $index }}][answers][{{ $aIndex }}][is_correct]" value="0">
+                                                    <input type="hidden" name="questions[{{ $index }}][answers][{{ $aIndex }}][is_correct]" value="{{ isset($answer['is_correct']) && $answer['is_correct'] ? '1' : '0' }}" class="is-correct-input">
                                                 </div>
                                                 <div class="ms-2">
                                                     <button type="button" class="btn btn-sm btn-outline-danger remove-answer"><i class="fas fa-trash"></i></button>
@@ -213,18 +214,23 @@
             }
         });
         
-        // Handle radio button clicks
+        // Handle radio button clicks for correct answers
         document.getElementById('questions-container').addEventListener('change', function(e) {
-            if (e.target.matches('input[type="radio"]')) {
-                // Uncheck all other radios in the same question
+            if (e.target.matches('.correct-answer-radio')) {
                 const questionCard = e.target.closest('.question-card');
-                const allRadios = questionCard.querySelectorAll('input[type="radio"]');
+                const questionIndex = questionCard.getAttribute('data-question-index');
+                const selectedAnswerIndex = e.target.value;
                 
-                allRadios.forEach(radio => {
-                    if (radio !== e.target) {
-                        radio.checked = false;
-                    }
+                // Reset all is_correct inputs to 0
+                questionCard.querySelectorAll('.is-correct-input').forEach(input => {
+                    input.value = '0';
                 });
+                
+                // Set the selected answer as correct
+                const selectedHiddenInput = questionCard.querySelector(`input[name="questions[${questionIndex}][answers][${selectedAnswerIndex}][is_correct]"]`);
+                if (selectedHiddenInput) {
+                    selectedHiddenInput.value = '1';
+                }
             }
         });
         
@@ -271,11 +277,12 @@
             
             answerRow.innerHTML = `
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="questions[${questionIndex}][answers][${answerIndex}][is_correct]" value="1" ${isCorrect ? 'checked' : ''}>
+                    <input class="form-check-input correct-answer-radio" type="radio" name="questions[${questionIndex}][correct_answer]" value="${answerIndex}" ${isCorrect ? 'checked' : ''}>
+                    <label class="form-check-label">Correct</label>
                 </div>
                 <div class="flex-grow-1 ms-2">
                     <input type="text" class="form-control" name="questions[${questionIndex}][answers][${answerIndex}][text]" placeholder="Réponse" required>
-                    <input type="hidden" name="questions[${questionIndex}][answers][${answerIndex}][is_correct]" value="0">
+                    <input type="hidden" name="questions[${questionIndex}][answers][${answerIndex}][is_correct]" value="${isCorrect ? '1' : '0'}" class="is-correct-input">
                 </div>
                 <div class="ms-2">
                     <button type="button" class="btn btn-sm btn-outline-danger remove-answer"><i class="fas fa-trash"></i></button>
@@ -304,11 +311,12 @@
                 // Update answers
                 const answerRows = card.querySelectorAll('.answer-row');
                 answerRows.forEach((row, aIndex) => {
-                    const radioInput = row.querySelector('input[type="radio"]');
+                    const radioInput = row.querySelector('.correct-answer-radio');
                     const textInput = row.querySelector('input[type="text"]');
-                    const hiddenInput = row.querySelector('input[type="hidden"]');
+                    const hiddenInput = row.querySelector('.is-correct-input');
                     
-                    radioInput.setAttribute('name', `questions[${index}][answers][${aIndex}][is_correct]`);
+                    radioInput.setAttribute('name', `questions[${index}][correct_answer]`);
+                    radioInput.setAttribute('value', aIndex);
                     textInput.setAttribute('name', `questions[${index}][answers][${aIndex}][text]`);
                     hiddenInput.setAttribute('name', `questions[${index}][answers][${aIndex}][is_correct]`);
                 });

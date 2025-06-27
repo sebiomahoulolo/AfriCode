@@ -105,6 +105,9 @@
                 Inscription
             </x-responsive-nav-link>
             @endguest
+            <x-responsive-nav-link :href="route('verification.form')" :active="request()->routeIs('verification.form')">
+                Vérifier un certificat
+            </x-responsive-nav-link>
         </div>
 
         @auth

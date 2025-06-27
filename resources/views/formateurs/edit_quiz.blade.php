@@ -139,21 +139,25 @@
                                 <p class="form-text">Cochez la ou les réponses correctes. Vous devez avoir au moins 2 réponses par question.</p>
                                 
                                 <div class="answers-container">
+                                    <!-- Ajout d'un input radio caché pour gérer la sélection de la réponse correcte -->
+                                    <input type="hidden" name="questions[{{ $index }}][correct_answer]" value="{{ $question->answers->where('is_correct', true)->keys()->first() ?? 0 }}" class="correct-answer-input">
+                                    
                                     @foreach($question->answers as $ansIndex => $answer)
                                         <div class="answer-row {{ $answer->is_correct ? 'correct' : '' }}">
                                             <div class="row align-items-center">
                                                 <div class="col-auto">
                                                     <i class="fas fa-grip-lines drag-handle"></i>
                                                 </div>
+                                                <div class="col-auto">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input correct-answer-radio" type="radio" name="questions_{{ $index }}_correct_radio" value="{{ $ansIndex }}" {{ $answer->is_correct ? 'checked' : '' }}>
+                                                        <label class="form-check-label">Correct</label>
+                                                    </div>
+                                                </div>
                                                 <div class="col">
                                                     <input type="hidden" name="questions[{{ $index }}][answers][{{ $ansIndex }}][id]" value="{{ $answer->id }}">
                                                     <input type="text" class="form-control" name="questions[{{ $index }}][answers][{{ $ansIndex }}][text]" value="{{ $answer->text }}" required>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input correct-toggle" type="checkbox" name="questions[{{ $index }}][answers][{{ $ansIndex }}][is_correct]" value="1" {{ $answer->is_correct ? 'checked' : '' }}>
-                                                        <label class="form-check-label">Correcte</label>
-                                                    </div>
+                                                    <input type="hidden" name="questions[{{ $index }}][answers][{{ $ansIndex }}][is_correct]" value="{{ $answer->is_correct ? '1' : '0' }}" class="is-correct-input">
                                                 </div>
                                                 <div class="col-auto">
                                                     <button type="button" class="remove-btn remove-answer" title="Supprimer la réponse">
@@ -209,22 +213,26 @@
             
             <div class="mt-3">
                 <label class="form-label">Réponses <span class="text-danger">*</span></label>
-                <p class="form-text">Cochez la ou les réponses correctes. Vous devez avoir au moins 2 réponses par question.</p>
+                <p class="form-text">Sélectionnez la réponse correcte. Vous devez avoir au moins 2 réponses par question.</p>
                 
                 <div class="answers-container">
+                    <!-- Input caché pour gérer la sélection -->
+                    <input type="hidden" name="questions[__QUESTION_INDEX__][correct_answer]" value="0" class="correct-answer-input">
+                    
                     <div class="answer-row">
                         <div class="row align-items-center">
                             <div class="col-auto">
                                 <i class="fas fa-grip-lines drag-handle"></i>
                             </div>
-                            <div class="col">
-                                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][0][text]" required>
-                            </div>
                             <div class="col-auto">
                                 <div class="form-check">
-                                    <input class="form-check-input correct-toggle" type="checkbox" name="questions[__QUESTION_INDEX__][answers][0][is_correct]" value="1">
-                                    <label class="form-check-label">Correcte</label>
+                                    <input class="form-check-input correct-answer-radio" type="radio" name="questions___QUESTION_INDEX___correct_radio" value="0" checked>
+                                    <label class="form-check-label">Correct</label>
                                 </div>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][0][text]" required>
+                                <input type="hidden" name="questions[__QUESTION_INDEX__][answers][0][is_correct]" value="1" class="is-correct-input">
                             </div>
                             <div class="col-auto">
                                 <button type="button" class="remove-btn remove-answer" title="Supprimer la réponse">
@@ -239,13 +247,16 @@
                             <div class="col-auto">
                                 <i class="fas fa-grip-lines drag-handle"></i>
                             </div>
-                            <div class="col">
-                                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][1][text]" required>
-                            </div>
                             <div class="col-auto">
                                 <div class="form-check">
-                                    <input class="form-check-input correct-toggle" type="checkbox" name="questions[__QUESTION_INDEX__][answers][1][is_correct]" value="1">
-                                    <label class="form-check-label">Correcte</label>
+                                    <input class="form-check-input correct-answer-radio" type="radio" name="questions___QUESTION_INDEX___correct_radio" value="1">
+                                    <label class="form-check-label">Correct</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][1][text]" required>
+                                <input type="hidden" name="questions[__QUESTION_INDEX__][answers][1][is_correct]" value="0" class="is-correct-input">
+                            </div>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -271,14 +282,15 @@
             <div class="col-auto">
                 <i class="fas fa-grip-lines drag-handle"></i>
             </div>
-            <div class="col">
-                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][__ANSWER_INDEX__][text]" required>
-            </div>
             <div class="col-auto">
                 <div class="form-check">
-                    <input class="form-check-input correct-toggle" type="checkbox" name="questions[__QUESTION_INDEX__][answers][__ANSWER_INDEX__][is_correct]" value="1">
-                    <label class="form-check-label">Correcte</label>
+                    <input class="form-check-input correct-answer-radio" type="radio" name="questions___QUESTION_INDEX___correct_radio" value="__ANSWER_INDEX__">
+                    <label class="form-check-label">Correct</label>
                 </div>
+            </div>
+            <div class="col">
+                <input type="text" class="form-control" name="questions[__QUESTION_INDEX__][answers][__ANSWER_INDEX__][text]" required>
+                <input type="hidden" name="questions[__QUESTION_INDEX__][answers][__ANSWER_INDEX__][is_correct]" value="0" class="is-correct-input">
             </div>
             <div class="col-auto">
                 <button type="button" class="remove-btn remove-answer" title="Supprimer la réponse">
@@ -326,7 +338,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const questionNumber = questionIndex + 1;
         const newQuestionHtml = template
             .replace(/__QUESTION_INDEX__/g, questionIndex)
-            .replace(/__QUESTION_NUMBER__/g, questionNumber);
+            .replace(/__QUESTION_NUMBER__/g, questionNumber)
+            .replace(/questions___QUESTION_INDEX___correct_radio/g, `questions_${questionIndex}_correct_radio`);
         
         const container = document.getElementById('questions-container');
         const tempDiv = document.createElement('div');
@@ -376,14 +389,35 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Changement de l'état correct/incorrect d'une réponse
-        questionElement.querySelectorAll('.correct-toggle').forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                const answerRow = this.closest('.answer-row');
+        // Gestion des boutons radio pour les réponses correctes
+        questionElement.querySelectorAll('.correct-answer-radio').forEach(function(radio) {
+            radio.addEventListener('change', function() {
                 if (this.checked) {
-                    answerRow.classList.add('correct');
-                } else {
-                    answerRow.classList.remove('correct');
+                    const questionIndex = questionElement.getAttribute('data-index');
+                    const selectedAnswerIndex = this.value;
+                    
+                    // Mettre à jour l'input caché pour la réponse correcte
+                    const correctAnswerInput = questionElement.querySelector('.correct-answer-input');
+                    if (correctAnswerInput) {
+                        correctAnswerInput.value = selectedAnswerIndex;
+                    }
+                    
+                    // Reset tous les inputs is_correct à 0
+                    questionElement.querySelectorAll('.is-correct-input').forEach(input => {
+                        input.value = '0';
+                    });
+                    
+                    // Mettre la réponse sélectionnée à 1
+                    const selectedInput = questionElement.querySelector(`input[name="questions[${questionIndex}][answers][${selectedAnswerIndex}][is_correct]"]`);
+                    if (selectedInput) {
+                        selectedInput.value = '1';
+                    }
+                    
+                    // Mettre à jour les classes CSS
+                    questionElement.querySelectorAll('.answer-row').forEach(row => {
+                        row.classList.remove('correct');
+                    });
+                    this.closest('.answer-row').classList.add('correct');
                 }
             });
         });
@@ -398,7 +432,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const template = document.querySelector('.answer-template').innerHTML;
         const newAnswerHtml = template
             .replace(/__QUESTION_INDEX__/g, questionIndex)
-            .replace(/__ANSWER_INDEX__/g, answerCount);
+            .replace(/__ANSWER_INDEX__/g, answerCount)
+            .replace(/questions___QUESTION_INDEX___correct_radio/g, `questions_${questionIndex}_correct_radio`);
         
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = newAnswerHtml;
@@ -416,11 +451,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        newAnswer.querySelector('.correct-toggle').addEventListener('change', function() {
+        newAnswer.querySelector('.correct-answer-radio').addEventListener('change', function() {
             if (this.checked) {
-                newAnswer.classList.add('correct');
-            } else {
-                newAnswer.classList.remove('correct');
+                const questionIndex = questionElement.getAttribute('data-index');
+                const selectedAnswerIndex = this.value;
+                
+                // Mettre à jour l'input caché
+                const correctAnswerInput = questionElement.querySelector('.correct-answer-input');
+                if (correctAnswerInput) {
+                    correctAnswerInput.value = selectedAnswerIndex;
+                }
+                
+                // Reset tous les inputs is_correct à 0
+                questionElement.querySelectorAll('.is-correct-input').forEach(input => {
+                    input.value = '0';
+                });
+                
+                // Mettre la réponse sélectionnée à 1
+                const selectedInput = questionElement.querySelector(`input[name="questions[${questionIndex}][answers][${selectedAnswerIndex}][is_correct]"]`);
+                if (selectedInput) {
+                    selectedInput.value = '1';
+                }
+                
+                // Mettre à jour les classes CSS
+                questionElement.querySelectorAll('.answer-row').forEach(row => {
+                    row.classList.remove('correct');
+                });
+                this.closest('.answer-row').classList.add('correct');
             }
         });
     }
@@ -448,6 +505,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const answers = questionElement.querySelectorAll('.answer-row');
         
         answers.forEach(function(answer, ansIndex) {
+            // Mettre à jour les boutons radio
+            const radioInput = answer.querySelector('.correct-answer-radio');
+            if (radioInput) {
+                radioInput.setAttribute('name', `questions_${questionIndex}_correct_radio`);
+                radioInput.setAttribute('value', ansIndex);
+            }
+            
+            // Mettre à jour les autres inputs
             const inputs = answer.querySelectorAll('input[name^="questions["]');
             inputs.forEach(function(input) {
                 const name = input.getAttribute('name');
@@ -469,9 +534,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Vérifier chaque question
-        questions.forEach(function(question) {
+        questions.forEach(function(question, questionIndex) {
             const answers = question.querySelectorAll('.answer-row');
-            const correctAnswers = question.querySelectorAll('.correct-toggle:checked');
+            const correctAnswerRadio = question.querySelector('.correct-answer-radio:checked');
             
             // Vérifier qu'il y a au moins deux réponses par question
             if (answers.length < 2) {
@@ -479,9 +544,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = false;
             }
             
-            // Vérifier qu'il y a au moins une réponse correcte par question
-            if (correctAnswers.length === 0) {
-                alert('Chaque question doit avoir au moins une réponse correcte.');
+            // Vérifier qu'une réponse correcte est sélectionnée
+            if (!correctAnswerRadio) {
+                alert(`La question ${questionIndex + 1} doit avoir une réponse correcte sélectionnée.`);
                 isValid = false;
             }
         });

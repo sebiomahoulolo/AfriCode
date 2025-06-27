@@ -8,9 +8,14 @@ use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
 use App\Models\Module;
+use App\Models\Quiz;
+use App\Models\QuizAttempt;
+use App\Models\UserQuizAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Spatie\Browsershot\Browsershot;
 
 class EtudiantController extends Controller
 {
@@ -216,6 +221,7 @@ class EtudiantController extends Controller
     public function accessCourse($courseId)
     {
         $user = Auth::user();
+        $course = Course::findOrFail($courseId);
         
         // Vérifier si l'apprenant est inscrit au cours
         $enrollment = Enrollment::where('user_id', $user->id)
@@ -226,41 +232,34 @@ class EtudiantController extends Controller
             return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
         }
         
-        // Trouver la première leçon non complétée
-        $completedLessonIds = LessonCompletion::where('user_id', $user->id)
-            ->where('enrollment_id', $enrollment->id)
-            ->pluck('lesson_id');
-            
-        // Récupérer tous les modules du cours avec leurs leçons
-        $modules = Module::where('course_id', $courseId)
-            ->with(['lessons' => function($query) {
-                $query->orderBy('order', 'asc');
-            }])
-            ->orderBy('order', 'asc')
-            ->get();
-            
-        // Trouver la première leçon non complétée
-        $nextLesson = null;
-        
-        foreach ($modules as $module) {
-            foreach ($module->lessons as $lesson) {
-                if (!$completedLessonIds->contains($lesson->id)) {
-                    $nextLesson = $lesson;
-                    break 2; // Sort des deux boucles
+        // Utiliser la structure de cours pour trouver la prochaine étape
+        $courseStructure = $this->getCourseStructureForUser($course, $user);
+
+        // Parcourir les modules pour trouver la première étape non complétée
+        foreach ($courseStructure['modules'] as $moduleData) {
+            // Chercher une leçon non complétée
+            foreach ($moduleData['lessons'] as $lessonData) {
+                if ($lessonData['status'] === 'unlocked' && !$lessonData['is_completed']) {
+                    return redirect()->route('apprenant.lesson', ['lessonId' => $lessonData['item']->id]);
                 }
             }
+            // Si toutes les leçons sont faites, chercher le quiz du module
+            if ($moduleData['quiz'] && $moduleData['quiz']['status'] === 'unlocked' && !$moduleData['quiz']['is_completed']) {
+                return redirect()->route('apprenant.quiz.show', ['quizId' => $moduleData['quiz']['item']->id]);
+            }
+        }
+
+        // Si tous les modules sont faits, vérifier le quiz final
+        if ($courseStructure['final_quiz'] && $courseStructure['final_quiz']['status'] === 'unlocked' && !$courseStructure['final_quiz']['is_completed']) {
+            return redirect()->route('apprenant.quiz.show', ['quizId' => $courseStructure['final_quiz']['item']->id]);
+        }
+
+        // Si tout est complété, aller à la première leçon
+        if ($course->modules->isNotEmpty() && $course->modules->first()->lessons->isNotEmpty()) {
+            return redirect()->route('apprenant.lesson', ['lessonId' => $course->modules->first()->lessons->first()->id]);
         }
         
-        // Si toutes les leçons sont complétées, prendre la première leçon du cours
-        if (!$nextLesson && $modules->isNotEmpty() && $modules->first()->lessons->isNotEmpty()) {
-            $nextLesson = $modules->first()->lessons->first();
-        }
-        
-        if ($nextLesson) {
-            return redirect()->route('apprenant.lesson', ['lessonId' => $nextLesson->id]);
-        }
-        
-        return redirect()->route('apprenant.dashboard')->with('error', 'Ce cours ne contient pas encore de leçons');
+        return redirect()->route('apprenant.dashboard')->with('info', 'Vous avez terminé ce cours !');
     }
     
     /**
@@ -272,61 +271,165 @@ class EtudiantController extends Controller
     public function showLesson($lessonId)
     {
         $user = Auth::user();
-        $lesson = Lesson::with('module.course')->findOrFail($lessonId);
+        $lesson = Lesson::with('module.course.modules')->findOrFail($lessonId);
+        $course = $lesson->module->course;
         
-        // Vérifier si l'apprenant est inscrit au cours correspondant
+        // Vérifier l'inscription
         $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $lesson->module->course->id)
+            ->where('course_id', $course->id)
             ->first();
             
         if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours.');
         }
+
+        // --- Préparation de la structure du cours pour la sidebar ---
+        $courseStructure = $this->getCourseStructureForUser($course, $user);
+
+        // --- Navigation entre leçons ---
+        $flatLessons = $course->modules->flatMap(function ($module) {
+            return $module->lessons;
+        })->sortBy('id');
+
+        $currentLessonIndex = $flatLessons->search(function ($item) use ($lessonId) {
+            return $item->id == $lessonId;
+        });
+
+        $previousLesson = $currentLessonIndex > 0 ? $flatLessons->get($currentLessonIndex - 1) : null;
+        $nextLesson = $currentLessonIndex < $flatLessons->count() - 1 ? $flatLessons->get($currentLessonIndex + 1) : null;
+
+        // Vérifier si la leçon actuelle est complétée
+        $isCompleted = $lesson->isCompletedBy($user->id);
         
-        // Récupérer tous les modules et leçons du cours pour la navigation
-        $modules = Module::where('course_id', $lesson->module->course->id)
-            ->with(['lessons' => function($query) {
-                $query->orderBy('order', 'asc');
-            }])
-            ->orderBy('order', 'asc')
-            ->get();
-            
-        // Récupérer les leçons complétées par l'apprenant
-        $completedLessons = LessonCompletion::where('user_id', $user->id)
-            ->where('enrollment_id', $enrollment->id)
-            ->pluck('lesson_id')
-            ->toArray();
-            
-        // Trouver la leçon suivante pour la navigation
-        $nextLesson = null;
-        $foundCurrent = false;
+        // Ressources de la leçon
+        $resources = $lesson->resources ?? [];
+
+        // --- Données pour la logique de navigation du pied de page ---
+        $moduleLessons = $lesson->module->lessons()->orderBy('order')->get();
+        $isLastLessonOfModule = $moduleLessons->isNotEmpty() && $moduleLessons->last()->id === $lesson->id;
         
-        foreach ($modules as $module) {
-            foreach ($module->lessons as $moduleLesson) {
-                if ($foundCurrent) {
-                    $nextLesson = $moduleLesson;
-                    break 2;
-                }
-                
-                if ($moduleLesson->id === $lesson->id) {
-                    $foundCurrent = true;
-                }
-            }
+        $moduleQuiz = $lesson->module->quiz;
+        $moduleQuizPassed = $moduleQuiz ? $moduleQuiz->isPassedByUser($user->id) : true;
+
+        $firstLessonNextModule = null;
+        $nextModule = $course->modules()->where('order', '>', $lesson->module->order)->orderBy('order')->first();
+        if ($nextModule) {
+            $firstLessonNextModule = $nextModule->lessons()->orderBy('order')->first();
         }
-        
-        // Vérifier si cette leçon est déjà marquée comme complétée
-        $isCompleted = in_array($lesson->id, $completedLessons);
-        
-        $resources = $lesson->resources ?? []; // Si vous avez une relation pour les ressources
-            
+        // --- Fin des données pour le pied de page ---
+
+        // Récupérer la certification si elle existe
+        $certification = null;
+        if ($course->is_certifying) {
+            $certification = Certification::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+            ->first();
+        }
+
         return view('apprenants.lesson', compact(
-            'lesson', 
-            'modules', 
-            'completedLessons', 
-            'nextLesson', 
+            'lesson',
+            'course',
+            'courseStructure',
+            'previousLesson',
+            'nextLesson',
             'isCompleted',
-            'resources'
+            'resources',
+            'isLastLessonOfModule',
+            'moduleQuiz',
+            'moduleQuizPassed',
+            'firstLessonNextModule',
+            'certification'
         ));
+    }
+
+    /**
+     * Construit la structure complète du cours pour un utilisateur donné,
+     * incluant le statut de complétion et d'accès pour chaque leçon et quiz.
+     */
+    private function getCourseStructureForUser(Course $course, User $user)
+    {
+        $course->load([
+            'modules' => fn($q) => $q->orderBy('order'),
+            'modules.lessons' => fn($q) => $q->orderBy('order'),
+            'modules.quiz',
+            'finalQuiz'
+        ]);
+
+        $completedLessons = LessonCompletion::where('user_id', $user->id)
+            ->whereIn('lesson_id', $course->modules->flatMap->lessons->pluck('id'))
+            ->pluck('lesson_id');
+
+        $structure = [
+            'modules' => [],
+            'final_quiz' => null,
+        ];
+
+        $previousModuleCompleted = true;
+
+        foreach ($course->modules as $module) {
+            $lessonsData = [];
+            $allLessonsInModuleCompleted = true;
+
+            foreach ($module->lessons as $lesson) {
+                $isCompleted = $completedLessons->contains($lesson->id);
+                if (!$isCompleted) {
+                    $allLessonsInModuleCompleted = false;
+                }
+                $lessonsData[] = [
+                    'item' => $lesson,
+                    'type' => 'lesson',
+                    'status' => $previousModuleCompleted ? 'unlocked' : 'locked',
+                    'is_completed' => $isCompleted,
+                ];
+            }
+
+            $moduleQuizData = null;
+            if ($module->quiz) {
+                $quizPassed = $module->quiz->isPassedByUser($user->id);
+                $quizLocked = !$previousModuleCompleted || !$allLessonsInModuleCompleted;
+                
+                $moduleQuizData = [
+                    'item' => $module->quiz,
+                    'type' => 'quiz',
+                    'status' => $quizLocked ? 'locked' : 'unlocked',
+                    'is_completed' => $quizPassed,
+                ];
+            }
+            
+            $structure['modules'][] = [
+                'module' => $module,
+                'lessons' => $lessonsData,
+                'quiz' => $moduleQuizData,
+            ];
+
+            // Pour le module suivant, il faut que le quiz du module actuel soit passé (s'il existe)
+            $previousModuleCompleted = $allLessonsInModuleCompleted && (!$module->quiz || $module->quiz->isPassedByUser($user->id));
+        }
+
+        if ($course->finalQuiz) {
+             $finalQuizPassed = $course->finalQuiz->isPassedByUser($user->id);
+             $finalQuizLocked = !$previousModuleCompleted;
+
+             $structure['final_quiz'] = [
+                'item' => $course->finalQuiz,
+                'type' => 'quiz',
+                'status' => $finalQuizLocked ? 'locked' : 'unlocked',
+                'is_completed' => $finalQuizPassed,
+             ];
+        }
+
+        // Calculer les statistiques de progression
+        $totalLessons = $course->modules->flatMap->lessons->count();
+        $completedLessonsCount = $completedLessons->count();
+        $progressPercentage = $totalLessons > 0 ? round(($completedLessonsCount / $totalLessons) * 100) : 0;
+
+        $structure['stats'] = [
+            'total_lessons' => $totalLessons,
+            'completed_lessons' => $completedLessonsCount,
+            'progress_percentage' => $progressPercentage,
+        ];
+
+        return $structure;
     }
     
     /**
@@ -340,81 +443,543 @@ class EtudiantController extends Controller
     {
         $user = Auth::user();
         $lesson = Lesson::with('module.course')->findOrFail($lessonId);
+        $course = $lesson->module->course;
         
-        // Vérifier si l'apprenant est inscrit au cours correspondant
         $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $lesson->module->course->id)
+            ->where('course_id', $course->id)
+            ->firstOrFail();
+        
+        // Marquer la leçon comme complétée si elle ne l'est pas déjà
+        LessonCompletion::firstOrCreate([
+            'user_id' => $user->id,
+            'lesson_id' => $lessonId,
+            'enrollment_id' => $enrollment->id
+        ], ['completed_at' => now()]);
+        
+        // Mettre à jour la progression du cours
+        $this->updateCourseProgress($enrollment);
+        
+        // Vérifier si le cours entier est maintenant terminé
+        if ($course->isCompletedByUser($user->id)) {
+            $this->completeEnrollmentAndGenerateCertificate($enrollment);
+        }
+        
+        // Déterminer la prochaine étape pour l'utilisateur
+        $nextUrl = $this->getNextStepUrl($lesson);
+
+        return redirect($nextUrl)->with('success', 'Leçon marquée comme terminée !');
+    }
+
+    private function updateCourseProgress(Enrollment $enrollment)
+    {
+        $course = $enrollment->course;
+        $totalLessons = $course->getLessonsCount();
+        
+        if ($totalLessons > 0) {
+            $completedLessons = LessonCompletion::where('enrollment_id', $enrollment->id)->count();
+            $enrollment->progress_percentage = ($completedLessons / $totalLessons) * 100;
+        } else {
+            $enrollment->progress_percentage = 100;
+        }
+
+        $enrollment->save();
+    }
+
+    private function completeEnrollmentAndGenerateCertificate(Enrollment $enrollment)
+    {
+        // Marquer l'inscription comme terminée si ce n'est pas déjà fait
+        if (!$enrollment->completed_at) {
+            $enrollment->completed_at = now();
+            $enrollment->save();
+        }
+            
+        // On ne génère un certificat que si le cours est certifiant (is_certifying = 1)
+        if ($enrollment->course->is_certifying == 1) {
+            $finalQuiz = $enrollment->course->finalQuiz;
+            
+            // Vérifier si le quiz final existe et est réussi
+            $finalQuizPassed = $finalQuiz && $finalQuiz->isPassedByUser($enrollment->user_id);
+            
+            // Vérifier tous les quiz requis
+            $allRequiredQuizzesPassed = true;
+            foreach ($enrollment->course->modules as $module) {
+                if ($module->quiz && $module->quiz->is_required == 1 && !$module->quiz->isPassedByUser($enrollment->user_id)) {
+                    $allRequiredQuizzesPassed = false;
+                    break;
+                }
+            }
+
+            // Si toutes les conditions sont remplies, créer ou récupérer la certification
+            if ($finalQuizPassed && $allRequiredQuizzesPassed) {
+                $certification = Certification::firstOrCreate(
+                    [
+                        'user_id' => $enrollment->user_id,
+                        'course_id' => $enrollment->course_id,
+                    ],
+                    [
+                        'enrollment_id' => $enrollment->id,
+                    'issued_at' => now(),
+                    'certificate_path' => '',
+                    'verification_code' => 'VERIFY-' . uniqid(),
+                        'certificate_identifier' => 'CERT-' . $enrollment->user_id . '-' . $enrollment->course_id . '-' . time()
+                    ]
+                );
+
+                return $certification;
+            }
+        }
+
+        return null;
+    }
+
+    private function getNextStepUrl(Lesson $lesson)
+    {
+        $user = auth()->user();
+        $module = $lesson->module;
+
+        // If all lessons in the module are done, go to the module quiz
+        if ($module->allLessonsCompletedByUser($user->id)) {
+            if ($module->quiz) {
+                return route('apprenant.quiz.show', ['quizId' => $module->quiz->id]);
+            }
+        }
+
+        // Otherwise, go to the next lesson
+        $nextLesson = $this->findNextLesson($lesson);
+        if ($nextLesson) {
+            return route('apprenant.lesson', ['lessonId' => $nextLesson->id]);
+        }
+
+        // If no next lesson, go to the final quiz
+        if ($lesson->module->course->finalQuiz) {
+            return route('apprenant.quiz.show', ['quizId' => $lesson->module->course->finalQuiz->id]);
+        }
+        
+        // If nothing else, go to dashboard
+        return route('apprenant.dashboard');
+    }
+
+    private function findNextLesson(Lesson $currentLesson)
+    {
+        $course = $currentLesson->module->course;
+        $allLessons = $course->modules()->orderBy('order')->with(['lessons' => fn ($q) => $q->orderBy('order')])->get()->flatMap->lessons;
+        
+        $currentLessonIndex = $allLessons->search(fn($l) => $l->id === $currentLesson->id);
+
+        if ($currentLessonIndex !== false && isset($allLessons[$currentLessonIndex + 1])) {
+            return $allLessons[$currentLessonIndex + 1];
+        }
+
+        return null;
+    }
+    
+    /**
+     * Afficher la page des certifications de l'apprenant
+     * 
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showCertifications()
+    {
+        $user = Auth::user();
+        
+        // Récupérer toutes les certifications de l'utilisateur
+        $certifications = Certification::where('user_id', $user->id)
+            ->with(['course' => function($query) {
+                $query->with(['formateur', 'category']);
+            }])
+            ->orderBy('issued_at', 'desc')
+            ->get();
+        
+        // Récupérer les cours en progression (pour inciter à terminer)
+        $coursesInProgress = Enrollment::where('user_id', $user->id)
+            ->whereNull('completed_at')
+            ->where('progress_percentage', '>', 0)
+            ->with(['course' => function($query) {
+                $query->with(['formateur', 'category']);
+            }])
+            ->orderBy('progress_percentage', 'desc')
+            ->get();
+        
+        // Statistiques des certifications
+        $stats = [
+            'total_certifications' => $certifications->count(),
+            'this_year_certifications' => $certifications->filter(function($cert) {
+                return $cert->issued_at->year === now()->year;
+            })->count(),
+            'total_courses_completed' => Enrollment::where('user_id', $user->id)
+                ->whereNotNull('completed_at')
+                ->count(),
+            'average_completion_time' => $this->calculateAverageCompletionTime($user->id)
+        ];
+        
+        return view('apprenants.certifications', compact(
+            'certifications', 
+            'coursesInProgress', 
+            'stats'
+        ));
+    }
+    
+    /**
+     * Afficher un quiz
+     * 
+     * @param  int  $quizId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showQuiz($quizId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions', 'module.course', 'course'])->findOrFail($quizId);
+
+        $course = $quiz->course ?? $quiz->module->course;
+        $module = $quiz->module; // Peut être null pour un quiz de cours
+        
+        // Vérifier l'inscription au cours
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
             ->first();
             
         if (!$enrollment) {
             return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
         }
         
-        // Marquer la leçon comme complétée si elle ne l'est pas déjà
-        $completion = LessonCompletion::firstOrCreate([
-            'user_id' => $user->id,
-            'lesson_id' => $lessonId,
-            'enrollment_id' => $enrollment->id
-        ], [
-            'completed_at' => now()
-        ]);
-        
-        // Mettre à jour la progression globale du cours
-        $totalLessons = Lesson::whereHas('module', function($query) use ($lesson) {
-            $query->where('course_id', $lesson->module->course->id);
-        })->count();
-        
-        $completedLessons = LessonCompletion::where('user_id', $user->id)
-            ->where('enrollment_id', $enrollment->id)
-            ->count();
-            
-        $progressPercentage = $totalLessons > 0 ? ($completedLessons / $totalLessons) * 100 : 0;
-        
-        $enrollment->progress_percentage = $progressPercentage;
-        
-        // Si toutes les leçons sont complétées
-        if ($progressPercentage >= 100) {
-            $enrollment->completed_at = now();
-            
-            // Générer une certification si le cours est terminé
-            Certification::firstOrCreate([
-                'user_id' => $user->id,
-                'course_id' => $lesson->module->course->id,
-                'enrollment_id' => $enrollment->id
-            ], [
-                'issued_at' => now(),
-                'certificate_path' => '',
-                'verification_code' => 'VERIFY-' . uniqid(),
-                'certificate_identifier' => 'CERT-' . $user->id . '-' . $lesson->module->course->id . '-' . time()
-            ]);
+        // Vérifier si l'utilisateur peut accéder à ce quiz
+        if (!$quiz->canBeAccessedByUser($user->id)) {
+            $message = $quiz->isModuleQuiz() 
+                ? 'Vous devez terminer toutes les leçons de ce module avant d\'accéder au quiz'
+                : 'Vous devez réussir tous les quiz des modules avant d\'accéder au quiz final';
+                
+            return redirect()->back()->with('error', $message);
         }
         
-        $enrollment->save();
+        // Récupérer les tentatives et le statut
+        $attempts = $quiz->attempts()->where('user_id', $user->id)->latest()->get();
+        $latestAttempt = $attempts->first();
+        $bestAttempt = $quiz->bestAttemptByUser($user->id);
+        $passed = $quiz->isPassedByUser($user->id);
+        $canAttempt = $quiz->canBeAttemptedByUser($user->id);
+        $remainingAttempts = $quiz->getRemainingAttempts($user->id);
         
-        // Rediriger vers la leçon suivante s'il y en a une
-        if ($request->has('next_lesson_id') && $request->next_lesson_id) {
-            return redirect()->route('apprenant.lesson', ['lessonId' => $request->next_lesson_id]);
-        }
-        
-        return redirect()->route('apprenant.dashboard')->with('success', 'Leçon marquée comme complétée. Cours mis à jour.');
+        // Le formulaire pour prendre le quiz est dans une autre vue, ici on affiche la page d'introduction
+        return view('apprenants.quiz.show', compact(
+            'quiz', 
+            'enrollment',
+            'module',
+            'course',
+            'attempts',
+            'latestAttempt',
+            'bestAttempt',
+            'passed',
+            'canAttempt',
+            'remainingAttempts'
+        ));
     }
     
     /**
-     * Télécharger une certification
+     * Affiche la page pour passer un quiz
+     *
+     * @param int $quizId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function startQuiz($quizId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers', 'module.course', 'course'])->findOrFail($quizId);
+        $course = $quiz->course ?? $quiz->module->course;
+
+        // Vérifier l'inscription
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->first();
+        if (!$enrollment) {
+            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+        }
+
+        // Vérifier si l'utilisateur peut accéder à ce quiz
+        if (!$quiz->canBeAccessedByUser($user->id)) {
+            return redirect()->route('apprenant.quiz.show', ['quizId' => $quiz->id])
+                             ->with('error', 'Vous devez d\'abord terminer les étapes précédentes.');
+        }
+
+        // Vérifier si l'utilisateur peut encore tenter le quiz
+        if (!$quiz->canBeAttemptedByUser($user->id)) {
+            $message = $quiz->isPassedByUser($user->id) 
+                ? 'Vous avez déjà réussi ce quiz. Vous ne pouvez plus le retenter.'
+                : 'Vous avez atteint le nombre maximum de tentatives pour ce quiz.';
+            return redirect()->route('apprenant.quiz.show', ['quizId' => $quiz->id])
+                             ->with('error', $message);
+        }
+        
+        return view('apprenants.quiz.take', compact('quiz', 'enrollment'));
+    }
+    
+    /**
+     * Soumettre un quiz
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $quizId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function takeQuiz(Request $request, $quizId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        
+        // Vérifier l'inscription au cours
+        $courseId = $quiz->course_id ?? $quiz->module->course_id;
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $courseId)
+            ->first();
+            
+        if (!$enrollment) {
+            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+        }
+        
+        // Créer une nouvelle tentative
+        $attempt = QuizAttempt::create([
+            'user_id' => $user->id,
+            'quiz_id' => $quiz->id,
+            'enrollment_id' => $enrollment->id,
+            'started_at' => now(),
+            'status' => 'completed'
+        ]);
+        
+        $totalPoints = 0;
+        $earnedPoints = 0;
+        $correctAnswersCount = 0;
+        
+        // Traiter les réponses
+        foreach ($quiz->questions as $question) {
+            $totalPoints += $question->points;
+            $userAnswerIds = $request->input("question_{$question->id}", []);
+            
+            if (!is_array($userAnswerIds)) {
+                $userAnswerIds = [$userAnswerIds];
+            }
+            
+            $isCorrect = false;
+            
+            if ($question->type === 'single_choice') {
+                $correctAnswer = $question->answers->where('is_correct', true)->first();
+                $isCorrect = $correctAnswer && in_array($correctAnswer->id, $userAnswerIds);
+            } elseif ($question->type === 'multiple_choice') {
+                $correctAnswers = $question->answers->where('is_correct', true)->pluck('id')->toArray();
+                $isCorrect = count($correctAnswers) === count($userAnswerIds) && 
+                           empty(array_diff($correctAnswers, $userAnswerIds));
+            } elseif ($question->type === 'true_false') {
+                $correctAnswer = $question->answers->where('is_correct', true)->first();
+                $isCorrect = $correctAnswer && in_array($correctAnswer->id, $userAnswerIds);
+            }
+            
+            if ($isCorrect) {
+                $earnedPoints += $question->points;
+                $correctAnswersCount++;
+            }
+            
+            // Enregistrer les réponses utilisateur
+            foreach ($userAnswerIds as $answerId) {
+                if ($answerId) {
+                    UserQuizAnswer::create([
+                        'quiz_attempt_id' => $attempt->id,
+                        'question_id' => $question->id,
+                        'answer_id' => $answerId,
+                        'is_correct' => $isCorrect
+                    ]);
+                }
+            }
+        }
+        
+        // Calculer le score
+        $scorePercentage = $totalPoints > 0 ? round(($earnedPoints / $totalPoints) * 100) : 0;
+        $passed = $scorePercentage >= $quiz->passing_score;
+        
+        // Mettre à jour la tentative
+        $attempt->update([
+            'completed_at' => now(),
+            'score' => $scorePercentage,
+            'passed' => $passed
+        ]);
+        
+        // Si le quiz est réussi, vérifier si le cours est terminé pour générer le certificat
+        $certification = null;
+        if ($passed) {
+            $course = $quiz->course ?? $quiz->module->course;
+            if ($course && $course->isCompletedByUser($user->id)) {
+                $certification = $this->completeEnrollmentAndGenerateCertificate($enrollment);
+                
+                // Si c'est un quiz final réussi et qu'un certificat a été généré
+                if ($certification && $quiz->isCourseQuiz() && $course->is_certifying == 1) {
+                    return redirect()->route('apprenant.certification.download', ['certificationId' => $certification->id])
+                        ->with('success', 'Félicitations ! Vous avez obtenu votre certificat.');
+                }
+            }
+        }
+        
+        return redirect()->route('apprenant.quiz.result', [
+            'quizId' => $quiz->id,
+            'attemptId' => $attempt->id
+        ]);
+    }
+    
+    /**
+     * Afficher les résultats d'un quiz
+     * 
+     * @param  int  $quizId
+     * @param  int  $attemptId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showQuizResult($quizId, $attemptId)
+    {
+        $user = Auth::user();
+        $quiz = Quiz::with(['questions.answers', 'module.course', 'course'])->findOrFail($quizId);
+        $attempt = QuizAttempt::with(['answers.answer', 'answers.question'])
+            ->where('id', $attemptId)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+            
+        // Statistiques pour la vue
+        $totalQuestions = $quiz->questions->count();
+        $correctAnswers = $attempt->answers()->where('is_correct', true)->distinct('question_id')->count();
+        $userAttempts = $quiz->attempts()->where('user_id', $user->id)->count();
+
+        // Grouper les réponses par question pour l'affichage détaillé
+        $questionResults = [];
+        foreach ($quiz->questions as $question) {
+            $userAnswers = $attempt->answers->where('question_id', $question->id);
+            $correctAnswersForQuestion = $question->answers->where('is_correct', true);
+            
+            $questionResults[] = [
+                'question' => $question,
+                'user_answers' => $userAnswers,
+                'correct_answers' => $correctAnswersForQuestion,
+                'is_correct' => $userAnswers->isNotEmpty() && $userAnswers->first()->is_correct
+            ];
+        }
+        
+        $passed = $attempt->score >= $quiz->passing_score;
+        
+        // Initialiser la certification à null par défaut
+        $certification = null;
+        
+        // Déterminer la navigation de retour en fonction du type de quiz et du résultat
+        if ($quiz->isModuleQuiz() && $passed) {
+            // Si c'est un quiz de module réussi, on redirige vers la première leçon du module suivant
+            $nextModule = $quiz->module->course->modules()
+                ->where('order', '>', $quiz->module->order)
+                ->orderBy('order')
+                ->first();
+
+            if ($nextModule && $nextModule->lessons->isNotEmpty()) {
+                $backRoute = 'apprenant.lesson';
+                $backId = $nextModule->lessons->first()->id;
+            } else {
+                // S'il n'y a pas de module suivant, on va au quiz final s'il existe
+                $finalQuiz = $quiz->module->course->finalQuiz;
+                if ($finalQuiz) {
+                    $backRoute = 'apprenant.quiz.show';
+                    $backId = $finalQuiz->id;
+                } else {
+                    $backRoute = 'apprenant.course.access';
+                    $backId = $quiz->module->course_id;
+                }
+            }
+        } elseif ($quiz->isCourseQuiz() && $passed) {
+            // Si c'est un quiz final réussi, on vérifie la certification
+            if ($quiz->course && $quiz->course->is_certifying) {
+                $certification = Certification::where('user_id', $user->id)
+                    ->where('course_id', $quiz->course->id)
+                    ->first();
+                
+                if ($certification) {
+                    $backRoute = 'apprenant.certification.download';
+                    $backId = $certification->id;
+                } else {
+                    $backRoute = 'apprenant.course.access';
+                    $backId = $quiz->course_id;
+                }
+            } else {
+                $backRoute = 'apprenant.course.access';
+                $backId = $quiz->course_id;
+            }
+        } else {
+            // Si le quiz n'est pas réussi ou autre cas
+        $backRoute = $quiz->isModuleQuiz() 
+            ? 'apprenant.lesson' 
+            : 'apprenant.course.access';
+            
+        $backId = $quiz->isModuleQuiz() 
+                ? ($quiz->module->lessons->first()->id ?? null)
+            : $quiz->course_id;
+        }
+        
+        return view('apprenants.quiz.result', compact(
+            'quiz', 
+            'attempt', 
+            'questionResults',
+            'backRoute',
+            'backId',
+            'totalQuestions',
+            'correctAnswers',
+            'userAttempts',
+            'certification',
+            'passed',
+            'user'
+        ));
+    }
+
+    /**
+     * Calculer le temps moyen de complétion des cours
+     */
+    private function calculateAverageCompletionTime($userId)
+    {
+        $completedEnrollments = Enrollment::where('user_id', $userId)
+            ->whereNotNull('completed_at')
+            ->get();
+        
+        if ($completedEnrollments->isEmpty()) {
+            return 0;
+        }
+        
+        $totalDays = $completedEnrollments->sum(function($enrollment) {
+            return $enrollment->enrolled_at->diffInDays($enrollment->completed_at);
+        });
+        
+        return round($totalDays / $completedEnrollments->count());
+    }
+
+    /**
+     * Vérifier que tous les quiz obligatoires d'un cours sont réussis pour générer le certificat
+     * 
+     * @param  int  $userId
+     * @param  int  $courseId
+     * @return bool
+     */
+    private function checkQuizRequirementsForCertification($userId, $courseId)
+    {
+        $course = Course::find($courseId);
+        if (!$course) {
+                return false;
+            }
+        return $course->isCompletedByUser($userId);
+    }
+
+    /**
+     * Afficher et télécharger un certificat
      * 
      * @param  int  $certificationId
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Support\Renderable
      */
     public function downloadCertification($certificationId)
     {
         $user = Auth::user();
-        $certification = Certification::where('id', $certificationId)
-            ->where('user_id', $user->id)
-            ->with('course')
+        $certification = Certification::with(['user', 'course'])
+            ->where('id', $certificationId)
             ->firstOrFail();
-        
-        // Ici, vous auriez la logique pour générer un PDF et le télécharger
-        // Pour l'instant, on peut rediriger vers une page qui affiche le certificat
+            
+        // Vérifier que l'utilisateur a le droit d'accéder à ce certificat
+        if ($certification->user_id !== $user->id) {
+            return redirect()->route('apprenant.dashboard')
+                ->with('error', 'Vous n\'avez pas accès à ce certificat.');
+        }
         
         return view('apprenants.certification', compact('certification'));
     }

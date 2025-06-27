@@ -15,15 +15,15 @@ class DatabaseSeeder extends Seeder
             // Utilisateurs, catégories et cours
             UserSeeder::class,
             CategorySeeder::class,
-            CourseSeeder::class,
+            // CourseSeeder::class, // Commenté car CourseContentSeeder crée déjà un cours
             
             // Structure des cours
             ModuleSeeder::class,
             LessonSeeder::class,
             ResourceSeeder::class,
             
-            // Quiz et évaluations
-            QuizSeeder::class,
+            // Quiz et évaluations (ancien seeder, maintenant désactivé)
+            // QuizSeeder::class,
             
             // Interactions des utilisateurs
             EnrollmentSeeder::class,
@@ -34,6 +34,10 @@ class DatabaseSeeder extends Seeder
             CertificationSeeder::class,
             BadgeSeeder::class,
             RewardSeeder::class,
+            // CertificationSeeder::class, // Les certificats sont créés par la logique de l'app
         ]);
+
+        // Ce seeder crée un cours complet avec modules, leçons et quiz pour les tests.
+        $this->call(CourseContentSeeder::class);
     }
 }

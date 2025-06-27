@@ -25,4 +25,6 @@ class ApprenantController extends Controller
     {
         return view('apprenant.dashboard');
     }
+
+  
 }

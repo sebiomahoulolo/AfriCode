@@ -218,6 +218,20 @@
         border-color: rgba(30, 163, 139, 0.2) !important;
     }
 
+    .lesson-item.disabled {
+        cursor: not-allowed !important;
+        background-color: var(--gray-100) !important;
+        color: var(--gray-500) !important;
+        opacity: 0.8 !important;
+        pointer-events: none !important;
+    }
+    .lesson-item.disabled:hover {
+        background: var(--gray-100) !important;
+        transform: none !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+        border-color: transparent !important;
+    }
+
     .lesson-item.active {
         background: linear-gradient(135deg, rgba(30, 163, 139, 0.15) 0%, rgba(39, 179, 113, 0.15) 100%) !important;
         color: #1EA38B !important;
@@ -230,6 +244,62 @@
     .lesson-item.completed {
         color: #27B371 !important;
         border-left: 3px solid #27B371 !important;
+    }
+
+    .lesson-item.attempted {
+        color: #f0ad4e !important;
+        border-left: 3px solid #f0ad4e !important;
+    }
+
+    .quiz-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+    }
+
+    .quiz-badges {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-left: auto;
+    }
+
+    .certification-badge {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+        color: white !important;
+        font-size: 0.65rem !important;
+        padding: 3px 6px !important;
+        border-radius: 8px !important;
+        font-weight: 600 !important;
+        display: inline-flex;
+        align-items: center;
+        animation: pulse-golden 2s infinite;
+    }
+
+    .required-quiz {
+        border-left: 3px solid #f39c12 !important;
+    }
+
+    .required-quiz.completed {
+        border-left: 3px solid #27B371 !important;
+    }
+
+    .required-indicator {
+        color: #f39c12 !important;
+        font-weight: 600 !important;
+        font-size: 0.75rem !important;
+    }
+
+    @keyframes pulse-golden {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(243, 156, 18, 0.3);
+        }
+        50% {
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.6);
+        }
     }
 
     .lesson-icon {
@@ -613,12 +683,12 @@
         
         <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">Progression du cours</small>
-            <small class="fw-bold">{{ count($completedLessons) }} / {{ $lesson->module->course->getLessonsCount() }} leçons</small>
+            <small class="fw-bold">{{ $courseStructure['stats']['completed_lessons'] }} / {{ $courseStructure['stats']['total_lessons'] }} leçons</small>
         </div>
         
         <div class="progress-modern">
             <div class="progress-bar-modern" 
-                 style="width: {{ count($completedLessons) / $lesson->module->course->getLessonsCount() * 100 }}%"></div>
+                 style="width: {{ $courseStructure['stats']['progress_percentage'] }}%"></div>
         </div>
     </div>
 
@@ -639,26 +709,119 @@
                 </button>
             </div>
             
-            @foreach($modules as $module)
+            @foreach($courseStructure['modules'] as $moduleData)
             <div class="module-group mb-3">
-                <div class="module-header" onclick="toggleModule({{ $module->id }})">
-                    <span>{{ $module->title }}</span>
-                    <i class="fas fa-chevron-down" id="icon-{{ $module->id }}"></i>
+                <div class="module-header" onclick="toggleModule({{ $moduleData['module']->id }})">
+                    <span>{{ $moduleData['module']->title }}</span>
+                    <i class="fas fa-chevron-down" id="icon-{{ $moduleData['module']->id }}"></i>
                 </div>
-                <div class="module-lessons" id="lessons-{{ $module->id }}">
-                    @foreach($module->lessons as $lessonItem)
-                    <a href="{{ route('apprenant.lesson', ['lessonId' => $lessonItem->id]) }}" 
-                       class="lesson-item {{ $lessonItem->id === $lesson->id ? 'active' : '' }} {{ in_array($lessonItem->id, $completedLessons) ? 'completed' : '' }}">
-                        <div class="d-flex align-items-center">
-                            <i class="lesson-icon fas {{ in_array($lessonItem->id, $completedLessons) ? 'fa-check-circle text-success' : ($lessonItem->id === $lesson->id ? 'fa-play-circle' : 'fa-circle') }}"></i>
-                            <span>{{ $lessonItem->title }}</span>
-                        </div>
-                        <small class="text-muted">{{ $lessonItem->duration_minutes }}min</small>
-                    </a>
+                <div class="module-lessons" id="lessons-{{ $moduleData['module']->id }}">
+                    {{-- Afficher les leçons du module --}}
+                    @foreach($moduleData['lessons'] as $lessonData)
+                        @php
+                            $l = $lessonData['item'];
+                            $isLocked = $lessonData['status'] === 'locked';
+                            $url = $isLocked ? '#' : route('apprenant.lesson', ['lessonId' => $l->id]);
+                            $class = 'lesson-item';
+                            if ($l->id === $lesson->id) $class .= ' active';
+                            if ($lessonData['is_completed']) $class .= ' completed';
+                            if ($isLocked) $class .= ' disabled'; // CSS `disabled` class might be needed
+                        @endphp
+                        <a href="{{ $url }}" class="{{ $class }}">
+                            <div class="d-flex align-items-center">
+                                <i class="lesson-icon fas {{ $isLocked ? 'fa-lock text-muted' : ($lessonData['is_completed'] ? 'fa-check-circle text-success' : ($l->id === $lesson->id ? 'fa-play-circle' : 'fa-circle')) }}"></i>
+                                <span>{{ $l->title }}</span>
+                            </div>
+                            @if(!$isLocked)
+                                <small class="text-muted">{{ $l->duration_minutes }} min</small>
+                            @endif
+                        </a>
                     @endforeach
+
+                    {{-- Afficher le quiz du module s'il existe --}}
+                    @if($moduleData['quiz'])
+                        @php
+                            $q = $moduleData['quiz']['item'];
+                            $isLocked = $moduleData['quiz']['status'] === 'locked';
+                            $url = $isLocked ? '#' : route('apprenant.quiz.show', ['quizId' => $q->id]);
+                            $class = 'lesson-item quiz-item';
+                            if ($moduleData['quiz']['is_completed']) $class .= ' completed';
+                            if ($isLocked) $class .= ' disabled';
+                            if ($q->is_required) $class .= ' required-quiz';
+                        @endphp
+                        <a href="{{ $url }}" class="{{ $class }}">
+                            <div class="d-flex align-items-center">
+                                <i class="lesson-icon fas {{ $isLocked ? 'fa-lock text-muted' : ($moduleData['quiz']['is_completed'] ? 'fa-check-circle text-success' : 'fa-question-circle text-primary') }}"></i>
+                                <span>{{ $q->title }}</span>
+                                <div class="quiz-badges">
+                                    <span class="quiz-badge">QUIZ</span>
+                                    @if($q->is_required)
+                                        <span class="certification-badge" title="Obligatoire pour le certificat"><i class="fas fa-star"></i></span>
+                                    @endif
+                                </div>
+                            </div>
+                        </a>
+                    @endif
                 </div>
             </div>
             @endforeach
+
+            {{-- Afficher le quiz final s'il existe --}}
+            @if($courseStructure['final_quiz'])
+                @php
+                    $q = $courseStructure['final_quiz']['item'];
+                    $isLocked = $courseStructure['final_quiz']['status'] === 'locked';
+                    $url = $isLocked ? '#' : route('apprenant.quiz.show', ['quizId' => $q->id]);
+                    $class = 'lesson-item quiz-item final-quiz'; // a new class for styling if needed
+                    if ($courseStructure['final_quiz']['is_completed']) $class .= ' completed';
+                    if ($isLocked) $class .= ' disabled';
+                @endphp
+                 <div class="module-group mb-3">
+                    <div class="module-header">
+                        <span>Examen Final</span>
+                    </div>
+                    <div class="module-lessons">
+                        <a href="{{ $url }}" class="{{ $class }}">
+                            <div class="d-flex align-items-center">
+                                 <i class="lesson-icon fas {{ $isLocked ? 'fa-lock text-muted' : ($courseStructure['final_quiz']['is_completed'] ? 'fa-award text-success' : 'fa-flag-checkered text-primary') }}"></i>
+                                <span>{{ $q->title }}</span>
+                                <div class="quiz-badges">
+                                    <span class="quiz-badge" style="background: linear-gradient(135deg, #d35400 0%, #e67e22 100%) !important;">EXAMEN</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            @endif
+
+            {{-- Section Certificat --}}
+            @if($course->is_certifying)
+                <div class="module-group mb-3">
+                    <div class="module-header" style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important; color: white;">
+                        <span><i class="fas fa-certificate me-2"></i>Certificat</span>
+                    </div>
+                    <div class="module-lessons">
+                        @if($certification)
+                            <div class="p-3 text-center">
+                                <i class="fas fa-award fa-2x text-warning mb-2"></i>
+                                <div class="fw-bold mb-2">Certificat obtenu !</div>
+                                <a href="{{ route('apprenant.certification.download', $certification->id) }}" class="btn btn-success w-100 mb-2">
+                                    <i class="fas fa-file-pdf me-2"></i>Voir / Télécharger
+                                </a>
+                                <div class="small text-muted">Délivré le {{ $certification->issued_at->format('d/m/Y') }}</div>
+                                <div class="small mt-1">ID : <span class="fw-bold">{{ $certification->certificate_identifier }}</span></div>
+                            </div>
+                        @else
+                            <div class="p-3 text-center">
+                                <i class="fas fa-lock fa-2x text-muted mb-2"></i>
+                                <div class="fw-bold mb-2">Certificat verrouillé</div>
+                                <div class="small text-muted">Complétez toutes les étapes et réussissez l'examen final pour débloquer votre certificat.</div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
         </div>
 
         <!-- Main Content -->
@@ -808,7 +971,9 @@
 
             <div class="lesson-footer">
                 <div class="navigation-buttons">
-                    @if(isset($previousLesson))
+                    @if(isset(
+                        $previousLesson
+                    ))
                     <a href="{{ route('apprenant.lesson', ['lessonId' => $previousLesson->id]) }}" 
                        class="btn btn-outline-modern btn-nav">
                         <i class="fas fa-arrow-left me-2"></i>Précédent
@@ -821,24 +986,40 @@
                         @if(!$isCompleted)
                         <form action="{{ route('apprenant.lesson.complete', ['lessonId' => $lesson->id]) }}" method="POST" class="d-inline">
                             @csrf
-                            @if(isset($nextLesson))
-                            <input type="hidden" name="next_lesson_id" value="{{ $nextLesson->id }}">
-                            @endif
                             <button type="submit" class="btn btn-modern">
                                 <i class="fas fa-check-circle me-2"></i>Marquer terminée
                             </button>
                         </form>
                         @endif
                         
-                        @if(isset($nextLesson))
-                        <a href="{{ route('apprenant.lesson', ['lessonId' => $nextLesson->id]) }}" 
-                           class="btn btn-modern btn-nav">
-                            Suivant<i class="fas fa-arrow-right ms-2"></i>
-                        </a>
+                        {{-- Blocage navigation module suivant --}}
+                        @if($isLastLessonOfModule && $moduleQuiz)
+                            @if(!$moduleQuizPassed)
+                                <a href="{{ route('apprenant.quiz.show', ['quizId' => $moduleQuiz->id]) }}" class="btn btn-modern btn-nav">
+                                    <i class="fas fa-question-circle me-2"></i>Passer le quiz du module
+                                </a>
+                            @else
+                                @if($firstLessonNextModule)
+                                    <a href="{{ route('apprenant.lesson', ['lessonId' => $firstLessonNextModule->id]) }}" class="btn btn-modern btn-nav">
+                                        Module suivant <i class="fas fa-arrow-right ms-2"></i>
+                                    </a>
+                                @else
+                                    <a href="{{ route('apprenant.dashboard') }}" class="btn btn-outline-modern btn-nav">
+                                        <i class="fas fa-home me-2"></i>Tableau de bord
+                                    </a>
+                                @endif
+                            @endif
                         @else
-                        <a href="{{ route('apprenant.dashboard') }}" class="btn btn-outline-modern btn-nav">
-                            <i class="fas fa-home me-2"></i>Tableau de bord
-                        </a>
+                            @if(isset($nextLesson))
+                                <a href="{{ route('apprenant.lesson', ['lessonId' => $nextLesson->id]) }}" 
+                                   class="btn btn-modern btn-nav">
+                                    Suivant<i class="fas fa-arrow-right ms-2"></i>
+                                </a>
+                            @else
+                                <a href="{{ route('apprenant.dashboard') }}" class="btn btn-outline-modern btn-nav">
+                                    <i class="fas fa-home me-2"></i>Tableau de bord
+                                </a>
+                            @endif
                         @endif
                     </div>
                 </div>
