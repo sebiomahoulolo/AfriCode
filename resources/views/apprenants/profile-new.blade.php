@@ -1,6 +1,6 @@
 @extends('apprenants.layouts.app')
 
-@section('title', 'Mon Profil | AfriCode')
+@section('title', 'AfriCode')
 @section('page-title', 'Mon Profil')
 
 @push('styles')

@@ -21,13 +21,22 @@ class Competition extends Model
         'level_required',
         'organizer_id',
         'status',
-        'cover_image_path'
+        'cover_image_path',
+        'max_participants',
+        'entry_fee',
+        'prizes',
+        'judging_criteria',
+        'is_featured',
+        'views_count'
     ];
 
     protected $casts = [
         'start_datetime' => 'datetime',
         'end_datetime' => 'datetime',
-        'registration_deadline' => 'datetime'
+        'registration_deadline' => 'datetime',
+        'prizes' => 'array',
+        'judging_criteria' => 'array',
+        'is_featured' => 'boolean'
     ];
 
     public function organizer()
@@ -48,6 +57,18 @@ class Competition extends Model
     public function participants()
     {
         return $this->belongsToMany(User::class, 'competition_registrations');
+    }
+
+    public function challenges()
+    {
+        return $this->belongsToMany(Challenge::class, 'competition_challenges')
+                    ->withPivot(['points_reward', 'is_required', 'order'])
+                    ->orderBy('pivot_order');
+    }
+
+    public function leaderboards()
+    {
+        return $this->hasMany(Leaderboard::class);
     }
     
     protected static function boot()
@@ -101,5 +122,37 @@ class Competition extends Model
         }
         
         return 'Commence dans ' . now()->diffForHumans($this->start_datetime, ['parts' => 2]);
+    }
+
+    // Nouvelles méthodes
+    public function incrementViews()
+    {
+        $this->increment('views_count');
+    }
+
+    public function isFull()
+    {
+        if (!$this->max_participants) {
+            return false;
+        }
+        return $this->registrations()->count() >= $this->max_participants;
+    }
+
+    public function getAvailableSpots()
+    {
+        if (!$this->max_participants) {
+            return null;
+        }
+        return max(0, $this->max_participants - $this->registrations()->count());
+    }
+
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', ['upcoming', 'open_for_registration', 'in_progress']);
     }
 }

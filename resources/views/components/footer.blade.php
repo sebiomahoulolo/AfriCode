@@ -228,7 +228,7 @@
                     <li><a href="{{ route('pages.compdisp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-trophy me-2"></i>Compétitions</a></li>
                     <li><a href="{{ route('pages.test') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-vial me-2"></i>Test de niveau</a></li>
                     <li><a href="{{ route('pages.verifier') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-certificate me-2"></i>Vérifier certificat</a></li>
-                    <li><a href="{{ route('pages.forumexp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-user-tie me-2"></i>Forum experts</a></li>
+                    <li><a href="{{ route('pages.forumapp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-user-tie me-2"></i>Forum experts</a></li>
                     <li><a href="{{ route('pages.forumapp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-users me-2"></i>Forum apprenants</a></li>
                 </ul>
             </div>

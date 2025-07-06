@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Revenus du cours')
+@section('title', __('messages.course_revenues_title'))
 
 @section('page-heading', $course->title)
-@section('page-subheading', 'Revenus et transactions')
+@section('page-subheading', __('messages.revenues_and_transactions'))
 
 @section('styles')
 <style>

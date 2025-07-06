@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Inscription - ' . $course->title)
+@section('title', __('messages.enrollment_title', ['course' => $course->title]))
 
 @section('content')
 <div class="container py-5">

@@ -7,7 +7,7 @@
 <section class="contact-section py-5" id="contact">
   <div class="container">
     <h2 class="text-center mb-4">Contactez-nous</h2>
-    <p class="text-center mb-5 text-muted">Une question, une collaboration ou une idée à partager ? L’équipe AfriCode est à votre écoute.</p>
+    <p class="text-center mb-5 text-muted">Une question, une collaboration ou une idée à partager ? L'équipe AfriCode est à votre écoute.</p>
 
     <div class="row g-4">
       <!-- Informations de contact -->
@@ -18,7 +18,7 @@
           <p><i class="bi bi-telephone-fill text-primary me-2"></i> +229 90 00 00 00</p>
           <p><i class="bi bi-geo-alt-fill text-primary me-2"></i> Parakou, Bénin</p>
           <hr>
-          <p class="text-muted">Nous répondons généralement sous 24h. N’hésitez pas à nous écrire !</p>
+          <p class="text-muted">Nous répondons généralement sous 24h. N'hésitez pas à nous écrire !</p>
         </div>
       </div>
 

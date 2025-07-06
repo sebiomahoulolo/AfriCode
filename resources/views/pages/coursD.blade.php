@@ -184,7 +184,7 @@
             ['Bases de la base de données', 'Introduction à MySQL et à la gestion des bases de données.', 'lesbases.jpg', 'Gratuit', 'Pas de certificat', '45h'],
             ['Développement Frontend', 'Maîtrisez Bootstrap et Tailwind CSS pour concevoir des interfaces modernes.', 'frontend2.jpeg', '25$', 'Certificat inclus', '80h'],
             ['Cours de Word', 'Apprenez à maîtriser Microsoft Word pour la bureautique.', 'OIP (5).jpeg', '18$', 'Certificat inclus', '9h'],
-            ['Cours d’Excel', 'Développez vos compétences en analyse de données avec Excel.', 'maxresdefault (5).jpg', '15$', 'Certificat inclus', '16h']
+            ['Cours d'Excel', 'Développez vos compétences en analyse de données avec Excel.', 'maxresdefault (5).jpg', '15$', 'Certificat inclus', '16h']
         ] as $cours)
         <div class="col-md-3 mb-4"> 
             <div class="card h-100 shadow-sm" style="height: 100%;"> 

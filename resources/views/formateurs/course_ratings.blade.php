@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Évaluations du cours')
+@section('title', __('messages.course_ratings_title'))
 
 @section('page-heading', $course->title)
-@section('page-subheading', 'Évaluations et commentaires')
+@section('page-subheading', __('messages.evaluations_and_comments'))
 
 @section('styles')
 <style>
@@ -75,9 +75,9 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('formateur.dashboard') }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('formateur.dashboard') }}">{{ __('messages.dashboard') }}</a></li>
             <li class="breadcrumb-item"><a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}">{{ $course->title }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Évaluations</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ __('messages.ratings') }}</li>
         </ol>
     </nav>
     
@@ -86,7 +86,7 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body rating-stats">
-                    <h5 class="card-title mb-4">Statistiques d'évaluation</h5>
+                    <h5 class="card-title mb-4">{{ __('messages.rating_stats') }}</h5>
                     
                     @php
                         $avgRating = $ratings->avg('rating') ?? 0;
@@ -113,7 +113,7 @@
                                 @endif
                             @endfor
                         </div>
-                        <p class="text-muted">{{ $totalRatings }} évaluations</p>
+                        <p class="text-muted">{{ $totalRatings }} {{ __('messages.ratings_count') }}</p>
                     </div>
                     
                     <div class="rating-bars">
@@ -131,7 +131,7 @@
                 
                 <div class="card-footer bg-white">
                     <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-primary btn-block w-100">
-                        <i class="fas fa-arrow-left me-1"></i> Retour au cours
+                        <i class="fas fa-arrow-left me-1"></i> {{ __('messages.back_to_course') }}
                     </a>
                 </div>
             </div>
@@ -142,17 +142,17 @@
             <div class="card">
                 <div class="card-header bg-white">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Commentaires des étudiants</h5>
+                        <h5 class="mb-0">{{ __('messages.student_comments') }}</h5>
                         
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 Filtrer
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-                                <li><a class="dropdown-item {{ request('filter') == '' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id]) }}">Toutes les notes</a></li>
-                                <li><a class="dropdown-item {{ request('filter') == 'positive' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'positive']) }}">Notes positives (4-5)</a></li>
-                                <li><a class="dropdown-item {{ request('filter') == 'neutral' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'neutral']) }}">Notes neutres (3)</a></li>
-                                <li><a class="dropdown-item {{ request('filter') == 'negative' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'negative']) }}">Notes négatives (1-2)</a></li>
+                                <li><a class="dropdown-item {{ request('filter') == '' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id]) }}">{{ __('messages.all_ratings') }}</a></li>
+                                <li><a class="dropdown-item {{ request('filter') == 'positive' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'positive']) }}">{{ __('messages.positive_ratings') }}</a></li>
+                                <li><a class="dropdown-item {{ request('filter') == 'neutral' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'neutral']) }}">{{ __('messages.neutral_ratings') }}</a></li>
+                                <li><a class="dropdown-item {{ request('filter') == 'negative' ? 'active' : '' }}" href="{{ route('formateur.courses.ratings', ['courseId' => $course->id, 'filter' => 'negative']) }}">{{ __('messages.negative_ratings') }}</a></li>
                             </ul>
                         </div>
                     </div>

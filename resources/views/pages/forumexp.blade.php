@@ -350,36 +350,54 @@
 
                  <!-- Forum View (caché par défaut) -->
                  <div class="forum-view" id="forum-view" style="display: none;">
-                     <div class="forum-topic-header">
-                         <h4 id="forum-topic-title">Titre du Sujet...</h4>
-                         <p id="forum-topic-meta">Posté par <span class="fw-bold">Auteur</span> le <span class="text-muted">Date</span></p>
-                     </div>
-                     <div class="forum-replies">
-                         <div class="reply-card original-post" id="original-post">
+                     <div class="container py-4">
+                         <div class="forum-topic-header mb-3">
+                             <h2>{{ $forum->title }}</h2>
+                             <p class="mb-1">Posté par <strong>{{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}</strong> le {{ $forum->created_at->format('d/m/Y H:i') }}</p>
+                         </div>
+                         <div class="reply-card original-post mb-4">
                              <div class="reply-header">
-                                 <img src="" alt="Avatar" id="op-avatar">
-                                 <span class="author" id="op-author"></span>
-                                 <span class="date" id="op-date"></span>
+                                 <span class="author">{{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}</span>
+                                 <span class="date ms-auto">{{ $forum->created_at->format('d/m/Y H:i') }}</span>
                              </div>
-                             <div class="reply-content" id="op-content">
-                                 Contenu du message original...
-                             </div>
+                             <div class="reply-content">{!! nl2br(e($forum->content)) !!}</div>
                          </div>
                          <hr>
                          <h5>Réponses</h5>
-                         <div id="replies-list">
-                             <!-- Replies loaded here -->
+                         <div class="forum-replies mb-4">
+                             @forelse($posts as $post)
+                                 <div class="reply-card mb-3">
+                                     <div class="reply-header">
+                                         <span class="author">{{ $post->user->first_name ?? 'Utilisateur' }} {{ $post->user->last_name ?? '' }}</span>
+                                         <span class="date ms-auto">{{ $post->created_at->format('d/m/Y H:i') }}</span>
+                                     </div>
+                                     <div class="reply-content">{!! nl2br(e($post->content)) !!}</div>
+                                     @if($post->replies->count())
+                                         <div class="ms-4 mt-2">
+                                             @foreach($post->replies as $reply)
+                                                 <div class="reply-card mb-2">
+                                                     <div class="reply-header">
+                                                         <span class="author">{{ $reply->user->first_name ?? 'Utilisateur' }} {{ $reply->user->last_name ?? '' }}</span>
+                                                         <span class="date ms-auto">{{ $reply->created_at->format('d/m/Y H:i') }}</span>
+                                                     </div>
+                                                     <div class="reply-content">{!! nl2br(e($reply->content)) !!}</div>
+                                                 </div>
+                                             @endforeach
+                                         </div>
+                                     @endif
+                                 </div>
+                             @empty
+                                 <p class="text-muted">Aucune réponse pour le moment.</p>
+                             @endforelse
                          </div>
-                     </div>
-                     <div class="reply-form">
-                         <form id="replyForm">
-                             <div class="mb-2">
-                                 <label for="replyText" class="form-label visually-hidden">Votre réponse</label>
-                                 <textarea class="form-control" id="replyText" rows="3" placeholder="Écrivez votre réponse ici..."></textarea>
+                         <hr>
+                         <h5>Répondre à ce sujet</h5>
+                         <form method="POST" action="{{ route('forum.reply', $forum->id) }}">
+                             @csrf
+                             <div class="mb-3">
+                                 <textarea name="content" class="form-control" rows="4" placeholder="Votre réponse..." required></textarea>
                              </div>
-                             <button type="submit" class="btn btn-primary btn-sm" style="background-color: var(--primary-color); border-color: var(--primary-color);">
-                                 <i class="fas fa-paper-plane me-1"></i> Envoyer la réponse
-                             </button>
+                             <button type="submit" class="btn btn-primary">Publier ma réponse</button>
                          </form>
                      </div>
                  </div>

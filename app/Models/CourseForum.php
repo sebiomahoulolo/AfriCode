@@ -15,7 +15,8 @@ class CourseForum extends Model
         'title',
         'content',
         'is_pinned',
-        'is_closed'
+        'is_closed',
+        'type'
     ];
 
     protected $casts = [

@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Étudiants inscrits')
+@section('title', __('messages.course_students_title'))
 
 @section('page-heading', $course->title)
-@section('page-subheading', 'Liste des étudiants inscrits')
+@section('page-subheading', __('messages.students_list'))
 
 @section('styles')
 <style>

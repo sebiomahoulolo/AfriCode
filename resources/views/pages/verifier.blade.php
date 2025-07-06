@@ -385,36 +385,6 @@
             z-index: 3;
         }
 
-        /* Styles pour les onglets de langue (placés à l'extérieur en haut) */
-        .language-selector {
-            position: absolute;
-            top: -35px; /* Positionné au-dessus du container */
-            right: 15px;
-            display: flex;
-            gap: 5px;
-            z-index: 10; /* Pour être au-dessus de tout */
-        }
-
-        .lang-tab {
-            padding: 4px 10px;
-            background-color: #e0e0e0;
-            border-radius: 5px 5px 0 0; /* Onglet arrondi en haut */
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            border: 1px solid #ccc;
-            border-bottom: none;
-            transition: background-color 0.2s ease;
-        }
-        .lang-tab:hover {
-            background-color: #d0d0d0;
-        }
-        .lang-tab.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
         /* Styles pour l'impression */
         @media print {
             body {
@@ -452,12 +422,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Sélecteur de langue (placé ici pour être hors du container principal) -->
-        <div class="language-selector">
-            <div class="lang-tab active" data-lang="fr">FR</div>
-            <div class="lang-tab" data-lang="en">EN</div>
-        </div>
-
         <!-- Conteneur pour les boutons -->
         <div class="row mb-3 mt-4 print-btn-container"> <!-- Ajout mt-4 pour espace avec langue -->
             <div class="col text-end">

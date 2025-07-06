@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'AfriCode - Inscription')
+@section('title', 'AfriCode')
 
 @section('content')
 <div class="container py-5">

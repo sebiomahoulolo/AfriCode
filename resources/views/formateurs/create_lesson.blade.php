@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Ajouter une leçon')
+@section('title', __('messages.add_lesson_title'))
 
-@section('page-heading', 'Ajouter une nouvelle leçon')
-@section('page-subheading', 'Module: ' . $module->title)
+@section('page-heading', __('messages.add_new_lesson'))
+@section('page-subheading', __('messages.module_for', ['module' => $module->title]))
 
 @section('styles')
 <style>

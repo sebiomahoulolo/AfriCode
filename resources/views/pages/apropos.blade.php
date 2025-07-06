@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'À propos - AfriCode')
+@section('title', 'AfriCode')
 
 @section('content')
 
@@ -17,7 +17,7 @@
       </div>
       <div class="col-md-6">
         <h4 class="fw-semibold text-primary">Notre Mission</h4>
-        <p>AfriCode est une initiative née de la volonté de promouvoir l’apprentissage du numérique, du codage et de l'entrepreneuriat digital en Afrique. Nous croyons que chaque jeune africain mérite l’opportunité de maîtriser les outils de demain.</p>
+        <p>AfriCode est une initiative née de la volonté de promouvoir l'apprentissage du numérique, du codage et de l'entrepreneuriat digital en Afrique. Nous croyons que chaque jeune africain mérite l'opportunité de maîtriser les outils de demain.</p>
         <p>Grâce à des ressources gratuites, une communauté active et des projets concrets, AfriCode veut inspirer, former et connecter les futurs talents du continent.</p>
       </div>
     </div>

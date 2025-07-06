@@ -1,7 +1,7 @@
 @extends('apprenants.layouts.app')
 
-@section('title', 'Tableau de bord | AfriCode')
-@section('page-title', 'Tableau de bord')
+@section('title', 'AfriCode')
+@section('page-title', __('messages.learner_dashboard'))
 
 @push('styles')
 <style>

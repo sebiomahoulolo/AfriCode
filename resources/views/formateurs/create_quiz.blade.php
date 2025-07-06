@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Créer un quiz')
+@section('title', __('messages.create_quiz_title'))
 
-@section('page-heading', 'Créer un quiz')
-@section('page-subheading', 'Module: ' . $module->title)
+@section('page-heading', __('messages.create_quiz'))
+@section('page-subheading', __('messages.module_for', ['module' => $module->title]))
 
 @section('styles')
 <style>

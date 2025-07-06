@@ -198,84 +198,83 @@
 
     <header class="page-header">
         <div class="container">
-            <h1><i class="fas fa-users me-2"></i> Forum des Apprenants</h1>
-            <p class="lead mb-0">Échangez, posez vos questions et partagez vos connaissances !</p>
+            <h1>Forum des Apprenants</h1>
+            <p class="mb-0">Partagez vos questions, entraidez-vous et discutez autour des cours !</p>
         </div>
     </header>
 
-    <div class="container mt-4">
-        <div class="row">
+    <div class="container mb-5">
+        <div class="forum-controls mb-3">
+            <a href="{{ route('forum.create') }}" class="btn btn-new-topic"><i class="fas fa-plus me-1"></i> Nouveau sujet</a>
+            <form class="d-flex" method="GET" action="{{ route('forum.index') }}">
+                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher un sujet..." value="{{ request('search') }}">
+                <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
 
-            <!-- Colonne Principale : Liste des Sujets -->
-            <div class="col-lg-8">
-                <div class="forum-controls">
-                    <button class="btn btn-sm btn-new-topic" data-bs-toggle="modal" data-bs-target="#newTopicModal">
-                        <i class="fas fa-plus me-1"></i> Créer un Sujet
-                    </button>
-                    <div class="input-group input-group-sm" style="max-width: 300px;">
-                        <input type="text" class="form-control" placeholder="Rechercher un sujet..." id="forum-search-input">
-                        <button class="btn btn-outline-secondary" type="button" id="forum-search-btn"><i class="fas fa-search"></i></button>
-                    </div>
-                     <!-- TODO: Ajouter Dropdown pour Tri -->
-                </div>
+        <div class="forum-list-container">
+            <table class="table forum-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Sujet</th>
+                        <th>Auteur</th>
+                        <th>Date</th>
+                        <th>Réponses</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($forums as $forum)
+                    <tr>
+                        <td class="topic-title">
+                            <a href="{{ route('forum.show', $forum->id) }}">{{ $forum->title }}</a>
+                        </td>
+                        <td>
+                            {{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}
+                        </td>
+                        <td>{{ $forum->created_at->format('d/m/Y H:i') }}</td>
+                        <td class="text-center">{{ $forum->getTotalRepliesCount() }}</td>
+                        <td>
+                            <a href="{{ route('forum.show', $forum->id) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Aucun sujet pour le moment.</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3">
+            {{ $forums->links() }}
+        </div>
+    </div>
 
-                <div class="forum-list-container">
-                    <table class="table forum-table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th scope="col">Sujet</th>
-                                <th scope="col" class="text-center">Catégorie</th>
-                                <th scope="col" class="text-center">Statistiques</th>
-                                <th scope="col">Dernier Message</th>
-                            </tr>
-                        </thead>
-                        <tbody id="forum-topics-list">
-                            <!-- Loading Placeholder -->
-                            <tr class="placeholder-glow">
-                                <td data-label="Sujet"><span class="placeholder col-10 d-block mb-1"></span><span class="placeholder col-6 d-block"></span></td>
-                                <td data-label="Catégorie" class="text-center"><span class="placeholder col-7"></span></td>
-                                <td data-label="Statistiques" class="text-center"><span class="placeholder col-8"></span></td>
-                                <td data-label="Dernier Message"><span class="placeholder col-9 d-block mb-1"></span><span class="placeholder col-5 d-block"></span></td>
-                            </tr>
-                            <tr class="placeholder-glow">
-                                <td data-label="Sujet"><span class="placeholder col-9 d-block mb-1"></span><span class="placeholder col-7 d-block"></span></td>
-                                <td data-label="Catégorie" class="text-center"><span class="placeholder col-6"></span></td>
-                                <td data-label="Statistiques" class="text-center"><span class="placeholder col-7"></span></td>
-                                <td data-label="Dernier Message"><span class="placeholder col-10 d-block mb-1"></span><span class="placeholder col-6 d-block"></span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                 <!-- TODO: Ajouter Pagination -->
+    <!-- Colonne Latérale : Compétition et Catégories -->
+    <div class="col-lg-4 mt-4 mt-lg-0">
+        <!-- Widget Compétition -->
+        <div class="sidebar-widget">
+            <h5><i class="fas fa-trophy me-2" style="color: var(--gold-color);"></i> Top Apprenants</h5>
+            <ul class="leaderboard-widget-list" id="leaderboard-widget">
+                <!-- Loading Placeholders -->
+                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-10"></span></li>
+                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-9"></span></li>
+                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-8"></span></li>
+            </ul>
+            <a href="/competition" class="view-full-leaderboard">Voir le classement complet <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+
+        <!-- Widget Catégories -->
+        <div class="sidebar-widget">
+            <h5><i class="fas fa-tags me-2"></i> Catégories</h5>
+            <div class="list-group list-group-flush category-list" id="category-list">
+                <a href="#" class="list-group-item list-group-item-action active" data-category="all"><i class="fas fa-globe-africa"></i> Toutes les discussions</a>
+                <!-- Catégories chargées ici -->
+                <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-6"></span></a>
+                <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-7"></span></a>
+                 <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-5"></span></a>
             </div>
-
-            <!-- Colonne Latérale : Compétition et Catégories -->
-            <div class="col-lg-4 mt-4 mt-lg-0">
-                <!-- Widget Compétition -->
-                <div class="sidebar-widget">
-                    <h5><i class="fas fa-trophy me-2" style="color: var(--gold-color);"></i> Top Apprenants</h5>
-                    <ul class="leaderboard-widget-list" id="leaderboard-widget">
-                        <!-- Loading Placeholders -->
-                        <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-10"></span></li>
-                        <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-9"></span></li>
-                        <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-8"></span></li>
-                    </ul>
-                    <a href="/competition" class="view-full-leaderboard">Voir le classement complet <i class="fas fa-arrow-right ms-1"></i></a>
-                </div>
-
-                <!-- Widget Catégories -->
-                <div class="sidebar-widget">
-                    <h5><i class="fas fa-tags me-2"></i> Catégories</h5>
-                    <div class="list-group list-group-flush category-list" id="category-list">
-                        <a href="#" class="list-group-item list-group-item-action active" data-category="all"><i class="fas fa-globe-africa"></i> Toutes les discussions</a>
-                        <!-- Catégories chargées ici -->
-                        <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-6"></span></a>
-                        <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-7"></span></a>
-                         <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-5"></span></a>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 

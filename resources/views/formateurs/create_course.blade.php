@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Créer un cours')
+@section('title', __('messages.create_course_title'))
 
-@section('page-heading', 'Créer un nouveau cours')
-@section('page-subheading', 'Renseignez les informations de base du cours')
+@section('page-heading', __('messages.create_new_course'))
+@section('page-subheading', __('messages.fill_course_info'))
 
 @section('styles')
 <style>

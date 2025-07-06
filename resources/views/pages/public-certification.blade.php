@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Certificat de Formation | AfriCode')
+@section('title', 'AfriCode')
 @section('page-title', 'Certificat de Formation')
 
 @push('styles')

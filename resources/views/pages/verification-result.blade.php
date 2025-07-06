@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Résultat de la Vérification | AfriCode')
+@section('title', 'AfriCode')
 
 @push('styles')
     {{-- J'intègre ici les styles du certificat pour un rendu cohérent. --}}

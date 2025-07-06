@@ -14,84 +14,108 @@ class BadgeSeeder extends Seeder
     {
         $badges = [
             [
-                'name' => 'Premier Cours',
-                'description' => 'Compléter votre premier cours',
-                'icon' => 'first-course.png',
+                'name' => 'Premier Code',
+                'description' => 'Avoir soumis son premier exercice.',
+                'icon' => 'fa-play-circle',
                 'type' => 'achievement',
-                'requirements' => [
-                    ['type' => 'courses_completed', 'value' => 1]
-                ],
-                'points_reward' => 100
+                'requirements' => json_encode([
+                    ['type' => 'first_exercise', 'value' => 1]
+                ]),
+                'points_reward' => 50,
+                'color' => '#1EA38B',
+                'is_locked' => false,
+                'unlock_order' => 1
             ],
             [
-                'name' => 'Étudiant Assidu',
-                'description' => 'Compléter 5 cours',
-                'icon' => 'diligent-student.png',
+                'name' => 'HTML Expert',
+                'description' => 'Avoir complété le parcours HTML/CSS.',
+                'icon' => 'fa-html5',
                 'type' => 'achievement',
-                'requirements' => [
-                    ['type' => 'courses_completed', 'value' => 5]
-                ],
-                'points_reward' => 500
+                'requirements' => json_encode([
+                    ['type' => 'html_css_completed', 'value' => 1]
+                ]),
+                'points_reward' => 100,
+                'color' => '#FF8E2A',
+                'is_locked' => false,
+                'unlock_order' => 2
             ],
             [
-                'name' => 'Maître des Quiz',
-                'description' => 'Obtenir 100% à 3 quiz',
-                'icon' => 'quiz-master.png',
+                'name' => 'JS Ninja',
+                'description' => 'Maîtriser les concepts avancés de JavaScript.',
+                'icon' => 'fa-js-square',
                 'type' => 'achievement',
-                'requirements' => [
-                    ['type' => 'perfect_quizzes', 'value' => 3]
-                ],
-                'points_reward' => 300
+                'requirements' => json_encode([
+                    ['type' => 'js_advanced', 'value' => 1]
+                ]),
+                'points_reward' => 150,
+                'color' => '#E32D31',
+                'is_locked' => false,
+                'unlock_order' => 3
             ],
             [
-                'name' => 'Niveau 10',
-                'description' => 'Atteindre le niveau 10',
-                'icon' => 'level-10.png',
-                'type' => 'level',
-                'requirements' => [
-                    ['type' => 'level', 'value' => 10]
-                ],
-                'points_reward' => 1000
+                'name' => 'Database Guru',
+                'description' => 'Terminer le module PHP/MySQL.',
+                'icon' => 'fa-database',
+                'type' => 'achievement',
+                'requirements' => json_encode([
+                    ['type' => 'php_mysql_completed', 'value' => 1]
+                ]),
+                'points_reward' => 200,
+                'color' => '#27B371',
+                'is_locked' => true,
+                'unlock_order' => 4
             ],
             [
-                'name' => 'Niveau 25',
-                'description' => 'Atteindre le niveau 25',
-                'icon' => 'level-25.png',
-                'type' => 'level',
-                'requirements' => [
-                    ['type' => 'level', 'value' => 25]
-                ],
-                'points_reward' => 2500
+                'name' => 'React Rockstar',
+                'description' => 'Compléter le parcours ReactJS.',
+                'icon' => 'fa-react',
+                'type' => 'achievement',
+                'requirements' => json_encode([
+                    ['type' => 'react_completed', 'value' => 1]
+                ]),
+                'points_reward' => 250,
+                'color' => '#9B59B6',
+                'is_locked' => true,
+                'unlock_order' => 5
             ],
             [
-                'name' => 'Niveau 50',
-                'description' => 'Atteindre le niveau 50',
-                'icon' => 'level-50.png',
-                'type' => 'level',
-                'requirements' => [
-                    ['type' => 'level', 'value' => 50]
-                ],
-                'points_reward' => 5000
+                'name' => 'Full-Stack Dev',
+                'description' => 'Finir le parcours Full-Stack.',
+                'icon' => 'fa-layer-group',
+                'type' => 'achievement',
+                'requirements' => json_encode([
+                    ['type' => 'fullstack_completed', 'value' => 1]
+                ]),
+                'points_reward' => 500,
+                'color' => '#FFD700',
+                'is_locked' => true,
+                'unlock_order' => 6
             ],
             [
-                'name' => 'Streak de 7 jours',
-                'description' => 'Se connecter 7 jours consécutifs',
-                'icon' => 'streak-7.png',
+                'name' => 'Serial Challenger',
+                'description' => 'Avoir complété 10 défis.',
+                'icon' => 'fa-fire',
                 'type' => 'special',
-                'requirements' => [
-                    ['type' => 'streak_days', 'value' => 7]
-                ],
-                'points_reward' => 200
+                'requirements' => json_encode([
+                    ['type' => 'challenges_completed', 'value' => 10]
+                ]),
+                'points_reward' => 300,
+                'color' => '#E74C3C',
+                'is_locked' => false,
+                'unlock_order' => 7
             ],
             [
-                'name' => 'Streak de 30 jours',
-                'description' => 'Se connecter 30 jours consécutifs',
-                'icon' => 'streak-30.png',
+                'name' => 'Top Contributor',
+                'description' => 'Avoir aidé activement sur le forum.',
+                'icon' => 'fa-users',
                 'type' => 'special',
-                'requirements' => [
-                    ['type' => 'streak_days', 'value' => 30]
-                ],
-                'points_reward' => 1000
+                'requirements' => json_encode([
+                    ['type' => 'forum_posts', 'value' => 50]
+                ]),
+                'points_reward' => 400,
+                'color' => '#3498DB',
+                'is_locked' => true,
+                'unlock_order' => 8
             ]
         ];
 

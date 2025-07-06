@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Toutes nos formations - AfriCode')
+@section('title', __('messages.courses_index_title'))
 
 @section('meta_tags')
     <meta name="description" content="Découvrez toutes les formations disponibles sur AfriCode. Apprenez la programmation, le développement web, mobile, l'IA et plus encore.">

@@ -1,8 +1,8 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Modifier le cours')
+@section('title', __('messages.edit_course_title'))
 
-@section('page-heading', 'Modifier le cours')
+@section('page-heading', __('messages.edit_course'))
 @section('page-subheading', $course->title)
 
 @section('styles')

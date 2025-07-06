@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'AfriCode - Vérification de l\'adresse e-mail')
+@section('title', 'AfriCode')
 
 @section('content')
 <div class="container py-5">

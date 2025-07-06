@@ -129,7 +129,7 @@
                 <img src="{{ asset('assets/images/excel_advanced.jpg') }}" class="card-img-top" alt="Excel Avancé">
                 <div class="card-body">
                     <h5 class="card-title">Excel Avancé</h5>
-                    <p class="card-text">Maîtrisez les fonctionnalités avancées d’Excel comme les tableaux croisés dynamiques, les macros et les graphiques interactifs.</p>
+                    <p class="card-text">Maîtrisez les fonctionnalités avancées d'Excel comme les tableaux croisés dynamiques, les macros et les graphiques interactifs.</p>
                     <p class="text-success"><strong>20$</strong> | Certificat inclus | <span class="text-danger">15h</span></p>
                     <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
                 </div>
@@ -172,7 +172,7 @@
     <div class="row mb-4"> 
         @foreach ([
             ['Développement Backend', 'Approfondissez vos connaissances en PHP et Node.js pour concevoir des systèmes robustes.', 'backend.jpg', '30$', 'Certificat inclus', '40h'],
-            ['Développement d’API RESTful', 'Créez des APIs sécurisées et performantes avec Laravel et Express.js.', 'api.jpg', '35$', 'Certificat inclus', '25h'],
+            ['Développement d'API RESTful', 'Créez des APIs sécurisées et performantes avec Laravel et Express.js.', 'api.jpg', '35$', 'Certificat inclus', '25h'],
             ['Réseaux et Sécurité', "Apprenez à sécuriser les systèmes et à détecter les failles de sécurité.", 'reseau_securite.jpg', '45$', 'Certificat inclus', '30h'],
             ['Programmation avec Java', 'Maîtrisez Java pour développer des applications orientées objet.', 'java.jpg', '40$', 'Certificat inclus', '50h'],
             ['Analyse de données', "Explorez les bases de l'analyse de données avec Python et Pandas.", 'data_analysis.jpg', '50$', 'Certificat inclus', '35h'],

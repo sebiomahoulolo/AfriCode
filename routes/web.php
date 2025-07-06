@@ -6,8 +6,8 @@ use App\Http\Controllers\AdminImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-// Removed: use App\Http\Controllers\RegisterUserController;
-// Removed: use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\RegisterUserController;
+use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\CoursController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CourseController;
@@ -25,8 +25,6 @@ use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CoursePrerequisiteController;
 use App\Http\Controllers\RewardController;
-use App\Http\Controllers\LanguageController;
-
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\CertificateVerificationController;
@@ -315,7 +313,8 @@ Route::get('/courses/free', [CoursController::class, 'free'])->name('courses.fre
 Route::get('/courses/premium', [CoursController::class, 'premium'])->name('courses.premium');
 
 //les fonctionnalites 
-Route::get('/les-compétitions-disponibles', [CoursController::class, 'compdisp'])->name('pages.compdisp');
+Route::get('/les-compétitions-disponibles', [\App\Http\Controllers\CompetitionDisplayController::class, 'index'])->name('pages.compdisp');
+Route::get('/api/leaderboard', [\App\Http\Controllers\CompetitionDisplayController::class, 'getLeaderboard'])->name('api.leaderboard');
 Route::get('/test-de-niveau', [CoursController::class, 'test'])->name('pages.test');
 Route::get('/vérifier-un-certificat', [CoursController::class, 'verifier'])->name('pages.verifier');
 Route::get('/le-forum-des-experts', [CoursController::class, 'forumexp'])->name('pages.forumexp');
@@ -438,5 +437,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/courses/{course}/check-access', [CoursePrerequisiteController::class, 'checkAccess'])->name('courses.check-access');
 });
 
-// Route pour le changement de langue
-Route::get('language/{locale}', [LanguageController::class, 'switchLang'])->name('language.switch');
+// Forum de discussion (accessible à tous les utilisateurs connectés)
+Route::middleware(['auth'])->prefix('forum')->name('forum.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('index');
+    Route::get('/creer', [\App\Http\Controllers\CourseForumController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\CourseForumController::class, 'store'])->name('store');
+    Route::get('/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('show');
+    Route::get('/{id}/editer', [\App\Http\Controllers\CourseForumController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [\App\Http\Controllers\CourseForumController::class, 'update'])->name('update');
+    Route::delete('/{id}', [\App\Http\Controllers\CourseForumController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/repondre', [\App\Http\Controllers\CourseForumController::class, 'reply'])->name('reply');
+});
+
+// Route personnalisée pour le forum des apprenants (accès direct)
+Route::get('/le-forum-des-apprenants', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('pages.forumapp');
+
+// Route personnalisée pour afficher un sujet du forum des experts
+Route::get('/le-forum-des-experts/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('pages.forumexp');
+
+// Redirection automatique de /le-forum-des-experts vers la liste des sujets du forum
+Route::get('/le-forum-des-experts', function () {
+    return redirect()->route('forum.index'); // ou 'pages.forumapp' si tu préfères
+});
+

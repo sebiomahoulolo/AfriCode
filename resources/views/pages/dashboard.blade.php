@@ -2,7 +2,7 @@
 
 @extends('layouts.layout')
 
-@section('title', 'Tableau de Bord')
+@section('title', 'AfriCode')
 
 @section('content')
     <h1>Tableau de Bord</h1>

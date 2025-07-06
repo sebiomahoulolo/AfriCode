@@ -8,7 +8,8 @@ class Payment extends Model
     use HasFactory;
     protected $fillable = [
         'user_id',
-        'course_id',
+        'payable_id',
+        'payable_type',
         'amount',
         'currency',
         'payment_method',
@@ -26,5 +27,5 @@ class Payment extends Model
     ];
 
     public function user() { return $this->belongsTo(User::class); }
-    public function course() { return $this->belongsTo(Course::class); }
+    public function payable() { return $this->morphTo(); }
 }
