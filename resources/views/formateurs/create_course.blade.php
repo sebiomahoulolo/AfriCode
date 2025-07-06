@@ -1,9 +1,14 @@
 @extends('formateurs.layouts.app')
 
 @section('title', 'AfriCode - Créer un cours')
+@section('page-title', 'Créer un nouveau cours')
+@section('page-subtitle', 'Renseignez les informations de base du cours')
 
-@section('page-heading', 'Créer un nouveau cours')
-@section('page-subheading', 'Renseignez les informations de base du cours')
+@section('header-actions')
+    <a href="{{ route('formateur.dashboard') }}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Retour
+    </a>
+@endsection
 
 @section('styles')
 <style>
@@ -29,17 +34,160 @@
     .ck-editor__editable {
         min-height: 200px;
     }
+    
+    /* Responsive amélioré */
+    @media (max-width: 992px) {
+        .image-preview {
+            height: 150px;
+        }
+        
+        .ck-editor__editable {
+            min-height: 150px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .course-form h5 {
+            font-size: 1.1rem;
+        }
+        
+        .course-form label {
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        .image-preview {
+            height: 120px;
+        }
+        
+        .ck-editor__editable {
+            min-height: 120px;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+        }
+        
+        .card-body-modern {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .course-form h5 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-form label {
+            font-size: 0.85rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+        
+        .image-preview {
+            height: 100px;
+            margin-top: 0.5rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 100px;
+        }
+        
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .card-body-modern {
+            padding: 0.75rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Amélioration des champs de sélection */
+        .form-select {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        /* Amélioration des badges de validation */
+        .text-danger {
+            font-size: 0.75rem;
+        }
+        
+        .invalid-feedback {
+            font-size: 0.7rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .card-body-modern {
+            padding: 0.5rem;
+        }
+        
+        .course-form h5 {
+            font-size: 0.95rem;
+        }
+        
+        .form-control,
+        .form-select {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .image-preview {
+            height: 80px;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        /* Réduction des marges pour économiser l'espace */
+        .row .col-md-6,
+        .row .col-md-4,
+        .row .col-md-8 {
+            margin-bottom: 0.75rem;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <form class="course-form" method="POST" action="{{ route('formateur.courses.store') }}" enctype="multipart/form-data">
+    <div class="card-modern" data-aos="fade-up">
+        <div class="card-body-modern">
+            <form id="create-course-form" class="course-form" method="POST" action="{{ route('formateur.courses.store') }}" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="mb-4">
-                    <h5>Informations générales</h5>
+                    <h5 class="text-primary">
+                        <i class="fas fa-info-circle me-2"></i>Informations générales
+                    </h5>
                     <hr>
                 </div>
                 
@@ -249,7 +397,7 @@
             }
         });
     } else {
-        console.error('Le formulaire .course-form n\\'a pas été trouvé.');
+        console.error('Le formulaire .course-form n\'a pas été trouvé.');
     }
 </script>
 @endsection

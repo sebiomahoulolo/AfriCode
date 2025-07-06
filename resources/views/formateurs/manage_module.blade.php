@@ -1,9 +1,20 @@
 @extends('formateurs.layouts.app')
 
 @section('title', 'AfriCode - Gérer le module')
+@section('page-title', $module->title)
+@section('page-subtitle', 'Module du cours: ' . $module->course->title)
 
-@section('page-heading', $module->title)
-@section('page-subheading', 'Module du cours: ' . $module->course->title)
+@section('header-actions')
+    <a href="{{ route('formateur.manage.course', $module->course) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au cours
+    </a>
+    <a href="{{ route('formateur.lessons.create', [$module->course, $module]) }}" class="btn-secondary-africode me-2">
+        <i class="fas fa-plus me-2"></i>Ajouter une leçon
+    </a>
+    <a href="{{ route('formateur.quizzes.create', [$module->course, $module]) }}" class="btn-primary-africode">
+        <i class="fas fa-question-circle me-2"></i>Créer un quiz
+    </a>
+@endsection
 
 @section('styles')
 <style>
@@ -36,18 +47,19 @@
 @endsection
 
 @section('content')
-    <div class="module-header">
-        <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-                <span class="badge bg-secondary mb-2">Module {{ $module->order }}</span>
-                <h4>{{ $module->title }}</h4>
-                @if($module->description)
-                    <p class="mb-0">{{ $module->description }}</p>
-                @endif
-            </div>
-            <div>
-                <a href="#" class="btn btn-outline-primary btn-sm me-2">
-                    <i class="fas fa-edit me-1"></i> Modifier
+    <div class="card-modern mb-4" data-aos="fade-up">
+        <div class="card-body-modern">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge bg-secondary mb-2">Module {{ $module->order }}</span>
+                    <h4 class="text-primary">{{ $module->title }}</h4>
+                    @if($module->description)
+                        <p class="mb-0 text-muted">{{ $module->description }}</p>
+                    @endif
+                </div>
+                <div>
+                    <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                        <i class="fas fa-edit me-1"></i> Modifier
                 </a>
                 <a href="{{ route('formateur.manage.course', ['courseId' => $module->course->id]) }}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-arrow-left me-1"></i> Retour au cours

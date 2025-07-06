@@ -224,6 +224,9 @@ Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->pr
     // Tableau de bord principal
     Route::get('/dashboard', [FormateurController::class, 'index'])->name('formateur.dashboard');
     
+    // Liste des cours
+    Route::get('/cours', [FormateurController::class, 'coursesList'])->name('formateur.courses.index');
+    
     // Gestion des cours
     Route::get('/cours/creer', [FormateurController::class, 'createCourse'])->name('formateur.courses.create');
     Route::post('/cours/creer', [FormateurController::class, 'storeCourse'])->name('formateur.courses.store');

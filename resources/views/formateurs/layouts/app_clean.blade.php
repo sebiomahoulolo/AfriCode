@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Styles responsive pour formateur -->
-    <link href="{{ asset('css/formateur-responsive.css') }}" rel="stylesheet">
     
     <style>
         /* Variables de couleur AfriCode */
@@ -283,59 +281,27 @@
         
         /* Toggle button */
         .sidebar-toggle {
-            position: fixed;
-            top: 25px;
-            left: 290px;
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--africode-secondary) 0%, #FF6B00 100%);
-            border: 3px solid white;
+            position: absolute;
+            top: 50%;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: var(--africode-secondary);
+            border: none;
             border-radius: 50%;
             color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1002;
-            font-size: 16px;
+            box-shadow: var(--africode-shadow-md);
+            transition: var(--africode-transition);
+            z-index: 1001;
         }
         
         .sidebar-toggle:hover {
-            background: linear-gradient(135deg, #FF6B00 0%, #E55A00 100%);
-            transform: scale(1.1) translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .sidebar-toggle:active {
-            transform: scale(1.05) translateY(-1px);
-            transition: all 0.1s ease;
-        }
-        
-        /* Position du toggle quand sidebar collapsed */
-        body.sidebar-collapsed .sidebar-toggle {
-            left: 90px;
-        }
-        
-        /* Responsive styles pour le toggle button */
-        @media (max-width: 992px) {
-            .sidebar-toggle {
-                left: 260px;
-                width: 36px;
-                height: 36px;
-                font-size: 14px;
-            }
-            
-            body.sidebar-collapsed .sidebar-toggle {
-                left: 85px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar-toggle {
-                display: none; /* Masquer sur mobile, utiliser le toggle mobile */
-            }
+            background: #FF6B00;
+            transform: scale(1.1);
         }
         
         /* Contenu principal */
@@ -462,51 +428,13 @@
             padding: 1.5rem;
         }
         
-        /* Responsive amélioré */
-        @media (max-width: 1200px) {
-            .content-body {
-                padding: 1.5rem;
-            }
-            
-            .header-actions {
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-        }
-        
-        @media (max-width: 992px) {
-            .formateur-sidebar {
-                width: 250px;
-            }
-            
-            .content-body {
-                padding: 1rem;
-            }
-            
-            .sidebar-brand {
-                padding: 1.5rem 1rem;
-            }
-            
-            .nav-item {
-                margin: 0 0.75rem;
-            }
-            
-            .content-header {
-                padding: 1.5rem 1rem;
-            }
-            
-            .content-header h1 {
-                font-size: 1.75rem;
-            }
-        }
-        
+        /* Responsive */
         @media (max-width: 768px) {
             .formateur-sidebar {
                 position: fixed;
                 left: -280px;
                 z-index: 1050;
                 height: 100vh;
-                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
             
             .formateur-sidebar.show {
@@ -519,30 +447,6 @@
             
             .content-header {
                 padding: 1rem;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 1rem;
-            }
-            
-            .content-header h1 {
-                font-size: 1.5rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .content-header p {
-                font-size: 0.9rem;
-                margin-bottom: 0;
-            }
-            
-            .header-actions {
-                order: -1;
-                margin-bottom: 0;
-                justify-content: stretch;
-            }
-            
-            .header-actions .btn {
-                flex: 1;
-                min-width: auto;
             }
             
             .content-body {
@@ -551,82 +455,6 @@
             
             .sidebar-toggle {
                 display: none;
-            }
-            
-            .btn-primary-africode,
-            .btn-secondary-africode {
-                padding: 0.625rem 1rem;
-                font-size: 0.875rem;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .content-body {
-                padding: 0.75rem;
-            }
-            
-            .content-header {
-                padding: 0.75rem;
-            }
-            
-            .content-header h1 {
-                font-size: 1.25rem;
-                line-height: 1.3;
-            }
-            
-            .content-header p {
-                font-size: 0.85rem;
-            }
-            
-            .sidebar-brand {
-                padding: 1rem 0.75rem;
-            }
-            
-            .nav-item {
-                margin: 0 0.5rem;
-            }
-            
-            .nav-link {
-                padding: 0.75rem 0.875rem;
-                font-size: 0.9rem;
-            }
-            
-            .nav-link i {
-                width: 16px;
-                font-size: 0.875rem;
-            }
-            
-            .header-actions {
-                flex-direction: column;
-            }
-            
-            .header-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .content-body {
-                padding: 0.5rem;
-            }
-            
-            .content-header {
-                padding: 0.5rem;
-            }
-            
-            .sidebar-brand {
-                padding: 0.75rem 0.5rem;
-            }
-            
-            .nav-item {
-                margin: 0 0.25rem;
-            }
-            
-            .btn-primary-africode,
-            .btn-secondary-africode {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.8rem;
             }
         }
         
@@ -734,7 +562,7 @@
                         </a>
                     </div>
                     <div class="nav-item">
-                        <a href="{{ route('formateur.courses.index') }}" class="nav-link {{ request()->routeIs('formateur.courses.index') ? 'active' : '' }}">
+                        <a href="{{ route('formateur.dashboard') }}#mes-cours" class="nav-link {{ request()->routeIs('formateur.courses.*') || request()->routeIs('formateur.manage.course') ? 'active' : '' }}">
                             <i class="fas fa-book-open"></i>
                             <span class="nav-link-text">Mes cours</span>
                             @if(isset($totalCourses) && $totalCourses > 0)
@@ -742,10 +570,54 @@
                             @endif
                         </a>
                     </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Gestion</div>
                     <div class="nav-item">
                         <a href="{{ route('formateur.courses.create') }}" class="nav-link {{ request()->routeIs('formateur.courses.create') ? 'active' : '' }}">
                             <i class="fas fa-plus-circle"></i>
                             <span class="nav-link-text">Créer un cours</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-users"></i>
+                            <span class="nav-link-text">Étudiants</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-chart-bar"></i>
+                            <span class="nav-link-text">Analytics</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-star"></i>
+                            <span class="nav-link-text">Évaluations</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Outils</div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-comments"></i>
+                            <span class="nav-link-text">Messages</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span class="nav-link-text">Calendrier</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span class="nav-link-text">Ressources</span>
                         </a>
                     </div>
                 </div>
@@ -794,12 +666,6 @@
                 </div>
             </header>
             
-            <!-- Indicateur de connexion -->
-            <div id="connection-status" class="alert alert-warning d-none" role="alert">
-                <i class="fas fa-wifi me-2"></i>
-                <span>Vérification de la connexion...</span>
-            </div>
-            
             <!-- Messages flash -->
             @if(session('success'))
                 <div class="content-body">
@@ -829,8 +695,6 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Scripts responsive pour formateur -->
-    <script src="{{ asset('js/formateur-responsive.js') }}"></script>
     
     <script>
         // Initialisation AOS
@@ -844,39 +708,17 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleIcon = document.getElementById('toggleIcon');
-            const body = document.body;
             
             sidebar.classList.toggle('collapsed');
             
-            // Ajouter/retirer la classe sur le body pour gérer la position du toggle
             if (sidebar.classList.contains('collapsed')) {
-                body.classList.add('sidebar-collapsed');
                 toggleIcon.classList.remove('fa-chevron-left');
                 toggleIcon.classList.add('fa-chevron-right');
             } else {
-                body.classList.remove('sidebar-collapsed');
                 toggleIcon.classList.remove('fa-chevron-right');
                 toggleIcon.classList.add('fa-chevron-left');
             }
-            
-            // Sauvegarder l'état dans le localStorage
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         }
-        
-        // Restaurer l'état de la sidebar au chargement
-        document.addEventListener('DOMContentLoaded', function() {
-            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-            if (isCollapsed) {
-                const sidebar = document.getElementById('sidebar');
-                const toggleIcon = document.getElementById('toggleIcon');
-                const body = document.body;
-                
-                sidebar.classList.add('collapsed');
-                body.classList.add('sidebar-collapsed');
-                toggleIcon.classList.remove('fa-chevron-left');
-                toggleIcon.classList.add('fa-chevron-right');
-            }
-        });
         
         function openSidebar() {
             const sidebar = document.getElementById('sidebar');

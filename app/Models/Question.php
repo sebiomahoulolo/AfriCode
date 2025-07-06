@@ -36,7 +36,7 @@ class Question extends Model
 
     public function answers(): HasMany
     {
-        return $this->hasMany(QuizAnswer::class);
+        return $this->hasMany(Answer::class);
     }
 
     public function validateAnswer($answer): bool

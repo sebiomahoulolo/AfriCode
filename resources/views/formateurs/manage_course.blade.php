@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
 @section('title', 'AfriCode - Gestion du cours')
+@section('page-title', $course->title)
+@section('page-subtitle', 'Gestion et administration du cours')
 
-@section('page-heading', $course->title)
-@section('page-subheading', 'Gestion du cours')
+@section('header-actions')
+    <a href="{{ route('formateur.dashboard') }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour
+    </a>
+    <a href="{{ route('formateur.courses.edit', $course) }}" class="btn-secondary-africode">
+        <i class="fas fa-edit me-2"></i>Modifier
+    </a>
+@endsection
 
 @section('styles')
 <style>
@@ -74,6 +82,207 @@
     
     .stats-row .stat-card {
         margin-bottom: 1rem;
+    }
+    
+    /* Responsive amélioré */
+    @media (max-width: 1200px) {
+        .course-header {
+            padding: 60px 25px;
+        }
+        
+        .module-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+        
+        .lesson-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .course-header {
+            padding: 50px 20px;
+        }
+        
+        .course-header h2 {
+            font-size: 1.75rem;
+        }
+        
+        .module-header {
+            padding: 0.875rem;
+        }
+        
+        .lesson-item {
+            padding: 0.625rem 0.875rem;
+        }
+        
+        .lesson-type-badge {
+            font-size: 0.75rem;
+            padding: 0.125rem 0.375rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .course-header {
+            padding: 40px 15px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .course-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-header p {
+            font-size: 0.9rem;
+        }
+        
+        .course-actions {
+            margin-bottom: 1.5rem;
+        }
+        
+        .module-card {
+            margin-bottom: 1rem;
+        }
+        
+        .module-header {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        
+        .lesson-item {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .lesson-type-badge {
+            font-size: 0.7rem;
+            padding: 0.125rem 0.25rem;
+        }
+        
+        .stats-row .stat-card {
+            margin-bottom: 0.75rem;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .course-header {
+            padding: 30px 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .course-header h2 {
+            font-size: 1.25rem;
+            line-height: 1.3;
+        }
+        
+        .course-header p {
+            font-size: 0.85rem;
+        }
+        
+        .course-header .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
+            display: inline-block;
+        }
+        
+        .module-header {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .lesson-item {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .lesson-type-badge {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.2rem;
+        }
+        
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        .card-body-modern {
+            padding: 0.75rem;
+        }
+        
+        .card-header-modern {
+            padding: 0.75rem;
+        }
+        
+        .card-header-modern h5,
+        .card-header-modern h6 {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .course-header {
+            padding: 20px 8px;
+        }
+        
+        .course-header h2 {
+            font-size: 1.1rem;
+        }
+        
+        .course-header p {
+            font-size: 0.8rem;
+        }
+        
+        .module-header {
+            padding: 0.375rem;
+        }
+        
+        .lesson-item {
+            padding: 0.25rem 0.375rem;
+        }
+        
+        .card-body-modern {
+            padding: 0.5rem;
+        }
+        
+        .card-header-modern {
+            padding: 0.5rem;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        .lesson-item .btn-group {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .lesson-item .btn-group .btn {
+            width: 100%;
+            margin-bottom: 0.25rem;
+        }
     }
 </style>
 @endsection

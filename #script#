@@ -1,5 +1,1 @@
-cd /home/fadel/Workspaces/AfriCode && php artisan --version
-cd /home/fadel/Workspaces/AfriCode && php artisan config:cache
-cd /home/fadel/Workspaces/AfriCode && php test_quiz_fix.php
-cd /home/fadel/Workspaces/AfriCode && php -l test_quiz_fix.php
-cd /home/fadel/Workspaces/AfriCode && php test_quiz_module_fix.php
+rm /home/fadel/Workspaces/AfriCode/resources/views/formateurs/my_courses.blade.php

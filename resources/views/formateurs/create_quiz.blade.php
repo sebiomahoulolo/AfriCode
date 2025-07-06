@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
 @section('title', 'AfriCode - Créer un quiz')
+@section('page-title', 'Créer un quiz')
+@section('page-subtitle', 'Module: ' . $module->title)
 
-@section('page-heading', 'Créer un quiz')
-@section('page-subheading', 'Module: ' . $module->title)
+@section('header-actions')
+    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au module
+    </a>
+    <button type="submit" form="create-quiz-form" class="btn-primary-africode">
+        <i class="fas fa-save me-2"></i>Créer le quiz
+    </button>
+@endsection
 
 @section('styles')
 <style>
@@ -50,6 +58,170 @@
     .add-question-btn:hover {
         border-color: var(--primary-color);
         background-color: #f8f9fa;
+    }
+    
+    /* Responsive amélioré */
+    @media (max-width: 992px) {
+        .question-card {
+            padding: 1.25rem;
+        }
+        
+        .add-question-btn {
+            padding: 1.25rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .quiz-form h5 {
+            font-size: 1.1rem;
+        }
+        
+        .quiz-form label {
+            font-size: 0.9rem;
+        }
+        
+        .question-card {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .question-card .remove-question {
+            top: 0.75rem;
+            right: 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .answer-row {
+            padding: 0.375rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .add-question-btn {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .quiz-form h5 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .quiz-form label {
+            font-size: 0.85rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .question-card {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-card .remove-question {
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .answer-row {
+            padding: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .add-question-btn {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+        
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .question-card {
+            padding: 0.5rem;
+        }
+        
+        .question-card .remove-question {
+            top: 0.25rem;
+            right: 0.25rem;
+        }
+        
+        .add-question-btn {
+            padding: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .form-control {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        /* Amélioration des champs de saisie multiples */
+        .answer-row .form-control {
+            margin-bottom: 0.25rem;
+        }
+        
+        .answer-row .form-check {
+            margin-bottom: 0.25rem;
+        }
     }
 </style>
 @endsection

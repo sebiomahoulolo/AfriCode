@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Add foreign key constraints for courses table
         Schema::table('courses', function (Blueprint $table) {
             $table->foreign('formateur_id')
                   ->references('id')
@@ -22,6 +23,19 @@ return new class extends Migration
                   ->on('categories')
                   ->onDelete('set null');
         });
+
+        // Add foreign key constraints for quizzes table
+        Schema::table('quizzes', function (Blueprint $table) {
+            $table->foreign('module_id')
+                  ->references('id')
+                  ->on('modules')
+                  ->onDelete('cascade');
+                  
+            $table->foreign('course_id')
+                  ->references('id')
+                  ->on('courses')
+                  ->onDelete('cascade');
+        });
     }
 
     /**
@@ -29,6 +43,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('quizzes', function (Blueprint $table) {
+            $table->dropForeign(['module_id']);
+            $table->dropForeign(['course_id']);
+        });
+
         Schema::table('courses', function (Blueprint $table) {
             $table->dropForeign(['formateur_id']);
             $table->dropForeign(['category_id']);

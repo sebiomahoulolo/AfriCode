@@ -282,11 +282,6 @@ class LessonSeeder extends Seeder
     private function getRandomContentType()
     {
         $types = [
-            'video' => 40,
-            'text' => 30,
-            'pdf' => 15,
-            'quiz_link' => 10,
-            'external' => 5 // 5% chance
             'video' => 50,      // 50% chance
             'text' => 35,       // 35% chance
             'pdf' => 10,        // 10% chance

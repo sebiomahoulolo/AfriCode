@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->timestamp('issued_at')->useCurrent();
             $table->string('certificate_path');
             $table->string('verification_code')->unique();
+            $table->string('certificate_identifier')->nullable();
             $table->string('qr_code_path')->nullable();
             $table->timestamps();
         });

@@ -3,12 +3,13 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-dark">
     <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ url('/') }}">
-                <h5 class="text-uppercase fw-bold footer-title d-inline-flex align-items-center"> <!-- Utiliser d-inline-flex pour aligner logo et texte -->
-                    <!-- Insertion du logo SVG -->
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 100'%3E%3Crect width='180' height='100' rx='5' fill='%231EA38B'/%3E%3Cg transform='translate(71 32)' fill='white'%3E%3Cpath d='M0 0 H8 V25 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V25 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V25 H20 Z' fill='%2327B371' transform='skewX(-15)'/%3E%3C/g%3E%3Ctext x='90' y='75' fill='white' font-size='20' font-family='Segoe UI, sans-serif' font-weight='bold' text-anchor='middle' letter-spacing='2'%3EAFRICODE%3C/text%3E%3Ctext x='90' y='90' fill='white' font-size='9' font-family='Segoe UI, sans-serif' text-anchor='middle' letter-spacing='1' opacity='0.9'%3ENO CODE, NO FUTURE%3C/text%3E%3C/svg%3E" alt="AfriCode Logo" class="footer-logo-img">
-                    AfriCode
-                </h5>
+        <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+            <div class="d-flex flex-column align-items-center">
+                <!-- Logo SVG sans bande horizontale -->
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img" style="height: 30px;">
+                <!-- Texte AFRICODE en dessous -->
+                <span class="africode-text text-white fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px; margin-top: 2px;">AFRICODE</span>
+            </div>
         </a>
         
         <!-- Toggler pour mobile -->
@@ -128,6 +129,23 @@
         font-weight: 600;
         padding: 0.5rem 0;
         white-space: nowrap;
+    }
+    
+    /* Styles pour le logo AfriCode */
+    .africode-logo-img {
+        transition: transform 0.2s ease;
+    }
+    
+    .navbar-brand:hover .africode-logo-img {
+        transform: scale(1.05);
+    }
+    
+    .africode-text {
+        transition: color 0.2s ease;
+    }
+    
+    .navbar-brand:hover .africode-text {
+        color: var(--africode-accent-orange) !important;
     }
     
     /* Styles liens navbar */
