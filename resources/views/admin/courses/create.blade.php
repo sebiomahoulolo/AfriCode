@@ -3,51 +3,116 @@
 @section('title', 'Créer un Cours')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-plus-circle fa-fw me-1"></i> Ajouter un nouveau cours
-            </h6>
-            <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-secondary">
-                <i class="fas fa-arrow-left fa-fw"></i> Retour à la liste
-            </a>
-        </div>
-        <div class="card-body">
-            <form action="{{ route('admin.courses.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
+<div class="admin-content-header">
+    <h1><i class="fas fa-plus-circle"></i> Créer un nouveau cours</h1>
+    <nav class="admin-breadcrumb">
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+        <span>/</span>
+        <a href="{{ route('admin.courses.index') }}">Cours</a>
+        <span>/</span>
+        <span>Nouveau</span>
+    </nav>
+</div>
 
-                <div class="row">
-                    <div class="col-md-8">
-                        <!-- Informations générales du cours -->
-                        <div class="card mb-4">
-                            <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Informations générales</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="title" class="form-label">Titre du cours <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title') }}" required>
-                                    @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="slug" class="form-label">Slug (URL personnalisée) <span class="text-danger">*</span></label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">/cours/</span>
-                                        <input type="text" class="form-control @error('slug') is-invalid @enderror" id="slug" name="slug" value="{{ old('slug') }}" required>
-                                    </div>
-                                    <div class="form-text">Le slug sera généré automatiquement à partir du titre si laissé vide</div>
-                                    @error('slug') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3" required>{{ old('description') }}</textarea>
-                                    @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                
-                                <div class="row">
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2><i class="fas fa-book"></i> Informations du cours</h2>
+        <a href="{{ route('admin.courses.index') }}" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+    <div class="admin-card-body">
+        <form action="{{ route('admin.courses.store') }}" method="POST" enctype="multipart/form-data" class="admin-form">
+            @csrf
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="title" class="admin-form-label">Titre du cours *</label>
+                    <input type="text" class="admin-form-input @error('title') error @enderror" id="title" name="title" value="{{ old('title') }}" required>
+                    @error('title') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="slug" class="admin-form-label">Slug (URL personnalisée)</label>
+                    <input type="text" class="admin-form-input @error('slug') error @enderror" id="slug" name="slug" value="{{ old('slug') }}" placeholder="sera-generé-automatiquement">
+                    <small class="admin-form-help">Le slug sera généré automatiquement à partir du titre si laissé vide</small>
+                    @error('slug') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="description" class="admin-form-label">Description *</label>
+                <textarea class="admin-form-textarea @error('description') error @enderror" id="description" name="description" required>{{ old('description') }}</textarea>
+                @error('description') <span class="admin-form-error">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="category_id" class="admin-form-label">Catégorie *</label>
+                    <select class="admin-form-select @error('category_id') error @enderror" id="category_id" name="category_id" required>
+                        <option value="">Sélectionner une catégorie</option>
+                        @foreach(\App\Models\Category::all() as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('category_id') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="difficulty_level" class="admin-form-label">Niveau de difficulté *</label>
+                    <select class="admin-form-select @error('difficulty_level') error @enderror" id="difficulty_level" name="difficulty_level" required>
+                        <option value="">Sélectionner un niveau</option>
+                        <option value="beginner" {{ old('difficulty_level') == 'beginner' ? 'selected' : '' }}>Débutant</option>
+                        <option value="intermediate" {{ old('difficulty_level') == 'intermediate' ? 'selected' : '' }}>Intermédiaire</option>
+                        <option value="advanced" {{ old('difficulty_level') == 'advanced' ? 'selected' : '' }}>Avancé</option>
+                    </select>
+                    @error('difficulty_level') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+            </div>
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="price" class="admin-form-label">Prix (€)</label>
+                    <input type="number" class="admin-form-input @error('price') error @enderror" id="price" name="price" value="{{ old('price', 0) }}" min="0" step="0.01">
+                    @error('price') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="duration" class="admin-form-label">Durée (heures)</label>
+                    <input type="number" class="admin-form-input @error('duration') error @enderror" id="duration" name="duration" value="{{ old('duration') }}" min="1">
+                    @error('duration') <span class="admin-form-error">{{ $message }}</span> @enderror
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="image" class="admin-form-label">Image du cours</label>
+                <input type="file" class="admin-form-input @error('image') error @enderror" id="image" name="image" accept="image/*">
+                <small class="admin-form-help">Formats acceptés: JPG, PNG. Taille recommandée: 1200x600px</small>
+                @error('image') <span class="admin-form-error">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="admin-form-group">
+                <label for="status" class="admin-form-label">Statut *</label>
+                <select class="admin-form-select @error('status') error @enderror" id="status" name="status" required>
+                    <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Brouillon</option>
+                    <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Publié</option>
+                </select>
+                @error('status') <span class="admin-form-error">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="admin-form-actions">
+                <button type="submit" class="admin-btn admin-btn-primary">
+                    <i class="fas fa-save"></i> Créer le cours
+                </button>
+                <a href="{{ route('admin.courses.index') }}" class="admin-btn admin-btn-secondary">
+                    <i class="fas fa-times"></i> Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
                                     <div class="col-md-6 mb-3">
                                         <label for="category_id" class="form-label">Catégorie <span class="text-danger">*</span></label>
                                         <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>

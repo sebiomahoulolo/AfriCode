@@ -1,53 +1,70 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="h3">{{ $course->title }}</h1>
-            <p class="text-muted">
-                @if($course->status === 'published')
-                    <span class="badge bg-success">Publié</span>
-                @else
-                    <span class="badge bg-secondary">Brouillon</span>
-                @endif
-                <span class="ms-2">
-                    <i class="fas fa-calendar-alt me-1"></i> Créé le {{ $course->created_at->format('d/m/Y') }}
-                </span>
-            </p>
-        </div>
-        <div>
-            <a href="{{ route('courses.show', $course->slug) }}" target="_blank" class="btn btn-outline-primary me-2">
-                <i class="fas fa-eye me-1"></i> Voir sur le site
-            </a>
-            <a href="{{ route('admin.courses.edit', $course) }}" class="btn btn-primary">
-                <i class="fas fa-edit me-1"></i> Modifier
-            </a>
-        </div>
-    </div>
+<div class="admin-content-header">
+    <h1><i class="fas fa-book"></i> {{ $course->title }}</h1>
+    <nav class="admin-breadcrumb">
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+        <span>/</span>
+        <a href="{{ route('admin.courses.index') }}">Cours</a>
+        <span>/</span>
+        <span>{{ $course->title }}</span>
+    </nav>
+</div>
 
-    <div class="row">
-        <!-- Course Details -->
-        <div class="col-md-8">
-            <div class="dashboard-card mb-4">
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        @if($course->cover_image_path)
-                            <img src="{{ asset('storage/' . $course->cover_image_path) }}" alt="{{ $course->title }}" class="img-fluid rounded">
-                        @else
-                            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 180px;">
-                                <i class="fas fa-book fa-4x text-secondary"></i>
-                            </div>
-                        @endif
-                    </div>
-                    <div class="col-md-8">
-                        <h5>Informations générales</h5>
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <th style="width: 30%">Formateur</th>
-                                    <td>
-                                        <a href="{{ route('admin.users.show', $course->formateur) }}">
+<div class="admin-actions-bar">
+    <div class="admin-status-badge">
+        @if($course->status === 'published')
+            <span class="admin-badge admin-badge-success">
+                <i class="fas fa-check"></i> Publié
+            </span>
+        @else
+            <span class="admin-badge admin-badge-secondary">
+                <i class="fas fa-draft"></i> Brouillon
+            </span>
+        @endif
+        <span class="admin-date">
+            <i class="fas fa-calendar-alt"></i> Créé le {{ $course->created_at->format('d/m/Y') }}
+        </span>
+    </div>
+    <div class="admin-actions">
+        <a href="{{ route('courses.show', $course->slug) }}" target="_blank" class="admin-btn admin-btn-secondary">
+            <i class="fas fa-eye"></i> Voir sur le site
+        </a>
+        <a href="{{ route('admin.courses.edit', $course) }}" class="admin-btn admin-btn-primary">
+            <i class="fas fa-edit"></i> Modifier
+        </a>
+    </div>
+</div>
+
+<div class="admin-grid admin-grid-3">
+    <!-- Course Details -->
+    <div class="admin-card admin-span-2">
+        <div class="admin-card-header">
+            <h2><i class="fas fa-info-circle"></i> Informations du cours</h2>
+        </div>
+        <div class="admin-card-body">
+            <div class="admin-course-details">
+                <div class="admin-course-image">
+                    @if($course->cover_image_path)
+                        <img src="{{ asset('storage/' . $course->cover_image_path) }}" alt="{{ $course->title }}" class="admin-course-img">
+                    @else
+                        <div class="admin-course-placeholder">
+                            <i class="fas fa-book"></i>
+                            <span>Pas d'image</span>
+                        </div>
+                    @endif
+                </div>
+                <div class="admin-course-info">
+                    <div class="admin-info-grid">
+                        <div class="admin-info-item">
+                            <strong>Formateur</strong>
+                            <span>
+                                <a href="{{ route('admin.users.show', $course->formateur) }}" class="admin-link">
+                                    {{ $course->formateur->name ?? 'Non assigné' }}
+                                </a>
+                            </span>
+                        </div>
                                             {{ $course->formateur->first_name }} {{ $course->formateur->last_name }}
                                         </a>
                                     </td>

@@ -1,53 +1,54 @@
 @extends('admin.layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="page-header">
-        <h1 class="h3">Paramètres de la plateforme</h1>
-    </div>
+<div class="admin-content-header">
+    <h1><i class="fas fa-cog"></i> Paramètres de la plateforme</h1>
+    <nav class="admin-breadcrumb">
+        <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+        <span>/</span>
+        <span>Paramètres</span>
+    </nav>
+</div>
 
-    <div class="dashboard-card">
-        <form action="{{ route('admin.settings.update') }}" method="POST">
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h2><i class="fas fa-sliders-h"></i> Configuration de la plateforme</h2>
+    </div>
+    <div class="admin-card-body">
+        <form action="{{ route('admin.settings.update') }}" method="POST" class="admin-form">
             @csrf
             @method('PUT')
             
-            <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
-                        <i class="fas fa-cog me-2"></i>Général
+            <div class="admin-tabs">
+                <div class="admin-tab-nav">
+                    <button type="button" class="admin-tab-btn active" data-tab="general">
+                        <i class="fas fa-cog"></i> Général
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">
-                        <i class="fas fa-envelope me-2"></i>Contact
+                    <button type="button" class="admin-tab-btn" data-tab="contact">
+                        <i class="fas fa-envelope"></i> Contact
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="social-tab" data-bs-toggle="tab" data-bs-target="#social" type="button" role="tab" aria-controls="social" aria-selected="false">
-                        <i class="fas fa-share-alt me-2"></i>Réseaux sociaux
+                    <button type="button" class="admin-tab-btn" data-tab="social">
+                        <i class="fas fa-share-alt"></i> Réseaux sociaux
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="payment-tab" data-bs-toggle="tab" data-bs-target="#payment" type="button" role="tab" aria-controls="payment" aria-selected="false">
-                        <i class="fas fa-money-bill me-2"></i>Paiement
+                    <button type="button" class="admin-tab-btn" data-tab="payment">
+                        <i class="fas fa-money-bill"></i> Paiement
                     </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="advanced-tab" data-bs-toggle="tab" data-bs-target="#advanced" type="button" role="tab" aria-controls="advanced" aria-selected="false">
-                        <i class="fas fa-sliders-h me-2"></i>Avancé
+                    <button type="button" class="admin-tab-btn" data-tab="advanced">
+                        <i class="fas fa-sliders-h"></i> Avancé
                     </button>
-                </li>
-            </ul>
-            
-            <div class="tab-content" id="settingsTabContent">
-                <!-- General Settings -->
-                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="site_name" class="form-label">Nom du site</label>
-                                <input type="text" class="form-control @error('site_name') is-invalid @enderror" id="site_name" name="site_name" value="{{ old('site_name', $settings['site_name']) }}" required>
-                                @error('site_name')
+                </div>
+                
+                <div class="admin-tab-content">
+                    <!-- General Settings -->
+                    <div class="admin-tab-pane active" id="general">
+                        <div class="admin-form-section">
+                            <h3><i class="fas fa-info-circle"></i> Informations générales</h3>
+                            <div class="admin-form-grid">
+                                <div class="admin-form-group">
+                                    <label for="site_name" class="admin-form-label">Nom du site *</label>
+                                    <input type="text" class="admin-form-input @error('site_name') error @enderror" id="site_name" name="site_name" value="{{ old('site_name', $settings['site_name']) }}" required>
+                                    @error('site_name') <span class="admin-form-error">{{ $message }}</span> @enderror
+                                </div>
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

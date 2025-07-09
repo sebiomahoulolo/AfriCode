@@ -1,53 +1,51 @@
 @extends('admin.layouts.app')
 
+@section('breadcrumb', 'Statistiques')
+
 @section('content')
-<div class="container-fluid">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3">Statistiques</h1>
-        <div>
-            <div class="btn-group">
-                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-calendar-alt me-1"></i> Période
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="?period=week">Cette semaine</a></li>
-                    <li><a class="dropdown-item" href="?period=month">Ce mois</a></li>
-                    <li><a class="dropdown-item" href="?period=year">Cette année</a></li>
-                    <li><a class="dropdown-item" href="?period=all">Tout</a></li>
-                </ul>
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="admin-card" data-aos="fade-up">
+        <div class="admin-card-header">
+            <div>
+                <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Statistiques de la plateforme</h1>
+                <p class="admin-card-subtitle">Analysez les performances et l'évolution de votre plateforme</p>
             </div>
-            <a href="#" class="btn btn-outline-success ms-2">
-                <i class="fas fa-file-export me-1"></i> Exporter
-            </a>
+            <div class="admin-card-actions">
+                <div style="position: relative; display: inline-block;">
+                    <button style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                        <i class="fas fa-calendar-alt"></i> Période
+                    </button>
+                </div>
+                <a href="#" style="background: linear-gradient(135deg, #FF8E2A, #FFB366); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; margin-left: 0.5rem;">
+                    <i class="fas fa-file-export"></i> Exporter
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Inscriptions totales</h6>
-                        <div class="stats-number">{{ array_sum(array_column($monthlyEnrollments, 'count')) }}</div>
-                        <div class="text-success small">
-                            +{{ $monthlyEnrollments[count($monthlyEnrollments) - 1]['count'] ?? 0 }} le mois dernier
-                        </div>
-                    </div>
-                    <i class="fas fa-user-graduate fa-2x text-info"></i>
-                </div>
+    <div class="admin-grid admin-grid-4" style="margin-bottom: 2rem;">
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="admin-stats-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="admin-stats-number">{{ array_sum(array_column($monthlyEnrollments, 'count')) }}</div>
+            <div class="admin-stats-label">Inscriptions totales</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ $monthlyEnrollments[count($monthlyEnrollments) - 1]['count'] ?? 0 }} ce mois
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Revenu total</h6>
-                        <div class="stats-number">{{ number_format(array_sum(array_column($monthlyRevenue, 'amount')), 0, ',', ' ') }} XOF</div>
-                        <div class="text-success small">
-                            +{{ number_format($monthlyRevenue[count($monthlyRevenue) - 1]['amount'] ?? 0, 0, ',', ' ') }} XOF le mois dernier
-                        </div>
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #FF8E2A, #FFB366);">
+                <i class="fas fa-euro-sign"></i>
+            </div>
+            <div class="admin-stats-number">{{ number_format(array_sum(array_column($monthlyRevenue, 'amount')), 0, ',', ' ') }}€</div>
+            <div class="admin-stats-label">Revenu total</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ number_format($monthlyRevenue[count($monthlyRevenue) - 1]['amount'] ?? 0, 0, ',', ' ') }}€ ce mois
+            </div>
                     </div>
                     <i class="fas fa-money-bill fa-2x text-success"></i>
                 </div>

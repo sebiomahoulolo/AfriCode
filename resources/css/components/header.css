@@ -1,0 +1,84 @@
+/* AfriCode - Header Components */
+
+/* Header moderne */
+.content-header {
+    background: white;
+    padding: 1.5rem 2rem;
+    box-shadow: var(--africode-shadow-sm);
+    border-bottom: 1px solid var(--africode-gray-medium);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--africode-dark-text);
+    margin: 0;
+    background: var(--africode-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    color: var(--africode-gray-dark);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Boutons */
+.btn-primary-africode {
+    background: var(--africode-gradient-primary);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--africode-border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--africode-transition);
+    box-shadow: var(--africode-shadow-sm);
+}
+
+.btn-primary-africode:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--africode-shadow-md);
+    color: white;
+}
+
+.btn-secondary-africode {
+    background: var(--africode-gradient-accent);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--africode-border-radius);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--africode-transition);
+    box-shadow: var(--africode-shadow-sm);
+}
+
+.btn-secondary-africode:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--africode-shadow-md);
+    color: white;
+}

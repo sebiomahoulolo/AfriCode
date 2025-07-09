@@ -1,1 +1,16 @@
-rm /home/fadel/Workspaces/AfriCode/resources/views/formateurs/my_courses.blade.php
+cd /home/fadel/Workspaces/AfriCode/public/css && rm -f dashboard-modern.css styles.css
+cd /home/fadel/Workspaces/AfriCode/public/css && rm -f dashboard-modern.css formateur-responsive.css styles.css
+cd /home/fadel/Workspaces/AfriCode/public/js && rm -f formateur-responsive.js
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/pages/dashboard.blade.php
+cd /home/fadel/Workspaces/AfriCode/public && rm -rf vendor/
+cd /home/fadel/Workspaces/AfriCode/public && rm -rf vendor/
+cd /home/fadel/Workspaces/AfriCode && rm -f '#script#'
+cd /home/fadel/Workspaces/AfriCode && rm -f '#script#'
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/formateurs/layouts/app_backup.blade.php resources/views/formateurs/layouts/app_clean.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/apprenants/layouts/app_backup_20250620_184438.blade.php resources/views/apprenants/layouts/app_clean.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/admin/lessons/edit_backup.blade.php resources/views/admin/lessons/edit_new.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/apprenants/certification-old.blade.php resources/views/apprenants/lesson-new.blade.php resources/views/apprenants/lesson-old.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/apprenants/profile-complete.blade.php resources/views/apprenants/profile-new.blade.php resources/views/apprenants/profile-old.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/formateurs/layouts/app_backup.blade.php resources/views/formateurs/layouts/app_clean.blade.php resources/views/apprenants/layouts/app_backup_20250620_184438.blade.php resources/views/apprenants/layouts/app_clean.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/apprenants/certification-old.blade.php resources/views/apprenants/lesson-new.blade.php resources/views/apprenants/lesson-old.blade.php resources/views/apprenants/profile-complete.blade.php resources/views/apprenants/profile-new.blade.php resources/views/apprenants/profile-old.blade.php
+cd /home/fadel/Workspaces/AfriCode && rm -f resources/views/admin/lessons/create_simple.blade.php resources/views/admin/lessons/edit_backup.blade.php resources/views/admin/lessons/edit_new.blade.php

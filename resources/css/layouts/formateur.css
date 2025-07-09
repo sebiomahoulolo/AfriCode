@@ -1,0 +1,71 @@
+/* AfriCode - Layout Formateur */
+
+/* Variables de couleur AfriCode */
+:root {
+    --africode-primary: #1EA38B;
+    --africode-secondary: #FF8E2A;
+    --africode-accent-red: #E32D31;
+    --africode-highlight-green: #27B371;
+    --africode-white: #FFFFFF;
+    --africode-dark-text: #333333;
+    --africode-gray-light: #F8F9FA;
+    --africode-gray-medium: #E9ECEF;
+    --africode-gray-dark: #6C757D;
+    --africode-gradient-primary: linear-gradient(135deg, var(--africode-primary) 0%, var(--africode-highlight-green) 100%);
+    --africode-gradient-accent: linear-gradient(135deg, var(--africode-secondary) 0%, #FFB366 100%);
+    --africode-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --africode-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --africode-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --africode-border-radius: 12px;
+    --africode-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #F8FFFE 0%, #F0F9F8 100%);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--africode-dark-text);
+    line-height: 1.6;
+}
+
+/* Layout principal */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Contenu principal */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Content area */
+.content-body {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Animations et effets */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}

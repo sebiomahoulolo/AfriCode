@@ -1,0 +1,195 @@
+/* AfriCode - Responsive Admin */
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+    .admin-content-body {
+        padding: 1.5rem;
+    }
+    
+    .admin-header {
+        padding: 1rem 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-layout {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+    
+    .admin-sidebar.show {
+        left: 0;
+    }
+    
+    .admin-main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .admin-content-body {
+        padding: 1rem;
+    }
+    
+    .admin-header {
+        padding: 1rem;
+    }
+    
+    .admin-mobile-toggle {
+        display: block;
+    }
+    
+    .admin-search-box {
+        display: none;
+    }
+    
+    .admin-breadcrumb {
+        display: none;
+    }
+    
+    .admin-user-info {
+        display: none;
+    }
+    
+    .admin-stats-card {
+        padding: 1.5rem;
+    }
+    
+    .admin-stats-number {
+        font-size: 1.5rem;
+    }
+    
+    .admin-stats-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-content-body {
+        padding: 0.5rem;
+    }
+    
+    .admin-header {
+        padding: 0.5rem;
+    }
+    
+    .admin-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-stats-card {
+        padding: 1rem;
+    }
+    
+    .admin-stats-number {
+        font-size: 1.2rem;
+    }
+    
+    .admin-stats-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .admin-chart-body {
+        height: 200px;
+    }
+    
+    .admin-table-header {
+        padding: 0.5rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Utilities pour mobile */
+.mobile-only {
+    display: none;
+}
+
+.desktop-only {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: block;
+    }
+    
+    .desktop-only {
+        display: none;
+    }
+}
+
+/* Grid responsive */
+.admin-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.admin-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.admin-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.admin-grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+    .admin-grid-4 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-grid-2,
+    .admin-grid-3,
+    .admin-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .admin-grid {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-grid-2,
+    .admin-grid-3,
+    .admin-grid-4 {
+        grid-template-columns: 1fr;
+    }
+    
+    .admin-grid {
+        gap: 0.5rem;
+    }
+}
+
+/* Sidebar responsive behavior */
+.sidebar-collapsed .admin-main-content {
+    margin-left: 80px;
+}
+
+@media (max-width: 768px) {
+    .sidebar-collapsed .admin-main-content {
+        margin-left: 0;
+    }
+}

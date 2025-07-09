@@ -1,386 +1,238 @@
 @extends('admin.layouts.app')
 
+@section('breadcrumb', 'Tableau de bord')
+
 @section('content')
-<div class="container-fluid">
-    <div class="page-header d-flex justify-content-between align-items-center">
-        <h1 class="h3">Tableau de bord administrateur</h1>
-        <div>
-            <span class="badge bg-primary">Date: {{ now()->format('d/m/Y') }}</span>
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="admin-card" data-aos="fade-up">
+        <div class="admin-card-header">
+            <div>
+                <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Tableau de bord administrateur</h1>
+                <p class="admin-card-subtitle">Bienvenue dans votre espace d'administration AfriCode</p>
+            </div>
+            <div>
+                <span style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">
+                    <i class="fas fa-calendar-alt"></i> {{ now()->format('d/m/Y') }}
+                </span>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row">
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Utilisateurs</h6>
-                        <div class="stats-number">{{ $userCounts['total'] }}</div>
-                        <div class="text-success small">+{{ $userCounts['newThisMonth'] }} ce mois</div>
-                    </div>
-                    <i class="fas fa-users fa-2x text-primary"></i>
-                </div>
+    <div class="admin-grid admin-grid-4" style="margin-bottom: 2rem;">
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="admin-stats-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="admin-stats-number">{{ $userCounts['total'] }}</div>
+            <div class="admin-stats-label">Utilisateurs</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ $userCounts['newThisMonth'] }} ce mois
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Cours</h6>
-                        <div class="stats-number">{{ $courseCounts['total'] }}</div>
-                        <div class="text-success small">{{ $courseCounts['published'] }} publiés</div>
-                    </div>
-                    <i class="fas fa-book fa-2x text-success"></i>
-                </div>
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #FF8E2A, #FFB366);">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="admin-stats-number">{{ $courseCounts['total'] }}</div>
+            <div class="admin-stats-label">Cours</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-check-circle"></i> {{ $courseCounts['published'] }} publiés
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Inscriptions</h6>
-                        <div class="stats-number">{{ $enrollmentCounts['total'] }}</div>
-                        <div class="text-success small">+{{ $enrollmentCounts['thisMonth'] }} ce mois</div>
-                    </div>
-                    <i class="fas fa-user-graduate fa-2x text-info"></i>
-                </div>
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #E32D31, #FF6B6B);">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="admin-stats-number">{{ $enrollmentCounts['total'] }}</div>
+            <div class="admin-stats-label">Inscriptions</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ $enrollmentCounts['thisMonth'] }} ce mois
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Revenus</h6>
-                        <div class="stats-number">{{ number_format($paymentStats['total'], 0, ',', ' ') }} XOF</div>
-                        <div class="text-success small">{{ number_format($paymentStats['thisMonth'], 0, ',', ' ') }} XOF ce mois</div>
-                    </div>
-                    <i class="fas fa-money-bill fa-2x text-warning"></i>
-                </div>
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #6C757D, #95A5A6);">
+                <i class="fas fa-euro-sign"></i>
+            </div>
+            <div class="admin-stats-number">{{ number_format($paymentStats['total'], 0, ',', ' ') }}€</div>
+            <div class="admin-stats-label">Revenus</div>
+            <div class="admin-stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ number_format($paymentStats['thisMonth'], 0, ',', ' ') }}€ ce mois
             </div>
         </div>
     </div>
 
-    <!-- Detailed Statistics -->
-    <div class="row">
-        <!-- User breakdown -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card">
-                <h5 class="card-header">Répartition des utilisateurs</h5>
-                <div class="card-body">
-                    <canvas id="userRoleChart" width="100" height="100"></canvas>
+    <!-- Charts Section -->
+    <div class="admin-grid admin-grid-2" style="margin-bottom: 2rem;">
+        <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="admin-chart-header">
+                <h3 class="admin-chart-title">Évolution des utilisateurs</h3>
+                <div class="admin-chart-controls">
+                    <button class="admin-chart-control active">6 mois</button>
+                    <button class="admin-chart-control">1 an</button>
                 </div>
-                <div class="card-footer bg-white">
-                    <div class="d-flex justify-content-between">
-                        <div><i class="fas fa-circle text-primary"></i> Administrateurs: {{ $userCounts['admins'] }}</div>
-                        <div><i class="fas fa-circle text-success"></i> Formateurs: {{ $userCounts['formateurs'] }}</div>
-                        <div><i class="fas fa-circle text-info"></i> Apprenants: {{ $userCounts['apprenants'] }}</div>
-                    </div>
-                </div>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="usersChart"></canvas>
             </div>
         </div>
         
-        <!-- Course breakdown -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card">
-                <h5 class="card-header">État des cours</h5>
-                <div class="card-body">
-                    <canvas id="courseStatusChart" width="100" height="100"></canvas>
-                </div>
-                <div class="card-footer bg-white">
-                    <div class="d-flex justify-content-between">
-                        <div><i class="fas fa-circle text-success"></i> Publiés: {{ $courseCounts['published'] }}</div>
-                        <div><i class="fas fa-circle text-secondary"></i> Brouillons: {{ $courseCounts['draft'] }}</div>
-                    </div>
+        <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="admin-chart-header">
+                <h3 class="admin-chart-title">Répartition des cours</h3>
+                <div class="admin-chart-controls">
+                    <button class="admin-chart-control active">Statut</button>
+                    <button class="admin-chart-control">Catégorie</button>
                 </div>
             </div>
-        </div>
-        
-        <!-- Last enrollments chart -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card">
-                <h5 class="card-header">Inscriptions récentes</h5>
-                <div class="card-body pb-0">
-                    <div class="d-flex justify-content-between">
-                        <div class="text-center">
-                            <h1 class="mb-0">{{ $enrollmentCounts['today'] }}</h1>
-                            <div class="small text-muted">Aujourd'hui</div>
-                        </div>
-                        <div class="text-center">
-                            <h1 class="mb-0">{{ $enrollmentCounts['thisWeek'] }}</h1>
-                            <div class="small text-muted">Cette semaine</div>
-                        </div>
-                        <div class="text-center">
-                            <h1 class="mb-0">{{ $enrollmentCounts['thisMonth'] }}</h1>
-                            <div class="small text-muted">Ce mois</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer bg-white text-center">
-                    <a href="{{ route('admin.statistics.index') }}" class="btn btn-sm btn-outline-primary">Voir toutes les statistiques</a>
-                </div>
+            <div class="admin-chart-body">
+                <canvas id="coursesChart"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Recent users -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-header">Utilisateurs récents</h5>
-                    <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-outline-primary">Tous les utilisateurs</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Rôle</th>
-                                <th>Inscrit le</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentUsers as $user)
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('admin.users.show', $user) }}">
-                                            {{ $user->first_name }} {{ $user->last_name }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $user->email }}</td>
-                                    <td>
-                                        @if ($user->role === 'administrateur')
-                                            <span class="badge bg-primary">Admin</span>
-                                        @elseif ($user->role === 'formateur')
-                                            <span class="badge bg-success">Formateur</span>
-                                        @elseif ($user->role === 'apprenant')
-                                            <span class="badge bg-info">Apprenant</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">Aucun utilisateur récent</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Revenue Chart -->
+    <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="300" style="margin-bottom: 2rem;">
+        <div class="admin-chart-header">
+            <h3 class="admin-chart-title">Revenus mensuels</h3>
+            <div class="admin-chart-controls">
+                <button class="admin-chart-control active">6 mois</button>
+                <button class="admin-chart-control">1 an</button>
+                <button class="admin-chart-control">2 ans</button>
             </div>
         </div>
-        
-        <!-- Recent courses -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-header">Cours récents</h5>
-                    <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-outline-primary">Tous les cours</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Titre</th>
-                                <th>Formateur</th>
-                                <th>État</th>
-                                <th>Créé le</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentCourses as $course)
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('admin.courses.show', $course) }}">
-                                            {{ $course->title }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}</td>
-                                    <td>
-                                        @if ($course->status === 'published')
-                                            <span class="badge bg-success">Publié</span>
-                                        @else
-                                            <span class="badge bg-secondary">Brouillon</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $course->created_at->format('d/m/Y') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">Aucun cours récent</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="admin-chart-body">
+            <canvas id="revenueChart"></canvas>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Recent enrollments -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-header">Inscriptions récentes</h5>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Apprenant</th>
-                                <th>Cours</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($recentEnrollments as $enrollment)
-                                <tr>
-                                    <td>{{ $enrollment->user->first_name }} {{ $enrollment->user->last_name }}</td>
-                                    <td>{{ $enrollment->course->title }}</td>
-                                    <td>{{ $enrollment->created_at->format('d/m/Y') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="3" class="text-center">Aucune inscription récente</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Recent Activity and Quick Actions -->
+    <div class="admin-grid admin-grid-2">
+        <!-- Recent Users -->
+        <div class="admin-table-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="admin-table-header">
+                <h3 class="admin-table-title">Utilisateurs récents</h3>
+                <a href="{{ route('admin.users.index') }}" style="color: #1EA38B; text-decoration: none; font-weight: 500;">
+                    Voir tous <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-        </div>
-        
-        <!-- Tasks -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-header">Tâches en cours</h5>
-                    <a href="{{ route('admin.tasks.create') }}" class="btn btn-sm btn-outline-primary">Nouvelle tâche</a>
-                </div>
-                <div class="list-group list-group-flush">
-                    @forelse ($pendingTasks as $task)
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="mb-0">{{ $task->title }}</h6>
-                                <small class="text-muted">Échéance: {{ $task->due_date->format('d/m/Y') }}</small>
-                            </div>
-                            <div>
-                                <form action="{{ route('admin.tasks.complete', $task) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-sm btn-success">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                                <a href="{{ route('admin.tasks.edit', $task) }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteTask{{ $task->id }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                                
-                                <!-- Delete Modal -->
-                                <div class="modal fade" id="deleteTask{{ $task->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Supprimer la tâche</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Êtes-vous sûr de vouloir supprimer cette tâche ?</p>
-                                                <p class="fw-bold">{{ $task->title }}</p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <form action="{{ route('admin.tasks.destroy', $task) }}" method="POST">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                </form>
-                                            </div>
-                                        </div>
+            <div class="admin-table-body">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Rôle</th>
+                            <th>Inscrit le</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentUsers as $user)
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1EA38B, #27B371); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.8rem;">
+                                        {{ strtoupper(substr($user->first_name, 0, 1)) }}{{ strtoupper(substr($user->last_name, 0, 1)) }}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 500;">{{ $user->first_name }} {{ $user->last_name }}</div>
+                                        <div style="font-size: 0.8rem; color: #6C757D;">{{ $user->email }}</div>
                                     </div>
                                 </div>
-                            </div>
+                            </td>
+                            <td>
+                                <span style="background: rgba(30, 163, 139, 0.1); color: #1EA38B; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;">
+                                    {{ ucfirst($user->role) }}
+                                </span>
+                            </td>
+                            <td style="color: #6C757D; font-size: 0.9rem;">{{ $user->created_at->format('d/m/Y') }}</td>
+                            <td>
+                                <span style="background: rgba(39, 179, 113, 0.1); color: #27B371; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.8rem; font-weight: 500;">
+                                    <i class="fas fa-circle" style="font-size: 0.5rem;"></i> Actif
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="admin-card-header">
+                <h3 class="admin-card-title">Actions rapides</h3>
+                <p class="admin-card-subtitle">Raccourcis vers les actions fréquentes</p>
+            </div>
+            <div class="admin-card-body">
+                <div style="display: grid; gap: 1rem;">
+                    <a href="{{ route('admin.users.create') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(30, 163, 139, 0.1), rgba(39, 179, 113, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #1EA38B, #27B371); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-user-plus"></i>
                         </div>
-                    @empty
-                        <div class="list-group-item text-center">
-                            <p class="mb-0">Aucune tâche en cours</p>
+                        <div>
+                            <div style="font-weight: 600;">Créer un utilisateur</div>
+                            <div style="font-size: 0.8rem; color: #6C757D;">Ajouter un nouvel utilisateur</div>
                         </div>
-                    @endforelse
+                    </a>
+                    
+                    <a href="{{ route('admin.courses.create') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(255, 142, 42, 0.1), rgba(255, 179, 102, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #FF8E2A, #FFB366); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Créer un cours</div>
+                            <div style="font-size: 0.8rem; color: #6C757D;">Ajouter un nouveau cours</div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('admin.statistics.index') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(227, 45, 49, 0.1), rgba(255, 107, 107, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #E32D31, #FF6B6B); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Voir les statistiques</div>
+                            <div style="font-size: 0.8rem; color: #6C757D;">Analyser les performances</div>
+                        </div>
+                    </a>
+                    
+                    <a href="{{ route('admin.settings.edit') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(149, 165, 166, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
+                        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #6C757D, #95A5A6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight: 600;">Paramètres</div>
+                            <div style="font-size: 0.8rem; color: #6C757D;">Configurer la plateforme</div>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
 @push('scripts')
 <script>
-    // User Role Chart
-    const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
-    const userRoleChart = new Chart(userRoleCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Administrateurs', 'Formateurs', 'Apprenants'],
-            datasets: [{
-                data: [{{ $userCounts['admins'] }}, {{ $userCounts['formateurs'] }}, {{ $userCounts['apprenants'] }}],
-                backgroundColor: [
-                    '#4F46E5', // Primary color
-                    '#10B981', // Success color
-                    '#3B82F6'  // Info color
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 12
-                    }
-                }
-            },
-            cutout: '70%'
-        }
-    });
-
-    // Course Status Chart
-    const courseStatusCtx = document.getElementById('courseStatusChart').getContext('2d');
-    const courseStatusChart = new Chart(courseStatusCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Publiés', 'Brouillons'],
-            datasets: [{
-                data: [{{ $courseCounts['published'] }}, {{ $courseCounts['draft'] }}],
-                backgroundColor: [
-                    '#10B981', // Success color
-                    '#9CA3AF'  // Secondary color
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 12
-                    }
-                }
-            },
-            cutout: '70%'
-        }
+    // Les graphiques seront initialisés automatiquement par admin.js
+    document.addEventListener('DOMContentLoaded', function() {
+        // Effet hover sur les actions rapides
+        document.querySelectorAll('.admin-card-body a').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
     });
 </script>
 @endpush
+@endsection
+
