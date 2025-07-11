@@ -1,2 +1,2 @@
-mv /home/fadel/Workspaces/AfriCode/resources/views/index.blade.php /home/fadel/Workspaces/AfriCode/resources/views/index_backup.blade.php
-mv /home/fadel/Workspaces/AfriCode/resources/views/index_new.blade.php /home/fadel/Workspaces/AfriCode/resources/views/index.blade.php
+cd /home/fadel/Workspaces/AfriCode && mv resources/views/pages/apropos.blade.php resources/views/pages/apropos_old.blade.php && mv resources/views/pages/apropos_new.blade.php resources/views/pages/apropos.blade.php
+cd /home/fadel/Workspaces/AfriCode && mv resources/views/pages/contact.blade.php resources/views/pages/contact_old.blade.php && mv resources/views/pages/contact_new.blade.php resources/views/pages/contact.blade.php

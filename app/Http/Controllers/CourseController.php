@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -82,8 +83,30 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Si nous avons des paramètres de filtrage, nous utilisons le composant Livewire
+        $hasFilters = $request->filled('search') || 
+                     $request->filled('cat') || 
+                     ($request->has('level') && $request->get('level') !== 'all') || 
+                     ($request->has('priceRange') && $request->get('priceRange') !== 'all') || 
+                     ($request->has('sort') && $request->get('sort') !== 'latest');
+        
+        if ($hasFilters) {
+            // Si on a des filtres, on les passe à la vue pour le composant Livewire
+            return view('courses.index', [
+                'useFilters' => true,
+                'initialFilters' => [
+                    'search' => $request->get('search', ''),
+                    'selectedCategory' => $request->get('cat'),
+                    'level' => $request->get('level', 'all'),
+                    'priceRange' => $request->get('priceRange', 'all'),
+                    'sort' => $request->get('sort', 'latest'),
+                ]
+            ]);
+        }
+        
+        // Affichage normal sans filtres
         $courses = Course::where('status', 'published')
             ->orderBy('created_at', 'desc')
             ->paginate(12);
@@ -113,14 +136,14 @@ class CourseController extends Controller
     public function show(string $slug)
     {
         // Si l'utilisateur est connecté et formateur ou admin
-        if (auth()->check() && (auth()->user()->role === 'formateur' || auth()->user()->role === 'admin')) {
+        if (Auth::check() && (Auth::user()->role === 'formateur' || Auth::user()->role === 'admin')) {
             // Pour les formateurs et admins: permettre de voir tous les cours (même non publiés)
             // Les formateurs ne peuvent voir que leurs propres cours non publiés
             $course = Course::where('slug', $slug)
-                ->when(auth()->user()->role === 'formateur', function ($query) {
+                ->when(Auth::user()->role === 'formateur', function ($query) {
                     return $query->where(function ($q) {
                         $q->where('status', 'published')
-                        ->orWhere('formateur_id', auth()->id());
+                        ->orWhere('formateur_id', Auth::id());
                     });
                 })
                 ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
@@ -162,11 +185,18 @@ class CourseController extends Controller
 
     /**
      * Affiche la page de recherche avancée des formations
+     * Redirige maintenant vers la page des cours avec les filtres
      */
-    public function search()
+    public function search(Request $request)
     {
-        // Cette méthode affiche simplement la vue qui contient le composant Livewire
-        // Le composant Livewire CoursesFilterSearch gère la recherche et le filtrage
-        return view('courses.search');
+        // Rediriger vers la page des cours avec les paramètres de filtrage
+        $filters = $request->only(['search', 'cat', 'level', 'priceRange', 'sort']);
+        
+        // S'assurer qu'on a au moins un filtre actif pour déclencher l'affichage des filtres
+        if (empty($filters) || (count($filters) === 1 && isset($filters['level']) && $filters['level'] === 'all')) {
+            $filters['level'] = 'all'; // Force l'affichage des filtres
+        }
+        
+        return redirect()->route('courses.index', $filters);
     }
 }

@@ -1,8 +1,7 @@
 <div class="courses-filter-search-container">
-    <!-- Section titre + barre de recherche -->
-    <div class="search-header bg-light py-5">
+    <!-- Section filtres de recherche -->
+    <div class="search-section bg-light py-4">
         <div class="container">
-            <h1 class="fw-bold text-center mb-4 ud-heading-serif">Explorez nos formations</h1>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <div class="search-container position-relative mb-4">
@@ -114,27 +113,64 @@
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="level" id="level-beginner" 
-                                       wire:click="setLevel('beginner')"
-                                       {{ $level === 'beginner' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="level-beginner">
+                                <input class="form-check-input" type="radio" name="level" id="level-debutant" 
+                                       wire:click="setLevel('debutant')"
+                                       {{ $level === 'debutant' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="level-debutant">
                                     Débutant
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="level" id="level-intermediate" 
-                                       wire:click="setLevel('intermediate')"
-                                       {{ $level === 'intermediate' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="level-intermediate">
+                                <input class="form-check-input" type="radio" name="level" id="level-intermediaire" 
+                                       wire:click="setLevel('intermediaire')"
+                                       {{ $level === 'intermediaire' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="level-intermediaire">
                                     Intermédiaire
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="level" id="level-advanced" 
-                                       wire:click="setLevel('advanced')"
-                                       {{ $level === 'advanced' ? 'checked' : '' }}>
-                                <label class="form-check-label" for="level-advanced">
+                                <input class="form-check-input" type="radio" name="level" id="level-avance" 
+                                       wire:click="setLevel('avance')"
+                                       {{ $level === 'avance' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="level-avance">
                                     Avancé
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="level" id="level-tous-niveaux" 
+                                       wire:click="setLevel('tous_niveaux')"
+                                       {{ $level === 'tous_niveaux' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="level-tous-niveaux">
+                                    Tous niveaux
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre par certification -->
+                        <div class="col-md-6 col-lg-3 mb-3">
+                            <h6 class="mb-3 fw-semibold">Certification</h6>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="certification" id="cert-all" 
+                                       wire:click="$set('isCertifying', null)"
+                                       {{ $isCertifying === null ? 'checked' : '' }}>
+                                <label class="form-check-label" for="cert-all">
+                                    Tous les cours
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="certification" id="cert-yes" 
+                                       wire:click="$set('isCertifying', true)"
+                                       {{ $isCertifying === true ? 'checked' : '' }}>
+                                <label class="form-check-label" for="cert-yes">
+                                    Avec certification
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="certification" id="cert-no" 
+                                       wire:click="$set('isCertifying', false)"
+                                       {{ $isCertifying === false ? 'checked' : '' }}>
+                                <label class="form-check-label" for="cert-no">
+                                    Sans certification
                                 </label>
                             </div>
                         </div>

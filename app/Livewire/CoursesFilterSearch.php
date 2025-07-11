@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Course;
 use App\Models\Category;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Log;
 
 class CoursesFilterSearch extends Component
 {
@@ -17,9 +18,11 @@ class CoursesFilterSearch extends Component
     public $priceRange = 'all'; // all, free, paid
     public $minPrice = null;
     public $maxPrice = null;
-    public $level = 'all'; // all, beginner, intermediate, advanced
+    public $level = 'all'; // all, debutant, intermediaire, avance, tous_niveaux
     public $sort = 'latest'; // latest, oldest, price_asc, price_desc, rating
     public $instructorId = null;
+    public $isCertifying = null; // null, true, false
+    public $duration = 'all'; // all, short (< 5h), medium (5-20h), long (> 20h)
 
     // Variables pour les filtres avancés
     public $showAdvancedFilters = false;
@@ -35,12 +38,29 @@ class CoursesFilterSearch extends Component
         'page' => ['except' => 1],
     ];
 
-    public function mount()
+    public function mount($initialFilters = [])
     {
         // Chargement des catégories pour le filtre
         $this->categories = Category::whereHas('courses', function ($query) {
             $query->where('status', 'published')->where('published_at', '<=', now());
         })->orderBy('name')->get();
+        
+        // Prendre d'abord les paramètres de l'URL via request()
+        $request = request();
+        
+        // Appliquer les filtres depuis l'URL ou les filtres initiaux
+        $this->search = $initialFilters['search'] ?? $request->get('search', '');
+        $this->selectedCategory = $initialFilters['selectedCategory'] ?? $request->get('cat');
+        $this->level = $initialFilters['level'] ?? $request->get('level', 'all');
+        $this->priceRange = $initialFilters['priceRange'] ?? $request->get('priceRange', 'all');
+        $this->sort = $initialFilters['sort'] ?? $request->get('sort', 'latest');
+        
+        // Afficher les filtres avancés si on a des filtres actifs
+        $this->showAdvancedFilters = !empty($this->search) || 
+                                   !empty($this->selectedCategory) || 
+                                   $this->level !== 'all' || 
+                                   $this->priceRange !== 'all' || 
+                                   $this->sort !== 'latest';
     }
 
     public function toggleAdvancedFilters()
@@ -51,7 +71,7 @@ class CoursesFilterSearch extends Component
     // Réinitialiser tous les filtres
     public function resetFilters()
     {
-        $this->reset(['search', 'selectedCategory', 'priceRange', 'minPrice', 'maxPrice', 'level', 'sort', 'instructorId']);
+        $this->reset(['search', 'selectedCategory', 'priceRange', 'minPrice', 'maxPrice', 'level', 'sort', 'instructorId', 'isCertifying', 'duration']);
         $this->resetPage();
     }
 
@@ -88,6 +108,15 @@ class CoursesFilterSearch extends Component
 
     public function render()
     {
+        // Debug: vérifier les valeurs des filtres
+        Log::info('Filtres appliqués:', [
+            'level' => $this->level,
+            'search' => $this->search,
+            'selectedCategory' => $this->selectedCategory,
+            'priceRange' => $this->priceRange,
+            'sort' => $this->sort
+        ]);
+
         $query = Course::query()
             ->where('status', 'published')
             ->where('published_at', '<=', now())
@@ -132,6 +161,10 @@ class CoursesFilterSearch extends Component
 
         if ($this->instructorId) {
             $query->where('formateur_id', $this->instructorId);
+        }
+
+        if ($this->isCertifying !== null) {
+            $query->where('is_certifying', $this->isCertifying);
         }
 
         // Appliquer le tri

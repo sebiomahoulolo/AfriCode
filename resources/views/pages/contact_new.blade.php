@@ -229,32 +229,20 @@
 
 <!-- CSS moderne unifié -->
 <style>
-/* Variables CSS AfriCode - Cohérentes avec la page d'accueil */
+/* Variables CSS pour consistance */
 :root {
-  --africode-primary: #1EA38B;
-  --africode-secondary: #FF8E2A;
-  --africode-accent-red: #E32D31;
-  --africode-highlight-green: #27B371;
-  --africode-white: #FFFFFF;
-  --africode-dark-text: #333333;
-  --africode-gray-light: #F8F9FA;
-  --africode-gray-medium: #E9ECEF;
-  --africode-gray-dark: #6C757D;
-  --africode-gradient-primary: linear-gradient(135deg, var(--africode-primary) 0%, var(--africode-highlight-green) 100%);
-  --africode-gradient-accent: linear-gradient(135deg, var(--africode-secondary) 0%, #FFB366 100%);
-  --africode-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --africode-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
-  --africode-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
-  --africode-border-radius: 12px;
-  --africode-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --primary-blue: #1d3557;
+  --secondary-orange: #e8b100;
+  --light-blue: #a8dadc;
+  --dark-blue: #2e4057;
+  --gradient: linear-gradient(135deg, #1d3557 0%, #2e4057 50%, #e8b100 100%);
+  --shadow: 0 15px 35px rgba(29, 53, 87, 0.1);
+  --border-radius: 25px;
 }
 
 /* Hero Section */
 .contact-hero {
-  background: linear-gradient(135deg, 
-    rgba(30, 163, 139, 0.08) 0%, 
-    rgba(255, 142, 42, 0.05) 50%, 
-    rgba(39, 179, 113, 0.08) 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   position: relative;
   overflow: hidden;
 }
@@ -262,12 +250,12 @@
 .hero-title {
   font-size: 3.5rem;
   font-weight: 800;
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   line-height: 1.2;
 }
 
 .text-gradient {
-  background: var(--africode-gradient-primary);
+  background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -275,7 +263,7 @@
 
 .hero-subtitle {
   font-size: 1.3rem;
-  color: var(--africode-gray-dark);
+  color: #6c757d;
   line-height: 1.6;
 }
 
@@ -286,18 +274,18 @@
 }
 
 .tech-badge {
-  background: rgba(30, 163, 139, 0.1);
-  color: var(--africode-primary);
+  background: rgba(29, 53, 87, 0.1);
+  color: var(--primary-blue);
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 500;
-  border: 1px solid rgba(30, 163, 139, 0.2);
-  transition: var(--africode-transition);
+  border: 1px solid rgba(29, 53, 87, 0.2);
+  transition: all 0.3s ease;
 }
 
 .tech-badge:hover {
-  background: var(--africode-primary);
+  background: var(--primary-blue);
   color: white;
   transform: translateY(-2px);
 }
@@ -309,10 +297,10 @@
 }
 
 .organic-container {
-  border-radius: var(--africode-border-radius);
+  border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: var(--africode-shadow-lg);
-  transition: var(--africode-transition);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
   position: relative;
 }
 
@@ -355,7 +343,7 @@
   left: 20px;
   width: 100px;
   height: 100px;
-  background: radial-gradient(circle, var(--africode-primary) 2px, transparent 2px);
+  background: radial-gradient(circle, var(--primary-blue) 2px, transparent 2px);
   background-size: 20px 20px;
   opacity: 0.3;
 }
@@ -366,7 +354,7 @@
   right: 30px;
   width: 80px;
   height: 80px;
-  border: 3px solid var(--africode-secondary);
+  border: 3px solid var(--secondary-orange);
   border-radius: 50%;
   opacity: 0.7;
 }
@@ -381,8 +369,8 @@
     45deg,
     transparent,
     transparent 10px,
-    var(--africode-highlight-green) 10px,
-    var(--africode-highlight-green) 12px
+    var(--light-blue) 10px,
+    var(--light-blue) 12px
   );
   opacity: 0.5;
 }
@@ -395,13 +383,13 @@
 .section-title {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   margin-bottom: 1.5rem;
 }
 
 .text-content {
   font-size: 1.1rem;
-  color: var(--africode-gray-dark);
+  color: #6c757d;
   line-height: 1.8;
 }
 
@@ -417,16 +405,16 @@
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, var(--africode-gray-light) 0%, white 100%);
-  border-radius: var(--africode-border-radius);
-  box-shadow: var(--africode-shadow-lg);
-  transition: var(--africode-transition);
-  border: 1px solid rgba(30, 163, 139, 0.1);
+  background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(29, 53, 87, 0.1);
 }
 
 .contact-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(30, 163, 139, 0.15);
+  box-shadow: 0 20px 40px rgba(29, 53, 87, 0.15);
 }
 
 .contact-icon {
@@ -436,19 +424,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--africode-gradient-primary);
+  background: var(--gradient);
   border-radius: 50%;
   flex-shrink: 0;
 }
 
 .contact-details h5 {
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .contact-details p {
-  color: var(--africode-gray-dark);
+  color: #6c757d;
   margin: 0;
   font-size: 1rem;
 }
@@ -459,7 +447,7 @@
 }
 
 .form-title {
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   font-weight: 600;
   text-align: center;
 }
@@ -476,29 +464,29 @@
 }
 
 .form-label {
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
 
 .modern-input {
   padding: 1rem;
-  border: 2px solid rgba(30, 163, 139, 0.1);
+  border: 2px solid rgba(29, 53, 87, 0.1);
   border-radius: 15px;
   font-size: 1rem;
-  transition: var(--africode-transition);
+  transition: all 0.3s ease;
   background: rgba(248, 249, 250, 0.5);
 }
 
 .modern-input:focus {
   outline: none;
-  border-color: var(--africode-primary);
-  box-shadow: 0 0 0 3px rgba(30, 163, 139, 0.1);
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(29, 53, 87, 0.1);
   background: white;
 }
 
 .modern-btn {
-  background: var(--africode-gradient-primary);
+  background: var(--gradient);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -506,7 +494,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--africode-transition);
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -516,12 +504,12 @@
 
 .modern-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(30, 163, 139, 0.3);
+  box-shadow: 0 15px 30px rgba(29, 53, 87, 0.3);
 }
 
 /* Section réseaux sociaux */
 .social-section {
-  background: linear-gradient(135deg, var(--africode-gray-light) 0%, var(--africode-gray-medium) 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .social-cards-container {
@@ -535,16 +523,16 @@
 .social-card {
   background: white;
   padding: 2rem;
-  border-radius: var(--africode-border-radius);
-  box-shadow: var(--africode-shadow-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
   text-align: center;
-  transition: var(--africode-transition);
-  border: 1px solid rgba(30, 163, 139, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(29, 53, 87, 0.1);
 }
 
 .social-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 25px 50px rgba(30, 163, 139, 0.15);
+  box-shadow: 0 25px 50px rgba(29, 53, 87, 0.15);
 }
 
 .social-icon {
@@ -556,33 +544,33 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  background: var(--africode-gradient-primary);
+  background: var(--gradient);
 }
 
 .social-card h5 {
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .social-card p {
-  color: var(--africode-gray-dark);
+  color: #6c757d;
   margin-bottom: 1.5rem;
 }
 
 .social-link {
   display: inline-block;
   padding: 0.5rem 1.5rem;
-  background: rgba(30, 163, 139, 0.1);
-  color: var(--africode-primary);
+  background: rgba(29, 53, 87, 0.1);
+  color: var(--primary-blue);
   text-decoration: none;
   border-radius: 20px;
   font-weight: 500;
-  transition: var(--africode-transition);
+  transition: all 0.3s ease;
 }
 
 .social-link:hover {
-  background: var(--africode-primary);
+  background: var(--primary-blue);
   color: white;
   transform: translateY(-2px);
 }
@@ -593,28 +581,28 @@
 }
 
 .faq-quick-card {
-  background: linear-gradient(135deg, var(--africode-gray-light) 0%, white 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
   padding: 2rem;
-  border-radius: var(--africode-border-radius);
-  box-shadow: var(--africode-shadow-lg);
-  transition: var(--africode-transition);
-  border: 1px solid rgba(30, 163, 139, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(29, 53, 87, 0.1);
   height: 100%;
 }
 
 .faq-quick-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(30, 163, 139, 0.15);
+  box-shadow: 0 20px 40px rgba(29, 53, 87, 0.15);
 }
 
 .faq-quick-card h5 {
-  color: var(--africode-primary);
+  color: var(--primary-blue);
   font-weight: 600;
   margin-bottom: 1rem;
 }
 
 .faq-quick-card p {
-  color: var(--africode-gray-dark);
+  color: #6c757d;
   line-height: 1.6;
   margin: 0;
 }

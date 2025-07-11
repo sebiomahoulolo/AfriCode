@@ -35,9 +35,9 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><h6 class="dropdown-header"style="color:  #FF8E2A;">Par Niveau</h6></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'beginner']) }}">Débutant</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'intermediate']) }}">Intermédiaire</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'advanced']) }}">Avancé / Expert</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'debutant']) }}">Débutant</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'intermediaire']) }}">Intermédiaire</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'avance']) }}">Avancé / Expert</a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header" style="color: #FF8E2A;">Types</h6></li>

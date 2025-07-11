@@ -47,7 +47,7 @@ Route::get('/', [CourseController::class, 'home'])->name('home');
 
 // Routes pour les cours
 Route::resource('courses', CourseController::class);
-Route::get('/coursest/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
+Route::get('/courses/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
 
 // Ces routes sont nécessaires pour la compatibilité avec le code existant
 Route::get('/cours', [CourseController::class, 'index'])->name('courses.index');
