@@ -85,33 +85,147 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        // Si nous avons des paramètres de filtrage, nous utilisons le composant Livewire
-        $hasFilters = $request->filled('search') || 
-                     $request->filled('cat') || 
-                     ($request->has('level') && $request->get('level') !== 'all') || 
-                     ($request->has('priceRange') && $request->get('priceRange') !== 'all') || 
-                     ($request->has('sort') && $request->get('sort') !== 'latest');
-        
-        if ($hasFilters) {
-            // Si on a des filtres, on les passe à la vue pour le composant Livewire
-            return view('courses.index', [
-                'useFilters' => true,
-                'initialFilters' => [
-                    'search' => $request->get('search', ''),
-                    'selectedCategory' => $request->get('cat'),
-                    'level' => $request->get('level', 'all'),
-                    'priceRange' => $request->get('priceRange', 'all'),
-                    'sort' => $request->get('sort', 'latest'),
+        // Toujours afficher la même page unifiée
+        // Les filtres seront gérés via Ajax/JavaScript
+        return view('courses.index');
+    }
+
+    /**
+     * API endpoint pour les filtres Ajax
+     */
+    public function filter(Request $request)
+    {
+        $query = Course::query()
+            ->where('status', 'published')
+            ->with([
+                'formateur:id,first_name,last_name',
+                'category:id,name,slug',
+            ]);
+
+        // Appliquer la recherche textuelle
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('short_description', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('full_description', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Filtre par catégorie
+        if ($request->filled('category') && $request->get('category') !== 'all') {
+            $query->where('category_id', $request->get('category'));
+        }
+
+        // Filtre par niveau
+        if ($request->filled('level') && $request->get('level') !== 'all') {
+            $query->where('level', $request->get('level'));
+        }
+
+        // Filtre par prix
+        if ($request->filled('price') && $request->get('price') !== 'all') {
+            $priceFilter = $request->get('price');
+            if ($priceFilter === 'free') {
+                $query->where('price', 0);
+            } elseif ($priceFilter === 'paid') {
+                $query->where('price', '>', 0);
+            }
+        }
+
+        // Filtre par certification
+        if ($request->filled('certification') && $request->get('certification') !== 'all') {
+            $certFilter = $request->get('certification');
+            if ($certFilter === 'certified') {
+                $query->where('is_certifying', true);
+            } elseif ($certFilter === 'not_certified') {
+                $query->where('is_certifying', false);
+            }
+        }
+
+        // Tri
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'title':
+                $query->orderBy('title', 'asc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $courses = $query->paginate(12);
+
+        // Formater les données pour l'Ajax
+        $formattedCourses = $courses->map(function ($course) {
+            return [
+                'id' => $course->id,
+                'title' => $course->title,
+                'slug' => $course->slug,
+                'short_description' => $course->short_description,
+                'price' => $course->price,
+                'level' => $course->level,
+                'is_certifying' => $course->is_certifying,
+                'cover_image_path' => $course->cover_image_path,
+                'created_at' => $course->created_at,
+                'updated_at' => $course->updated_at,
+                'formateur' => $course->formateur ? [
+                    'id' => $course->formateur->id,
+                    'first_name' => $course->formateur->first_name,
+                    'last_name' => $course->formateur->last_name,
+                ] : null,
+                'category' => $course->category ? [
+                    'id' => $course->category->id,
+                    'name' => $course->category->name,
+                    'slug' => $course->category->slug,
+                ] : null,
+            ];
+        });
+
+        // Retourner en JSON pour Ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'courses' => $formattedCourses,
+                'pagination' => [
+                    'current_page' => $courses->currentPage(),
+                    'last_page' => $courses->lastPage(),
+                    'total' => $courses->total(),
+                    'per_page' => $courses->perPage(),
+                    'has_more_pages' => $courses->hasMorePages(),
+                    'from' => $courses->firstItem(),
+                    'to' => $courses->lastItem(),
                 ]
             ]);
         }
-        
-        // Affichage normal sans filtres
-        $courses = Course::where('status', 'published')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
-            
-        return view('courses.index', compact('courses'));
+
+        // Fallback: rediriger vers la page principale
+        return redirect()->route('courses.index');
+    }
+
+    /**
+     * API endpoint pour récupérer les catégories
+     */
+    public function categories(Request $request)
+    {
+        $categories = Category::withCount('courses')
+            ->having('courses_count', '>', 0)
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'slug']);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'categories' => $categories
+            ]);
+        }
+
+        return redirect()->route('courses.index');
     }
 
     /**

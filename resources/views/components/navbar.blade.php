@@ -38,11 +38,13 @@
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'debutant']) }}">Débutant</a></li>
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'intermediaire']) }}">Intermédiaire</a></li>
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'avance']) }}">Avancé / Expert</a></li>
-                        
                         <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Types</h6></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'free']) }}">Cours Gratuits</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'paid']) }}">Cours Payants</a></li>
+                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Par Prix</h6></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['price' => 'free']) }}">Cours gratuits</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['price' => 'paid']) }}">Cours payants</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Par Certification</h6></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['certification' => 'certified']) }}">Formations certifiées</a></li>
                         
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header" style="color: #FF8E2A;">Communauté & Outils</h6></li>

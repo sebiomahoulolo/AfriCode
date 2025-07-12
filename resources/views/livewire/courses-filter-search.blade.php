@@ -1,10 +1,10 @@
 <div class="courses-filter-search-container">
-    <!-- Section filtres de recherche -->
-    <div class="search-section bg-light py-4">
+    <!-- Barre de recherche principale -->
+    <div class="search-section bg-light py-3">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    <div class="search-container position-relative mb-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="search-container mb-3">
                         <div class="input-group shadow-sm">
                             <input wire:model.live.debounce.300ms="search" 
                                    class="form-control form-control-lg py-3 ps-4 border-end-0" 
@@ -16,14 +16,111 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Filtres horizontaux type Coursera -->
+                    <div class="filters-row d-flex flex-wrap gap-2 align-items-center">
+                        <!-- Filtre Catégorie -->
+                        <div class="filter-dropdown">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="categoryFilter" data-bs-toggle="dropdown">
+                                    <i class="fas fa-folder me-2"></i>
+                                    {{ $selectedCategory ? $categories->find($selectedCategory)->name : 'Catégorie' }}
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" wire:click="selectCategory(null)">Toutes les catégories</a></li>
+                                    @foreach($categories as $category)
+                                        <li><a class="dropdown-item" href="#" wire:click="selectCategory({{ $category->id }})">{{ $category->name }}</a></li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre Niveau -->
+                        <div class="filter-dropdown">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="levelFilter" data-bs-toggle="dropdown">
+                                    <i class="fas fa-layer-group me-2"></i>
+                                    @if($level === 'debutant')
+                                        Débutant
+                                    @elseif($level === 'intermediaire')
+                                        Intermédiaire
+                                    @elseif($level === 'avance')
+                                        Avancé
+                                    @elseif($level === 'tous_niveaux')
+                                        Tous niveaux
+                                    @else
+                                        Niveau
+                                    @endif
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" wire:click="setLevel('all')">Tous les niveaux</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setLevel('debutant')">Débutant</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setLevel('intermediaire')">Intermédiaire</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setLevel('avance')">Avancé</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setLevel('tous_niveaux')">Tous niveaux</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre Prix -->
+                        <div class="filter-dropdown">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="priceFilter" data-bs-toggle="dropdown">
+                                    <i class="fas fa-euro-sign me-2"></i>
+                                    @if($priceRange === 'free')
+                                        Gratuit
+                                    @elseif($priceRange === 'paid')
+                                        Payant
+                                    @else
+                                        Prix
+                                    @endif
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" wire:click="setPriceRange('all')">Tous les prix</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setPriceRange('free')">Gratuit</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="setPriceRange('paid')">Payant</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre Certification -->
+                        <div class="filter-dropdown">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="certFilter" data-bs-toggle="dropdown">
+                                    <i class="fas fa-certificate me-2"></i>
+                                    @if($isCertifying === true)
+                                        Avec certification
+                                    @elseif($isCertifying === false)
+                                        Sans certification
+                                    @else
+                                        Certification
+                                    @endif
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" wire:click="$set('isCertifying', null)">Tous les cours</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="$set('isCertifying', true)">Avec certification</a></li>
+                                    <li><a class="dropdown-item" href="#" wire:click="$set('isCertifying', false)">Sans certification</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Tri -->
+                        <div class="filter-dropdown ms-auto">
+                            <select class="form-select" wire:model.live="sort">
+                                <option value="latest">Plus récents</option>
+                                <option value="oldest">Plus anciens</option>
+                                <option value="price_asc">Prix croissant</option>
+                                <option value="price_desc">Prix décroissant</option>
+                                <option value="popular">Popularité</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Reset -->
+                        <button wire:click="resetFilters" class="btn btn-outline-danger">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="d-flex justify-content-center mt-3">
-                <button wire:click="toggleAdvancedFilters" class="btn btn-outline-primary rounded-pill">
-                    <i class="fas fa-sliders-h me-2"></i>
-                    {{ $showAdvancedFilters ? 'Masquer les filtres avancés' : 'Filtres avancés' }}
-                </button>
             </div>
         </div>
     </div>

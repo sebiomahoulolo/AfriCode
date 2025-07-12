@@ -48,6 +48,8 @@ Route::get('/', [CourseController::class, 'home'])->name('home');
 // Routes pour les cours
 Route::resource('courses', CourseController::class);
 Route::get('/courses/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
+Route::get('/courses-filter', [CourseController::class, 'filter'])->name('courses.filter'); // Route Ajax pour les filtres
+Route::get('/courses-categories', [CourseController::class, 'categories'])->name('courses.categories'); // Route Ajax pour les catégories
 
 // Ces routes sont nécessaires pour la compatibilité avec le code existant
 Route::get('/cours', [CourseController::class, 'index'])->name('courses.index');
@@ -89,7 +91,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Webhooks et callbacks (pas de middleware auth)
-Route::post('/webhook/stripe', [\App\Http\Controllers\EnrollmentController::class, 'stripeWebhook'])
+Route::post('/webhook/stripe', [\AppHttp\Controllers\EnrollmentController::class, 'stripeWebhook'])
     ->name('webhook.stripe');
 Route::post('/callback/fadapay', [\App\Http\Controllers\EnrollmentController::class, 'fadapayCallback'])
     ->name('payment.fadapay.callback');
