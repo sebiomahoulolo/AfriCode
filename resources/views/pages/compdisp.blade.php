@@ -129,39 +129,88 @@
         font-weight: bold;
     }
 
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--highlight-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 10px;
+        float: left;
+    }
+
     .badge-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 20px;
         text-align: center;
     }
     .badge-item {
         background-color: var(--card-bg);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        transition: transform 0.2s ease;
+        padding: 20px 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
         cursor: pointer;
+        border: 2px solid transparent;
     }
     .badge-item:hover {
-        transform: scale(1.05);
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
     }
-    .badge-item img {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 10px;
+    .badge-item.unlocked {
+        border-color: var(--highlight-color);
+        background: linear-gradient(135deg, var(--card-bg), rgba(39, 179, 113, 0.05));
     }
-    .badge-item span {
-        font-size: 0.9em;
-        font-weight: 500;
-        display: block;
+    .badge-item.unlocked:hover {
+        border-color: var(--primary-color);
     }
     .badge-item.locked {
-        opacity: 0.5;
+        opacity: 0.6;
         filter: grayscale(80%);
+        background-color: #f8f9fa;
     }
     .badge-item.locked:hover {
-        transform: none; /* Pas de zoom si verrouillé */
+        transform: none;
+        opacity: 0.7;
+    }
+    .badge-icon {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        display: block;
+    }
+    .badge-name {
+        font-size: 0.9em;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text-color);
+    }
+    .badge-description {
+        font-size: 0.8em;
+        color: #666;
+        line-height: 1.3;
+    }
+    .badge-status {
+        font-size: 0.75em;
+        font-weight: 500;
+        margin-top: 8px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    .badge-status.unlocked {
+        background-color: var(--highlight-color);
+        color: white;
+    }
+    .badge-status.locked {
+        background-color: #6c757d;
+        color: white;
     }
 
     .filter-buttons .btn {
@@ -210,6 +259,37 @@
             font-size: 0.9em;
         }
     }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-style: italic;
+    }
+
+    .recent-badges {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+    .recent-badge {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        background-color: var(--primary-color);
+    }
 </style>
 
 <!-- En-tête de la page Compétition -->
@@ -223,23 +303,32 @@
     <section id="challenges" class="mb-5">
         <h2 class="section-title"><i class="fas fa-code me-2"></i>Défis Actuels</h2>
         <div class="row" id="challenges-list">
-            <!-- Les défis seront chargés ici par JS -->
-            <div class="col-md-6 placeholder-glow">
-                <div class="challenge-card">
-                    <span class="placeholder col-8"></span>
-                    <span class="placeholder col-4"></span>
-                    <span class="placeholder col-6"></span>
-                    <span class="placeholder col-8"></span>
+            @if(count($challenges) > 0)
+                @foreach($challenges as $challenge)
+                    <div class="col-md-6 mb-3">
+                        <div class="challenge-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ $challenge['title'] }}</h5>
+                                <span class="difficulty difficulty-{{ strtolower($challenge['difficulty']) }}">
+                                    {{ $challenge['difficulty'] }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-2">{{ $challenge['description'] }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ $challenge['points'] }} points</span>
+                                <small class="text-muted">{{ $challenge['timeLeft'] }}</small>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun défi actif pour le moment.
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6 placeholder-glow">
-                <div class="challenge-card">
-                    <span class="placeholder col-7"></span>
-                    <span class="placeholder col-4"></span>
-                    <span class="placeholder col-4"></span>
-                    <span class="placeholder col-6"></span>
-                </div>
-            </div>
+            @endif
         </div>
     </section>
 
@@ -264,14 +353,60 @@
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
-                    <!-- Les lignes du classement seront chargées ici par JS -->
-                    <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-6"></span></td></tr>
-                    <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-5"></span></td></tr>
-                    <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-6"></span></td></tr>
+                    @if(count($leaderboardData) > 0)
+                        @foreach($leaderboardData as $user)
+                            <tr class="{{ $currentUser && $currentUser['id'] == $user['id'] ? 'current-user-rank' : '' }}">
+                                <td class="text-center leaderboard-rank rank-{{ $user['rank'] }}">
+                                    @if($user['rank'] == 1)
+                                        <i class="fas fa-trophy text-warning"></i>
+                                    @elseif($user['rank'] == 2)
+                                        <i class="fas fa-medal text-secondary"></i>
+                                    @elseif($user['rank'] == 3)
+                                        <i class="fas fa-medal text-danger"></i>
+                                    @else
+                                        {{ $user['rank'] }}
+                                    @endif
+                                </td>
+                                <td class="leaderboard-user">
+                                    <div class="user-avatar">{{ substr($user['name'], 0, 2) }}</div>
+                                    {{ $user['name'] }}
+                                </td>
+                                <td class="text-end leaderboard-score">{{ number_format($user['score']) }}</td>
+                                <td class="text-center">
+                                    <div class="recent-badges">
+                                        @foreach($user['recentBadges'] as $badge)
+                                            <div class="recent-badge" style="background-color: {{ $badge['color'] ?? '#1EA38B' }}" title="{{ $badge['name'] }}">
+                                                <i class="{{ $badge['icon'] }}"></i>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-users me-2"></i>
+                                    Aucun utilisateur dans le classement.
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
-                <tbody id="current-user-leaderboard-body">
-                    <!-- La ligne de l'utilisateur connecté sera ajoutée ici si hors top N -->
-                </tbody>
+                @if($currentUser && !collect($leaderboardData)->contains('id', $currentUser['id']))
+                    <tbody id="current-user-leaderboard-body">
+                        <tr class="current-user-rank">
+                            <td class="text-center leaderboard-rank">{{ $currentUser['rank'] ?? 'N/A' }}</td>
+                            <td class="leaderboard-user">
+                                <div class="user-avatar">{{ substr($currentUser['name'], 0, 2) }}</div>
+                                {{ $currentUser['name'] }} (Vous)
+                            </td>
+                            <td class="text-end leaderboard-score">{{ number_format($currentUser['score']) }}</td>
+                            <td class="text-center">-</td>
+                        </tr>
+                    </tbody>
+                @endif
             </table>
         </div>
     </section>
@@ -280,305 +415,134 @@
     <section id="badges" class="mb-5">
         <h2 class="section-title"><i class="fas fa-medal me-2"></i>Galerie des Badges</h2>
         <div class="badge-grid" id="badges-list">
-            <!-- Les badges seront chargés ici par JS -->
-            <div class="badge-item placeholder-glow">
-                <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                <span class="placeholder col-6"></span>
-            </div>
-            <div class="badge-item placeholder-glow">
-                <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; border-radius: 50%; display: inline-block;"></span>
-                <span class="placeholder col-7"></span>
-            </div>
-            <div class="badge-item placeholder-glow locked">
-                <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                <span class="placeholder col-5"></span>
-            </div>
-            <div class="badge-item placeholder-glow locked">
-                <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                <span class="placeholder col-6"></span>
-            </div>
+            @if(count($badges) > 0)
+                @foreach($badges as $badge)
+                    <div class="badge-item {{ $badge['locked'] ? 'locked' : 'unlocked' }}" title="{{ $badge['description'] }}">
+                        <i class="{{ $badge['icon'] }} badge-icon" style="color: {{ $badge['color'] ?? '#1EA38B' }};"></i>
+                        <span class="badge-name">{{ $badge['name'] }}</span>
+                        <span class="badge-description">{{ $badge['description'] }}</span>
+                        <span class="badge-status {{ $badge['locked'] ? 'locked' : 'unlocked' }}">
+                            {{ $badge['locked'] ? 'Verrouillé' : 'Débloqué' }}
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-medal me-2"></i>
+                        Aucun badge disponible.
+                    </div>
+                </div>
+            @endif
         </div>
     </section>
 </div>
 
-@endsection
-
-@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- Données réelles du backend ---
-    const currentUser = @json($currentUser ?? null);
-    const sampleChallenges = @json($challenges ?? []);
-    const sampleLeaderboard = @json($leaderboardData ?? []);
-    const sampleBadges = @json($badges ?? []);
-
-    console.log('Données reçues:', {
-        challenges: sampleChallenges.length,
-        leaderboard: sampleLeaderboard.length,
-        badges: sampleBadges.length,
-        currentUser: currentUser
-    });
-
-    // --- Fonctions utilitaires ---
-    function getElementById(id) {
-        const element = document.getElementById(id);
-        if (!element) {
-            console.error(`Élément avec l'ID "${id}" non trouvé`);
-            return null;
-        }
-        return element;
-    }
-
-    function getDifficultyClass(difficulty) {
-        const difficultyMap = {
-            'débutant': 'difficulty-debutant',
-            'intermédiaire': 'difficulty-intermediaire',
-            'avancé': 'difficulty-avance'
-        };
-        return difficultyMap[difficulty.toLowerCase()] || 'bg-secondary';
-    }
-
-    function getRankClass(rank) {
-        if (rank === 1) return 'rank-1';
-        if (rank === 2) return 'rank-2';
-        if (rank === 3) return 'rank-3';
-        return '';
-    }
-
-    // --- Fonctions de rendu ---
-    function renderChallenges(challenges) {
-        const list = getElementById('challenges-list');
-        if (!list) return;
-
-        list.innerHTML = '';
-        
-        if (!challenges || challenges.length === 0) {
-            list.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Aucun défi disponible pour le moment. Revenez bientôt !
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        challenges.forEach(challenge => {
-            const col = document.createElement('div');
-            col.className = 'col-md-6';
-            
-            const difficultyClass = getDifficultyClass(challenge.difficulty);
-            const isCompleted = challenge.timeLeft === 'Terminé';
-            
-            col.innerHTML = `
-                <div class="challenge-card">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="mb-0">${challenge.title}</h5>
-                        <span class="badge ${difficultyClass}">${challenge.difficulty}</span>
-                    </div>
-                    <p class="text-muted small">${challenge.description}</p>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="text-muted small">
-                            <i class="fas fa-clock me-1"></i> ${challenge.timeLeft}
-                        </span>
-                        ${isCompleted ? 
-                            `<span class="text-success small"><i class="fas fa-check-circle me-1"></i> Terminé</span>` :
-                            `<a href="#" class="btn btn-sm btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color);">
-                                <i class="fas fa-arrow-right me-1"></i> Participer (${challenge.points} pts)
-                            </a>`
-                        }
-                    </div>
-                </div>
-            `;
-            list.appendChild(col);
-        });
-    }
-
-    function renderLeaderboard(leaderboardData, topN = 10) {
-        const tbody = getElementById('leaderboard-body');
-        const currentUserTbody = getElementById('current-user-leaderboard-body');
-        
-        if (!tbody || !currentUserTbody) return;
-
-        tbody.innerHTML = '';
-        currentUserTbody.innerHTML = '';
-        
-        if (!leaderboardData || leaderboardData.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center p-5">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Aucun classement disponible pour le moment.
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        let userInTopN = false;
-
-        leaderboardData.slice(0, topN).forEach(user => {
-            if (currentUser && user.id === currentUser.id) userInTopN = true;
-            
-            const tr = document.createElement('tr');
-            if (currentUser && user.id === currentUser.id) {
-                tr.classList.add('current-user-rank');
-            }
-            
-            const rankClass = getRankClass(user.rank);
-            const recentBadgesHTML = (user.recentBadges || []).map(icon => 
-                `<i class="fas ${icon} mx-1" title="Badge Récent"></i>`
-            ).join('');
-
-            tr.innerHTML = `
-                <td class="leaderboard-rank text-center ${rankClass}">${user.rank}</td>
-                <td class="leaderboard-user">
-                    <img src="${user.avatar}" alt="${user.name}" onerror="this.src='https://via.placeholder.com/40/cccccc/FFFFFF?text=U'">
-                    ${user.name}
-                </td>
-                <td class="leaderboard-score text-end">${user.score.toLocaleString()} pts</td>
-                <td class="text-center">${recentBadgesHTML || '-'}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-
-        // Ajouter la ligne de l'utilisateur s'il n'est pas dans le top N affiché
-        if (currentUser && !userInTopN && currentUser.rank > topN) {
-            const tr = document.createElement('tr');
-            tr.classList.add('current-user-rank');
-            
-            const recentBadgesHTML = ['fa-user-graduate'].map(icon => 
-                `<i class="fas ${icon} mx-1" title="Badge Récent"></i>`
-            ).join('');
-
-            tr.innerHTML = `
-                <td class="leaderboard-rank text-center">${currentUser.rank}</td>
-                <td class="leaderboard-user">
-                    <img src="${currentUser.avatar}" alt="${currentUser.name}" onerror="this.src='https://via.placeholder.com/40/cccccc/FFFFFF?text=U'">
-                    ${currentUser.name} (Vous)
-                </td>
-                <td class="leaderboard-score text-end">${currentUser.score.toLocaleString()} pts</td>
-                <td class="text-center">${recentBadgesHTML || '-'}</td>
-            `;
-
-            // Ajouter un séparateur visuel si nécessaire
-            if (tbody.children.length > 0) {
-                const separatorRow = document.createElement('tr');
-                separatorRow.innerHTML = `<td colspan="4" class="text-center text-muted py-1" style="border:none; background: none !important;">...</td>`;
-                currentUserTbody.appendChild(separatorRow);
-            }
-
-            currentUserTbody.appendChild(tr);
-        }
-    }
-
-    function renderBadges(badges) {
-        const list = getElementById('badges-list');
-        if (!list) return;
-
-        list.innerHTML = '';
-        
-        if (!badges || badges.length === 0) {
-            list.innerHTML = `
-                <div class="col-12 text-center">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Aucun badge disponible pour le moment.
-                    </div>
-                </div>
-            `;
-            return;
-        }
-
-        badges.forEach(badge => {
-            const div = document.createElement('div');
-            div.className = `badge-item ${badge.locked ? 'locked' : ''}`;
-            div.setAttribute('title', `${badge.name}${badge.locked ? ' (Verrouillé)' : ''} - ${badge.description}`);
-            
-            div.innerHTML = `
-                <i class="fas ${badge.icon} fa-3x mb-2" style="color: ${badge.locked ? '#aaa' : (badge.color || 'var(--secondary-color)')};"></i>
-                <span>${badge.name}</span>
-            `;
-
-            // Ajouter un popover Bootstrap pour plus de détails
-            div.setAttribute('data-bs-toggle', 'popover');
-            div.setAttribute('data-bs-trigger', 'hover focus');
-            div.setAttribute('data-bs-placement', 'top');
-            div.setAttribute('data-bs-content', badge.description);
-
-            list.appendChild(div);
-        });
-
-        // Initialiser les popovers Bootstrap
-        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
-        popoverTriggerList.forEach(triggerEl => {
-            new bootstrap.Popover(triggerEl);
-        });
-    }
-
-    // --- Chargement Initial ---
-    function initializePage() {
-        try {
-            console.log('Initialisation de la page...');
-            renderChallenges(sampleChallenges);
-            renderLeaderboard(sampleLeaderboard, 10);
-            renderBadges(sampleBadges);
-            console.log('Page initialisée avec succès');
-        } catch (error) {
-            console.error('Erreur lors de l\'initialisation de la page:', error);
-        }
-    }
-
-    // Chargement immédiat (pas de délai)
-    initializePage();
-
-    // --- Gestion des Filtres (Classement) ---
+    // Gestion des filtres de classement
     const filterButtons = document.querySelectorAll('.filter-buttons .btn');
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    const currentUserBody = document.getElementById('current-user-leaderboard-body');
+
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
-            try {
-                // Désactiver les autres boutons actifs
-                const activeButton = document.querySelector('.filter-buttons .btn.active');
-                if (activeButton) {
-                    activeButton.classList.remove('active');
-                }
-                
-                // Activer le bouton cliqué
-                this.classList.add('active');
-                
-                const filterType = this.dataset.filter;
-                console.log("Filtrer classement par :", filterType);
-                
-                // Appel API pour récupérer les données filtrées
-                fetch(`/api/leaderboard?type=${filterType}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.error) {
-                            console.error('Erreur API:', data.error);
-                            return;
-                        }
-                        renderLeaderboard(data, 10);
-                    })
-                    .catch(error => {
-                        console.error('Erreur lors du filtrage:', error);
-                        // Fallback : re-render les mêmes données
-                        renderLeaderboard(sampleLeaderboard, 10);
-                    });
-            } catch (error) {
-                console.error('Erreur lors du filtrage:', error);
-            }
+            // Retirer la classe active de tous les boutons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Ajouter la classe active au bouton cliqué
+            this.classList.add('active');
+
+            const filterType = this.getAttribute('data-filter');
+            loadLeaderboard(filterType);
         });
     });
 
-    // --- Gestion des erreurs d'images ---
-    document.addEventListener('error', function(e) {
-        if (e.target.tagName === 'IMG') {
-            e.target.src = 'https://via.placeholder.com/40/cccccc/FFFFFF?text=U';
-        }
-    }, true);
+    function loadLeaderboard(type) {
+        // Afficher un indicateur de chargement
+        leaderboardBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center p-5">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        Chargement du classement...
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        // Faire la requête AJAX
+        fetch(`/api/leaderboard?type=${type}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    leaderboardBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Erreur lors du chargement du classement.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                if (data.length === 0) {
+                    leaderboardBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-users me-2"></i>
+                                    Aucun utilisateur dans ce classement.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Afficher les données
+                leaderboardBody.innerHTML = data.map(user => `
+                    <tr class="${user.isCurrentUser ? 'current-user-rank' : ''}">
+                        <td class="text-center leaderboard-rank rank-${user.rank}">
+                            ${user.rank === 1 ? '<i class="fas fa-trophy text-warning"></i>' :
+                              user.rank === 2 ? '<i class="fas fa-medal text-secondary"></i>' :
+                              user.rank === 3 ? '<i class="fas fa-medal text-danger"></i>' :
+                              user.rank}
+                        </td>
+                        <td class="leaderboard-user">
+                            <div class="user-avatar">${user.name.substring(0, 2)}</div>
+                            ${user.name}
+                        </td>
+                        <td class="text-end leaderboard-score">${user.score.toLocaleString()}</td>
+                        <td class="text-center">
+                            <div class="recent-badges">
+                                ${user.recentBadges.map(badge => `
+                                    <div class="recent-badge" style="background-color: ${badge.color || '#1EA38B'}" title="${badge.name}">
+                                        <i class="${badge.icon}"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                leaderboardBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center p-5">
+                            <div class="no-data">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Erreur lors du chargement du classement.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+    }
 });
 </script>
-@endpush 
+
+@endsection 

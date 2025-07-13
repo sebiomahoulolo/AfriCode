@@ -88,8 +88,12 @@
             font-weight: 600;
             text-decoration: none;
             font-size: 1.05em;
+            transition: color 0.2s ease;
         }
-        .topic-title a:hover { text-decoration: underline; }
+        .topic-title a:hover { 
+            text-decoration: underline; 
+            color: var(--highlight-color);
+        }
         .topic-meta { font-size: 0.85em; color: #666; margin-top: 3px; }
         .topic-meta .author-link { color: var(--secondary-color); font-weight: 500; text-decoration: none; }
         .topic-meta .author-link:hover { text-decoration: underline; }
@@ -131,40 +135,152 @@
         .leaderboard-widget-item {
             display: flex;
             align-items: center;
-            padding: 8px 0;
+            padding: 12px 0;
             border-bottom: 1px dashed var(--border-color);
+            transition: all 0.3s ease;
         }
         .leaderboard-widget-item:last-child { border-bottom: none; }
+        .leaderboard-widget-item:hover {
+            background-color: var(--hover-bg);
+            border-radius: 8px;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin-left: -8px;
+            margin-right: -8px;
+        }
         .leaderboard-widget-rank {
             font-weight: bold;
-            font-size: 1.1em;
-            min-width: 30px;
+            font-size: 1.2em;
+            min-width: 35px;
             text-align: center;
-            margin-right: 10px;
+            margin-right: 12px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-accent);
         }
-        .rank-1 { color: var(--gold-color); }
-        .rank-2 { color: var(--silver-color); }
-        .rank-3 { color: var(--bronze-color); }
-        .leaderboard-widget-avatar { width: 30px; height: 30px; border-radius: 50%; margin-right: 8px; }
-        .leaderboard-widget-name { font-size: 0.9em; flex-grow: 1; font-weight: 500; }
-        .leaderboard-widget-score { font-size: 0.85em; color: #555; font-weight: 600; }
-        .view-full-leaderboard { display: block; text-align: center; margin-top: 15px; font-size: 0.9em; }
+        .rank-1 { 
+            color: var(--gold-color); 
+            background-color: rgba(255, 215, 0, 0.1);
+            border: 2px solid var(--gold-color);
+        }
+        .rank-2 { 
+            color: var(--silver-color); 
+            background-color: rgba(192, 192, 192, 0.1);
+            border: 2px solid var(--silver-color);
+        }
+        .rank-3 { 
+            color: var(--bronze-color); 
+            background-color: rgba(205, 127, 50, 0.1);
+            border: 2px solid var(--bronze-color);
+        }
+        .leaderboard-widget-avatar { 
+            width: 35px; 
+            height: 35px; 
+            border-radius: 50%; 
+            margin-right: 12px;
+            border: 2px solid var(--border-color);
+            object-fit: cover;
+        }
+        .leaderboard-widget-name { 
+            font-size: 0.95em; 
+            flex-grow: 1; 
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .leaderboard-widget-score { 
+            font-size: 0.9em; 
+            color: var(--primary-color); 
+            font-weight: 600;
+            background-color: rgba(30, 163, 139, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(30, 163, 139, 0.2);
+        }
+        .leaderboard-widget-badges {
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+        .leaderboard-widget-badges i {
+            font-size: 0.9em;
+        }
+        .view-full-leaderboard { 
+            display: block; 
+            text-align: center; 
+            margin-top: 15px; 
+            font-size: 0.9em;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .view-full-leaderboard:hover {
+            background-color: var(--hover-bg);
+            color: var(--highlight-color);
+            text-decoration: none;
+        }
+
+        /* Bouton de rafraîchissement */
+        #refresh-leaderboard {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            padding: 4px 8px;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+        #refresh-leaderboard:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        #refresh-leaderboard .fa-spin {
+            animation-duration: 1s;
+        }
 
         /* Categories Widget */
         .category-list { list-style: none; padding: 0; margin: 0; }
         .category-list a {
             display: block;
-            padding: 8px 10px;
-            margin-bottom: 5px;
+            padding: 12px 15px;
+            margin-bottom: 3px;
             color: var(--text-color);
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 0.9em;
-            transition: background-color 0.2s ease;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            cursor: pointer;
         }
-        .category-list a:hover { background-color: var(--hover-bg); }
-        .category-list a.active { background-color: var(--active-bg); color: var(--primary-color); font-weight: 600; }
-        .category-list i { margin-right: 8px; color: var(--primary-color); }
+        .category-list a:hover { 
+            background-color: var(--hover-bg); 
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        .category-list a.active { 
+            background-color: var(--primary-color); 
+            color: white; 
+            font-weight: 600;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(30, 163, 139, 0.3);
+        }
+        .category-list a.active:hover {
+            background-color: var(--highlight-color);
+            border-color: var(--highlight-color);
+        }
+        .category-list i { 
+            margin-right: 10px; 
+            color: var(--primary-color);
+            width: 16px;
+            text-align: center;
+        }
+        .category-list a.active i {
+            color: white;
+        }
 
         /* Modal */
          .modal-header {
@@ -198,83 +314,237 @@
 
     <header class="page-header">
         <div class="container">
-            <h1>Forum des Apprenants</h1>
-            <p class="mb-0">Partagez vos questions, entraidez-vous et discutez autour des cours !</p>
+            <h1><i class="fas fa-users me-2"></i> Forum des Apprenants</h1>
+            <p class="lead mb-0">Échangez, posez vos questions et partagez vos connaissances !</p>
         </div>
     </header>
 
-    <div class="container mb-5">
-        <div class="forum-controls mb-3">
-            <a href="{{ route('forum.create') }}" class="btn btn-new-topic"><i class="fas fa-plus me-1"></i> Nouveau sujet</a>
-            <form class="d-flex" method="GET" action="{{ route('forum.index') }}">
-                <input type="text" name="search" class="form-control me-2" placeholder="Rechercher un sujet..." value="{{ request('search') }}">
-                <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
+    <div class="container mt-4">
+        <div class="row">
 
-        <div class="forum-list-container">
-            <table class="table forum-table mb-0">
-                <thead>
-                    <tr>
-                        <th>Sujet</th>
-                        <th>Auteur</th>
-                        <th>Date</th>
-                        <th>Réponses</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($forums as $forum)
-                    <tr>
-                        <td class="topic-title">
-                            <a href="{{ route('forum.show', $forum->id) }}">{{ $forum->title }}</a>
-                        </td>
-                        <td>
-                            {{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}
-                        </td>
-                        <td>{{ $forum->created_at->format('d/m/Y H:i') }}</td>
-                        <td class="text-center">{{ $forum->getTotalRepliesCount() }}</td>
-                        <td>
-                            <a href="{{ route('forum.show', $forum->id) }}" class="btn btn-sm btn-outline-primary">Voir</a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center text-muted">Aucun sujet pour le moment.</td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="mt-3">
-            {{ $forums->links() }}
-        </div>
-    </div>
+            <!-- Colonne Principale : Liste des Sujets -->
+            <div class="col-lg-8">
+                <div class="forum-controls">
+                    <button class="btn btn-sm btn-new-topic" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+                        <i class="fas fa-plus me-1"></i> Créer un Sujet
+                    </button>
+                    <div class="input-group input-group-sm" style="max-width: 300px;">
+                        <input type="text" class="form-control" placeholder="Rechercher un sujet..." id="forum-search-input">
+                        <button class="btn btn-outline-secondary" type="button" id="forum-search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                     <!-- TODO: Ajouter Dropdown pour Tri -->
+                </div>
 
-    <!-- Colonne Latérale : Compétition et Catégories -->
-    <div class="col-lg-4 mt-4 mt-lg-0">
-        <!-- Widget Compétition -->
-        <div class="sidebar-widget">
-            <h5><i class="fas fa-trophy me-2" style="color: var(--gold-color);"></i> Top Apprenants</h5>
-            <ul class="leaderboard-widget-list" id="leaderboard-widget">
-                <!-- Loading Placeholders -->
-                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-10"></span></li>
-                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-9"></span></li>
-                <li class="leaderboard-widget-item placeholder-glow"><span class="placeholder col-8"></span></li>
-            </ul>
-            <a href="/competition" class="view-full-leaderboard">Voir le classement complet <i class="fas fa-arrow-right ms-1"></i></a>
-        </div>
-
-        <!-- Widget Catégories -->
-        <div class="sidebar-widget">
-            <h5><i class="fas fa-tags me-2"></i> Catégories</h5>
-            <div class="list-group list-group-flush category-list" id="category-list">
-                <a href="#" class="list-group-item list-group-item-action active" data-category="all"><i class="fas fa-globe-africa"></i> Toutes les discussions</a>
-                <!-- Catégories chargées ici -->
-                <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-6"></span></a>
-                <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-7"></span></a>
-                 <a href="#" class="list-group-item list-group-item-action placeholder-glow" aria-disabled="true"><span class="placeholder col-5"></span></a>
+                <div class="forum-list-container">
+                    <table class="table forum-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sujet</th>
+                                <th scope="col" class="text-center">Catégorie</th>
+                                <th scope="col" class="text-center">Statistiques</th>
+                                <th scope="col">Dernier Message</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forum-topics-list">
+                            @forelse($forums as $forum)
+                                <tr>
+                                    <td data-label="Sujet">
+                                        <div class="topic-title">
+                                            <a href="{{ route('forum.show', $forum->id) }}">{{ $forum->title }}</a>
+                                        </div>
+                                        <div class="topic-meta">
+                                            Par <a href="/profil/{{ $forum->user->id ?? '' }}" class="author-link">{{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}</a> - {{ $forum->created_at->diffForHumans() }}
+                                        </div>
+                                    </td>
+                                    <td data-label="Catégorie" class="text-center topic-category">
+                                        <span>{{ $forum->course->title ?? 'Général' }}</span>
+                                    </td>
+                                    <td data-label="Statistiques" class="topic-stats">
+                                        <div><strong>{{ $forum->getTotalRepliesCount() }}</strong> Réponses</div>
+                                        <div><strong>{{ $forum->views ?? 0 }}</strong> Vues</div>
+                                    </td>
+                                    <td data-label="Dernier Message" class="topic-last-post">
+                                        <a href="{{ route('forum.show', $forum->id) }}" title="Lire et répondre" class="me-2 text-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @php
+                                            $lastPost = $forum->posts()->latest()->first();
+                                        @endphp
+                                        @if($lastPost)
+                                            Par <a href="/profil/{{ $lastPost->user->id ?? '' }}" class="author-link">{{ $lastPost->user->first_name ?? 'Utilisateur' }} {{ $lastPost->user->last_name ?? '' }}</a>
+                                            <span class="date">{{ $lastPost->created_at->diffForHumans() }}</span>
+                                        @else
+                                            <span class="text-muted">Aucun message</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted p-4">Aucun sujet trouvé.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    {{ $forums->links() }}
+                </div>
             </div>
+
+            <!-- Colonne Latérale : Compétition et Catégories -->
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <!-- Widget Compétition -->
+                <div class="sidebar-widget">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0"><i class="fas fa-trophy me-2" style="color: var(--gold-color);"></i> Top 3 Apprenants</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="refresh-leaderboard" title="Rafraîchir">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <ul class="leaderboard-widget-list" id="leaderboard-widget">
+                        @php
+                            // Récupérer les données du leaderboard comme dans CompetitionDisplayController
+                            $globalLeaderboard = \App\Models\Leaderboard::where('type', 'global')->first();
+                            $leaderboardData = [];
+                            
+                            if ($globalLeaderboard) {
+                                $leaderboardData = \App\Models\UserScore::with('user')
+                                    ->where('leaderboard_id', $globalLeaderboard->id)
+                                    ->orderBy('score', 'desc')
+                                    ->take(3)
+                                    ->get()
+                                    ->map(function ($score, $index) {
+                                        $user = $score->user;
+                                        $name = $user->first_name . ' ' . $user->last_name;
+                                        
+                                        // Générer l'avatar
+                                        $initials = strtoupper(substr($name, 0, 2));
+                                        $colors = ['#1EA38B', '#FF8E2A', '#E32D31', '#27B371', '#9B59B6'];
+                                        $color = $colors[array_rand($colors)];
+                                        $avatar = "https://via.placeholder.com/35/{$color}/FFFFFF?text=" . urlencode($initials);
+                                        
+                                        // Récupérer les badges récents
+                                        $recentBadges = \Illuminate\Support\Facades\DB::table('badge_user')
+                                            ->join('badges', 'badge_user.badge_id', '=', 'badges.id')
+                                            ->where('badge_user.user_id', $user->id)
+                                            ->orderBy('badge_user.awarded_at', 'desc')
+                                            ->limit(3)
+                                            ->pluck('badges.icon')
+                                            ->toArray();
+
+                                        return [
+                                            'rank' => $index + 1,
+                                            'id' => $user->id,
+                                            'name' => $name,
+                                            'avatar' => $avatar,
+                                            'score' => $score->score,
+                                            'recentBadges' => $recentBadges
+                                        ];
+                                    });
+                            }
+
+                            // Si pas de données, utiliser des données de test
+                            if (empty($leaderboardData)) {
+                                $leaderboardData = [
+                                    [
+                                        'rank' => 1, 
+                                        'id' => 5, 
+                                        'name' => 'Amina D.', 
+                                        'avatar' => 'https://via.placeholder.com/35/FF8E2A/FFFFFF?text=AD', 
+                                        'score' => 1520,
+                                        'recentBadges' => ['fa-trophy', 'fa-star']
+                                    ],
+                                    [
+                                        'rank' => 2, 
+                                        'id' => 23, 
+                                        'name' => 'Kwame N.', 
+                                        'avatar' => 'https://via.placeholder.com/35/E32D31/FFFFFF?text=KN', 
+                                        'score' => 1480,
+                                        'recentBadges' => ['fa-medal']
+                                    ],
+                                    [
+                                        'rank' => 3, 
+                                        'id' => 12, 
+                                        'name' => 'Fatou S.', 
+                                        'avatar' => 'https://via.placeholder.com/35/27B371/FFFFFF?text=FS', 
+                                        'score' => 1350,
+                                        'recentBadges' => ['fa-award']
+                                    ],
+                                ];
+                            }
+                        @endphp
+
+                        @foreach($leaderboardData as $user)
+                            @php
+                                $rankClass = '';
+                                if ($user['rank'] === 1) $rankClass = 'rank-1';
+                                elseif ($user['rank'] === 2) $rankClass = 'rank-2';
+                                elseif ($user['rank'] === 3) $rankClass = 'rank-3';
+                                
+                                $recentBadgesHTML = '';
+                                if (!empty($user['recentBadges'])) {
+                                    $recentBadgesHTML = collect($user['recentBadges'])->map(function($icon) {
+                                        return '<i class="fas ' . $icon . ' mx-1" title="Badge Récent" style="color: var(--secondary-color);"></i>';
+                                    })->join('');
+                                }
+                            @endphp
+                            <li class="leaderboard-widget-item">
+                                <span class="leaderboard-widget-rank {{ $rankClass }}">{{ $user['rank'] }}</span>
+                                <img src="{{ $user['avatar'] }}" alt="Avatar" class="leaderboard-widget-avatar" onerror="this.src='https://via.placeholder.com/35/cccccc/FFFFFF?text=U'">
+                                <div class="flex-grow-1">
+                                    <div class="leaderboard-widget-name">{{ $user['name'] }}</div>
+                                    <div class="leaderboard-widget-badges">
+                                        {!! $recentBadgesHTML ?: '<small class="text-muted">Aucun badge</small>' !!}
+                                    </div>
+                                </div>
+                                <span class="leaderboard-widget-score">{{ number_format($user['score']) }} pts</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <a href="{{ route('pages.compdisp') }}" class="view-full-leaderboard">Voir le classement complet <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+
+                <!-- Widget Catégories -->
+                <div class="sidebar-widget">
+                    <h5><i class="fas fa-tags me-2"></i> Catégories</h5>
+                    <div class="list-group list-group-flush category-list" id="category-list">
+                        <a href="#" class="list-group-item list-group-item-action active" data-category="all">
+                            <i class="fas fa-globe-africa me-2"></i> Toutes les discussions
+                        </a>
+                        @foreach(App\Models\Course::all() as $course)
+                            @php
+                                // Déterminer l'icône selon le titre du cours
+                                $icon = 'fa-book';
+                                $title = strtolower($course->title);
+                                if (str_contains($title, 'html')) $icon = 'fab fa-html5';
+                                elseif (str_contains($title, 'css')) $icon = 'fab fa-css3-alt';
+                                elseif (str_contains($title, 'javascript') || str_contains($title, 'js')) $icon = 'fab fa-js-square';
+                                elseif (str_contains($title, 'php')) $icon = 'fab fa-php';
+                                elseif (str_contains($title, 'laravel')) $icon = 'fab fa-laravel';
+                                elseif (str_contains($title, 'react')) $icon = 'fab fa-react';
+                                elseif (str_contains($title, 'vue')) $icon = 'fab fa-vuejs';
+                                elseif (str_contains($title, 'node')) $icon = 'fab fa-node-js';
+                                elseif (str_contains($title, 'python')) $icon = 'fab fa-python';
+                                elseif (str_contains($title, 'java')) $icon = 'fab fa-java';
+                                elseif (str_contains($title, 'git')) $icon = 'fab fa-git-alt';
+                                elseif (str_contains($title, 'docker')) $icon = 'fab fa-docker';
+                                elseif (str_contains($title, 'aws')) $icon = 'fab fa-aws';
+                                elseif (str_contains($title, 'database') || str_contains($title, 'sql')) $icon = 'fas fa-database';
+                                elseif (str_contains($title, 'api')) $icon = 'fas fa-code';
+                                elseif (str_contains($title, 'mobile')) $icon = 'fas fa-mobile-alt';
+                                elseif (str_contains($title, 'web')) $icon = 'fas fa-globe';
+                                elseif (str_contains($title, 'design')) $icon = 'fas fa-palette';
+                                elseif (str_contains($title, 'projet')) $icon = 'fas fa-lightbulb';
+                                elseif (str_contains($title, 'général') || str_contains($title, 'general')) $icon = 'fas fa-comments';
+                            @endphp
+                            <a href="#" class="list-group-item list-group-item-action category-filter-link" data-category="{{ $course->id }}">
+                                <i class="{{ $icon }} me-2"></i> {{ $course->title }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -287,35 +557,64 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="newTopicForm">
+            <form id="newTopicForm" method="POST" action="{{ route('forum.store') }}">
+              @csrf
               <div class="mb-3">
-                <label for="topicTitle" class="form-label">Titre du Sujet <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="topicTitle" required>
+                <label for="course_id" class="form-label">Cours concerné <span class="text-danger">*</span></label>
+                <select name="course_id" id="course_id" class="form-select" required>
+                  <option value="">-- Sélectionner un cours --</option>
+                  @foreach(App\Models\Course::all() as $course)
+                    <option value="{{ $course->id }}">{{ $course->title }}</option>
+                  @endforeach
+                </select>
+                @error('course_id')<div class="text-danger small">{{ $message }}</div>@enderror
               </div>
               <div class="mb-3">
-                <label for="topicCategory" class="form-label">Catégorie <span class="text-danger">*</span></label>
-                <select class="form-select" id="topicCategory" required>
-                  <option selected disabled value="">Choisir une catégorie...</option>
-                  <!-- Options de catégories chargées ici -->
-                </select>
+                <label for="title" class="form-label">Titre du Sujet <span class="text-danger">*</span></label>
+                <input type="text" name="title" id="title" class="form-control" required maxlength="255" value="{{ old('title') }}">
+                @error('title')<div class="text-danger small">{{ $message }}</div>@enderror
               </div>
               <div class="mb-3">
                 <label for="topicContent" class="form-label">Votre Message <span class="text-danger">*</span></label>
-                <textarea class="form-control" id="topicContent" rows="6" required placeholder="Décrivez votre question ou sujet de discussion..."></textarea>
-                 <!-- TODO: Ajouter un éditeur de texte riche (TinyMCE, Quill) -->
+                <textarea name="content" id="topicContent" class="form-control" rows="6" required placeholder="Décrivez votre question ou sujet de discussion...">{{ old('content') }}</textarea>
+                @error('content')<div class="text-danger small">{{ $message }}</div>@enderror
+              </div>
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-primary" id="submitTopicBtn" style="background-color: var(--primary-color); border-color: var(--primary-color);">
+                    <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
+                    <i class="fas fa-paper-plane me-1"></i> Publier le Sujet
+                </button>
               </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-            <button type="submit" form="newTopicForm" class="btn btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color);">
-                <i class="fas fa-paper-plane me-1"></i> Publier le Sujet
-            </button>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- Toast de succès -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+      <div id="forumToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            Sujet publié avec succès !
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast de succès pour la réponse -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+      <div id="replyToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            Réponse publiée avec succès !
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+        </div>
+      </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -370,7 +669,7 @@
                     tr.innerHTML = `
                         <td data-label="Sujet">
                             <div class="topic-title">
-                                <a href="/forum/topic/${topic.id}">${escapeHtml(topic.title)}</a>
+                                <a href="/forum/${topic.id}">${escapeHtml(topic.title)}</a>
                             </div>
                             <div class="topic-meta">
                                 Par <a href="/profil/${topic.authorId}" class="author-link">${escapeHtml(topic.author)}</a> - ${topic.lastPostDate} <!-- Date de création ? -->
@@ -382,6 +681,9 @@
                             <div><strong>${topic.views}</strong> Vues</div>
                         </td>
                         <td data-label="Dernier Message" class="topic-last-post">
+                            <a href="/forum/${topic.id}" title="Lire et répondre" class="me-2 text-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             Par <a href="#" class="author-link">${escapeHtml(topic.lastPostAuthor)}</a>
                             <span class="date">${topic.lastPostDate}</span>
                         </td>
@@ -391,115 +693,279 @@
             }
 
             function loadLeaderboardWidget() {
+                // Afficher un indicateur de chargement
+                leaderboardWidgetList.innerHTML = `
+                    <li class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                        <small class="text-muted">Chargement du classement...</small>
+                    </li>
+                `;
+
+                // Charger les vraies données du leaderboard via API
+                fetch("{{ route('api.forum.leaderboard') }}")
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayLeaderboardWidget(data.leaderboard);
+                        } else {
+                            console.error('Erreur API leaderboard:', data.error);
+                            loadSampleLeaderboard();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur chargement leaderboard:', error);
+                        loadSampleLeaderboard();
+                    });
+            }
+
+            function displayLeaderboardWidget(leaderboardData) {
                 leaderboardWidgetList.innerHTML = ''; // Clear placeholders
-                sampleLeaderboard.slice(0, 5).forEach(user => { // Show top 5
+                
+                if (!leaderboardData || leaderboardData.length === 0) {
+                    leaderboardWidgetList.innerHTML = `
+                        <li class="text-center text-muted py-3">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>Aucun classement disponible</small>
+                        </li>
+                    `;
+                    return;
+                }
+
+                // Afficher seulement les 3 premiers
+                leaderboardData.slice(0, 3).forEach(user => {
                     let rankClass = '';
                     if (user.rank === 1) rankClass = 'rank-1';
                     else if (user.rank === 2) rankClass = 'rank-2';
                     else if (user.rank === 3) rankClass = 'rank-3';
 
+                    // Générer les badges récents
+                    const recentBadgesHTML = (user.recentBadges || []).map(icon => 
+                        `<i class="fas ${icon} mx-1" title="Badge Récent" style="color: var(--secondary-color);"></i>`
+                    ).join('');
+
                     const li = document.createElement('li');
                     li.className = 'leaderboard-widget-item';
                     li.innerHTML = `
                         <span class="leaderboard-widget-rank ${rankClass}">${user.rank}</span>
-                        <img src="${user.avatar}" alt="Avatar" class="leaderboard-widget-avatar">
-                        <span class="leaderboard-widget-name">${escapeHtml(user.name)}</span>
+                        <img src="${user.avatar}" alt="Avatar" class="leaderboard-widget-avatar" onerror="this.src='https://via.placeholder.com/35/cccccc/FFFFFF?text=U'">
+                        <div class="flex-grow-1">
+                            <div class="leaderboard-widget-name">${escapeHtml(user.name)}</div>
+                            <div class="leaderboard-widget-badges">${recentBadgesHTML || '<small class="text-muted">Aucun badge</small>'}</div>
+                        </div>
                         <span class="leaderboard-widget-score">${user.score.toLocaleString()} pts</span>
                     `;
                     leaderboardWidgetList.appendChild(li);
                 });
             }
 
-            function loadCategories() {
-                // Clear placeholders (except "All discussions")
-                const placeholders = categoryListContainer.querySelectorAll('.placeholder-glow');
-                placeholders.forEach(p => p.remove());
-
-                // Add categories to list and modal select
-                 newTopicCategorySelect.innerHTML = '<option selected disabled value="">Choisir une catégorie...</option>'; // Reset select
-
-                sampleCategories.forEach(cat => {
-                    // Add to sidebar list
-                    const a = document.createElement('a');
-                    a.href = '#';
-                    a.className = 'list-group-item list-group-item-action category-filter-link';
-                    a.dataset.category = cat.id;
-                    // Utiliser fas pour la plupart, fab pour les marques comme Laravel/React/JS
-                    let iconClass = (['laravel', 'react', 'js-square', 'html5', 'css3-alt', 'php'].includes(cat.icon)) ? 'fab' : 'fas';
-                    a.innerHTML = `<i class="${iconClass} fa-${cat.icon} fa-fw"></i> ${escapeHtml(cat.name)}`;
-                    a.addEventListener('click', handleCategoryFilter);
-                    categoryListContainer.appendChild(a);
-
-                     // Add to modal select
-                     const option = document.createElement('option');
-                     option.value = cat.id;
-                     option.textContent = cat.name;
-                     newTopicCategorySelect.appendChild(option);
-                });
-                 // Add event listener for "All discussions" link
-                 categoryListContainer.querySelector('[data-category="all"]').addEventListener('click', handleCategoryFilter);
+            function loadSampleLeaderboard() {
+                // Fallback avec des données de test (3 premiers seulement)
+                const sampleLeaderboard = [
+                    { 
+                        rank: 1, 
+                        id: 5, 
+                        name: "Amina D.", 
+                        avatar: 'https://via.placeholder.com/35/FF8E2A/FFFFFF?text=AD', 
+                        score: 1520,
+                        recentBadges: ['fa-trophy', 'fa-star']
+                    },
+                    { 
+                        rank: 2, 
+                        id: 23, 
+                        name: "Kwame N.", 
+                        avatar: 'https://via.placeholder.com/35/E32D31/FFFFFF?text=KN', 
+                        score: 1480,
+                        recentBadges: ['fa-medal']
+                    },
+                    { 
+                        rank: 3, 
+                        id: 12, 
+                        name: "Fatou S.", 
+                        avatar: 'https://via.placeholder.com/35/27B371/FFFFFF?text=FS', 
+                        score: 1350,
+                        recentBadges: ['fa-award']
+                    },
+                ];
+                displayLeaderboardWidget(sampleLeaderboard);
             }
 
-             function handleCategoryFilter(event) {
-                 event.preventDefault();
-                 const selectedCategory = event.currentTarget.dataset.category;
+            function loadCategories() {
+                // Les catégories sont maintenant chargées directement depuis Blade
+                // Ajouter les event listeners pour le filtrage
+                const categoryLinks = document.querySelectorAll('.category-filter-link');
+                categoryLinks.forEach(link => {
+                    link.addEventListener('click', handleCategoryFilter);
+                });
+                
+                // Event listener pour "Toutes les discussions"
+                const allDiscussionsLink = document.querySelector('[data-category="all"]');
+                if (allDiscussionsLink) {
+                    allDiscussionsLink.addEventListener('click', handleCategoryFilter);
+                }
+            }
 
-                 // Update active state visually
-                 categoryListContainer.querySelectorAll('.category-filter-link').forEach(link => {
+            function handleCategoryFilter(event) {
+                event.preventDefault();
+                const selectedCategory = event.currentTarget.dataset.category;
+
+                console.log("Clic sur catégorie:", selectedCategory);
+                console.log("Élément cliqué:", event.currentTarget);
+
+                // Update active state visually
+                document.querySelectorAll('.category-filter-link, [data-category="all"]').forEach(link => {
                     link.classList.remove('active');
-                 });
-                 event.currentTarget.classList.add('active');
+                });
+                event.currentTarget.classList.add('active');
 
-                 console.log("Filter by category:", selectedCategory);
-                 // --- Actual Filtering Logic ---
-                 // TODO: Replace with API call: GET /api/forum/topics?category=selectedCategory
-                 let filteredTopics;
-                 if (selectedCategory === 'all') {
-                     filteredTopics = sampleTopics;
-                 } else {
-                     // Find category name from ID for comparison (case insensitive)
-                     const categoryName = sampleCategories.find(c => c.id === selectedCategory)?.name;
-                     filteredTopics = sampleTopics.filter(topic => topic.category.toLowerCase() === categoryName?.toLowerCase());
-                 }
-                 loadTopics(filteredTopics);
-             }
+                // Afficher un message temporaire
+                const categoryName = event.currentTarget.textContent.trim();
+                console.log(`Filtrage par catégorie: ${categoryName} (ID: ${selectedCategory})`);
+                
+                // Filtrage avec les vraies données
+                if (selectedCategory === 'all') {
+                    console.log("Chargement de tous les sujets...");
+                    loadRealTopics();
+                } else {
+                    console.log(`Filtrage par catégorie ID: ${selectedCategory}`);
+                    loadRealTopics(selectedCategory);
+                }
+            }
 
-             function handleSearch() {
-                 const searchTerm = searchInput.value.trim().toLowerCase();
-                 console.log("Search for:", searchTerm);
-                 // TODO: Replace with API call: GET /api/forum/topics?search=searchTerm
-                 const filteredTopics = sampleTopics.filter(topic =>
-                    topic.title.toLowerCase().includes(searchTerm) ||
-                    topic.author.toLowerCase().includes(searchTerm)
-                 );
-                 loadTopics(filteredTopics);
-                  // Maybe clear category filter when searching? Or combine?
-                  categoryListContainer.querySelectorAll('.category-filter-link').forEach(link => link.classList.remove('active'));
-                  categoryListContainer.querySelector('[data-category="all"]').classList.add('active');
-             }
+            function loadRealTopics(categoryId = null) {
+                // Construire l'URL de l'API
+                let apiUrl = "{{ route('api.forum.topics') }}";
+                if (categoryId) {
+                    apiUrl += `?category=${categoryId}`;
+                }
 
-             function handleNewTopicSubmit(event) {
-                 event.preventDefault();
-                 const title = document.getElementById('topicTitle').value.trim();
-                 const categoryId = document.getElementById('topicCategory').value;
-                 const content = document.getElementById('topicContent').value.trim();
+                // Mettre à jour le titre de la page pour indiquer le filtrage
+                const pageTitle = document.querySelector('.page-header h1');
+                if (categoryId && categoryId !== 'all') {
+                    const activeCategory = document.querySelector(`[data-category="${categoryId}"]`);
+                    if (activeCategory) {
+                        const categoryName = activeCategory.textContent.trim();
+                        pageTitle.innerHTML = `<i class="fas fa-comments me-2"></i> Forum - ${categoryName}`;
+                    }
+                } else {
+                    pageTitle.innerHTML = '<i class="fas fa-comments me-2"></i> Forum des Apprenants';
+                }
 
-                 if (title && categoryId && content) {
-                     // TODO: Send data to API: POST /api/forum/topics
-                     console.log("New Topic Data:", { title, categoryId, content });
-                     alert("Sujet publié (simulation) !");
-                     // Close modal
-                     const modal = bootstrap.Modal.getInstance(document.getElementById('newTopicModal'));
-                     modal.hide();
-                     // Reset form (optional)
-                     newTopicForm.reset();
-                     // Refresh topic list (simulation)
-                     // In a real app, the API response might return the new topic, or you'd refetch
-                     loadTopics();
-                 } else {
-                     alert("Veuillez remplir tous les champs requis.");
-                 }
-             }
+                // Afficher un indicateur de chargement
+                topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Chargement...</div></td></tr>';
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayRealTopics(data.forums);
+                        } else {
+                            topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-4">Erreur lors du chargement des sujets.</td></tr>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-4">Erreur lors du chargement des sujets.</td></tr>';
+                    });
+            }
+
+            function displayRealTopics(forums) {
+                topicsListBody.innerHTML = '';
+                
+                if (forums.length === 0) {
+                    topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-4">Aucun sujet trouvé dans cette catégorie.</td></tr>';
+                    return;
+                }
+
+                forums.forEach(forum => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td data-label="Sujet">
+                            <div class="topic-title">
+                                <a href="/forum/${forum.id}">${escapeHtml(forum.title)}</a>
+                            </div>
+                            <div class="topic-meta">
+                                Par <a href="/profil/${forum.user.id}" class="author-link">${escapeHtml(forum.user.first_name)} ${escapeHtml(forum.user.last_name)}</a> - ${forum.created_at}
+                            </div>
+                        </td>
+                        <td data-label="Catégorie" class="text-center topic-category">
+                            <span>${escapeHtml(forum.course.title)}</span>
+                        </td>
+                        <td data-label="Statistiques" class="topic-stats">
+                            <div><strong>${forum.replies}</strong> Réponses</div>
+                            <div><strong>${forum.views}</strong> Vues</div>
+                        </td>
+                        <td data-label="Dernier Message" class="topic-last-post">
+                            <a href="/forum/${forum.id}" title="Lire et répondre" class="me-2 text-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            ${forum.last_post ? `
+                                Par <a href="/profil/${forum.last_post.user.id}" class="author-link">${escapeHtml(forum.last_post.user.first_name)} ${escapeHtml(forum.last_post.user.last_name)}</a>
+                                <span class="date">${forum.last_post.created_at}</span>
+                            ` : '<span class="text-muted">Aucun message</span>'}
+                        </td>
+                    `;
+                    topicsListBody.appendChild(tr);
+                });
+            }
+
+            function handleSearch() {
+                const searchTerm = searchInput.value.trim();
+                console.log("Search for:", searchTerm);
+                
+                if (!searchTerm) {
+                    // Si la recherche est vide, recharger tous les sujets
+                    loadRealTopics();
+                    return;
+                }
+
+                // Construire l'URL de l'API avec le terme de recherche
+                const apiUrl = `{{ route('api.forum.topics') }}?search=${encodeURIComponent(searchTerm)}`;
+
+                // Afficher un indicateur de chargement
+                topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center p-4"><div class="spinner-border text-primary" role="status"></div><div class="mt-2">Recherche en cours...</div></td></tr>';
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            displayRealTopics(data.forums);
+                            // Mettre à jour l'état actif des catégories
+                            document.querySelectorAll('.category-filter-link, [data-category="all"]').forEach(link => {
+                                link.classList.remove('active');
+                            });
+                            document.querySelector('[data-category="all"]').classList.add('active');
+                        } else {
+                            topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-4">Erreur lors de la recherche.</td></tr>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                        topicsListBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted p-4">Erreur lors de la recherche.</td></tr>';
+                    });
+            }
+
+            function handleNewTopicSubmit(event) {
+                event.preventDefault();
+                const title = document.getElementById('topicTitle').value.trim();
+                const categoryId = document.getElementById('topicCategory').value;
+                const content = document.getElementById('topicContent').value.trim();
+
+                if (title && categoryId && content) {
+                    // TODO: Send data to API: POST /api/forum/topics
+                    console.log("New Topic Data:", { title, categoryId, content });
+                    alert("Sujet publié (simulation) !");
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('newTopicModal'));
+                    modal.hide();
+                    // Reset form (optional)
+                    newTopicForm.reset();
+                    // Refresh topic list (simulation)
+                    // In a real app, the API response might return the new topic, or you'd refetch
+                    loadTopics();
+                } else {
+                    alert("Veuillez remplir tous les champs requis.");
+                }
+            }
 
             function escapeHtml(unsafe) {
                  if (typeof unsafe !== 'string') return '';
@@ -520,12 +986,106 @@
             });
              newTopicForm.addEventListener('submit', handleNewTopicSubmit);
 
+            // Event listener pour rafraîchir le leaderboard
+            const refreshLeaderboardBtn = document.getElementById('refresh-leaderboard');
+            if (refreshLeaderboardBtn) {
+                refreshLeaderboardBtn.addEventListener('click', function() {
+                    // Ajouter une animation de rotation
+                    const icon = this.querySelector('i');
+                    icon.classList.add('fa-spin');
+                    
+                    // Recharger la page pour avoir les données les plus récentes
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                });
+            }
+
             // --- Initial Load ---
             setTimeout(() => { // Simulate loading delay
-                loadTopics();
-                loadLeaderboardWidget();
+                loadRealTopics(); // Charger les vraies données au lieu des données de test
                 loadCategories();
             }, 500);
+
+            // Soumission AJAX du formulaire de création de sujet
+            if (newTopicForm) {
+                newTopicForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Nettoyer les erreurs
+                    newTopicForm.querySelectorAll('.text-danger.small').forEach(el => el.textContent = '');
+                    // Récupérer le contenu du textarea
+                    const content = document.getElementById('topicContent').value;
+                    const formData = new FormData(newTopicForm);
+                    formData.set('content', content);
+                    // Désactiver bouton + spinner
+                    const submitBtn = document.getElementById('submitTopicBtn');
+                    const spinner = document.getElementById('submitSpinner');
+                    submitBtn.disabled = true;
+                    spinner.classList.remove('d-none');
+                    fetch("{{ route('forum.ajaxStore') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Fermer le modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('newTopicModal'));
+                            modal.hide();
+                            // Réinitialiser le formulaire
+                            newTopicForm.reset();
+                            // Afficher le toast
+                            const toast = new bootstrap.Toast(document.getElementById('forumToast'));
+                            toast.show();
+                            // Ajouter le sujet en haut de la liste
+                            const tbody = document.getElementById('forum-topics-list');
+                            if (tbody) {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                    <td data-label="Sujet">
+                                        <div class="topic-title">
+                                            <a href="/forum/${data.forum.id}">${data.forum.title}</a>
+                                        </div>
+                                        <div class="topic-meta">
+                                            Par <a href="/profil/${data.forum.user.id}" class="author-link">${data.forum.user.first_name ?? 'Utilisateur'} ${data.forum.user.last_name ?? ''}</a> - ${data.forum.created_at}
+                                        </div>
+                                    </td>
+                                    <td data-label="Catégorie" class="text-center topic-category">
+                                        <span>${data.forum.course.title}</span>
+                                    </td>
+                                    <td data-label="Statistiques" class="topic-stats">
+                                        <div><strong>0</strong> Réponses</div>
+                                        <div><strong>0</strong> Vues</div>
+                                    </td>
+                                    <td data-label="Dernier Message" class="topic-last-post">
+                                        <span class="text-muted">Aucun message</span>
+                                    </td>
+                                `;
+                                tbody.prepend(tr);
+                            }
+                        } else if (data.errors) {
+                            // Afficher les erreurs sous chaque champ
+                            for (const [field, messages] of Object.entries(data.errors)) {
+                                const errorDiv = newTopicForm.querySelector(`[name='${field}']`)?.parentElement.querySelector('.text-danger.small');
+                                if (errorDiv) errorDiv.textContent = messages[0];
+                            }
+                        } else {
+                            alert(data.message || 'Erreur inconnue.');
+                        }
+                    })
+                    .catch(() => {
+                        alert('Erreur lors de la création du sujet.');
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        spinner.classList.add('d-none');
+                    });
+                });
+            }
 
         });
     </script>

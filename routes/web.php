@@ -460,3 +460,91 @@ Route::get('/le-forum-des-experts', function () {
     return redirect()->route('forum.index'); // ou 'pages.forumapp' si tu préfères
 });
 
+Route::middleware(['auth'])->group(function () {
+    Route::post('/forum/ajax-store', [\App\Http\Controllers\CourseForumController::class, 'storeAjax'])->name('forum.ajaxStore');
+    Route::get('/api/forum/topics', [\App\Http\Controllers\CourseForumController::class, 'apiTopics'])->name('api.forum.topics');
+    Route::get('/api/forum/topic/{id}', [\App\Http\Controllers\CourseForumController::class, 'apiTopicDetail'])->name('api.forum.topicDetail');
+    Route::post('/api/forum/topic/{id}/reply', [\App\Http\Controllers\CourseForumController::class, 'apiReply'])->name('api.forum.reply');
+});
+
+// API pour le leaderboard du forum
+Route::get('/api/forum/leaderboard', function () {
+    try {
+        // Utiliser la même logique que CompetitionDisplayController
+        $globalLeaderboard = \App\Models\Leaderboard::where('type', 'global')->first();
+        $leaderboardData = [];
+        
+        if ($globalLeaderboard) {
+            $leaderboardData = \App\Models\UserScore::with('user')
+                ->where('leaderboard_id', $globalLeaderboard->id)
+                ->orderBy('score', 'desc')
+                ->take(3)
+                ->get()
+                ->map(function ($score, $index) {
+                    // Utiliser la même logique que CompetitionDisplayController
+                    $user = $score->user;
+                    $name = $user->first_name . ' ' . $user->last_name;
+                    
+                    // Générer l'avatar comme dans CompetitionDisplayController
+                    $initials = strtoupper(substr($name, 0, 2));
+                    $colors = ['#1EA38B', '#FF8E2A', '#E32D31', '#27B371', '#9B59B6'];
+                    $color = $colors[array_rand($colors)];
+                    $avatar = "https://via.placeholder.com/35/{$color}/FFFFFF?text=" . urlencode($initials);
+                    
+                    // Récupérer les badges récents
+                    $recentBadges = \Illuminate\Support\Facades\DB::table('badge_user')
+                        ->join('badges', 'badge_user.badge_id', '=', 'badges.id')
+                        ->where('badge_user.user_id', $user->id)
+                        ->orderBy('badge_user.awarded_at', 'desc')
+                        ->limit(3)
+                        ->pluck('badges.icon')
+                        ->toArray();
+
+                    return [
+                        'rank' => $index + 1,
+                        'id' => $user->id,
+                        'name' => $name,
+                        'avatar' => $avatar,
+                        'score' => $score->score,
+                        'recentBadges' => $recentBadges
+                    ];
+                });
+        }
+
+        // Si pas de données, retourner des données de test avec la même structure
+        if (empty($leaderboardData)) {
+            $leaderboardData = [
+                [
+                    'rank' => 1, 
+                    'id' => 5, 
+                    'name' => 'Amina D.', 
+                    'avatar' => 'https://via.placeholder.com/35/FF8E2A/FFFFFF?text=AD', 
+                    'score' => 1520,
+                    'recentBadges' => ['fa-trophy', 'fa-star']
+                ],
+                [
+                    'rank' => 2, 
+                    'id' => 23, 
+                    'name' => 'Kwame N.', 
+                    'avatar' => 'https://via.placeholder.com/35/E32D31/FFFFFF?text=KN', 
+                    'score' => 1480,
+                    'recentBadges' => ['fa-medal']
+                ],
+                [
+                    'rank' => 3, 
+                    'id' => 12, 
+                    'name' => 'Fatou S.', 
+                    'avatar' => 'https://via.placeholder.com/35/27B371/FFFFFF?text=FS', 
+                    'score' => 1350,
+                    'recentBadges' => ['fa-award']
+                ],
+            ];
+        }
+
+        return response()->json(['success' => true, 'leaderboard' => $leaderboardData]);
+    } catch (\Exception $e) {
+        \Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => 'Erreur serveur'], 500);
+    }
+})->name('api.forum.leaderboard');
+

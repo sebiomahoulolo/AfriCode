@@ -1,6 +1,6 @@
 @extends('apprenants.layouts.app')
 
-@section('title', 'Passer le Quiz: ' . $quiz->title)
+@section('title', 'AfriCode')
 @section('page-title', $quiz->title)
 
 @push('styles')

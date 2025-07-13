@@ -16,9 +16,11 @@ class CompetitionDisplayController extends Controller
     public function index()
     {
         try {
+            // Attribuer automatiquement des badges aux utilisateurs
+            $this->assignBadgesToUsers();
+
             // Récupérer les défis actifs
             $challenges = Challenge::where('is_active', true)
-                ->where('is_featured', true)
                 ->orderBy('created_at', 'desc')
                 ->take(6)
                 ->get()
@@ -184,7 +186,15 @@ class CompetitionDisplayController extends Controller
                 ->where('badge_user.user_id', $userId)
                 ->orderBy('badge_user.awarded_at', 'desc')
                 ->limit(3)
-                ->pluck('badges.icon')
+                ->select('badges.icon', 'badges.name', 'badges.color')
+                ->get()
+                ->map(function ($badge) {
+                    return [
+                        'icon' => $badge->icon,
+                        'name' => $badge->name,
+                        'color' => $badge->color
+                    ];
+                })
                 ->toArray();
 
             return $recentBadges;
@@ -212,6 +222,110 @@ class CompetitionDisplayController extends Controller
             return $rewards['points'] ?? 10;
         } catch (\Exception $e) {
             return 10;
+        }
+    }
+
+    private function assignBadgesToUsers()
+    {
+        try {
+            // Récupérer tous les utilisateurs avec leurs scores
+            $globalLeaderboard = Leaderboard::where('type', 'global')->first();
+            if (!$globalLeaderboard) {
+                return;
+            }
+
+            $userScores = UserScore::with('user')
+                ->where('leaderboard_id', $globalLeaderboard->id)
+                ->orderBy('score', 'desc')
+                ->get();
+
+            foreach ($userScores as $userScore) {
+                $userId = $userScore->user->id;
+                $score = $userScore->score;
+                $rank = $userScore->rank;
+
+                // Badge pour le 1er du classement
+                if ($rank === 1) {
+                    $this->assignBadgeToUser($userId, 'fa-trophy', 'Champion', 'Premier du classement global', '#FFD700');
+                }
+
+                // Badge pour le top 3
+                if ($rank <= 3) {
+                    $this->assignBadgeToUser($userId, 'fa-medal', 'Top 3', 'Dans le top 3 du classement', '#C0C0C0');
+                }
+
+                // Badge pour le top 10
+                if ($rank <= 10) {
+                    $this->assignBadgeToUser($userId, 'fa-award', 'Top 10', 'Dans le top 10 du classement', '#CD7F32');
+                }
+
+                // Badge pour score élevé (1000+ points)
+                if ($score >= 1000) {
+                    $this->assignBadgeToUser($userId, 'fa-star', 'Expert', 'A atteint 1000 points', '#FF8E2A');
+                }
+
+                // Badge pour score très élevé (2000+ points)
+                if ($score >= 2000) {
+                    $this->assignBadgeToUser($userId, 'fa-crown', 'Maître', 'A atteint 2000 points', '#9B59B6');
+                }
+
+                // Badge pour score exceptionnel (5000+ points)
+                if ($score >= 5000) {
+                    $this->assignBadgeToUser($userId, 'fa-gem', 'Légende', 'A atteint 5000 points', '#E32D31');
+                }
+
+                // Badge pour participation (score > 0)
+                if ($score > 0) {
+                    $this->assignBadgeToUser($userId, 'fa-user-graduate', 'Participant', 'A participé aux compétitions', '#27B371');
+                }
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de l\'attribution des badges: ' . $e->getMessage());
+        }
+    }
+
+    private function assignBadgeToUser($userId, $icon, $name, $description, $color)
+    {
+        try {
+            // Vérifier si le badge existe déjà
+            $badge = Badge::where('icon', $icon)
+                         ->where('name', $name)
+                         ->first();
+
+            // Si le badge n'existe pas, le créer
+            if (!$badge) {
+                $badge = Badge::create([
+                    'name' => $name,
+                    'description' => $description,
+                    'icon' => $icon,
+                    'color' => $color,
+                    'is_active' => true,
+                    'unlock_order' => 1
+                ]);
+            }
+
+            // Vérifier si l'utilisateur a déjà ce badge
+            $userHasBadge = DB::table('badge_user')
+                ->where('user_id', $userId)
+                ->where('badge_id', $badge->id)
+                ->exists();
+
+            // Si l'utilisateur n'a pas ce badge, l'attribuer
+            if (!$userHasBadge) {
+                DB::table('badge_user')->insert([
+                    'user_id' => $userId,
+                    'badge_id' => $badge->id,
+                    'awarded_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                \Log::info("Badge '{$name}' attribué à l'utilisateur {$userId}");
+            }
+
+        } catch (\Exception $e) {
+            \Log::error("Erreur lors de l'attribution du badge '{$name}' à l'utilisateur {$userId}: " . $e->getMessage());
         }
     }
 }

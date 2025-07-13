@@ -47,7 +47,7 @@
                         <li><h6 class="dropdown-header" style="color:  #FF8E2A;">Communauté & Outils</h6></li>
                         <li><a class="dropdown-item" href="{{ route('pages.compdisp') }}">Compétitions</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.test') }}">Test de niveau</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.forumapp') }}">Forum des Experts</a></li>
+                        <li><a class="dropdown-item" href="{{ url('/le-forum-des-experts') }}">Forum des Experts</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.forumapp') }}">Forum des Apprenants</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ route('certificate.verification') }}">
