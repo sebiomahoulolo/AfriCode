@@ -22,12 +22,15 @@ return new class extends Migration
             $table->decimal('price', 10, 2)->default(0);
             $table->string('currency', 3)->default('EUR');
             $table->enum('status', ['draft', 'pending_approval', 'published', 'unpublished', 'archived'])->default('draft');
+            $table->boolean('is_certifying')->default(false);
             $table->string('cover_image_path')->nullable();
             $table->unsignedBigInteger('formateur_id');
             $table->unsignedBigInteger('category_id')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+            
+            // Les contraintes de clés étrangères seront ajoutées dans une migration séparée
         });
     }
 

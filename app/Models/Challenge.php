@@ -38,6 +38,11 @@ class Challenge extends Model
             ->withTimestamps();
     }
 
+    public function questions()
+    {
+        return $this->hasMany(ChallengeQuestion::class, 'challenge_id');
+    }
+
     public function isActive(): bool
     {
         return $this->is_active && 

@@ -3,12 +3,13 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-dark">
     <div class="container">
         <!-- Logo -->
-        <a class="navbar-brand" href="{{ url('/') }}">
-                <h5 class="text-uppercase fw-bold footer-title d-inline-flex align-items-center"> <!-- Utiliser d-inline-flex pour aligner logo et texte -->
-                    <!-- Insertion du logo SVG -->
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 100'%3E%3Crect width='180' height='100' rx='5' fill='%231EA38B'/%3E%3Cg transform='translate(71 32)' fill='white'%3E%3Cpath d='M0 0 H8 V25 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V25 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V25 H20 Z' fill='%2327B371' transform='skewX(-15)'/%3E%3C/g%3E%3Ctext x='90' y='75' fill='white' font-size='20' font-family='Segoe UI, sans-serif' font-weight='bold' text-anchor='middle' letter-spacing='2'%3EAFRICODE%3C/text%3E%3Ctext x='90' y='90' fill='white' font-size='9' font-family='Segoe UI, sans-serif' text-anchor='middle' letter-spacing='1' opacity='0.9'%3ENO CODE, NO FUTURE%3C/text%3E%3C/svg%3E" alt="AfriCode Logo" class="footer-logo-img">
-                    AfriCode
-                </h5>
+        <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+            <div class="d-flex flex-column align-items-center">
+                <!-- Logo SVG sans bande horizontale -->
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img" style="height: 30px;">
+                <!-- Texte AFRICODE en dessous -->
+                <span class="africode-text text-white fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px; margin-top: 2px;">AFRICODE</span>
+            </div>
         </a>
         
         <!-- Toggler pour mobile -->
@@ -22,29 +23,31 @@
         <div class="collapse navbar-collapse" id="africode-navbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
-                        <i class="fas fa-home me-1" style="color:  #FF8E2A;"></i> Accueil
+                    <a class="nav-link {{ request()->is('/') || request()->routeIs('home') ? 'active' : '' }}" href="{{ url('/') }}">
+                        <i class="fas fa-home me-1" style="color: #FF8E2A;"></i> Accueil
                     </a>
                 </li>
                 
                 <!-- Menu Formations -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-book me-1" style="color:  #FF8E2A;"></i> Formations
+                    <a class="nav-link dropdown-toggle {{ request()->routeIs(['courses.*', 'pages.compdisp', 'pages.test', 'pages.forumexp', 'pages.forumapp']) ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-book me-1" style="color: #FF8E2A;"></i> Formations
                     </a>
                     <ul class="dropdown-menu">
                         <li><h6 class="dropdown-header"style="color:  #FF8E2A;">Par Niveau</h6></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'beginner']) }}">Débutant</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'intermediate']) }}">Intermédiaire</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['level' => 'advanced']) }}">Avancé / Expert</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'debutant']) }}">Débutant</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'intermediaire']) }}">Intermédiaire</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'avance']) }}">Avancé / Expert</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Par Prix</h6></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['price' => 'free']) }}">Cours gratuits</a></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['price' => 'paid']) }}">Cours payants</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Par Certification</h6></li>
+                        <li><a class="dropdown-item" href="{{ route('courses.index', ['certification' => 'certified']) }}">Formations certifiées</a></li>
                         
                         <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header" style="color:  #FF8E2A;">Types</h6></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'free']) }}">Cours Gratuits</a></li>
-                        <li><a class="dropdown-item" href="{{ route('courses.search', ['priceRange' => 'paid']) }}">Cours Payants</a></li>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        <li><h6 class="dropdown-header" style="color:  #FF8E2A;">Communauté & Outils</h6></li>
+                        <li><h6 class="dropdown-header" style="color: #FF8E2A;">Communauté & Outils</h6></li>
                         <li><a class="dropdown-item" href="{{ route('pages.compdisp') }}">Compétitions</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.test') }}">Test de niveau</a></li>
                         <li><a class="dropdown-item" href="{{ url('/le-forum-des-experts') }}">Forum des Experts</a></li>
@@ -59,19 +62,19 @@
                 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('certificate.verification') ? 'active' : '' }}" href="{{ route('certificate.verification') }}">
-                        <i class="fas fa-shield-check me-1"></i> Vérifier Certificat
+                        <i class="fas fa-shield-check me-1" style="color: #FF8E2A;"></i> Vérifier Certificat
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('pages.apropos') ? 'active' : '' }}" href="{{ route('pages.apropos') }}">
-                        <i class="fas fa-info-circle me-1" style="color:  #FF8E2A;"></i> À Propos
+                        <i class="fas fa-info-circle me-1" style="color: #FF8E2A;"></i> À Propos
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('pages.contact') ? 'active' : '' }}" href="{{ route('pages.contact') }}">
-                        <i class="fas fa-envelope me-1" style="color:  #FF8E2A;"></i> Contact
+                        <i class="fas fa-envelope me-1" style="color: #FF8E2A;"></i> Contact
                     </a>
                 </li>
             </ul>
@@ -83,13 +86,13 @@
                     <div class="input-group">
                         <input type="search" class="form-control form-control-sm" placeholder="Rechercher..." aria-label="Recherche">
                         <button class="btn btn-outline-light btn-sm" type="submit">
-                            <i class="fas fa-search"style="color:  #FF8E2A;"></i>
+                            <i class="fas fa-search" style="color: #FF8E2A;"></i>
                         </button>
                     </div>
                 </form>
                 <div class="nav-item dropdown user-dropdown">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user me-1"style="color:  #FF8E2A;"></i> S'identifier
+                        <i class="fas fa-user me-1" style="color: #FF8E2A;"></i> S'identifier
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ route('login') }}">Connexion</a></li>
@@ -129,33 +132,72 @@
         white-space: nowrap;
     }
     
-    /* Styles liens navbar */
+    /* Styles pour le logo AfriCode */
+    .africode-logo-img {
+        transition: transform 0.2s ease;
+    }
+    
+    .navbar-brand:hover .africode-logo-img {
+        transform: scale(1.05);
+    }
+    
+    .africode-text {
+        transition: color 0.2s ease;
+    }
+    
+    .navbar-brand:hover .africode-text {
+        color: var(--africode-accent-orange) !important;
+    }
+    
+    /* Styles liens navbar avec indicateur actif amélioré */
     .navbar .nav-link {
         padding: 0.5rem 0.8rem;
         position: relative;
         color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500;
+        transition: all 0.3s ease;
     }
     
     .navbar .nav-link:after {
         content: '';
         position: absolute;
         width: 0;
-        height: 2px;
-        background-color: var(--africode-accent-orange);
+        height: 3px;
+        background: linear-gradient(135deg, var(--africode-accent-orange), #FFB366);
         left: 50%;
         bottom: 0;
         transform: translateX(-50%);
-        transition: width 0.3s;
+        transition: width 0.3s ease;
+        border-radius: 2px;
     }
     
     .navbar .nav-link:hover:after, 
     .navbar .nav-link.active:after {
-        width: 50%;
+        width: 60%;
     }
     
     .navbar .nav-link:hover, 
     .navbar .nav-link.active {
         color: var(--africode-white) !important;
+        background: rgba(255, 142, 42, 0.1);
+        border-radius: 8px;
+    }
+    
+    .navbar .nav-link.active {
+        font-weight: 600;
+        position: relative;
+    }
+    
+    .navbar .nav-link.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 142, 42, 0.15);
+        border-radius: 8px;
+        z-index: -1;
     }
     
     /* Styles dropdown */

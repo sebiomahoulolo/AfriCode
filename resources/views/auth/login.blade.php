@@ -3,7 +3,7 @@
 @section('title', 'AfriCode')
 
 @section('content')
-<div class="container py-5">
+<div class="container py-5 px-2">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
@@ -70,7 +70,7 @@
                                     Mot de passe oublié?
                                 </a>
                             @endif
-                            <button type="submit" class="btn btn-primary px-4 py-2">
+                            <button type="submit" class="btn px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B; color:white" aria-label="Se connecter à mon compte">
                                 <i class="fas fa-sign-in-alt me-2" style="color:  #FF8E2A;"></i>Connexion
                             </button>
                         </div>
@@ -78,7 +78,7 @@
 
                     <div class="mt-4 pt-3 border-top text-center">
                         <p class="mb-3">Pas encore de compte ?</p>
-                        <a href="{{ route('register') }}" class="btn btn-outline-primary">
+                        <a href="{{ route('register') }}" class="btn w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B ; color:white" aria-label="Créer un compte AfriCode">
                             <i class="fas fa-user-plus me-2" style="color:  #FF8E2A;"></i>S'inscrire
                         </a>
                     </div>

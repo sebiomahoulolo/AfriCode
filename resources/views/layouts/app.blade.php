@@ -34,6 +34,7 @@
             <!-- Page Content -->
             <main>
                 @yield('content')
+                @livewire('advanced-search')
             </main>
         </div>
     </body>

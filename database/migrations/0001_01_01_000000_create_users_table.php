@@ -20,6 +20,10 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['apprenant', 'formateur', 'administrateur'])->default('apprenant');
             $table->text('bio')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('country', 100)->nullable();
             $table->string('profile_image_path')->nullable();
             $table->string('password_reset_token')->nullable();
             $table->timestamp('password_reset_expires_at')->nullable();

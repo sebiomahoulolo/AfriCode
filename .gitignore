@@ -21,3 +21,31 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+.DS_Store
+Thumbs.db
+
+# Fichiers temporaires et de test
+*.tmp
+*.log
+test_*.php
+test-*.html
+test_*.html
+*.sh
+download_flags.php
+
+# Documentation temporaire
+AMELIORATION_*.md
+CERTIFICATE_*.md
+CERTIFICATIONS_*.md
+CORRECTION_*.md
+DASHBOARD_*.md
+FORMATEUR_*.md
+GUIDE_*.md
+MISSION_*.md
+NOUVEAU_*.md
+PAYMENT_*.md
+PROFILE_*.md
+QUIZ_*.md
+RAPPORT_*.md
+RESPONSIVITE_*.md
+VERIFICATION_*.md

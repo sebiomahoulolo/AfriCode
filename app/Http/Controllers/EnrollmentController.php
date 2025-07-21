@@ -107,12 +107,14 @@ class EnrollmentController extends Controller
             'user_id' => $user->id,
             'enrollment_id' => $enrollment->id,
             'payable_id' => $course->id,
-            'payable_type' => Course::class,
+            'payable_type' => 'App\\Models\\Course',
             'amount' => 0,
             'currency' => $course->currency ?? 'XOF',
             'payment_gateway' => 'free',
+            'payment_method' => 'free',
             'status' => 'succeeded',
-            'paid_at' => now()
+            'paid_at' => now(),
+            'transaction_id' => 'FREE_' . uniqid()
         ]);
 
         return $enrollment;
@@ -157,7 +159,7 @@ class EnrollmentController extends Controller
                 'user_id' => $enrollment->user_id,
                 'enrollment_id' => $enrollment->id,
                 'payable_id' => $course->id,
-                'payable_type' => Course::class,
+                'payable_type' => 'App\\Models\\Course',
                 'amount' => $course->price,
                 'currency' => $course->currency ?? 'EUR',
                 'payment_gateway' => 'stripe',
@@ -191,7 +193,7 @@ class EnrollmentController extends Controller
                 'user_id' => $enrollment->user_id,
                 'enrollment_id' => $enrollment->id,
                 'payable_id' => $course->id,
-                'payable_type' => Course::class,
+                'payable_type' => 'App\\Models\\Course',
                 'amount' => $course->price,
                 'currency' => $course->currency ?? 'XOF',
                 'payment_gateway' => 'fadapay',

@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.add_lesson_title'))
+@section('title', 'AfriCode - Ajouter une leçon')
+@section('page-title', 'Ajouter une nouvelle leçon')
+@section('page-subtitle', 'Module: ' . $module->title)
 
-@section('page-heading', __('messages.add_new_lesson'))
-@section('page-subheading', __('messages.module_for', ['module' => $module->title]))
+@section('header-actions')
+    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au module
+    </a>
+    <button type="submit" form="create-lesson-form" class="btn-primary-africode">
+        <i class="fas fa-plus me-2"></i>Créer la leçon
+    </button>
+@endsection
 
 @section('styles')
 <style>
@@ -38,13 +46,162 @@
     .ck-editor__editable {
         min-height: 300px;
     }
+    
+    /* Responsive amélioré */
+    @media (max-width: 992px) {
+        .content-type-card i {
+            font-size: 1.75rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 250px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .content-type-card {
+            margin-bottom: 1rem;
+        }
+        
+        .content-type-card:hover {
+            transform: none;
+        }
+        
+        .content-type-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-type-card h6 {
+            font-size: 0.9rem;
+        }
+        
+        .content-type-card p {
+            font-size: 0.8rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 200px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .content-type-card {
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .content-type-card i {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-type-card h6 {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-type-card p {
+            font-size: 0.75rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 150px;
+        }
+        
+        .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+        
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Amélioration des sélecteurs de type de contenu */
+        .row .col-md-4 {
+            margin-bottom: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .content-type-card {
+            padding: 0.75rem;
+        }
+        
+        .content-type-card i {
+            font-size: 1rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 120px;
+        }
+        
+        .form-control {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .card-body {
+            padding: 0.5rem;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <form method="POST" action="{{ route('formateur.lessons.store', ['moduleId' => $module->id]) }}" enctype="multipart/form-data">
+    <div class="card-modern" data-aos="fade-up">
+        <div class="card-body-modern">
+            <form id="create-lesson-form" method="POST" action="{{ route('formateur.lessons.store', ['moduleId' => $module->id]) }}" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="mb-3">
@@ -179,8 +336,9 @@
                 </div>
                 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Ajouter la leçon</button>
+                    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
                 </div>
             </form>
         </div>

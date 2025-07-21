@@ -5,10 +5,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements MustVerifyEmail, AuditableContract
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, Searchable, Auditable;
 
     protected $fillable = [
         'first_name',
@@ -326,5 +329,60 @@ class User extends Authenticatable implements MustVerifyEmail
             ->latest()
             ->limit($limit)
             ->get();
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'email' => $this->email,
+            'role' => $this->role,
+            'bio' => $this->bio,
+            'city' => $this->city,
+            'country' => $this->country,
+        ];
+    }
+
+    /**
+     * Recommande des cours pertinents selon l'historique d'apprentissage de l'utilisateur.
+     * - Prend les catégories des cours déjà suivis et propose d'autres cours similaires non encore suivis.
+     */
+    public function recommendedCourses($limit = 5)
+    {
+        $enrolledCourseIds = $this->enrolledCourses()->pluck('courses.id');
+        $categories = $this->enrolledCourses()->pluck('category_id')->unique();
+        return \App\Models\Course::whereIn('category_id', $categories)
+            ->whereNotIn('id', $enrolledCourseIds)
+            ->where('status', 'published')
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * Détecte si l'utilisateur rencontre des difficultés d'apprentissage.
+     * - Plus de 2 échecs à un quiz sur 7 jours OU pas de progression depuis 7 jours.
+     */
+    public function hasLearningDifficulties()
+    {
+        $recentQuizFails = $this->quizAttempts()
+            ->where('passed', false)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->count();
+
+        $lastProgress = $this->lessonCompletions()->latest()->first();
+        $stagnation = $lastProgress && $lastProgress->completed_at < now()->subDays(7);
+
+        return $recentQuizFails >= 2 || $stagnation;
+    }
+
+    /**
+     * Détecte si l'utilisateur est inactif depuis un certain nombre de jours (par défaut 7).
+     */
+    public function isInactive($days = 7)
+    {
+        $lastProgress = $this->lessonCompletions()->latest()->first();
+        return !$lastProgress || $lastProgress->completed_at < now()->subDays($days);
     }
 }

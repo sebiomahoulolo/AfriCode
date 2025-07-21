@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CourseController extends Controller
 {
@@ -82,13 +83,149 @@ class CourseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $courses = Course::where('status', 'published')
-            ->orderBy('created_at', 'desc')
-            ->paginate(12);
-            
-        return view('courses.index', compact('courses'));
+        // Toujours afficher la même page unifiée
+        // Les filtres seront gérés via Ajax/JavaScript
+        return view('courses.index');
+    }
+
+    /**
+     * API endpoint pour les filtres Ajax
+     */
+    public function filter(Request $request)
+    {
+        $query = Course::query()
+            ->where('status', 'published')
+            ->with([
+                'formateur:id,first_name,last_name',
+                'category:id,name,slug',
+            ]);
+
+        // Appliquer la recherche textuelle
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('short_description', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('full_description', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Filtre par catégorie
+        if ($request->filled('category') && $request->get('category') !== 'all') {
+            $query->where('category_id', $request->get('category'));
+        }
+
+        // Filtre par niveau
+        if ($request->filled('level') && $request->get('level') !== 'all') {
+            $query->where('level', $request->get('level'));
+        }
+
+        // Filtre par prix
+        if ($request->filled('price') && $request->get('price') !== 'all') {
+            $priceFilter = $request->get('price');
+            if ($priceFilter === 'free') {
+                $query->where('price', 0);
+            } elseif ($priceFilter === 'paid') {
+                $query->where('price', '>', 0);
+            }
+        }
+
+        // Filtre par certification
+        if ($request->filled('certification') && $request->get('certification') !== 'all') {
+            $certFilter = $request->get('certification');
+            if ($certFilter === 'certified') {
+                $query->where('is_certifying', true);
+            } elseif ($certFilter === 'not_certified') {
+                $query->where('is_certifying', false);
+            }
+        }
+
+        // Tri
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'title':
+                $query->orderBy('title', 'asc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        $courses = $query->paginate(12);
+
+        // Formater les données pour l'Ajax
+        $formattedCourses = $courses->map(function ($course) {
+            return [
+                'id' => $course->id,
+                'title' => $course->title,
+                'slug' => $course->slug,
+                'short_description' => $course->short_description,
+                'price' => $course->price,
+                'level' => $course->level,
+                'is_certifying' => $course->is_certifying,
+                'cover_image_path' => $course->cover_image_path,
+                'created_at' => $course->created_at,
+                'updated_at' => $course->updated_at,
+                'formateur' => $course->formateur ? [
+                    'id' => $course->formateur->id,
+                    'first_name' => $course->formateur->first_name,
+                    'last_name' => $course->formateur->last_name,
+                ] : null,
+                'category' => $course->category ? [
+                    'id' => $course->category->id,
+                    'name' => $course->category->name,
+                    'slug' => $course->category->slug,
+                ] : null,
+            ];
+        });
+
+        // Retourner en JSON pour Ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'courses' => $formattedCourses,
+                'pagination' => [
+                    'current_page' => $courses->currentPage(),
+                    'last_page' => $courses->lastPage(),
+                    'total' => $courses->total(),
+                    'per_page' => $courses->perPage(),
+                    'has_more_pages' => $courses->hasMorePages(),
+                    'from' => $courses->firstItem(),
+                    'to' => $courses->lastItem(),
+                ]
+            ]);
+        }
+
+        // Fallback: rediriger vers la page principale
+        return redirect()->route('courses.index');
+    }
+
+    /**
+     * API endpoint pour récupérer les catégories
+     */
+    public function categories(Request $request)
+    {
+        $categories = Category::withCount('courses')
+            ->having('courses_count', '>', 0)
+            ->orderBy('name', 'asc')
+            ->get(['id', 'name', 'slug']);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'categories' => $categories
+            ]);
+        }
+
+        return redirect()->route('courses.index');
     }
 
     /**
@@ -113,14 +250,14 @@ class CourseController extends Controller
     public function show(string $slug)
     {
         // Si l'utilisateur est connecté et formateur ou admin
-        if (auth()->check() && (auth()->user()->role === 'formateur' || auth()->user()->role === 'admin')) {
+        if (Auth::check() && (Auth::user()->role === 'formateur' || Auth::user()->role === 'admin')) {
             // Pour les formateurs et admins: permettre de voir tous les cours (même non publiés)
             // Les formateurs ne peuvent voir que leurs propres cours non publiés
             $course = Course::where('slug', $slug)
-                ->when(auth()->user()->role === 'formateur', function ($query) {
+                ->when(Auth::user()->role === 'formateur', function ($query) {
                     return $query->where(function ($q) {
                         $q->where('status', 'published')
-                        ->orWhere('formateur_id', auth()->id());
+                        ->orWhere('formateur_id', Auth::id());
                     });
                 })
                 ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
@@ -162,11 +299,18 @@ class CourseController extends Controller
 
     /**
      * Affiche la page de recherche avancée des formations
+     * Redirige maintenant vers la page des cours avec les filtres
      */
-    public function search()
+    public function search(Request $request)
     {
-        // Cette méthode affiche simplement la vue qui contient le composant Livewire
-        // Le composant Livewire CoursesFilterSearch gère la recherche et le filtrage
-        return view('courses.search');
+        // Rediriger vers la page des cours avec les paramètres de filtrage
+        $filters = $request->only(['search', 'cat', 'level', 'priceRange', 'sort']);
+        
+        // S'assurer qu'on a au moins un filtre actif pour déclencher l'affichage des filtres
+        if (empty($filters) || (count($filters) === 1 && isset($filters['level']) && $filters['level'] === 'all')) {
+            $filters['level'] = 'all'; // Force l'affichage des filtres
+        }
+        
+        return redirect()->route('courses.index', $filters);
     }
 }

@@ -27,6 +27,7 @@ return new class extends Migration
             $table->timestamp('started_at');
             $table->timestamp('submitted_at')->nullable();
             $table->integer('score')->nullable();
+            $table->string('status')->default('completed');
             $table->json('answers')->nullable();
             $table->json('anti_cheat_data')->nullable();
             $table->timestamps();

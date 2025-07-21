@@ -1,0 +1,195 @@
+/* AfriCode - Layout Admin */
+
+/* Variables de couleur AfriCode */
+:root {
+    --africode-primary: #1EA38B;
+    --africode-secondary: #FF8E2A;
+    --africode-accent-red: #E32D31;
+    --africode-highlight-green: #27B371;
+    --africode-white: #FFFFFF;
+    --africode-dark-text: #333333;
+    --africode-gray-light: #F8F9FA;
+    --africode-gray-medium: #E9ECEF;
+    --africode-gray-dark: #6C757D;
+    --africode-gradient-primary: linear-gradient(135deg, var(--africode-primary) 0%, var(--africode-highlight-green) 100%);
+    --africode-gradient-accent: linear-gradient(135deg, var(--africode-secondary) 0%, #FFB366 100%);
+    --africode-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --africode-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --africode-shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --africode-border-radius: 12px;
+    --africode-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --africode-bg-pattern: radial-gradient(circle at 20% 50%, rgba(30, 163, 139, 0.1) 0%, transparent 50%),
+                           radial-gradient(circle at 80% 20%, rgba(255, 142, 42, 0.1) 0%, transparent 50%),
+                           radial-gradient(circle at 40% 80%, rgba(227, 45, 49, 0.1) 0%, transparent 50%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #F8F9FA;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--africode-dark-text);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(30,163,139,0.07);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #E9ECEF;
+}
+
+.admin-card-header h2 {
+    color: #1EA38B;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.admin-form-label {
+    font-weight: 600;
+    color: #1EA38B;
+}
+
+.admin-form-input,
+.form-control,
+.form-select {
+    border-radius: 8px;
+    border: 1px solid #E9ECEF;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.admin-form-input:focus,
+.form-control:focus,
+.form-select:focus {
+    border-color: #1EA38B;
+    box-shadow: 0 0 0 2px rgba(30,163,139,0.08);
+}
+
+.admin-form-error,
+.invalid-feedback {
+    color: #E32D31;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+}
+
+.admin-btn,
+button[type=submit] {
+    background: linear-gradient(135deg, #1EA38B, #27B371);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(30,163,139,0.08);
+}
+
+.admin-btn:hover,
+button[type=submit]:hover {
+    background: linear-gradient(135deg, #27B371, #1EA38B);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(30,163,139,0.12);
+}
+
+/* Layout principal */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Contenu principal */
+.admin-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin-left: 280px; /* Espace pour la sidebar */
+    transition: var(--africode-transition);
+}
+
+/* Quand la sidebar est collapsed */
+.admin-main-content.sidebar-collapsed {
+    margin-left: 80px;
+}
+
+/* Content area */
+.admin-content-body {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Animations et effets */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--africode-gray-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--africode-gray-dark);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--africode-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-main-content {
+        margin-left: 0;
+    }
+    
+    .admin-main-content.sidebar-collapsed {
+        margin-left: 0;
+    }
+    
+    .admin-content-body {
+        padding: 1rem;
+    }
+}

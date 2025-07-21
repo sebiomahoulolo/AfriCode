@@ -450,7 +450,6 @@
                                         'rank' => 1, 
                                         'id' => 5, 
                                         'name' => 'Amina D.', 
-                                        'avatar' => 'https://via.placeholder.com/35/FF8E2A/FFFFFF?text=AD', 
                                         'score' => 1520,
                                         'recentBadges' => ['fa-trophy', 'fa-star']
                                     ],
@@ -458,7 +457,6 @@
                                         'rank' => 2, 
                                         'id' => 23, 
                                         'name' => 'Kwame N.', 
-                                        'avatar' => 'https://via.placeholder.com/35/E32D31/FFFFFF?text=KN', 
                                         'score' => 1480,
                                         'recentBadges' => ['fa-medal']
                                     ],
@@ -466,7 +464,6 @@
                                         'rank' => 3, 
                                         'id' => 12, 
                                         'name' => 'Fatou S.', 
-                                        'avatar' => 'https://via.placeholder.com/35/27B371/FFFFFF?text=FS', 
                                         'score' => 1350,
                                         'recentBadges' => ['fa-award']
                                     ],
@@ -490,8 +487,7 @@
                             @endphp
                             <li class="leaderboard-widget-item">
                                 <span class="leaderboard-widget-rank {{ $rankClass }}">{{ $user['rank'] }}</span>
-                                <img src="{{ $user['avatar'] }}" alt="Avatar" class="leaderboard-widget-avatar" onerror="this.src='https://via.placeholder.com/35/cccccc/FFFFFF?text=U'">
-                                <div class="flex-grow-1">
+                               <div class="flex-grow-1">
                                     <div class="leaderboard-widget-name">{{ $user['name'] }}</div>
                                     <div class="leaderboard-widget-badges">
                                         {!! $recentBadgesHTML ?: '<small class="text-muted">Aucun badge</small>' !!}

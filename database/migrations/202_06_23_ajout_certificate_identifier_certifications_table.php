@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('certifications', function (Blueprint $table) {
-            $table->string('certificate_identifier')->nullable()->after('verification_code');
-        });
+        if (!Schema::hasColumn('certifications', 'certificate_identifier')) {
+            Schema::table('certifications', function (Blueprint $table) {
+                $table->string('certificate_identifier')->nullable()->after('verification_code');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('certifications', function (Blueprint $table) {
-            $table->dropColumn('certificate_identifier');
-        });
+        if (Schema::hasColumn('certifications', 'certificate_identifier')) {
+            Schema::table('certifications', function (Blueprint $table) {
+                $table->dropColumn('certificate_identifier');
+            });
+        }
     }
-}; 
+};

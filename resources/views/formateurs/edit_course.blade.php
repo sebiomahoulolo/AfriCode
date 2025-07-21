@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.edit_course_title'))
+@section('title', 'AfriCode - Modifier le cours')
+@section('page-title', 'Modifier le cours')
+@section('page-subtitle', $course->title)
 
-@section('page-heading', __('messages.edit_course'))
-@section('page-subheading', $course->title)
+@section('header-actions')
+    <a href="{{ route('formateur.manage.course', $course) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour
+    </a>
+    <button type="submit" form="edit-course-form" class="btn-primary-africode">
+        <i class="fas fa-save me-2"></i>Enregistrer
+    </button>
+@endsection
 
 @section('styles')
 <style>
@@ -28,6 +36,121 @@
 
     .ck-editor__editable {
         min-height: 200px;
+    }
+    
+    /* Responsive amélioré */
+    @media (max-width: 992px) {
+        .image-preview {
+            height: 150px;
+        }
+        
+        .ck-editor__editable {
+            min-height: 150px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .course-form h5 {
+            font-size: 1.1rem;
+        }
+        
+        .course-form label {
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        .image-preview {
+            height: 120px;
+        }
+        
+        .ck-editor__editable {
+            min-height: 120px;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .course-form h5 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .course-form label {
+            font-size: 0.85rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+        
+        .image-preview {
+            height: 100px;
+            margin-top: 0.5rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 100px;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        .form-select {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .card-body {
+            padding: 0.5rem;
+        }
+        
+        .course-form h5 {
+            font-size: 0.95rem;
+        }
+        
+        .form-control,
+        .form-select {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .image-preview {
+            height: 80px;
+        }
+        
+        .row .col-md-6,
+        .row .col-md-4,
+        .row .col-md-8 {
+            margin-bottom: 0.75rem;
+        }
     }
 </style>
 @endsection

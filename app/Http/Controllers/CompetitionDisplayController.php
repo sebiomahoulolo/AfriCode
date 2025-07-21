@@ -35,6 +35,32 @@ class CompetitionDisplayController extends Controller
                     ];
                 });
 
+            // Charger les participants pour chaque challenge
+            $challengeParticipants = [];
+            foreach ($challenges as $challenge) {
+                $challengeId = is_array($challenge) ? $challenge['id'] : $challenge->id;
+                $challengeParticipants[$challengeId] = \App\Models\Challenge::find($challengeId)?->users->map(function($u) {
+                    return trim($u->first_name . ' ' . $u->last_name);
+                })->toArray();
+            }
+
+            // Récupérer les compétitions actives
+            $competitions = \App\Models\Competition::where('status', 'upcoming')
+                ->orderBy('start_datetime', 'asc')
+                ->take(6)
+                ->get()
+                ->map(function ($competition) {
+                    return [
+                        'id' => $competition->id,
+                        'title' => $competition->title,
+                        'description' => $competition->description,
+                        'start' => $competition->start_datetime,
+                        'end' => $competition->end_datetime,
+                        'participants' => $competition->max_participants,
+                        'slug' => $competition->slug,
+                    ];
+                });
+
             // Récupérer le classement global
             $globalLeaderboard = Leaderboard::where('type', 'global')->first();
             $leaderboardData = [];
@@ -57,8 +83,7 @@ class CompetitionDisplayController extends Controller
             }
 
             // Récupérer les badges
-            $badges = Badge::where('is_active', true)
-                ->orderBy('unlock_order')
+            $badges = Badge::orderBy('unlock_order')
                 ->get()
                 ->map(function ($badge) {
                     $userHasBadge = Auth::check() ? 
@@ -92,18 +117,45 @@ class CompetitionDisplayController extends Controller
                 ];
             }
 
-            return view('pages.compdisp', compact('challenges', 'leaderboardData', 'badges', 'currentUser'));
+            return view('pages.compdisp', compact('challenges', 'competitions', 'leaderboardData', 'badges', 'currentUser', 'challengeParticipants'));
         } catch (\Exception $e) {
-            // En cas d'erreur, retourner des données par défaut
-            \Log::error('Erreur dans CompetitionDisplayController: ' . $e->getMessage());
-            
-            return view('pages.compdisp', [
-                'challenges' => [],
-                'leaderboardData' => [],
-                'badges' => [],
-                'currentUser' => null
-            ]);
+            dd($e->getMessage(), $e->getTraceAsString());
         }
+    }
+
+    public function show($slug)
+    {
+        $competition = \App\Models\Competition::where('slug', $slug)->firstOrFail();
+        $user = auth()->user();
+        $isRegistered = false;
+        if ($user) {
+            $isRegistered = \App\Models\CompetitionRegistration::where('competition_id', $competition->id)
+                ->where('user_id', $user->id)
+                ->exists();
+        }
+        $participantsCount = \App\Models\CompetitionRegistration::where('competition_id', $competition->id)->count();
+        return view('competitions.show', compact('competition', 'isRegistered', 'participantsCount'));
+    }
+
+    public function register($id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour participer.');
+        }
+        $competition = \App\Models\Competition::findOrFail($id);
+        $exists = \App\Models\CompetitionRegistration::where('competition_id', $competition->id)
+            ->where('user_id', $user->id)
+            ->exists();
+        if ($exists) {
+            return redirect()->route('competitions.show', $competition->slug)->with('success', 'Vous êtes déjà inscrit à cette compétition.');
+        }
+        \App\Models\CompetitionRegistration::create([
+            'competition_id' => $competition->id,
+            'user_id' => $user->id,
+            'registered_at' => now(),
+        ]);
+        return redirect()->route('competitions.show', $competition->slug)->with('success', 'Inscription réussie à la compétition !');
     }
 
     public function getLeaderboard(Request $request)
@@ -137,6 +189,111 @@ class CompetitionDisplayController extends Controller
             \Log::error('Erreur dans getLeaderboard: ' . $e->getMessage());
             return response()->json(['error' => 'Erreur serveur'], 500);
         }
+    }
+
+    public function showChallenge($id)
+    {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        $user = auth()->user();
+        $isParticipating = false;
+        if ($user) {
+            $isParticipating = $challenge->users()->where('user_id', $user->id)->exists();
+        }
+        $participantsCount = $challenge->users()->count();
+        return view('challenges.show', compact('challenge', 'isParticipating', 'participantsCount'));
+    }
+
+    public function participateChallenge($id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour participer.');
+        }
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        $exists = $challenge->users()->where('user_id', $user->id)->exists();
+        if ($exists) {
+            return redirect()->route('challenges.show', $challenge->id)->with('success', 'Vous participez déjà à ce défi.');
+        }
+        $challenge->users()->attach($user->id, [
+            'progress' => json_encode([]),
+            'is_completed' => false,
+        ]);
+        return redirect()->route('challenges.show', $challenge->id)->with('success', 'Vous participez maintenant à ce défi !');
+    }
+
+    public function playChallenge($id, Request $request)
+    {
+        $challenge = \App\Models\Challenge::findOrFail($id);
+        $user = auth()->user();
+        $isParticipating = $user ? $challenge->users()->where('user_id', $user->id)->exists() : false;
+        if (!$isParticipating) {
+            return redirect()->route('challenges.show', $challenge->id)->with('error', 'Vous devez vous inscrire au défi pour participer.');
+        }
+        $questions = $challenge->questions()->with('options')->get();
+        $score = null;
+        $submitted = false;
+        $userAnswers = [];
+        $submission = \App\Models\ChallengeSubmission::where('challenge_id', $challenge->id)->where('user_id', $user->id)->first();
+        if ($submission) {
+            $submitted = true;
+            $score = $submission->score;
+            $userAnswers = $submission->answers ?? [];
+        }
+        if ($request->isMethod('post') && !$submitted) {
+            $answers = $request->input('answers', []);
+            $score = 0;
+            foreach ($questions as $question) {
+                $correct = $question->options->where('is_correct', true)->pluck('id')->sort()->values();
+                $userAnswer = collect($answers[$question->id] ?? [])->map(fn($v)=>(int)$v)->sort()->values();
+                if ($userAnswer->count() && $userAnswer->toArray() === $correct->toArray()) {
+                    $score++;
+                }
+            }
+            $submission = \App\Models\ChallengeSubmission::updateOrCreate(
+                [
+                    'challenge_id' => $challenge->id,
+                    'user_id' => $user->id,
+                ],
+                [
+                    'answers' => $answers,
+                    'score' => $score,
+                    'submitted_at' => now(),
+                ]
+            );
+            $submitted = true;
+            $userAnswers = $answers;
+        }
+        return view('challenges.play', compact('challenge', 'questions', 'score', 'submitted', 'userAnswers'));
+    }
+
+    public function playCompetition($slug, Request $request)
+    {
+        $competition = \App\Models\Competition::where('slug', $slug)->firstOrFail();
+        $user = auth()->user();
+        $isRegistered = $user ? \App\Models\CompetitionRegistration::where('competition_id', $competition->id)->where('user_id', $user->id)->exists() : false;
+        if (!$isRegistered) {
+            return redirect()->route('competitions.show', $competition->slug)->with('error', 'Vous devez vous inscrire à la compétition pour participer.');
+        }
+        $confirmation = false;
+        if ($request->isMethod('post')) {
+            $registration = \App\Models\CompetitionRegistration::where('competition_id', $competition->id)->where('user_id', $user->id)->first();
+            if ($registration) {
+                \App\Models\CompetitionSubmission::updateOrCreate(
+                    [
+                        'registration_id' => $registration->id,
+                    ],
+                    [
+                        'project_title' => $request->input('project_title'),
+                        'project_description' => $request->input('project_description'),
+                        'project_link_repository' => $request->input('project_link_repository'),
+                        'project_link_live' => $request->input('project_link_live'),
+                        'submitted_at' => now(),
+                    ]
+                );
+                $confirmation = true;
+            }
+        }
+        return view('competitions.play', compact('competition', 'confirmation'));
     }
 
     private function calculateTimeLeft($endDate)
@@ -218,8 +375,8 @@ class CompetitionDisplayController extends Controller
     private function getChallengePoints($challenge)
     {
         try {
-            $rewards = json_decode($challenge->rewards, true);
-            return $rewards['points'] ?? 10;
+            $rewards = is_array($challenge->rewards) ? $challenge->rewards : json_decode($challenge->rewards, true);
+            return is_array($rewards) && isset($rewards['points']) ? $rewards['points'] : 10;
         } catch (\Exception $e) {
             return 10;
         }

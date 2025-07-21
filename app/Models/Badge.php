@@ -54,12 +54,18 @@ class Badge extends Model
         }
 
         // Vérifier les conditions spécifiques selon le type de badge
-        return match($this->type) {
+        $canEarn = match($this->type) {
             'course_completion' => $this->checkCourseCompletion($user),
             'quiz_master' => $this->checkQuizMaster($user),
             'social_butterfly' => $this->checkSocialButterfly($user),
             default => true,
         };
+
+        if ($canEarn) {
+            $user->notify(new \App\Notifications\BadgeUnlocked());
+        }
+
+        return $canEarn;
     }
 
     /**

@@ -28,6 +28,11 @@ use App\Http\Controllers\RewardController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ContactController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\AdminChallengeController;
+use App\Http\Controllers\CompetitionDisplayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +50,9 @@ Route::get('/', [CourseController::class, 'home'])->name('home');
 
 // Routes pour les cours
 Route::resource('courses', CourseController::class);
-Route::get('/coursest/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
+Route::get('/courses/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
+Route::get('/courses-filter', [CourseController::class, 'filter'])->name('courses.filter'); // Route Ajax pour les filtres
+Route::get('/courses-categories', [CourseController::class, 'categories'])->name('courses.categories'); // Route Ajax pour les catégories
 
 // Ces routes sont nécessaires pour la compatibilité avec le code existant
 Route::get('/cours', [CourseController::class, 'index'])->name('courses.index');
@@ -87,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Webhooks et callbacks (pas de middleware auth)
-Route::post('/webhook/stripe', [\App\Http\Controllers\EnrollmentController::class, 'stripeWebhook'])
+Route::post('/webhook/stripe', [\AppHttp\Controllers\EnrollmentController::class, 'stripeWebhook'])
     ->name('webhook.stripe');
 Route::post('/callback/fadapay', [\App\Http\Controllers\EnrollmentController::class, 'fadapayCallback'])
     ->name('payment.fadapay.callback');
@@ -221,6 +228,9 @@ Route::prefix('admin')
 Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->prefix('formateur')->group(function () {
     // Tableau de bord principal
     Route::get('/dashboard', [FormateurController::class, 'index'])->name('formateur.dashboard');
+    
+    // Liste des cours
+    Route::get('/cours', [FormateurController::class, 'coursesList'])->name('formateur.courses.index');
     
     // Gestion des cours
     Route::get('/cours/creer', [FormateurController::class, 'createCourse'])->name('formateur.courses.create');
@@ -547,4 +557,32 @@ Route::get('/api/forum/leaderboard', function () {
         return response()->json(['success' => false, 'error' => 'Erreur serveur'], 500);
     }
 })->name('api.forum.leaderboard');
+
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
+
+Route::view('/conditions-utilisation', 'pages.terms')->name('pages.terms');
+Route::view('/politique-confidentialite', 'pages.privacy')->name('pages.privacy');
+Route::view('/confidentialite', 'pages.confidentialite')->name('confidentialite');
+Route::view('/parametres-cookies', 'pages.parametres-cookies')->name('parametres.cookies');
+Route::post('/parametres-cookies', function(Request $request) {
+    // Ici, tu pourrais traiter les préférences cookies (en session, en base, etc.)
+    return redirect()->route('parametres.cookies')->with('success', 'Préférences enregistrées !');
+})->name('parametres.cookies.save');
+
+Route::get('/admin/challenges', [App\Http\Controllers\AdminChallengeController::class, 'index'])->name('admin.challenges.index');
+Route::get('/admin/challenges/create', [AdminChallengeController::class, 'create'])->name('admin.challenges.create');
+Route::post('/admin/challenges', [AdminChallengeController::class, 'store'])->name('admin.challenges.store');
+Route::get('/admin/challenges/{challenge}/questions', [App\Http\Controllers\AdminChallengeController::class, 'questions'])->name('admin.challenges.questions');
+Route::post('/admin/challenges/{challenge}/questions', [App\Http\Controllers\AdminChallengeController::class, 'storeQuestion'])->name('admin.challenges.questions.store');
+Route::delete('/admin/challenges/{challenge}/questions/{question}', [App\Http\Controllers\AdminChallengeController::class, 'destroyQuestion'])->name('admin.challenges.questions.destroy');
+
+Route::get('/competitions/{slug}', [CompetitionDisplayController::class, 'show'])->name('competitions.show');
+Route::post('/competitions/{id}/register', [CompetitionDisplayController::class, 'register'])->name('competitions.register');
+Route::get('/challenges/{id}', [CompetitionDisplayController::class, 'showChallenge'])->name('challenges.show');
+Route::post('/challenges/{id}/participate', [CompetitionDisplayController::class, 'participateChallenge'])->name('challenges.participate');
+Route::match(['get', 'post'], '/challenges/{id}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playChallenge'])->name('challenges.play');
+Route::get('/competitions/{slug}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playCompetition'])->name('competitions.play');
 

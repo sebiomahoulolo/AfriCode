@@ -41,14 +41,15 @@ class EnrollmentSeeder extends Seeder
             
             foreach ($selectedCourses as $course) {
                 // Créer une clé unique pour cette combinaison utilisateur/cours
-                $enrollmentKey = $user->id . '-' . $course->id;
-                
-                // Si cette combinaison existe déjà, passer à la suivante
-                if (isset($processedOptions[$enrollmentKey])) {
-                    continue;
-                }
-                
-                $processedOptions[$enrollmentKey] = true;
+               // Ne pas insérer si une inscription existe déjà pour cet utilisateur et ce cours
+if (
+    Enrollment::where('user_id', $user->id)
+              ->where('course_id', $course->id)
+              ->exists()
+) {
+    continue;
+}
+
                 
                 // Créer l'inscription
                 $enrollmentDate = now()->subDays(rand(1, 90)); // Inscrit au cours il y a 1-90 jours

@@ -1,0 +1,8 @@
+/* AfriCode - Styles Admin */
+
+/* Import des composants */
+@import 'layouts/admin.css';
+@import 'components/admin-sidebar.css';
+@import 'components/admin-header.css';
+@import 'components/admin-cards.css';
+@import 'components/admin-responsive.css';

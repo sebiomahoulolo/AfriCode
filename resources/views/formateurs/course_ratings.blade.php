@@ -1,9 +1,20 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.course_ratings_title'))
+@section('title', 'AfriCode - Évaluations du cours')
+@section('page-title', $course->title)
+@section('page-subtitle', 'Évaluations et commentaires (' . $course->ratings->count() . ' avis)')
 
-@section('page-heading', $course->title)
-@section('page-subheading', __('messages.evaluations_and_comments'))
+@section('header-actions')
+    <a href="{{ route('formateur.manage.course', $course) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au cours
+    </a>
+    <div class="d-flex align-items-center">
+        <span class="badge bg-success me-2">
+            <i class="fas fa-star me-1"></i>{{ number_format($averageRating, 1) }}
+        </span>
+        <small class="text-muted">Note moyenne</small>
+    </div>
+@endsection
 
 @section('styles')
 <style>

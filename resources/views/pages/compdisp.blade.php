@@ -102,7 +102,7 @@
     .leaderboard-rank {
         font-weight: bold;
         font-size: 1.1em;
-        min-width: 40px; /* Espace pour le rang */
+        min-width: 40px;
         text-align: center;
     }
     .rank-1 { color: var(--gold-color); }
@@ -121,9 +121,8 @@
         color: var(--primary-color);
     }
 
-    /* Style pour la ligne de l'utilisateur connecté */
     .current-user-rank {
-        background-color: rgba(255, 142, 42, 0.15) !important; /* Orange léger */
+        background-color: rgba(255, 142, 42, 0.15) !important;
         border-top: 2px solid var(--secondary-color);
         border-bottom: 2px solid var(--secondary-color);
         font-weight: bold;
@@ -215,7 +214,7 @@
 
     .filter-buttons .btn {
         margin-right: 10px;
-        margin-bottom: 10px; /* Pour mobile */
+        margin-bottom: 10px;
         background-color: var(--light-accent);
         border: 1px solid #ccc;
         color: var(--text-color);
@@ -234,11 +233,10 @@
         font-style: italic;
     }
     .africode-footer img {
-        height: 30px; /* Logo AfriCode */
+        height: 30px;
         margin-bottom: 5px;
     }
 
-    /* Responsive design */
     @media (max-width: 768px) {
         .competition-header {
             padding: 30px 15px;
@@ -299,6 +297,46 @@
 </div>
 
 <div class="container mt-4">
+    <!-- Section Compétitions Actuelles -->
+    <section id="competitions" class="mb-5">
+        <h2 class="section-title"><i class="fas fa-trophy me-2"></i>Compétitions Actuelles</h2>
+        <div class="row" id="competitions-list">
+            @if(isset($competitions) && count($competitions) > 0)
+                @foreach($competitions as $competition)
+                    <div class="col-md-6 mb-3">
+                        <div class="challenge-card" style="border-left: 5px solid #1EA38B;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ $competition['title'] }}</h5>
+                                <span class="badge bg-success">Compétition</span>
+                            </div>
+                            <p class="text-muted mb-2">{{ $competition['description'] }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">{{ $competition['participants'] ?? '-' }} participants max</span>
+                                <small class="text-muted">
+                                    {{ $competition['start'] ? (new \Carbon\Carbon($competition['start']))->format('d/m/Y H:i') : '' }}
+                                    -
+                                    {{ $competition['end'] ? (new \Carbon\Carbon($competition['end']))->format('d/m/Y H:i') : '' }}
+                                </small>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <a href="{{ route('competitions.show', $competition['slug']) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune compétition active pour le moment.
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
+
     <!-- Section Défis Actuels -->
     <section id="challenges" class="mb-5">
         <h2 class="section-title"><i class="fas fa-code me-2"></i>Défis Actuels</h2>
@@ -308,15 +346,20 @@
                     <div class="col-md-6 mb-3">
                         <div class="challenge-card">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="mb-0">{{ $challenge['title'] }}</h5>
-                                <span class="difficulty difficulty-{{ strtolower($challenge['difficulty']) }}">
-                                    {{ $challenge['difficulty'] }}
+                                <h5 class="mb-0">{{ $challenge['title'] ?? $challenge->name }}</h5>
+                                <span class="difficulty difficulty-{{ strtolower($challenge['difficulty'] ?? $challenge->difficulty) }}">
+                                    {{ $challenge['difficulty'] ?? ucfirst($challenge->difficulty) }}
                                 </span>
                             </div>
-                            <p class="text-muted mb-2">{{ $challenge['description'] }}</p>
+                            <p class="text-muted mb-2">{{ $challenge['description'] ?? $challenge->description }}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary">{{ $challenge['points'] }} points</span>
-                                <small class="text-muted">{{ $challenge['timeLeft'] }}</small>
+                                <span class="badge bg-primary">{{ $challenge['points'] ?? ($challenge->points ?? 0) }} points</span>
+                                <small class="text-muted">{{ $challenge['timeLeft'] ?? '' }}</small>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <a href="{{ route('challenges.show', $challenge['id'] ?? $challenge->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -346,17 +389,24 @@
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th scope="col" class="text-center">#</th>
+                        
                         <th scope="col">Utilisateur</th>
                         <th scope="col" class="text-end">Score</th>
-                        <th scope="col" class="text-center">Badges Récents</th>
+                     <th scope="col" class="text-center">Badges Récents</th>
                     </tr>
                 </thead>
                 <tbody id="leaderboard-body">
                     @if(count($leaderboardData) > 0)
                         @foreach($leaderboardData as $user)
                             <tr class="{{ $currentUser && $currentUser['id'] == $user['id'] ? 'current-user-rank' : '' }}">
-                                <td class="text-center leaderboard-rank rank-{{ $user['rank'] }}">
+                             
+                                <td class="leaderboard-user">
+                                    <div class="user-avatar">{{ substr($user['name'], 0, 2) }}</div>
+                                    {{ $user['name'] }}
+                                </td>
+                                <td class="text-end leaderboard-score">{{ number_format($user['score']) }}</td>
+                                <td class="text-center">
+                                       <td class="text-center leaderboard-rank rank-{{ $user['rank'] }}">
                                     @if($user['rank'] == 1)
                                         <i class="fas fa-trophy text-warning"></i>
                                     @elseif($user['rank'] == 2)
@@ -367,19 +417,13 @@
                                         {{ $user['rank'] }}
                                     @endif
                                 </td>
-                                <td class="leaderboard-user">
-                                    <div class="user-avatar">{{ substr($user['name'], 0, 2) }}</div>
-                                    {{ $user['name'] }}
-                                </td>
-                                <td class="text-end leaderboard-score">{{ number_format($user['score']) }}</td>
-                                <td class="text-center">
-                                    <div class="recent-badges">
+                                    {{-- <div class="recent-badges">
                                         @foreach($user['recentBadges'] as $badge)
                                             <div class="recent-badge" style="background-color: {{ $badge['color'] ?? '#1EA38B' }}" title="{{ $badge['name'] }}">
                                                 <i class="{{ $badge['icon'] }}"></i>
                                             </div>
                                         @endforeach
-                                    </div>
+                                    </div> --}}
                                 </td>
                             </tr>
                         @endforeach
@@ -397,7 +441,7 @@
                 @if($currentUser && !collect($leaderboardData)->contains('id', $currentUser['id']))
                     <tbody id="current-user-leaderboard-body">
                         <tr class="current-user-rank">
-                            <td class="text-center leaderboard-rank">{{ $currentUser['rank'] ?? 'N/A' }}</td>
+                           
                             <td class="leaderboard-user">
                                 <div class="user-avatar">{{ substr($currentUser['name'], 0, 2) }}</div>
                                 {{ $currentUser['name'] }} (Vous)
@@ -417,12 +461,12 @@
         <div class="badge-grid" id="badges-list">
             @if(count($badges) > 0)
                 @foreach($badges as $badge)
-                    <div class="badge-item {{ $badge['locked'] ? 'locked' : 'unlocked' }}" title="{{ $badge['description'] }}">
-                        <i class="{{ $badge['icon'] }} badge-icon" style="color: {{ $badge['color'] ?? '#1EA38B' }};"></i>
+                    <div class="badge-item {{ $badge['locked'] ?? false ? 'locked' : 'unlocked' }}" title="{{ $badge['description'] }}">
+                        <i class="{{ $badge['icon'] ?? 'fas fa-medal' }} badge-icon" style="color: {{ $badge['color'] ?? '#1EA38B' }};"></i>
                         <span class="badge-name">{{ $badge['name'] }}</span>
                         <span class="badge-description">{{ $badge['description'] }}</span>
-                        <span class="badge-status {{ $badge['locked'] ? 'locked' : 'unlocked' }}">
-                            {{ $badge['locked'] ? 'Verrouillé' : 'Débloqué' }}
+                        <span class="badge-status {{ $badge['locked'] ?? false ? 'locked' : 'unlocked' }}">
+                            {{ ($badge['locked'] ?? false) ? 'Verrouillé' : 'Débloqué' }}
                         </span>
                     </div>
                 @endforeach
@@ -545,4 +589,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-@endsection 
+@endsection

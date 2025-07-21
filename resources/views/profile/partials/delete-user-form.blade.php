@@ -12,6 +12,7 @@
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
+        class="focus:outline-none focus:ring-2 focus:ring-red-500"
     >{{ __('Delete Account') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
@@ -42,11 +43,11 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <x-secondary-button x-on:click="$dispatch('close')">
+                <x-secondary-button x-on:click="$dispatch('close')" class="focus:outline-none focus:ring-2 focus:ring-primary">
                     {{ __('Cancel') }}
                 </x-secondary-button>
 
-                <x-danger-button class="ms-3">
+                <x-danger-button class="ms-3 focus:outline-none focus:ring-2 focus:ring-red-500">
                     {{ __('Delete Account') }}
                 </x-danger-button>
             </div>

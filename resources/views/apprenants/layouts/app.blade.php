@@ -26,14 +26,35 @@
     <link href="{{ asset('css/africode-fixes.css') }}" rel="stylesheet">
     
     <style>
+        :root {
+            --africode-background: #F8F9FA;
+        }
         /* Application équilibrée de la charte AfriCode aux pages apprenants */
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--africode-background);
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: var(--africode-text-primary);
+            background: #F8F9FA !important;
+            color: #333 !important;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #1EA38B;
+            font-weight: 700;
+        }
+        a, .link {
+            color: #1EA38B;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        a:hover, .link:hover {
+            color: #27B371;
+        }
+        .fa, .fas, .far, .fal, .fab {
+            color: #1EA38B;
+            font-size: 1.1em;
+            vertical-align: middle;
+            margin-right: 0.5em;
         }
 
         /* Sidebar avec charte AfriCode équilibrée */
@@ -81,6 +102,16 @@
             flex-shrink: 0;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
+        
+        /* Styles pour le nouveau logo avec les trois bandes */
+        .africode-logo-img {
+            transition: transform 0.2s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .sidebar-brand:hover .africode-logo-img {
+            transform: scale(1.05);
+        }
 
         .logo-text {
             background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.9) 100%);
@@ -90,8 +121,12 @@
             font-weight: 800;
             font-size: 1.2rem;
             transition: var(--africode-transition);
-            margin-left: 0.5rem;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-brand:hover .logo-text {
+            color: var(--africode-secondary) !important;
+            -webkit-text-fill-color: var(--africode-secondary);
         }
 
         /* Mode réduit */
@@ -102,20 +137,20 @@
             align-items: center;
         }
 
-        .app-sidebar.collapsed .sidebar-brand h3 {
+        .app-sidebar.collapsed .sidebar-brand > div {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0;
         }
 
         .app-sidebar.collapsed .logo-text {
             display: none;
         }
 
-        .app-sidebar.collapsed .africode-logo {
-            width: 24px;
-            height: 24px;
+        .app-sidebar.collapsed .africode-logo-img {
+            height: 24px !important;
+            width: auto;
         }
 
         /* Navigation */
@@ -304,7 +339,7 @@
             z-index: 1001;
         }
 
-        <!-- Sidebar footer adjustments -->
+        /* Sidebar footer adjustments */
         .sidebar-footer {
             padding: 1rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -726,15 +761,12 @@
     <!-- Sidebar -->
     <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h3>
-                <!-- Logo AfriCode officiel -->
-                <svg width="32" height="32" viewBox="0 0 24 24" class="me-2 africode-logo">
-                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FF8E2A"/>
-                    <path d="M2 17L12 22L22 17V7L12 12L2 7V17Z" fill="#27B371"/>
-                    <path d="M7 14.5L12 17L17 14.5" stroke="#E32D31" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                <span class="logo-text">AfriCode</span>
-            </h3>
+            <div class="d-flex flex-column align-items-center">
+                <!-- Logo AfriCode avec les trois bandes -->
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img mb-2" style="height: 35px;">
+                <!-- Texte AFRICODE en dessous -->
+                <span class="logo-text text-white fw-bold text-uppercase" style="font-size: 0.9rem; letter-spacing: 1px;">AFRICODE</span>
+            </div>
         </div>
         
         <nav class="sidebar-nav">
@@ -757,7 +789,7 @@
             </div>
             
             <div class="nav-item">
-                <a href="#" 
+                <a href="{{ route('badges.index') }}" 
                    class="nav-link"
                    data-title="Progression">
                     <i class="fas fa-chart-line"></i>
@@ -784,7 +816,7 @@
             </div>
             
             <div class="nav-item">
-                <a href="#" 
+                <a href="{{ route('pages.compdisp') }}" 
                    class="nav-link"
                    data-title="Défis">
                     <i class="fas fa-trophy"></i>

@@ -1,0 +1,55 @@
+/* AfriCode - Cards et UI Components */
+
+/* Cards modernes */
+.card-modern {
+    background: white;
+    border: none;
+    border-radius: var(--africode-border-radius);
+    box-shadow: var(--africode-shadow-sm);
+    transition: var(--africode-transition);
+    overflow: hidden;
+}
+
+.card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--africode-shadow-md);
+}
+
+.card-header-modern {
+    background: var(--africode-gray-light);
+    border-bottom: 1px solid var(--africode-gray-medium);
+    padding: 1.25rem 1.5rem;
+    font-weight: 600;
+    color: var(--africode-dark-text);
+}
+
+.card-body-modern {
+    padding: 1.5rem;
+}
+
+/* États et messages */
+.alert-modern {
+    border: none;
+    border-radius: var(--africode-border-radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--africode-shadow-sm);
+}
+
+.alert-success-modern {
+    background: linear-gradient(135deg, #D4F7ED 0%, #E8FDF8 100%);
+    color: var(--africode-highlight-green);
+    border-left: 4px solid var(--africode-highlight-green);
+}
+
+.alert-warning-modern {
+    background: linear-gradient(135deg, #FFF4E6 0%, #FFFBF0 100%);
+    color: #B45309;
+    border-left: 4px solid var(--africode-secondary);
+}
+
+.alert-danger-modern {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%);
+    color: var(--africode-accent-red);
+    border-left: 4px solid var(--africode-accent-red);
+}

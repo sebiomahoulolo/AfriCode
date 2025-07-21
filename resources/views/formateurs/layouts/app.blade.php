@@ -5,215 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'AfriCode - Espace Formateur')</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #2C73D2;
-            --secondary-color: #FF8B34;
-            --light-bg: #f8f9fa;
-            --border-radius: 10px;
-        }
-        
-        body {
-            background-color: #f5f7fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .sidebar {
-            background: linear-gradient(180deg, #2C73D2 0%, #1E5AA6 100%);
-            color: white;
-            min-height: 100vh;
-            padding-top: 2rem;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 0.5rem;
-            padding: 0.75rem 1rem;
-            border-radius: var(--border-radius);
-            transition: all 0.3s;
-        }
-        
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .main-content {
-            padding: 2rem;
-        }
-        
-        .card {
-            border-radius: var(--border-radius);
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-        }
-        
-        .stat-card h3 {
-            font-weight: 600;
-            margin-bottom: 0;
-        }
-        
-        .stat-card p {
-            color: #6c757d;
-            margin-bottom: 0;
-        }
-        
-        .course-card img {
-            border-top-left-radius: var(--border-radius);
-            border-top-right-radius: var(--border-radius);
-            height: 180px;
-            object-fit: cover;
-        }
-        
-        .profile-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        
-        .profile-pic {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 1rem;
-        }
-        
-        .welcome-text h4 {
-            margin-bottom: 0;
-            font-weight: 600;
-        }
-        
-        .welcome-text p {
-            margin-bottom: 0;
-            color: #6c757d;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: #215daa;
-            border-color: #215daa;
-        }
-
-        .btn-warning {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-
-        .bg-primary {
-            background-color: var(--primary-color) !important;
-        }
-
-        .bg-warning {
-            background-color: var(--secondary-color) !important;
-        }
-
-        .text-primary {
-            color: var(--primary-color) !important;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Styles AfriCode Formateur -->
+    @vite(['resources/css/formateur.css'])
+    
     @yield('styles')
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar p-0">
-                <div class="d-flex flex-column p-3">
-                    <h4 class="text-center mb-4">AfriCode</h4>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('formateur.dashboard') ? 'active' : '' }}" href="{{ route('formateur.dashboard') }}">
-                                <i class="fas fa-home"></i> Tableau de bord
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('formateur.courses.*') || request()->routeIs('formateur.manage.course') ? 'active' : '' }}" href="{{ route('formateur.dashboard') }}#mes-cours">
-                                <i class="fas fa-book"></i> Mes cours
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('formateur.courses.create') ? 'active' : '' }}" href="{{ route('formateur.courses.create') }}">
-                                <i class="fas fa-plus-circle"></i> Créer un cours
-                            </a>
-                        </li>
-                        <li class="nav-item mt-5">
-                            <a class="nav-link" href="{{ route('profile.edit') }}">
-                                <i class="fas fa-cog"></i> Paramètres
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="nav-link border-0 bg-transparent">
-                                    <i class="fas fa-sign-out-alt"></i> Déconnexion
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="formateur-sidebar" id="sidebar">
+            <!-- Toggle Button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left" id="toggleIcon"></i>
+            </button>
+            
+            <!-- Logo Section -->
+            <div class="sidebar-brand">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img" style="height: 35px;">
+                <span class="logo-text">AFRICODE</span>
             </div>
             
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 main-content">
-                <!-- Profile Header -->
-                <div class="profile-header">
-                    <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : 'https://via.placeholder.com/50' }}" alt="Profile" class="profile-pic">
-                    <div class="welcome-text">
-                        <h4>@yield('page-heading', 'Bonjour, ' . Auth::user()->first_name . ' ' . Auth::user()->last_name)</h4>
-                        <p>@yield('page-subheading', 'Bienvenue sur votre tableau de bord formateur')</p>
+            <!-- Navigation -->
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Principal</div>
+                    <div class="nav-item">
+                        <a href="{{ route('formateur.dashboard') }}" class="nav-link {{ request()->routeIs('formateur.dashboard') ? 'active' : '' }}">
+                            <i class="fas fa-chart-line"></i>
+                            <span class="nav-link-text">Tableau de bord</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('formateur.courses.index') }}" class="nav-link {{ request()->routeIs('formateur.courses.index') ? 'active' : '' }}">
+                            <i class="fas fa-book-open"></i>
+                            <span class="nav-link-text">Mes cours</span>
+                            @if(isset($totalCourses) && $totalCourses > 0)
+                                <span class="nav-badge">{{ $totalCourses }}</span>
+                            @endif
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('formateur.courses.create') }}" class="nav-link {{ request()->routeIs('formateur.courses.create') ? 'active' : '' }}">
+                            <i class="fas fa-plus-circle"></i>
+                            <span class="nav-link-text">Créer un cours</span>
+                        </a>
                     </div>
                 </div>
-
-                <!-- Session Flash Messages -->
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </nav>
+            
+            <!-- Footer avec profil utilisateur -->
+            <div class="sidebar-footer">
+                <a href="{{ route('profile.edit') }}" class="user-profile">
+                    <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&background=1EA38B&color=fff&size=40' }}" 
+                         alt="Profile" class="user-avatar">
+                    <div class="user-info">
+                        <h6>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h6>
+                        <small>Formateur</small>
                     </div>
-                @endif
-                
-                @if(session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </a>
+                <div class="nav-item mt-2">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="nav-link border-0 bg-transparent w-100">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="nav-link-text">Déconnexion</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+        
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-content">
+                    <button class="mobile-toggle" onclick="openSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="page-title">@yield('page-title', 'Tableau de bord')</h1>
+                        <p class="page-subtitle">@yield('page-subtitle', 'Bienvenue dans votre espace formateur')</p>
                     </div>
-                @endif
-                
-                <!-- Main Content -->
+                    <div class="header-actions">
+                        @yield('header-actions')
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Indicateur de connexion -->
+            <div id="connection-status" class="alert alert-warning d-none" role="alert">
+                <i class="fas fa-wifi me-2"></i>
+                <span>Vérification de la connexion...</span>
+            </div>
+            
+            <!-- Messages flash -->
+            @if(session('success'))
+                <div class="content-body">
+                    <div class="alert alert-success-modern alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="content-body">
+                    <div class="alert alert-danger-modern alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </div>
+            @endif
+            
+            <!-- Contenu de la page -->
+            <div class="content-body slide-in-right">
                 @yield('content')
             </div>
-        </div>
+        </main>
     </div>
-
-    <!-- Bootstrap JS et Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Scripts AfriCode Formateur -->
+    @vite(['resources/js/components/formateur.js'])
+    
     @yield('scripts')
 </body>
 </html>

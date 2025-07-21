@@ -48,7 +48,7 @@ class FormateurController extends Controller
             ->get();
             
         // Calculer les revenus totaux (si applicable)
-        $totalRevenue = Payment::where('payable_type', Course::class)
+        $totalRevenue = Payment::where('payable_type', \App\Models\Course::class)
             ->whereIn('payable_id', $courses->pluck('id'))
             ->where('status', 'succeeded')
             ->sum('amount');
@@ -128,7 +128,7 @@ class FormateurController extends Controller
         // Récupérer les statistiques du cours
         $enrollmentsCount = Enrollment::where('course_id', $courseId)->count();
         $studentsCount = Enrollment::where('course_id', $courseId)->distinct('user_id')->count('user_id');
-        $revenue = Payment::where('payable_type', Course::class)
+        $revenue = Payment::where('payable_type', \App\Models\Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
@@ -682,7 +682,7 @@ class FormateurController extends Controller
         }
         
         // Filtrer par période si nécessaire
-        $query = Payment::where('payable_type', Course::class)
+        $query = Payment::where('payable_type', \App\Models\Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded');
             
@@ -697,13 +697,13 @@ class FormateurController extends Controller
             ->orderBy('paid_at', 'desc')
             ->paginate(15);
         
-        $totalRevenue = Payment::where('payable_type', Course::class)
+        $totalRevenue = Payment::where('payable_type', \App\Models\Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
         
         // Regrouper les paiements par mois pour le graphique
-        $monthlyRevenues = Payment::where('payable_type', Course::class)
+        $monthlyRevenues = Payment::where('payable_type', \App\Models\Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->selectRaw('DATE_FORMAT(paid_at, "%Y-%m") as month, SUM(amount) as total')
@@ -736,7 +736,7 @@ class FormateurController extends Controller
         }
         
         // Récupérer les données
-        $payments = Payment::where('payable_type', Course::class)
+        $payments = Payment::where('payable_type', \App\Models\Course::class)
             ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->with('user')
@@ -857,7 +857,7 @@ class FormateurController extends Controller
             $course->ratings()->delete();
 
             // 5. Supprimer les paiements liés au cours
-            Payment::where('payable_type', Course::class)
+            Payment::where('payable_type', \App\Models\Course::class)
                    ->where('payable_id', $course->id)
                    ->delete();
 
@@ -1536,5 +1536,70 @@ class FormateurController extends Controller
             DB::rollBack();
             return back()->with('error', 'Une erreur s\'est produite lors de la suppression de l\'examen final. ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Afficher la liste de tous les cours du formateur avec filtres et recherche
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function coursesList(Request $request)
+    {
+        $user = Auth::user();
+        
+        $query = Course::where('formateur_id', $user->id)
+            ->withCount(['students', 'modules'])
+            ->with(['modules']);
+        
+        // Filtre par recherche
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                  ->orWhere('short_description', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Filtre par statut
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Filtre par niveau
+        if ($request->filled('level')) {
+            $query->where('level', $request->level);
+        }
+        
+        // Tri
+        $sort = $request->get('sort', 'created_desc');
+        switch ($sort) {
+            case 'created_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'title_asc':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'title_desc':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'students_desc':
+                $query->orderBy('students_count', 'desc');
+                break;
+            default: // created_desc
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        // Pagination avec conservation des paramètres de recherche
+        $courses = $query->paginate(9)->appends($request->query());
+        
+        // Ajouter les notes moyennes pour chaque cours
+        $courses->getCollection()->transform(function ($course) {
+            $course->average_rating = Rating::where('course_id', $course->id)->avg('rating') ?? 0;
+            return $course;
+        });
+        
+        return view('formateurs.courses.index', compact('courses'));
     }
 }

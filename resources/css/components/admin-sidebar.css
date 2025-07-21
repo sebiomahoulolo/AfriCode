@@ -1,0 +1,244 @@
+/* AfriCode - Sidebar Admin */
+
+/* Sidebar moderne */
+.admin-sidebar {
+    width: 280px;
+    background: var(--africode-gradient-primary);
+    box-shadow: var(--africode-shadow-lg);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: var(--africode-transition);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar.collapsed {
+    width: 80px;
+}
+
+/* Logo section */
+.admin-sidebar-brand {
+    padding: 2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    color: var(--africode-white);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-sidebar-brand::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--africode-bg-pattern);
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.admin-logo-img {
+    width: 40px;
+    height: auto;
+    margin-right: 1rem;
+    transition: transform 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    position: relative;
+    z-index: 2;
+}
+
+.admin-sidebar-brand:hover .admin-logo-img {
+    transform: scale(1.05);
+}
+
+.admin-logo-text {
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: var(--africode-transition);
+    position: relative;
+    z-index: 2;
+}
+
+.admin-sidebar.collapsed .admin-logo-text {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.admin-sidebar-brand:hover .admin-logo-text {
+    color: var(--africode-secondary);
+}
+
+/* Menu items */
+.admin-sidebar-menu {
+    padding: 1rem 0;
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.admin-sidebar-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: var(--africode-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--africode-secondary);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.admin-nav-link:hover::before,
+.admin-nav-link.active::before {
+    transform: scaleY(1);
+}
+
+.admin-nav-link:hover {
+    color: white;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(5px);
+}
+
+.admin-nav-link.active {
+    color: white;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), transparent);
+    font-weight: 600;
+}
+
+.admin-nav-icon {
+    width: 20px;
+    text-align: center;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+    transition: var(--africode-transition);
+}
+
+.admin-nav-link:hover .admin-nav-icon {
+    transform: scale(1.1);
+    color: var(--africode-secondary);
+}
+
+.admin-nav-text {
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--africode-transition);
+}
+
+.admin-sidebar.collapsed .admin-nav-text {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.admin-sidebar.collapsed .admin-nav-link {
+    padding: 1rem 1rem;
+    justify-content: center;
+}
+
+.admin-sidebar.collapsed .admin-nav-icon {
+    margin-right: 0;
+}
+
+/* Toggle button */
+.admin-sidebar-toggle {
+    position: absolute;
+    top: 50%;
+    right: -15px;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    background: var(--africode-white);
+    border: none;
+    border-radius: 50%;
+    color: var(--africode-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    box-shadow: var(--africode-shadow-md);
+    transition: var(--africode-transition);
+    z-index: 1001;
+}
+
+.admin-sidebar-toggle:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--africode-shadow-lg);
+}
+
+/* Overlay pour mobile */
+.admin-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--africode-transition);
+}
+
+.admin-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+    }
+    
+    .admin-sidebar.show {
+        left: 0;
+    }
+    
+    .admin-sidebar-toggle {
+        display: none;
+    }
+}
+
+/* Scrollbar pour sidebar */
+.admin-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}

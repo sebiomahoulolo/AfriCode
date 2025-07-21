@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.course_students_title'))
+@section('title', 'AfriCode - Étudiants inscrits')
+@section('page-title', $course->title)
+@section('page-subtitle', 'Liste des étudiants inscrits (' . $enrollments->count() . ' étudiants)')
 
-@section('page-heading', $course->title)
-@section('page-subheading', __('messages.students_list'))
+@section('header-actions')
+    <a href="{{ route('formateur.manage.course', $course) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au cours
+    </a>
+    <button class="btn-secondary-africode" data-bs-toggle="modal" data-bs-target="#exportModal">
+        <i class="fas fa-download me-2"></i>Exporter
+    </button>
+@endsection
 
 @section('styles')
 <style>

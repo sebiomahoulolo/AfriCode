@@ -4,10 +4,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-class Course extends Model
+class Course extends Model implements AuditableContract
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Searchable, Auditable;
 
     protected $fillable = [
         'title', 
@@ -119,6 +122,25 @@ class Course extends Model
     public function getMissingPrerequisitesFor(User $user): array
     {
         return CoursePrerequisite::getMissingPrerequisites($user, $this);
+    }
+
+    /**
+     * Prépare les données à indexer pour la recherche avancée.
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'title' => $this->title,
+            'short_description' => $this->short_description,
+            'full_description' => $this->full_description,
+            'category' => optional($this->category)->name,
+            'level' => $this->level,
+            'price' => $this->price,
+            'is_certifying' => $this->is_certifying,
+            'is_premium' => $this->is_premium,
+            'formateur' => optional($this->formateur)->first_name . ' ' . optional($this->formateur)->last_name,
+            'tags' => $this->tags ?? [],
+        ];
     }
 
     // Générer le slug automatiquement lors de la création/mise à jour

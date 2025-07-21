@@ -3,7 +3,7 @@
 @section('title', 'AfriCode')
 
 @section('content')
-<div class="container py-5">
+<div class="container py-5 px-2">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
@@ -43,7 +43,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn  py-2" style="background-color:  #1EA38B; color:white">
+                            <button type="submit" class="btn py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B; color:white" aria-label="Envoyer le lien de réinitialisation du mot de passe">
                                 <i class="fas fa-paper-plane me-2" style="color:  #FF8E2A;"></i>Envoyer le lien de réinitialisation
                             </button>
                         </div>

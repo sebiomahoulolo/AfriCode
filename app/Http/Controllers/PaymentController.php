@@ -14,10 +14,11 @@ class PaymentController extends Controller
     {
         $payment = Payment::create([
             'user_id' => Auth::id(),
-            'course_id' => $course->id,
+            'payable_id' => $course->id,
+            'payable_type' => 'App\\Models\\Course',
             'amount' => $course->price,
             'currency' => 'EUR',
-            'payment_method' => $request->payment_method,
+            'payment_method' => $request->payment_method ?? 'manual',
             'status' => 'pending',
             'transaction_id' => Str::uuid(),
             'payment_date' => now(),

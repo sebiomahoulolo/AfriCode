@@ -11,33 +11,31 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 🧍 Utilisateurs et catégories
         $this->call([
-            // Utilisateurs, catégories et cours
             UserSeeder::class,
             CategorySeeder::class,
-            // CourseSeeder::class, // Commenté car CourseContentSeeder crée déjà un cours
-            
-            // Structure des cours
-            ModuleSeeder::class,
-            LessonSeeder::class,
+        ]);
+
+        // 📚 Contenu de cours : ce seeder crée des cours AVEC modules, leçons, quiz, etc.
+        $this->call(CourseContentSeeder::class);
+
+        // 🧱 Structure additionnelle : ressources, inscriptions...
+        $this->call([
             ResourceSeeder::class,
-            
-            // Quiz et évaluations (ancien seeder, maintenant désactivé)
-            // QuizSeeder::class,
-            
-            // Interactions des utilisateurs
             EnrollmentSeeder::class,
-            
-            // Autres entités  
+        ]);
+
+        // 🏆 Fonctionnalités avancées
+        $this->call([
             CompetitionSeeder::class,
             MentorshipSeeder::class,
             CertificationSeeder::class,
             BadgeSeeder::class,
             RewardSeeder::class,
-            // CertificationSeeder::class, // Les certificats sont créés par la logique de l'app
         ]);
 
-        // Ce seeder crée un cours complet avec modules, leçons et quiz pour les tests.
-        $this->call(CourseContentSeeder::class);
+        // 💬 Forum apprenant
+        $this->call(ForumPostSeeder::class);
     }
 }
