@@ -155,4 +155,9 @@ class Competition extends Model
     {
         return $query->whereIn('status', ['upcoming', 'open_for_registration', 'in_progress']);
     }
+
+    public function testCases()
+    {
+        return $this->hasMany(CompetitionTestCase::class);
+    }
 }

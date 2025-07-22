@@ -33,6 +33,7 @@ use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminChallengeController;
 use App\Http\Controllers\CompetitionDisplayController;
+use App\Http\Controllers\AdminCompetitionTestCaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -585,4 +586,17 @@ Route::get('/challenges/{id}', [CompetitionDisplayController::class, 'showChalle
 Route::post('/challenges/{id}/participate', [CompetitionDisplayController::class, 'participateChallenge'])->name('challenges.participate');
 Route::match(['get', 'post'], '/challenges/{id}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playChallenge'])->name('challenges.play');
 Route::get('/competitions/{slug}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playCompetition'])->name('competitions.play');
+
+// Route pour exécution de code dans une compétition
+Route::middleware(['auth'])->post('/competitions/{slug}/run-code', [\App\Http\Controllers\CompetitionController::class, 'runCode'])->name('competitions.runCode');
+Route::post('/competitions/{slug}/evaluate', [App\Http\Controllers\CompetitionController::class, 'evaluateSubmission'])->name('competitions.evaluate');
+
+Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'index'])->name('admin.competitions.testcases.index');
+    Route::get('competitions/{competition}/test-cases/create', [AdminCompetitionTestCaseController::class, 'create'])->name('admin.competitions.testcases.create');
+    Route::post('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'store'])->name('admin.competitions.testcases.store');
+    Route::get('competitions/{competition}/test-cases/{testcase}/edit', [AdminCompetitionTestCaseController::class, 'edit'])->name('admin.competitions.testcases.edit');
+    Route::put('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'update'])->name('admin.competitions.testcases.update');
+    Route::delete('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'destroy'])->name('admin.competitions.testcases.destroy');
+});
 

@@ -37,5 +37,8 @@ class DatabaseSeeder extends Seeder
 
         // 💬 Forum apprenant
         $this->call(ForumPostSeeder::class);
+
+        // Autres seeders
+        $this->call(CompetitionTestCaseSeeder::class);
     }
 }

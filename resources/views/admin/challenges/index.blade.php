@@ -56,7 +56,11 @@
                                         <a href="{{ route('admin.challenges.questions', $challenge->id) }}" class="admin-button-icon admin-button-icon-primary" title="Gérer les QCM">
                                             <i class="fas fa-question-circle"></i>
                                         </a>
-                                        
+                                        @if($challenge->type === 'competition' && $competition = \App\Models\Competition::where('title', $challenge->name)->first())
+                                            <a href="{{ route('admin.competitions.testcases.index', $competition) }}" class="admin-button-icon admin-button-icon-primary" title="Gérer les cas de test">
+                                                <i class="fas fa-vial"></i>
+                                            </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
