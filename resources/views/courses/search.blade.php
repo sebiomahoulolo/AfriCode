@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Rechercher des formations - AfriCode')
+@section('title', __('messages.courses_search_title'))
 
 @section('meta_tags')
     <meta name="description" content="Explorez notre catalogue de formations. Trouvez le cours parfait pour développer vos compétences en filtrant par catégorie, niveau et prix.">

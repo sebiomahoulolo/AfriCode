@@ -3,212 +3,213 @@
 @section('breadcrumb', 'Statistiques')
 
 @section('content')
-<div class="fade-in">
+<div class="admin-content">
     <!-- Page Header -->
     <div class="admin-card" data-aos="fade-up">
         <div class="admin-card-header">
-            <div>
-                <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Statistiques de la plateforme</h1>
+            <div class="admin-card-header-content">
+                <h1 class="admin-card-title">Statistiques de la plateforme</h1>
                 <p class="admin-card-subtitle">Analysez les performances et l'évolution de votre plateforme</p>
             </div>
             <div class="admin-card-actions">
-                <div style="position: relative; display: inline-block;">
-                    <button style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s;">
-                        <i class="fas fa-calendar-alt"></i> Période
-                    </button>
-                </div>
-                <a href="#" style="background: linear-gradient(135deg, #FF8E2A, #FFB366); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; margin-left: 0.5rem;">
+                <button class="admin-button admin-button-primary">
+                    <i class="fas fa-calendar-alt"></i> Période
+                </button>
+                <button class="admin-button admin-button-secondary">
                     <i class="fas fa-file-export"></i> Exporter
-                </a>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="admin-grid admin-grid-4" style="margin-bottom: 2rem;">
+    <div class="admin-stats-grid">
+        <!-- Total Enrollments Card -->
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="100">
             <div class="admin-stats-icon">
                 <i class="fas fa-user-graduate"></i>
             </div>
-            <div class="admin-stats-number">{{ array_sum(array_column($monthlyEnrollments, 'count')) }}</div>
-            <div class="admin-stats-label">Inscriptions totales</div>
-            <div class="admin-stats-change positive">
-                <i class="fas fa-arrow-up"></i> +{{ $monthlyEnrollments[count($monthlyEnrollments) - 1]['count'] ?? 0 }} ce mois
+            <div class="admin-stats-content">
+                <div class="admin-stats-number">{{ array_sum(array_column($monthlyEnrollments, 'count')) }}</div>
+                <div class="admin-stats-label">Inscriptions totales</div>
+                <div class="admin-stats-change positive">
+                    <i class="fas fa-arrow-up"></i> +{{ $monthlyEnrollments[count($monthlyEnrollments) - 1]['count'] ?? 0 }} ce mois
+                </div>
             </div>
         </div>
         
+        <!-- Total Revenue Card -->
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="200">
-            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #FF8E2A, #FFB366);">
+            <div class="admin-stats-icon" style="background-color: #10B981;">
                 <i class="fas fa-euro-sign"></i>
             </div>
-            <div class="admin-stats-number">{{ number_format(array_sum(array_column($monthlyRevenue, 'amount')), 0, ',', ' ') }}€</div>
-            <div class="admin-stats-label">Revenu total</div>
-            <div class="admin-stats-change positive">
-                <i class="fas fa-arrow-up"></i> +{{ number_format($monthlyRevenue[count($monthlyRevenue) - 1]['amount'] ?? 0, 0, ',', ' ') }}€ ce mois
-            </div>
-                    </div>
-                    <i class="fas fa-money-bill fa-2x text-success"></i>
+            <div class="admin-stats-content">
+                <div class="admin-stats-number">{{ number_format(array_sum(array_column($monthlyRevenue, 'amount')), 0, ',', ' ') }}€</div>
+                <div class="admin-stats-label">Revenu total</div>
+                <div class="admin-stats-change positive">
+                    <i class="fas fa-arrow-up"></i> +{{ number_format($monthlyRevenue[count($monthlyRevenue) - 1]['amount'] ?? 0, 0, ',', ' ') }}€ ce mois
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Cours publiés</h6>
-                        <div class="stats-number">{{ $courseLevels['Débutant'] + $courseLevels['Intermédiaire'] + $courseLevels['Avancé'] }}</div>
-                        <div class="text-success small">
-                            {{ $courseLevels['Débutant'] }} débutant, {{ $courseLevels['Intermédiaire'] }} intermédiaire, {{ $courseLevels['Avancé'] }} avancé
-                        </div>
-                    </div>
-                    <i class="fas fa-book fa-2x text-primary"></i>
+        <!-- Published Courses Card -->
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="admin-stats-icon" style="background-color: #3B82F6;">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="admin-stats-content">
+                <div class="admin-stats-number">{{ $courseLevels['Débutant'] + $courseLevels['Intermédiaire'] + $courseLevels['Avancé'] }}</div>
+                <div class="admin-stats-label">Cours publiés</div>
+                <div class="admin-stats-details">
+                    {{ $courseLevels['Débutant'] }} débutant, {{ $courseLevels['Intermédiaire'] }} intermédiaire, {{ $courseLevels['Avancé'] }} avancé
                 </div>
             </div>
         </div>
         
-        <div class="col-md-3 mb-4">
-            <div class="dashboard-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-header text-muted mb-0">Utilisateurs actifs</h6>
-                        <div class="stats-number">{{ $userRoles['Administrateurs'] + $userRoles['Formateurs'] + $userRoles['Apprenants'] }}</div>
-                        <div class="text-success small">
-                            {{ $userRoles['Administrateurs'] }} admin, {{ $userRoles['Formateurs'] }} form., {{ $userRoles['Apprenants'] }} app.
-                        </div>
-                    </div>
-                    <i class="fas fa-users fa-2x text-warning"></i>
+        <!-- Active Users Card -->
+        <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="admin-stats-icon" style="background-color: #F59E0B;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="admin-stats-content">
+                <div class="admin-stats-number">{{ $userRoles['Administrateurs'] + $userRoles['Formateurs'] + $userRoles['Apprenants'] }}</div>
+                <div class="admin-stats-label">Utilisateurs actifs</div>
+                <div class="admin-stats-details">
+                    {{ $userRoles['Administrateurs'] }} admin, {{ $userRoles['Formateurs'] }} form., {{ $userRoles['Apprenants'] }} app.
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <!-- Charts Row 1 -->
+    <div class="admin-charts-row">
         <!-- Monthly Enrollments Chart -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card h-100">
-                <h5 class="card-header">Inscriptions mensuelles</h5>
-                <div class="card-body">
-                    <canvas id="enrollmentsChart" height="250"></canvas>
-                </div>
+        <div class="admin-chart-card" data-aos="fade-up">
+            <div class="admin-chart-header">
+                <h3>Inscriptions mensuelles</h3>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="enrollmentsChart" height="250"></canvas>
             </div>
         </div>
         
         <!-- Monthly Revenue Chart -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card h-100">
-                <h5 class="card-header">Revenus mensuels</h5>
-                <div class="card-body">
-                    <canvas id="revenueChart" height="250"></canvas>
-                </div>
+        <div class="admin-chart-card" data-aos="fade-up">
+            <div class="admin-chart-header">
+                <h3>Revenus mensuels</h3>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="revenueChart" height="250"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <!-- Charts Row 2 -->
+    <div class="admin-charts-row">
         <!-- Category Distribution Chart -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card h-100">
-                <h5 class="card-header">Cours par catégorie</h5>
-                <div class="card-body">
-                    <canvas id="categoryChart" height="250"></canvas>
-                </div>
+        <div class="admin-chart-card" data-aos="fade-up">
+            <div class="admin-chart-header">
+                <h3>Cours par catégorie</h3>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="categoryChart" height="250"></canvas>
             </div>
         </div>
         
         <!-- User Roles Chart -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card h-100">
-                <h5 class="card-header">Distribution des utilisateurs</h5>
-                <div class="card-body">
-                    <canvas id="userRolesChart" height="250"></canvas>
-                </div>
+        <div class="admin-chart-card" data-aos="fade-up">
+            <div class="admin-chart-header">
+                <h3>Distribution des utilisateurs</h3>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="userRolesChart" height="250"></canvas>
             </div>
         </div>
         
         <!-- Course Levels Chart -->
-        <div class="col-md-4 mb-4">
-            <div class="dashboard-card h-100">
-                <h5 class="card-header">Niveaux des cours</h5>
-                <div class="card-body">
-                    <canvas id="courseLevelsChart" height="250"></canvas>
-                </div>
+        <div class="admin-chart-card" data-aos="fade-up">
+            <div class="admin-chart-header">
+                <h3>Niveaux des cours</h3>
+            </div>
+            <div class="admin-chart-body">
+                <canvas id="courseLevelsChart" height="250"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    <!-- Tables Row -->
+    <div class="admin-tables-row">
         <!-- Top Courses Table -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <h5 class="card-header">Cours les plus populaires</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+        <div class="admin-table-card" data-aos="fade-up">
+            <div class="admin-table-header">
+                <h3>Cours les plus populaires</h3>
+            </div>
+            <div class="admin-table-body">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Cours</th>
+                            <th>Formateur</th>
+                            <th>Catégorie</th>
+                            <th>Inscriptions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($topCourses as $course)
                             <tr>
-                                <th>Cours</th>
-                                <th>Formateur</th>
-                                <th>Catégorie</th>
-                                <th>Inscriptions</th>
+                                <td>
+                                    <a href="{{ route('admin.courses.show', $course) }}">
+                                        {{ $course->title }}
+                                    </a>
+                                </td>
+                                <td>{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}</td>
+                                <td>{{ $course->category->name ?? 'Non catégorisé' }}</td>
+                                <td>{{ $course->enrollments_count }}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($topCourses as $course)
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('admin.courses.show', $course) }}">
-                                            {{ $course->title }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}</td>
-                                    <td>{{ $course->category->name ?? 'Non catégorisé' }}</td>
-                                    <td>{{ $course->enrollments_count }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">Aucun cours trouvé</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Aucun cours trouvé</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
         
         <!-- Top Formateurs Table -->
-        <div class="col-md-6 mb-4">
-            <div class="dashboard-card">
-                <h5 class="card-header">Formateurs les plus actifs</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
+        <div class="admin-table-card" data-aos="fade-up">
+            <div class="admin-table-header">
+                <h3>Formateurs les plus actifs</h3>
+            </div>
+            <div class="admin-table-body">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Formateur</th>
+                            <th>Cours</th>
+                            <th>Inscriptions</th>
+                            <th>Revenus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($topFormateurs as $formateur)
                             <tr>
-                                <th>Formateur</th>
-                                <th>Cours</th>
-                                <th>Inscriptions</th>
-                                <th>Revenus</th>
+                                <td>
+                                    <a href="{{ route('admin.users.show', $formateur) }}">
+                                        {{ $formateur->first_name }} {{ $formateur->last_name }}
+                                    </a>
+                                </td>
+                                <td>{{ $formateur->coursesInstructed->count() }}</td>
+                                <td>{{ $formateur->total_enrollments }}</td>
+                                <td>{{ number_format(0, 0, ',', ' ') }} XOF</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($topFormateurs as $formateur)
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('admin.users.show', $formateur) }}">
-                                            {{ $formateur->first_name }} {{ $formateur->last_name }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $formateur->coursesInstructed->count() }}</td>
-                                    <td>{{ $formateur->total_enrollments }}</td>
-                                    <td>{{ number_format(0, 0, ',', ' ') }} XOF</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="text-center">Aucun formateur trouvé</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Aucun formateur trouvé</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -253,7 +254,7 @@
             datasets: [{
                 label: 'Inscriptions',
                 data: getEnrollmentCounts(),
-                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 borderColor: '#3B82F6',
                 borderWidth: 2,
                 tension: 0.3,
@@ -270,10 +271,11 @@
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
                     titleFont: {
-                        size: 14
+                        size: 14,
+                        weight: 'bold'
                     },
                     bodyFont: {
                         size: 14
@@ -289,12 +291,19 @@
                 x: {
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        color: '#6B7280'
                     }
                 },
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        precision: 0
+                        precision: 0,
+                        color: '#6B7280'
+                    },
+                    grid: {
+                        color: 'rgba(229, 231, 235, 0.5)'
                     }
                 }
             }
@@ -310,7 +319,7 @@
             datasets: [{
                 label: 'Revenus',
                 data: getRevenueAmounts(),
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 borderColor: '#10B981',
                 borderWidth: 2,
                 tension: 0.3,
@@ -327,10 +336,11 @@
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: 10,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
                     titleFont: {
-                        size: 14
+                        size: 14,
+                        weight: 'bold'
                     },
                     bodyFont: {
                         size: 14
@@ -346,6 +356,9 @@
                 x: {
                     grid: {
                         display: false
+                    },
+                    ticks: {
+                        color: '#6B7280'
                     }
                 },
                 y: {
@@ -358,7 +371,11 @@
                                 return (value / 1000).toFixed(0) + 'k';
                             }
                             return value;
-                        }
+                        },
+                        color: '#6B7280'
+                    },
+                    grid: {
+                        color: 'rgba(229, 231, 235, 0.5)'
                     }
                 }
             }
@@ -399,11 +416,12 @@
                         font: {
                             size: 11
                         },
-                        padding: 15
+                        padding: 15,
+                        color: '#6B7280'
                     }
                 }
             },
-            cutout: '60%'
+            cutout: '65%'
         }
     });
 
@@ -430,11 +448,12 @@
                         font: {
                             size: 11
                         },
-                        padding: 15
+                        padding: 15,
+                        color: '#6B7280'
                     }
                 }
             },
-            cutout: '60%'
+            cutout: '65%'
         }
     });
 
@@ -461,11 +480,12 @@
                         font: {
                             size: 11
                         },
-                        padding: 15
+                        padding: 15,
+                        color: '#6B7280'
                     }
                 }
             },
-            cutout: '60%'
+            cutout: '65%'
         }
     });
 </script>

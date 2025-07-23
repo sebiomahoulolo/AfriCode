@@ -215,21 +215,32 @@
                 </p>
             </div>
 
-            <!-- Liens utiles -->
+            <!-- Liens utiles --> 
             <div class="col-lg-4 col-md-6 mb-4 mb-lg-0"> <!-- Ajout mb-lg-0 -->
                 <h5 class="text-uppercase fw-bold footer-title">Liens utiles</h5>
                 <ul class="list-unstyled footer-links">
-                    <!-- Répétez pour chaque lien -->
-                    <li><a href="{{ route('pages.coursD') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-chalkboard-teacher me-2"></i>Cours débutant</a></li>
-                    <li><a href="{{ route('pages.coursT') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-laptop-code me-2"></i>Cours intermédiaire</a></li>
-                    <li><a href="{{ route('pages.coursE') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-rocket me-2"></i>Cours expert</a></li>
-                    <li><a href="#" class="text-light text-decoration-none link-animated"><i class="fas fa-gift me-2"></i>Cours gratuit</a></li>
-                    <li><a href="#" class="text-light text-decoration-none link-animated"><i class="fas fa-award me-2"></i>Cours certifiant</a></li>
+                    <!-- Accueil -->
+                    <li><a href="{{ url('/') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-home me-2"></i>Accueil</a></li>
+                   
+                    <li><a href="{{ route('courses.index', ['level' => 'debutant']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-chalkboard-teacher me-2"></i>Débutant</a></li>
+                    <li><a href="{{ route('courses.index', ['level' => 'intermediaire']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-laptop-code me-2"></i>Intermédiaire</a></li>
+                    <li><a href="{{ route('courses.index', ['level' => 'avance']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-rocket me-2"></i>Avancé / Expert</a></li>
+                 
+                    <li><a href="{{ route('courses.index', ['price' => 'free']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-gift me-2"></i>Cours gratuits</a></li>
+                    <li><a href="{{ route('courses.index', ['price' => 'paid']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-credit-card me-2"></i>Cours payants</a></li>
+              
+                    <li><a href="{{ route('courses.index', ['certification' => 'certified']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-award me-2"></i>Formations certifiées</a></li>
+              
                     <li><a href="{{ route('pages.compdisp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-trophy me-2"></i>Compétitions</a></li>
                     <li><a href="{{ route('pages.test') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-vial me-2"></i>Test de niveau</a></li>
-                    <li><a href="{{ route('pages.verifier') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-certificate me-2"></i>Vérifier certificat</a></li>
-                    <li><a href="{{ route('pages.forumexp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-user-tie me-2"></i>Forum experts</a></li>
-                    <li><a href="{{ route('pages.forumapp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-users me-2"></i>Forum apprenants</a></li>
+                    <li><a href="{{ url('/le-forum-des-experts') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-user-tie me-2"></i>Forum des Experts</a></li>
+                    <li><a href="{{ route('pages.forumapp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-users me-2"></i>Forum des Apprenants</a></li>
+                    <!-- Vérifier Certificat -->
+                    {{-- <li class="mt-2"><a href="{{ route('certificate.verification') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-shield-check me-2 text-success"></i>Vérifier un Certificat</a></li>
+                    <!-- À propos -->
+                    <li class="mt-2"><a href="{{ route('pages.apropos') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-info-circle me-2"></i>À Propos</a></li>
+                    <!-- Contact -->
+                    <li><a href="{{ route('pages.contact') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-envelope me-2"></i>Contact</a></li> --}}
                 </ul>
             </div>
 
@@ -237,23 +248,25 @@
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0"> <!-- mb-lg-0 pour éviter marge en bas sur grand écran -->
                 <h5 class="text-uppercase fw-bold footer-title">Suivez-nous</h5>
                 <div class="d-flex justify-content-center justify-content-lg-start mb-4"> <!-- mb-4 ajouté et alignement gauche sur lg -->
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="Twitter" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="YouTube" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="btn btn-outline-light btn-floating m-1" title="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=61574681464943" class="btn btn-outline-light btn-floating m-1" title="Facebook" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                    {{-- <a href="#" class="btn btn-outline-light btn-floating m-1" title="Twitter" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a> --}}
+                    <a href="https://www.instagram.com/africode1?igsh=YzljYTk1ODg3Zg==" class="btn btn-outline-light btn-floating m-1" title="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.linkedin.com/company/africode-no-code-no-future/" class="btn btn-outline-light btn-floating m-1" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://youtube.com/@africodetechsm?si=k8Y49FJR3tib1KNc" class="btn btn-outline-light btn-floating m-1" title="YouTube" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                    <a href="https://wa.me/22965603040" class="btn btn-outline-light btn-floating m-1" title="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
                 </div>
 
                 <!-- Newsletter intégrée -->
                 <div class="newsletter-footer mb-4">
-                    <h6 class="text-uppercase fw-bold mb-3">Newsletter</h6>
-                    <form class="newsletter-form">
+                    <h6 class="text-uppercase fw-bold mb-3">Restez informé</h6>
+                    <form class="newsletter-form" id="newsletterForm">
+                        @csrf
                         <div class="input-group">
-                            <input type="email" class="form-control form-control-sm" placeholder="Votre email" aria-label="Email address">
-                            <button class="btn btn-sm btn-light" type="button">S'abonner</button>
+                            <input type="email" name="email" class="form-control" placeholder="Votre adresse email" aria-label="Email address" required>
+                            <button class="btn btn-primary" type="submit">S'abonner</button>
                         </div>
-                        <small class="form-text text-light mt-2 d-block">Nous respectons votre vie privée.</small>
+                        <small class="form-text" style='color: white' >Nous respectons votre vie privée.</small>
+                        <div id="newsletterMessage" class="mt-2" style="display: none;"></div>
                     </form>
                 </div>
 
@@ -268,7 +281,6 @@
                 <div class="row align-items-center">
                     <div class="col-lg-6 mb-4 mb-lg-0">
                         <h3 class="newsletter-title">Restez informé</h3>
-                    
                     </div>
                     <div class="col-lg-6">
                         <form class="newsletter-form">
@@ -285,7 +297,7 @@
     </div>
     <!-- Copyright -->
     <div class="footer-copyright text-center p-3">
-        © 2025 AfriCode : No code, No future - Tous droits réservés.
+     &copy; {{ date('Y') }} AfriCode : No code, No future <a href="https://www.linkedin.com/in/mahoulolo-s%C3%A9bio-7a6a85285/" target="_blank" rel="noopener noreferrer">-</a> Tous droits réservés.
         <!-- Lien optionnel vers le créateur -->
          <!-- Développé par <a href="https://www.linkedin.com/in/mahoulolo-s%C3%A9bio-7a6a85285/" target="_blank" rel="noopener noreferrer">Mahoulolo SEBIO</a>. -->
     </div>
@@ -293,6 +305,59 @@
 
 <!-- Bootstrap JS Bundle (si nécessaire) -->
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newsletterForm = document.getElementById('newsletterForm');
+    const newsletterMessage = document.getElementById('newsletterMessage');
+    
+    newsletterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(newsletterForm);
+        const submitButton = newsletterForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        
+        // Désactiver le bouton et changer le texte
+        submitButton.disabled = true;
+        submitButton.textContent = 'Inscription...';
+        
+        // Masquer les messages précédents
+        newsletterMessage.style.display = 'none';
+        newsletterMessage.className = '';
+        
+        fetch('{{ route("newsletter.subscribe") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                newsletterMessage.className = 'alert alert-success';
+                newsletterMessage.textContent = data.message;
+                newsletterForm.reset();
+            } else {
+                newsletterMessage.className = 'alert alert-danger';
+                newsletterMessage.textContent = data.message || 'Une erreur est survenue.';
+            }
+        })
+        .catch(error => {
+            newsletterMessage.className = 'alert alert-danger';
+            newsletterMessage.textContent = 'Une erreur est survenue lors de l\'inscription.';
+        })
+        .finally(() => {
+            // Réactiver le bouton et restaurer le texte
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+            newsletterMessage.style.display = 'block';
+        });
+    });
+});
+</script>
 
 </body>
 </html>

@@ -1,6 +1,6 @@
 @extends('apprenants.layouts.app')
 
-@section('title', 'Passer le Quiz: ' . $quiz->title)
+@section('title', 'AfriCode')
 @section('page-title', $quiz->title)
 
 @push('styles')
@@ -52,7 +52,7 @@
 @endpush
 
 @section('content')
-<div class="quiz-form-container" data-aos="fade-up">
+<div class="quiz-form-container px-2 py-2" data-aos="fade-up">
     <form id="quiz-form" action="{{ route('apprenant.quiz.take', ['quizId' => $quiz->id]) }}" method="POST">
             @csrf
         <div class="card africode-card mb-4">
@@ -66,7 +66,7 @@
                     </div>
                     @endif
                 </div>
-                <div class="quiz-progress-bar-container">
+                <div class="quiz-progress-bar-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="{{ $quiz->questions->count() }}">
                     <div id="progress-bar" class="quiz-progress-bar" style="width: 0%;"></div>
                 </div>
             </div>
@@ -99,13 +99,13 @@
 
         <div class="card africode-card">
              <div class="card-body d-flex justify-content-between align-items-center">
-                <button type="button" id="prev-btn" class="btn btn-outline-modern" disabled>
+                <button type="button" id="prev-btn" class="btn btn-outline-modern focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Question précédente" disabled>
                     <i class="fas fa-arrow-left me-2"></i>Précédent
                 </button>
-                <button type="button" id="next-btn" class="btn btn-modern">
+                <button type="button" id="next-btn" class="btn btn-modern focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Question suivante">
                     Suivant<i class="fas fa-arrow-right ms-2"></i>
                 </button>
-                <button type="submit" id="submit-btn" class="btn btn-success" style="display: none;">
+                <button type="submit" id="submit-btn" class="btn btn-success w-full focus:outline-none focus:ring-2 focus:ring-primary" style="display: none;" aria-label="Soumettre mes réponses">
                     <i class="fas fa-check-circle me-2"></i>Soumettre mes réponses
                     </button>
                 </div>

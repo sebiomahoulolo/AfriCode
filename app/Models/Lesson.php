@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
 
-class Lesson extends Model
+class Lesson extends Model implements AuditableContract
 {
-    use HasFactory;
+    use HasFactory, Searchable, Auditable;
 
     protected $fillable = [
         'module_id',
@@ -51,5 +54,16 @@ class Lesson extends Model
     public function getCourse()
     {
         return $this->module->course;
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'title' => $this->title,
+            'content_type' => $this->content_type,
+            'text_content' => $this->text_content,
+            'module' => optional($this->module)->title,
+            'course' => optional($this->getCourse())->title,
+        ];
     }
 }

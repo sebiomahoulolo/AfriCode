@@ -6,8 +6,8 @@ use App\Http\Controllers\AdminImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-// Removed: use App\Http\Controllers\RegisterUserController;
-// Removed: use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\RegisterUserController;
+use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\CoursController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CourseController;
@@ -25,11 +25,15 @@ use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CoursePrerequisiteController;
 use App\Http\Controllers\RewardController;
-use App\Http\Controllers\LanguageController;
-
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ContactController;
+use Illuminate\Http\Request;
+use App\Http\Controllers\AdminChallengeController;
+use App\Http\Controllers\CompetitionDisplayController;
+use App\Http\Controllers\AdminCompetitionTestCaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -320,7 +324,8 @@ Route::get('/courses/free', [CoursController::class, 'free'])->name('courses.fre
 Route::get('/courses/premium', [CoursController::class, 'premium'])->name('courses.premium');
 
 //les fonctionnalites 
-Route::get('/les-compétitions-disponibles', [CoursController::class, 'compdisp'])->name('pages.compdisp');
+Route::get('/les-compétitions-disponibles', [\App\Http\Controllers\CompetitionDisplayController::class, 'index'])->name('pages.compdisp');
+Route::get('/api/leaderboard', [\App\Http\Controllers\CompetitionDisplayController::class, 'getLeaderboard'])->name('api.leaderboard');
 Route::get('/test-de-niveau', [CoursController::class, 'test'])->name('pages.test');
 Route::get('/vérifier-un-certificat', [CoursController::class, 'verifier'])->name('pages.verifier');
 Route::get('/le-forum-des-experts', [CoursController::class, 'forumexp'])->name('pages.forumexp');
@@ -443,5 +448,155 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/courses/{course}/check-access', [CoursePrerequisiteController::class, 'checkAccess'])->name('courses.check-access');
 });
 
-// Route pour le changement de langue
-Route::get('language/{locale}', [LanguageController::class, 'switchLang'])->name('language.switch');
+// Forum de discussion (accessible à tous les utilisateurs connectés)
+Route::middleware(['auth'])->prefix('forum')->name('forum.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('index');
+    Route::get('/creer', [\App\Http\Controllers\CourseForumController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\CourseForumController::class, 'store'])->name('store');
+    Route::get('/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('show');
+    Route::get('/{id}/editer', [\App\Http\Controllers\CourseForumController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [\App\Http\Controllers\CourseForumController::class, 'update'])->name('update');
+    Route::delete('/{id}', [\App\Http\Controllers\CourseForumController::class, 'destroy'])->name('destroy');
+    Route::post('/{id}/repondre', [\App\Http\Controllers\CourseForumController::class, 'reply'])->name('reply');
+});
+
+// Route personnalisée pour le forum des apprenants (accès direct)
+Route::get('/le-forum-des-apprenants', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('pages.forumapp');
+
+// Route personnalisée pour afficher un sujet du forum des experts
+Route::get('/le-forum-des-experts/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('pages.forumexp');
+
+// Redirection automatique de /le-forum-des-experts vers la liste des sujets du forum
+Route::get('/le-forum-des-experts', function () {
+    return redirect()->route('forum.index'); // ou 'pages.forumapp' si tu préfères
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/forum/ajax-store', [\App\Http\Controllers\CourseForumController::class, 'storeAjax'])->name('forum.ajaxStore');
+    Route::get('/api/forum/topics', [\App\Http\Controllers\CourseForumController::class, 'apiTopics'])->name('api.forum.topics');
+    Route::get('/api/forum/topic/{id}', [\App\Http\Controllers\CourseForumController::class, 'apiTopicDetail'])->name('api.forum.topicDetail');
+    Route::post('/api/forum/topic/{id}/reply', [\App\Http\Controllers\CourseForumController::class, 'apiReply'])->name('api.forum.reply');
+});
+
+// API pour le leaderboard du forum
+Route::get('/api/forum/leaderboard', function () {
+    try {
+        // Utiliser la même logique que CompetitionDisplayController
+        $globalLeaderboard = \App\Models\Leaderboard::where('type', 'global')->first();
+        $leaderboardData = [];
+        
+        if ($globalLeaderboard) {
+            $leaderboardData = \App\Models\UserScore::with('user')
+                ->where('leaderboard_id', $globalLeaderboard->id)
+                ->orderBy('score', 'desc')
+                ->take(3)
+                ->get()
+                ->map(function ($score, $index) {
+                    // Utiliser la même logique que CompetitionDisplayController
+                    $user = $score->user;
+                    $name = $user->first_name . ' ' . $user->last_name;
+                    
+                    // Générer l'avatar comme dans CompetitionDisplayController
+                    $initials = strtoupper(substr($name, 0, 2));
+                    $colors = ['#1EA38B', '#FF8E2A', '#E32D31', '#27B371', '#9B59B6'];
+                    $color = $colors[array_rand($colors)];
+                    $avatar = "https://via.placeholder.com/35/{$color}/FFFFFF?text=" . urlencode($initials);
+                    
+                    // Récupérer les badges récents
+                    $recentBadges = \Illuminate\Support\Facades\DB::table('badge_user')
+                        ->join('badges', 'badge_user.badge_id', '=', 'badges.id')
+                        ->where('badge_user.user_id', $user->id)
+                        ->orderBy('badge_user.awarded_at', 'desc')
+                        ->limit(3)
+                        ->pluck('badges.icon')
+                        ->toArray();
+
+                    return [
+                        'rank' => $index + 1,
+                        'id' => $user->id,
+                        'name' => $name,
+                        'avatar' => $avatar,
+                        'score' => $score->score,
+                        'recentBadges' => $recentBadges
+                    ];
+                });
+        }
+
+        // Si pas de données, retourner des données de test avec la même structure
+        if (empty($leaderboardData)) {
+            $leaderboardData = [
+                [
+                    'rank' => 1, 
+                    'id' => 5, 
+                    'name' => 'Amina D.', 
+                    'avatar' => 'https://via.placeholder.com/35/FF8E2A/FFFFFF?text=AD', 
+                    'score' => 1520,
+                    'recentBadges' => ['fa-trophy', 'fa-star']
+                ],
+                [
+                    'rank' => 2, 
+                    'id' => 23, 
+                    'name' => 'Kwame N.', 
+                    'avatar' => 'https://via.placeholder.com/35/E32D31/FFFFFF?text=KN', 
+                    'score' => 1480,
+                    'recentBadges' => ['fa-medal']
+                ],
+                [
+                    'rank' => 3, 
+                    'id' => 12, 
+                    'name' => 'Fatou S.', 
+                    'avatar' => 'https://via.placeholder.com/35/27B371/FFFFFF?text=FS', 
+                    'score' => 1350,
+                    'recentBadges' => ['fa-award']
+                ],
+            ];
+        }
+
+        return response()->json(['success' => true, 'leaderboard' => $leaderboardData]);
+    } catch (\Exception $e) {
+        \Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
+        return response()->json(['success' => false, 'error' => 'Erreur serveur'], 500);
+    }
+})->name('api.forum.leaderboard');
+
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
+
+Route::view('/conditions-utilisation', 'pages.terms')->name('pages.terms');
+Route::view('/politique-confidentialite', 'pages.privacy')->name('pages.privacy');
+Route::view('/confidentialite', 'pages.confidentialite')->name('confidentialite');
+Route::view('/parametres-cookies', 'pages.parametres-cookies')->name('parametres.cookies');
+Route::post('/parametres-cookies', function(Request $request) {
+    // Ici, tu pourrais traiter les préférences cookies (en session, en base, etc.)
+    return redirect()->route('parametres.cookies')->with('success', 'Préférences enregistrées !');
+})->name('parametres.cookies.save');
+
+Route::get('/admin/challenges', [App\Http\Controllers\AdminChallengeController::class, 'index'])->name('admin.challenges.index');
+Route::get('/admin/challenges/create', [AdminChallengeController::class, 'create'])->name('admin.challenges.create');
+Route::post('/admin/challenges', [AdminChallengeController::class, 'store'])->name('admin.challenges.store');
+Route::get('/admin/challenges/{challenge}/questions', [App\Http\Controllers\AdminChallengeController::class, 'questions'])->name('admin.challenges.questions');
+Route::post('/admin/challenges/{challenge}/questions', [App\Http\Controllers\AdminChallengeController::class, 'storeQuestion'])->name('admin.challenges.questions.store');
+Route::delete('/admin/challenges/{challenge}/questions/{question}', [App\Http\Controllers\AdminChallengeController::class, 'destroyQuestion'])->name('admin.challenges.questions.destroy');
+
+Route::get('/competitions/{slug}', [CompetitionDisplayController::class, 'show'])->name('competitions.show');
+Route::post('/competitions/{id}/register', [CompetitionDisplayController::class, 'register'])->name('competitions.register');
+Route::get('/challenges/{id}', [CompetitionDisplayController::class, 'showChallenge'])->name('challenges.show');
+Route::post('/challenges/{id}/participate', [CompetitionDisplayController::class, 'participateChallenge'])->name('challenges.participate');
+Route::match(['get', 'post'], '/challenges/{id}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playChallenge'])->name('challenges.play');
+Route::get('/competitions/{slug}/play', [\App\Http\Controllers\CompetitionDisplayController::class, 'playCompetition'])->name('competitions.play');
+
+// Route pour exécution de code dans une compétition
+Route::middleware(['auth'])->post('/competitions/{slug}/run-code', [\App\Http\Controllers\CompetitionController::class, 'runCode'])->name('competitions.runCode');
+Route::post('/competitions/{slug}/evaluate', [App\Http\Controllers\CompetitionController::class, 'evaluateSubmission'])->name('competitions.evaluate');
+
+Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'index'])->name('admin.competitions.testcases.index');
+    Route::get('competitions/{competition}/test-cases/create', [AdminCompetitionTestCaseController::class, 'create'])->name('admin.competitions.testcases.create');
+    Route::post('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'store'])->name('admin.competitions.testcases.store');
+    Route::get('competitions/{competition}/test-cases/{testcase}/edit', [AdminCompetitionTestCaseController::class, 'edit'])->name('admin.competitions.testcases.edit');
+    Route::put('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'update'])->name('admin.competitions.testcases.update');
+    Route::delete('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'destroy'])->name('admin.competitions.testcases.destroy');
+});
+

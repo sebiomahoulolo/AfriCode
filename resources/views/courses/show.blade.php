@@ -23,7 +23,7 @@
 
 @section('content')
     <!-- Hero Section Moderne avec Design Immersif -->
-    <section class="course-hero-modern">
+    <section class="course-hero-modern px-2 py-2">
         <!-- Background Pattern et Gradient -->
         <div class="hero-background">
             <div class="background-pattern"></div>
@@ -144,33 +144,33 @@
                                 
                                 @if($userEnrollment)
                                     <a href="{{ route('apprenant.course.access', ['courseId' => $course->id]) }}" 
-                                       class="btn-modern btn-primary-modern">
+                                       class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Continuer la formation {{ $course->title }}">
                                         <i class="fas fa-play"></i>
                                         Continuer la Formation
                                     </a>
                                 @else
                                     @if($course->price > 0)
                                         <a href="{{ route('enrollment.show', $course) }}" 
-                                           class="btn-modern btn-primary-modern">
+                                           class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="S'inscrire au cours {{ $course->title }}">
                                             <i class="fas fa-graduation-cap"></i>
                                             S'inscrire • {{ number_format($course->price, 0, ',', ' ') }}€
                                         </a>
                                     @else
                                         <a href="{{ route('enrollment.show', $course) }}" 
-                                           class="btn-modern btn-primary-modern">
+                                           class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="S'inscrire gratuitement au cours {{ $course->title }}">
                                             <i class="fas fa-gift"></i>
                                             S'inscrire Gratuitement
                                         </a>
                                     @endif
                                 @endif
                             @else
-                                <a href="{{ route('login') }}" class="btn-modern btn-primary-modern">
+                                <a href="{{ route('login') }}" class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Se connecter pour s'inscrire au cours {{ $course->title }}">
                                     <i class="fas fa-user"></i>
                                     Se connecter pour s'inscrire
                                 </a>
                             @endauth
 
-                            <button class="btn-modern btn-secondary-modern" data-bs-toggle="modal" data-bs-target="#previewModal">
+                            <button class="btn-modern btn-secondary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" data-bs-toggle="modal" data-bs-target="#previewModal" aria-label="Aperçu gratuit du cours {{ $course->title }}">
                                 <i class="fas fa-eye"></i>
                                 Aperçu Gratuit
                             </button>
@@ -184,7 +184,7 @@
                         <div class="preview-container">
                             <div class="preview-image-wrapper">
                                 <img src="{{ asset($course->cover_image_path ?? 'assets/images/course-placeholder.jpg') }}" 
-                                     alt="{{ $course->title }}" class="preview-image">
+                                     alt="Image de couverture du cours {{ $course->title }}" class="preview-image">
                                 <div class="preview-overlay">
                                     <button class="play-button-modern" data-bs-toggle="modal" data-bs-target="#previewModal">
                                         <i class="fas fa-play"></i>
@@ -217,23 +217,23 @@
         <div class="container">
             <div class="nav-wrapper">
                 <nav class="nav-modern" id="courseNav">
-                    <a href="#overview" class="nav-item-modern active" data-section="overview">
+                    <a href="#overview" class="nav-item-modern active" data-section="overview" tabindex="0" aria-label="Voir l'aperçu du cours">
                         <i class="fas fa-info-circle"></i>
                         Vue d'ensemble
                     </a>
-                    <a href="#curriculum" class="nav-item-modern" data-section="curriculum">
+                    <a href="#curriculum" class="nav-item-modern" data-section="curriculum" tabindex="0" aria-label="Voir le programme du cours">
                         <i class="fas fa-list"></i>
                         Programme
                     </a>
-                    <a href="#instructor" class="nav-item-modern" data-section="instructor">
+                    <a href="#instructor" class="nav-item-modern" data-section="instructor" tabindex="0" aria-label="Voir l'instructeur du cours">
                         <i class="fas fa-user-tie"></i>
                         Instructeur
                     </a>
-                    <a href="#reviews" class="nav-item-modern" data-section="reviews">
+                    <a href="#reviews" class="nav-item-modern" data-section="reviews" tabindex="0" aria-label="Voir les avis du cours">
                         <i class="fas fa-star"></i>
                         Avis
                     </a>
-                    <a href="#faq" class="nav-item-modern" data-section="faq">
+                    <a href="#faq" class="nav-item-modern" data-section="faq" tabindex="0" aria-label="Voir la FAQ du cours">
                         <i class="fas fa-question-circle"></i>
                         FAQ
                     </a>
@@ -434,7 +434,7 @@
                                     <div class="instructor-profile">
                                         <div class="instructor-avatar-large">
                                             <img src="{{ $course->formateur->profile_image ?? 'https://randomuser.me/api/portraits/men/32.jpg' }}" 
-                                                 alt="{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}">
+                                                 alt="Photo de l'instructeur {{ $course->formateur ? $course->formateur->first_name . ' ' . $course->formateur->last_name : 'Instructeur AfriCode' }}" class="instructor-avatar">
                                             <div class="verified-badge">
                                                 <i class="fas fa-check"></i>
                                             </div>
@@ -659,7 +659,7 @@
                                                             {{ $testimonial['name'] }}
                                                             @if($testimonial['verified'] ?? false)
                                                                 <span class="verified-reviewer">
-                                                                    <i class="fas fa-check"></i>
+                                                                    <i class="fas fa-check" style="color: #e67e22"></i>
                                                                 </span>
                                                             @endif
                                                         </div>
@@ -667,9 +667,9 @@
                                                             <div class="review-rating">
                                                                 @for ($i = 1; $i <= 5; $i++)
                                                                     @if ($i <= ($testimonial['rating'] ?? 5))
-                                                                        <i class="fas fa-star"></i>
+                                                                        <i class="fas fa-star" style="color: #e67e22"></i>
                                                                     @else
-                                                                        <i class="far fa-star"></i>
+                                                                        <i class="far fa-star" style="color: #e67e22"></i>
                                                                     @endif
                                                                 @endfor
                                                             </div>
@@ -705,7 +705,7 @@
                         <div class="modern-card faq-card">
                             <div class="card-header-modern">
                                 <h2 class="section-title-modern">
-                                    <i class="fas fa-question-circle"></i>
+                                    <i class="fas fa-question-circle" style="color: #e67e22"></i>
                                     Questions fréquentes
                                 </h2>
                             </div>
@@ -745,7 +745,7 @@
                                             <div class="faq-question" data-bs-toggle="collapse" data-bs-target="#faq-{{ $key }}" aria-expanded="{{ $key === 0 ? 'true' : 'false' }}">
                                                 <h3>{{ $faq['question'] ?? $faq['q'] }}</h3>
                                                 <div class="faq-toggle">
-                                                    <i class="fas fa-plus"></i>
+                                                    <i class="fas fa-plus" style="color: #e67e22"></i>
                                                 </div>
                                             </div>
                                             <div id="faq-{{ $key }}" class="faq-answer collapse {{ $key === 0 ? 'show' : '' }}">
@@ -786,7 +786,7 @@
                                 @endif
 
                                 <div class="promotion-timer">
-                                    <i class="fas fa-clock"></i>
+                                    <i class="fas fa-clock" style="color: #e67e22"></i>
                                     <span>Offre limitée : <span id="countdown-modern">2 jours</span></span>
                                 </div>
                             </div>
@@ -801,37 +801,37 @@
                                     @if($userEnrollment)
                                         <a href="{{ route('apprenant.course.access', ['courseId' => $course->id]) }}" 
                                            class="btn-enroll enrolled">
-                                            <i class="fas fa-play"></i>
+                                            <i class="fas fa-play" style="color: #e67e22"></i>
                                             <span>Continuer la Formation</span>
                                         </a>
                                         <div class="enrollment-status">
-                                            <i class="fas fa-check-circle"></i>
+                                            <i class="fas fa-check-circle" style="color: #e67e22"></i>
                                             Vous êtes inscrit à cette formation
                                         </div>
                                     @else
                                         @if($course->price > 0)
                                             <a href="{{ route('enrollment.show', $course) }}" 
                                                class="btn-enroll primary">
-                                                <i class="fas fa-graduation-cap"></i>
+                                                <i class="fas fa-graduation-cap" style="color: #e67e22"></i>
                                                 <span>S'inscrire maintenant</span>
                                             </a>
                                         @else
                                             <a href="{{ route('enrollment.show', $course) }}" 
                                                class="btn-enroll free">
-                                                <i class="fas fa-gift"></i>
+                                                <i class="fas fa-gift" style="color: #e67e22"></i>
                                                 <span>Commencer gratuitement</span>
                                             </a>
                                         @endif
                                     @endif
                                 @else
                                     <a href="{{ route('login') }}" class="btn-enroll primary">
-                                        <i class="fas fa-user"></i>
+                                        <i class="fas fa-user" style="color: #e67e22"></i>
                                         <span>Se connecter pour s'inscrire</span>
                                     </a>
                                 @endauth
-
+<br>
                                 <button class="btn-secondary-action" data-bs-toggle="modal" data-bs-target="#wishlistModal">
-                                    <i class="far fa-heart"></i>
+                                    <i class="far fa-heart" style="color: #e67e22"></i>
                                     <span>Ajouter à mes favoris</span>
                                 </button>
                             </div>
@@ -839,15 +839,15 @@
                             <!-- Garanties et Promesses -->
                             <div class="guarantees">
                                 <div class="guarantee-item">
-                                    <i class="fas fa-shield-alt"></i>
+                                    <i class="fas fa-shield-alt" style="color: #e67e22"></i>
                                     <span>Garantie 30 jours</span>
                                 </div>
                                 <div class="guarantee-item">
-                                    <i class="fas fa-infinity"></i>
+                                    <i class="fas fa-infinity" style="color: #e67e22"></i>
                                     <span>Accès à vie</span>
                                 </div>
                                 <div class="guarantee-item">
-                                    <i class="fas fa-mobile-alt"></i>
+                                    <i class="fas fa-mobile-alt" style="color: #e67e22"></i>
                                     <span>Mobile & Desktop</span>
                                 </div>
                             </div>
@@ -857,27 +857,27 @@
                                 <h3 class="includes-title">Cette formation comprend :</h3>
                                 <div class="includes-list">
                                     <div class="include-item">
-                                        <i class="fas fa-video"></i>
+                                        <i class="fas fa-video" style="color: #e67e22"></i>
                                         <span>{{ $course->getEstimatedDuration() ?? '10h' }} de vidéos HD</span>
                                     </div>
                                     <div class="include-item">
-                                        <i class="fas fa-file-download"></i>
+                                        <i class="fas fa-file-download" style="color: #e67e22"></i>
                                         <span>{{ rand(5, 15) }} ressources téléchargeables</span>
                                     </div>
                                     <div class="include-item">
-                                        <i class="fas fa-code"></i>
+                                        <i class="fas fa-code" style="color: #e67e22"></i>
                                         <span>{{ rand(8, 20) }} exercices pratiques</span>
                                     </div>
                                     <div class="include-item">
-                                        <i class="fas fa-certificate"></i>
+                                        <i class="fas fa-certificate" style="color: #e67e22"></i>
                                         <span>Certificat d'achèvement</span>
                                     </div>
                                     <div class="include-item">
-                                        <i class="fas fa-comments"></i>
+                                        <i class="fas fa-comments" style="color: #e67e22"></i>
                                         <span>Support communautaire</span>
                                     </div>
                                     <div class="include-item">
-                                        <i class="fas fa-sync-alt"></i>
+                                        <i class="fas fa-sync-alt" style="color: #e67e22"></i>
                                         <span>Mises à jour gratuites</span>
                                     </div>
                                 </div>

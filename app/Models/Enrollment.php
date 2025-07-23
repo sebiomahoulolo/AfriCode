@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Notifications\ProgressionMilestone;
 
 class Enrollment extends Model
 {
@@ -81,13 +82,31 @@ class Enrollment extends Model
     
     public function updateProgress()
     {
-        $this->progress_percentage = $this->calculateProgressPercentage();
+        $course = $this->course;
+        $totalLessons = 0;
+        $completedLessons = 0;
         
-        // If all lessons are completed, mark the enrollment as completed
-        if ($this->progress_percentage === 100 && !$this->isCompleted()) {
-            $this->completed_at = now();
+        foreach ($course->modules as $module) {
+            $moduleLessons = $module->lessons()->count();
+            $totalLessons += $moduleLessons;
+            $completedLessons += $this->lessonCompletions()
+                ->whereIn('lesson_id', $module->lessons()->pluck('id'))
+                ->count();
         }
         
-        return $this->save();
+        if ($totalLessons === 0) {
+            return 0;
+        }
+        
+        $progress = round(($completedLessons / $totalLessons) * 100);
+        $this->progress_percentage = $progress;
+        $this->save();
+
+        // Notifier l'utilisateur s'il atteint 50% de progression
+        if ($progress === 50) {
+            $this->user->notify(new ProgressionMilestone());
+        }
+
+        return $progress;
     }
 }

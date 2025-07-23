@@ -1,6 +1,8 @@
 use App\Http\Controllers\Api\TutorController;
 use App\Http\Controllers\Api\TutoringSessionController;
 use App\Http\Controllers\Api\TutoringFeedbackController;
+use App\Http\Controllers\CompetitionDisplayController;
+use App\Http\Controllers\Api\RecommendationController;
 
 // Routes pour le système de tutorat
 Route::prefix('tutoring')->group(function () {
@@ -36,4 +38,8 @@ Route::prefix('tutoring')->group(function () {
     Route::delete('feedback/{feedback}', [TutoringFeedbackController::class, 'destroy']);
     Route::get('sessions/{session}/feedback', [TutoringFeedbackController::class, 'getSessionFeedback']);
     Route::get('tutors/{tutorId}/feedback', [TutoringFeedbackController::class, 'getTutorFeedback']);
-}); 
+});
+
+// Routes pour les compétitions
+Route::get('leaderboard', [CompetitionDisplayController::class, 'getLeaderboard']);
+Route::get('/recommendations', [RecommendationController::class, 'recommendCourses']); 

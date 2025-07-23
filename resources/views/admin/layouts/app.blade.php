@@ -313,6 +313,11 @@
                     <span class="admin-nav-text">Événements</span>
                 </a>
                 
+                <a href="{{ route('admin.challenges.index') }}" class="admin-nav-link {{ request()->routeIs('admin.challenges.create') ? 'active' : '' }}">
+                    <i class="fas fa-bolt admin-nav-icon"></i>
+                    <span class="admin-nav-text">Créer Défi/Compétition</span>
+                </a>
+                
                 <a href="{{ route('admin.settings.edit') }}" class="admin-nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog admin-nav-icon"></i>
                     <span class="admin-nav-text">Paramètres</span>

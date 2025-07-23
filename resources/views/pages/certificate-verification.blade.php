@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Vérification de Certificat | AfriCode')
+@section('title', 'AfriCode')
 
 @push('styles')
 <style>

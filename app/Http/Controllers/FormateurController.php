@@ -48,7 +48,8 @@ class FormateurController extends Controller
             ->get();
             
         // Calculer les revenus totaux (si applicable)
-        $totalRevenue = Payment::whereIn('course_id', $courses->pluck('id'))
+        $totalRevenue = Payment::where('payable_type', \App\Models\Course::class)
+            ->whereIn('payable_id', $courses->pluck('id'))
             ->where('status', 'succeeded')
             ->sum('amount');
             
@@ -127,7 +128,8 @@ class FormateurController extends Controller
         // Récupérer les statistiques du cours
         $enrollmentsCount = Enrollment::where('course_id', $courseId)->count();
         $studentsCount = Enrollment::where('course_id', $courseId)->distinct('user_id')->count('user_id');
-        $revenue = Payment::where('course_id', $courseId)
+        $revenue = Payment::where('payable_type', \App\Models\Course::class)
+            ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
         $averageRating = Rating::where('course_id', $courseId)->avg('rating') ?? 0;
@@ -680,7 +682,8 @@ class FormateurController extends Controller
         }
         
         // Filtrer par période si nécessaire
-        $query = Payment::where('course_id', $courseId)
+        $query = Payment::where('payable_type', \App\Models\Course::class)
+            ->where('payable_id', $courseId)
             ->where('status', 'succeeded');
             
         if (request('period') === 'month') {
@@ -694,12 +697,16 @@ class FormateurController extends Controller
             ->orderBy('paid_at', 'desc')
             ->paginate(15);
         
-        $totalRevenue = Payment::where('course_id', $courseId)
+        // $totalRevenue = Payment::where('course_id', $courseId)
+        $totalRevenue = Payment::where('payable_type', \App\Models\Course::class)
+            ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->sum('amount');
         
         // Regrouper les paiements par mois pour le graphique
-        $monthlyRevenues = Payment::where('course_id', $courseId)
+        // $monthlyRevenues = Payment::where('course_id', $courseId)
+        $monthlyRevenues = Payment::where('payable_type', \App\Models\Course::class)
+            ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->selectRaw('DATE_FORMAT(paid_at, "%Y-%m") as month, SUM(amount) as total')
             ->groupBy('month')
@@ -731,7 +738,9 @@ class FormateurController extends Controller
         }
         
         // Récupérer les données
-        $payments = Payment::where('course_id', $courseId)
+        // $payments = Payment::where('course_id', $courseId)
+        $payments = Payment::where('payable_type', \App\Models\Course::class)
+            ->where('payable_id', $courseId)
             ->where('status', 'succeeded')
             ->with('user')
             ->orderBy('paid_at', 'desc')
@@ -852,6 +861,8 @@ class FormateurController extends Controller
 
             // 5. Supprimer les paiements liés au cours
             Payment::where('course_id', $course->id)
+            Payment::where('payable_type', \App\Models\Course::class)
+                   ->where('payable_id', $course->id)
                    ->delete();
 
             // 6. Supprimer le cours lui-même

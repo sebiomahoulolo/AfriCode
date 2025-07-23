@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'Inscription - ' . $course->title)
+@section('title', __('messages.enrollment_title', ['course' => $course->title]))
 
 @section('content')
 <div class="container py-5">
@@ -15,7 +15,7 @@
                                 <img src="{{ asset($course->cover_image_path) }}" alt="{{ $course->title }}" class="img-fluid rounded">
                             @else
                                 <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 120px;">
-                                    <i class="fas fa-book fa-3x text-muted"></i>
+                                    <i class="fas fa-book fa-3x " style="color: #e67e22"></i>
                                 </div>
                             @endif
                         </div>
@@ -25,7 +25,7 @@
                             <div class="d-flex align-items-center">
                                 <span class="badge bg-info me-2">{{ ucfirst($course->level) }}</span>
                                 <span class="text-muted">
-                                    <i class="fas fa-user me-1"></i>{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}
+                                    <i class="fas fa-user me-1" style="color: #e67e22"></i>{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}
                                 </span>
                             </div>
                         </div>
@@ -37,7 +37,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="h5 mb-0">
-                        <i class="fas fa-graduation-cap me-2"></i>Inscription au cours
+                        <i class="fas fa-graduation-cap me-2" style="color: #e67e22"></i>Inscription au cours
                     </h3>
                 </div>
                 <div class="card-body">
@@ -45,7 +45,7 @@
                         <!-- Free Course Enrollment -->
                         <div class="text-center mb-4">
                             <div class="mb-3">
-                                <i class="fas fa-gift fa-3x text-success mb-3"></i>
+                                <i class="fas fa-gift fa-3x  mb-3" style="color: #e67e22"></i>
                                 <h4>Cours Gratuit</h4>
                                 <p class="text-muted">Ce cours est entièrement gratuit. Vous pouvez vous inscrire immédiatement.</p>
                             </div>
@@ -55,7 +55,7 @@
                             @csrf
                             <div class="text-center">
                                 <button type="submit" class="btn btn-success btn-lg px-5">
-                                    <i class="fas fa-check me-2"></i>S'inscrire gratuitement
+                                    <i class="fas fa-check me-2" style="color: #e67e22"></i>S'inscrire gratuitement
                                 </button>
                             </div>
                         </form>

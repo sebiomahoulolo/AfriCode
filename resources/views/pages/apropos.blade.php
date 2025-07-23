@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', 'À propos - AfriCode')
+@section('title', 'AfriCode')
 
 @section('content')
 
@@ -205,7 +205,7 @@
         </h2>
         <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            AfriCode est une initiative visant à promouvoir l'apprentissage du numérique, du codage et de l'entrepreneuriat digital en Afrique. Nous proposons des formations, des ressources gratuites et des hackathons pour inspirer et connecter les talents du continent.
+            AfriCode est une plateforme de formation tech africaine qui démocratise l'accès à l'éducation numérique. Nous proposons des formations certifiantes en programmation, développement web, cybersécurité, intelligence artificielle et data science. Notre mission est de former la prochaine génération de talents tech africains avec plus de 80% de nos diplômés qui trouvent un emploi dans les 6 mois.
           </div>
         </div>
       </div>
@@ -213,12 +213,12 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="faqHeading2">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
-            Qui peut rejoindre AfriCode ?
+            Y a-t-il des cours gratuits disponibles ?
           </button>
         </h2>
         <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            AfriCode est ouvert à tous ceux qui souhaitent apprendre, enseigner ou innover dans le domaine du numérique, quel que soit leur niveau. Que vous soyez débutant, étudiant ou professionnel, vous êtes le bienvenu.
+            Oui ! Nous proposons une large gamme de cours gratuits pour permettre à tous d'accéder à l'éducation tech. Nos formations de base en HTML/CSS, JavaScript, Python et introduction à la programmation et autres sont entièrement gratuites. Nous croyons que l'éducation tech doit être accessible à tous, quel que soit le niveau de revenu.
           </div>
         </div>
       </div>
@@ -226,38 +226,140 @@
       <div class="accordion-item">
         <h2 class="accordion-header" id="faqHeading3">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
-            Quels types de formations proposez-vous ?
+            Comment obtenir un certificat AfriCode ?
           </button>
         </h2>
         <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Nous proposons des formations en programmation, développement web, intelligence artificielle, entrepreneuriat digital et bien plus encore. Nos formations sont adaptées aux besoins du marché et conçues pour aider les participants à acquérir des compétences pratiques.
+            Pour obtenir un certificat AfriCode, vous devez :<br>
+            • Suivre complètement le parcours de formation<br>
+            • Réussir tous les quiz et évaluations (minimum 70%)<br>
+            • Compléter le projet final de certification<br>
+            • Participer aux sessions pratiques et workshops<br><br>
+            Nos certificats sont reconnus par les entreprises tech et incluent un code de vérification unique pour authentifier leur validité sur notre site.
           </div>
         </div>
       </div>
 
-      <div class="accordion-item">
+      <!-- <div class="accordion-item">
         <h2 class="accordion-header" id="faqHeading4">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
-            Comment puis-je m'inscrire à une formation ?
+            Quels sont les prix des formations payantes ?
           </button>
         </h2>
         <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Vous pouvez vous inscrire via notre site web en visitant la page des cours. Remplissez le formulaire et choisissez la formation qui vous intéresse. Nous vous contacterons pour finaliser votre inscription.
+            Nos formations payantes sont accessibles à des prix adaptés au marché africain :<br>
+            • Formations intermédiaires : 25,000 - 50,000 FCFA<br>
+            • Formations avancées : 75,000 - 150,000 FCFA<br>
+            • Parcours complets avec certification : 200,000 - 350,000 FCFA<br><br>
+            Nous proposons des facilités de paiement (échelonnement sur 3-6 mois) et des bourses pour les étudiants méritants. Contactez-nous pour un devis personnalisé.
+          </div>
+        </div>
+      </div> -->
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading5">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+            Combien de temps durent les formations ?
+          </button>
+        </h2>
+        <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            La durée varie selon le niveau et le type de formation :<br>
+            • Cours gratuits : 2-4 semaines<br>
+            • Formations intermédiaires : 6-8 semaines<br>
+            • Formations avancées : 3-6 mois<br>
+            • Parcours complets : 6-8 mois<br><br>
+            Vous pouvez suivre à votre rythme avec un accès illimité au contenu. Nos formations sont conçues pour s'adapter à votre emploi du temps.
           </div>
         </div>
       </div>
 
       <div class="accordion-item">
-        <h2 class="accordion-header" id="faqHeading5">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
-            Organisez-vous des événements ou des hackathons ?
+        <h2 class="accordion-header" id="faqHeading6">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6" aria-expanded="false" aria-controls="faqCollapse6">
+            Quel support technique proposez-vous ?
           </button>
         </h2>
-        <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordion">
+        <div id="faqCollapse6" class="accordion-collapse collapse" aria-labelledby="faqHeading6" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            Oui, nous organisons régulièrement des événements, des ateliers et des hackathons pour stimuler l'innovation et permettre aux participants de mettre en pratique leurs compétences. Consultez notre section événements pour connaître les prochaines dates.
+            Nous offrons un support complet :<br>
+            • Forum communautaire pour échanger entre apprenants<br>
+            • Sessions de mentorat avec des experts<br>
+            • Support technique par email  contact@africode.tech<br><br>
+            Notre équipe répond sous 24h maximum à toutes vos questions.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading7">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse7" aria-expanded="false" aria-controls="faqCollapse7">
+            Les formations sont-elles en ligne ou en présentiel ?
+          </button>
+        </h2>
+        <div id="faqCollapse7" class="accordion-collapse collapse" aria-labelledby="faqHeading7" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Nous proposons les deux formats :<br>
+            • <strong>Formations en ligne</strong> : Accessibles 24h/24, partout <br>
+            • <strong>Formations hybrides</strong> : En ligne + sessions pratiques en présentiel<br>
+            • <strong>Bootcamps intensifs</strong> : 100% en présentiel dans nos centres<br><br>
+            <!-- Nos centres sont situés à Parakou (Bénin) et nous prévoyons d'ouvrir dans d'autres villes . Les formations en ligne sont identiques en qualité aux formations présentielles.
+            -->
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading8">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse8" aria-expanded="false" aria-controls="faqCollapse8">
+            Comment AfriCode aide-t-il à trouver un emploi ?
+          </button>
+        </h2>
+        <div id="faqCollapse8" class="accordion-collapse collapse" aria-labelledby="faqHeading8" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+          Oui, Notre programme d'accompagnement emploi comprend :<br>
+            • Mise en relation avec nos partenaires entreprises<br>
+            • Réseau d'anciens élèves pour le networking<br>
+            • Compétitions et hackathons pour se faire remarquer<br><br>
+            80% de nos diplômés trouvent un emploi dans les 6 mois suivant leur formation.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading9">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse9" aria-expanded="false" aria-controls="faqCollapse9">
+            Quels sont les prérequis pour s'inscrire ?
+          </button>
+        </h2>
+        <div id="faqCollapse9" class="accordion-collapse collapse" aria-labelledby="faqHeading9" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Nos formations sont accessibles à tous :<br>
+            • <strong>Débutants</strong> : Aucun prérequis, nous commençons depuis zéro<br>
+            • <strong>Intermédiaires</strong> : Notions de base en informatique<br>
+            • <strong>Avancés</strong> : Connaissances en programmation requises<br><br>
+            Nous proposons un test de niveau gratuit pour vous orienter vers la formation la plus adaptée. L'âge minimum est de 16 ans, sans limite d'âge supérieure <a href="{{ route('register') }}">S'inscrire</a>.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="faqHeading10">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse10" aria-expanded="false" aria-controls="faqCollapse10">
+            Comment puis-je contacter AfriCode ?
+          </button>
+        </h2>
+        <div id="faqCollapse10" class="accordion-collapse collapse" aria-labelledby="faqHeading10" data-bs-parent="#faqAccordion">
+          <div class="accordion-body">
+            Plusieurs moyens de nous contacter :<br>
+            • <strong>Email</strong> : contact@africode.tech<br>
+            • <strong>WhatsApp</strong> : +229 01 65 60 30 40<br>
+            {{-- • <strong>Adresse</strong> : Parakou, Bénin<br> --}}
+            • <strong>Réseaux sociaux</strong> : Facebook, Instagram, LinkedIn, YouTube<br>
+            • <strong>Formulaire de contact</strong> sur notre site web<br><br>
+            Horaires : Lundi - Vendredi, 8h - 18h (GMT+1)
           </div>
         </div>
       </div>

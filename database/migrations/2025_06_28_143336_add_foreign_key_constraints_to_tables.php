@@ -13,15 +13,15 @@ return new class extends Migration
     {
         // Ajouter les contraintes de clés étrangères pour la table courses
         Schema::table('courses', function (Blueprint $table) {
-            $table->foreign('formateur_id')
-                  ->references('id')
-                  ->on('users')
-                  ->onDelete('cascade');
+        $table->foreign('formateur_id', 'courses_formateur_id_fk')
+      ->references('id')->on('users')
+      ->onDelete('cascade');
+
                   
-            $table->foreign('category_id')
-                  ->references('id')
-                  ->on('categories')
-                  ->onDelete('set null');
+            $table->foreign('category_id', 'courses_category_id_fk')
+      ->references('id')->on('categories')
+      ->onDelete('set null');
+
         });
     }
 

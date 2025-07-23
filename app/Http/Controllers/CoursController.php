@@ -35,15 +35,15 @@ class CoursController extends Controller
     {  
         return view('pages.verifier');
     }
-    public function forumexp()
-    {  
-        return view('pages.forumexp');
-    }
     public function forumapp()
     {  
         return view('pages.forumapp');
     }
 
+     public function forumexp()
+    {  
+        return view('pages.forumexp');
+    }
     public function contact()
     {  
         return view('pages.contact');

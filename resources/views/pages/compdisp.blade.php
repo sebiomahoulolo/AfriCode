@@ -4,466 +4,589 @@
 
 @section('content')
 
- <style>
-        :root {
-            --primary-color: #1EA38B; /* Vert émeraude */
-            --secondary-color: #FF8E2A; /* Orange */
-            --accent-color: #E32D31; /* Rouge */
-            --highlight-color: #27B371; /* Vert clair */
-            --background-color: #f4f7f6; /* Fond légèrement différent */
-            --light-accent: #ECF0F1;
-            --text-color: #333333;
-            --card-bg: #ffffff;
-            --gold-color: #FFD700;
-            --silver-color: #C0C0C0;
-            --bronze-color: #CD7F32;
-        }
+<style>
+    :root {
+        --primary-color: #1EA38B; /* Vert émeraude */
+        --secondary-color: #FF8E2A; /* Orange */
+        --accent-color: #E32D31; /* Rouge */
+        --highlight-color: #27B371; /* Vert clair */
+        --background-color: #f4f7f6; /* Fond légèrement différent */
+        --light-accent: #ECF0F1;
+        --text-color: #333333;
+        --card-bg: #ffffff;
+        --gold-color: #FFD700;
+        --silver-color: #C0C0C0;
+        --bronze-color: #CD7F32;
+    }
 
-        body {
-            background-color: var(--background-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-color);
-        }
+    body {
+        background-color: var(--background-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-color);
+    }
 
+    .competition-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--highlight-color));
+        color: white;
+        padding: 40px 20px;
+        margin-bottom: 30px;
+        text-align: center;
+        border-radius: 0 0 15px 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .competition-header h1 {
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+    .competition-header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+    }
+
+    .section-title {
+        font-size: 1.8em;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--secondary-color);
+        display: inline-block;
+    }
+
+    .challenge-card {
+        background-color: var(--card-bg);
+        border: none;
+        border-left: 5px solid var(--secondary-color);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 20px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .challenge-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    }
+    .challenge-card .difficulty {
+        font-size: 0.9em;
+        font-weight: 500;
+        padding: 3px 8px;
+        border-radius: 15px;
+        color: white;
+    }
+    .difficulty-debutant { background-color: var(--highlight-color); }
+    .difficulty-intermediaire { background-color: var(--secondary-color); }
+    .difficulty-avance { background-color: var(--accent-color); }
+
+    .leaderboard-table {
+        background-color: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+    .leaderboard-table thead {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    .leaderboard-table tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+    .leaderboard-table tbody tr:hover {
+        background-color: var(--light-accent);
+    }
+    .leaderboard-table td, .leaderboard-table th {
+        vertical-align: middle;
+        padding: 12px 15px;
+    }
+    .leaderboard-rank {
+        font-weight: bold;
+        font-size: 1.1em;
+        min-width: 40px;
+        text-align: center;
+    }
+    .rank-1 { color: var(--gold-color); }
+    .rank-2 { color: var(--silver-color); }
+    .rank-3 { color: var(--bronze-color); }
+
+    .leaderboard-user img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+    }
+    .leaderboard-score {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .current-user-rank {
+        background-color: rgba(255, 142, 42, 0.15) !important;
+        border-top: 2px solid var(--secondary-color);
+        border-bottom: 2px solid var(--secondary-color);
+        font-weight: bold;
+    }
+
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--highlight-color));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        margin-right: 10px;
+        float: left;
+    }
+
+    .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 20px;
+        text-align: center;
+    }
+    .badge-item {
+        background-color: var(--card-bg);
+        padding: 20px 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .badge-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+    .badge-item.unlocked {
+        border-color: var(--highlight-color);
+        background: linear-gradient(135deg, var(--card-bg), rgba(39, 179, 113, 0.05));
+    }
+    .badge-item.unlocked:hover {
+        border-color: var(--primary-color);
+    }
+    .badge-item.locked {
+        opacity: 0.6;
+        filter: grayscale(80%);
+        background-color: #f8f9fa;
+    }
+    .badge-item.locked:hover {
+        transform: none;
+        opacity: 0.7;
+    }
+    .badge-icon {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        display: block;
+    }
+    .badge-name {
+        font-size: 0.9em;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 5px;
+        color: var(--text-color);
+    }
+    .badge-description {
+        font-size: 0.8em;
+        color: #666;
+        line-height: 1.3;
+    }
+    .badge-status {
+        font-size: 0.75em;
+        font-weight: 500;
+        margin-top: 8px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        display: inline-block;
+    }
+    .badge-status.unlocked {
+        background-color: var(--highlight-color);
+        color: white;
+    }
+    .badge-status.locked {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .filter-buttons .btn {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        background-color: var(--light-accent);
+        border: 1px solid #ccc;
+        color: var(--text-color);
+    }
+    .filter-buttons .btn.active {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+    }
+
+    .africode-footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #777;
+        font-style: italic;
+    }
+    .africode-footer img {
+        height: 30px;
+        margin-bottom: 5px;
+    }
+
+    @media (max-width: 768px) {
         .competition-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--highlight-color));
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 30px;
-            text-align: center;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 30px 15px;
         }
         .competition-header h1 {
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        .competition-header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .section-title {
             font-size: 1.8em;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--secondary-color);
-            display: inline-block;
         }
-
-        .challenge-card {
-            background-color: var(--card-bg);
-            border: none;
-            border-left: 5px solid var(--secondary-color);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            padding: 20px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .section-title {
+            font-size: 1.5em;
         }
-        .challenge-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-        .challenge-card .difficulty {
-            font-size: 0.9em;
-            font-weight: 500;
-            padding: 3px 8px;
-            border-radius: 15px;
-            color: white;
-        }
-        .difficulty-debutant { background-color: var(--highlight-color); }
-        .difficulty-intermediaire { background-color: var(--secondary-color); }
-        .difficulty-avance { background-color: var(--accent-color); }
-
-        .leaderboard-table {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-        }
-        .leaderboard-table thead {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        .leaderboard-table tbody tr:nth-child(odd) {
-            background-color: #f9f9f9;
-        }
-        .leaderboard-table tbody tr:hover {
-            background-color: var(--light-accent);
-        }
-        .leaderboard-table td, .leaderboard-table th {
-            vertical-align: middle;
-            padding: 12px 15px;
-        }
-        .leaderboard-rank {
-            font-weight: bold;
-            font-size: 1.1em;
-            min-width: 40px; /* Espace pour le rang */
-            text-align: center;
-        }
-        .rank-1 { color: var(--gold-color); }
-        .rank-2 { color: var(--silver-color); }
-        .rank-3 { color: var(--bronze-color); }
-
-        .leaderboard-user img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-        .leaderboard-score {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        /* Style pour la ligne de l'utilisateur connecté */
-        .current-user-rank {
-            background-color: rgba(255, 142, 42, 0.15) !important; /* Orange léger */
-            border-top: 2px solid var(--secondary-color);
-            border-bottom: 2px solid var(--secondary-color);
-            font-weight: bold;
-        }
-
         .badge-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 20px;
-            text-align: center;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
         }
-        .badge-item {
-            background-color: var(--card-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-        }
-        .badge-item:hover {
-            transform: scale(1.05);
-        }
-        .badge-item img {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 10px;
-        }
-        .badge-item span {
-            font-size: 0.9em;
-            font-weight: 500;
-            display: block;
-        }
-        .badge-item.locked {
-            opacity: 0.5;
-            filter: grayscale(80%);
-        }
-        .badge-item.locked:hover {
-            transform: none; /* Pas de zoom si verrouillé */
-        }
-
         .filter-buttons .btn {
-            margin-right: 10px;
-            margin-bottom: 10px; /* Pour mobile */
-            background-color: var(--light-accent);
-            border: 1px solid #ccc;
-            color: var(--text-color);
-        }
-        .filter-buttons .btn.active {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            color: white;
-        }
-
-        .africode-footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: #777;
-            font-style: italic;
-        }
-         .africode-footer img {
-            height: 30px; /* Logo AfriCode */
+            margin-right: 5px;
             margin-bottom: 5px;
-         }
+            font-size: 0.9em;
+        }
+    }
 
-    </style>
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
 
-    <!-- En-tête de la page Compétition -->
-    <div class="competition-header">
-        <h1><i class="fas fa-trophy me-2"></i>Espace Compétition AfriCode</h1>
-        <p>Relevez les défis, grimpez dans le classement et gagnez des badges !</p>
-    </div>
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        font-style: italic;
+    }
 
-    <div class="container mt-4">
+    .recent-badges {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
 
-        <!-- Section Défis Actuels -->
-        <section id="challenges" class="mb-5">
-            <h2 class="section-title"><i class="fas fa-code me-2"></i>Défis Actuels</h2>
-            <div class="row" id="challenges-list">
-                <!-- Les défis seront chargés ici par JS -->
-                 <div class="col-md-6 placeholder-glow">
-                    <div class="challenge-card">
-                        <span class="placeholder col-8"></span>
-                        <span class="placeholder col-4"></span>
-                        <span class="placeholder col-6"></span>
-                        <span class="placeholder col-8"></span>
-                    </div>
-                </div>
-                 <div class="col-md-6 placeholder-glow">
-                    <div class="challenge-card">
-                        <span class="placeholder col-7"></span>
-                        <span class="placeholder col-4"></span>
-                        <span class="placeholder col-4"></span>
-                         <span class="placeholder col-6"></span>
-                    </div>
-                </div>
-            </div>
-        </section>
+    .recent-badge {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: white;
+        background-color: var(--primary-color);
+    }
+</style>
 
-        <!-- Section Classement -->
-        <section id="leaderboard" class="mb-5">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                <h2 class="section-title mb-0"><i class="fas fa-users me-2"></i>Classement</h2>
-                <div class="filter-buttons">
-                    <button class="btn btn-sm active" data-filter="global">Global</button>
-                    <button class="btn btn-sm" data-filter="weekly">Hebdomadaire</button>
-                    <button class="btn btn-sm" data-filter="monthly">Mensuel</button>
-                    <!-- Ajouter d'autres filtres si nécessaire (par cours, etc.) -->
-                </div>
-            </div>
-            <div class="table-responsive leaderboard-table">
-                <table class="table mb-0">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="text-center">#</th>
-                            <th scope="col">Utilisateur</th>
-                            <th scope="col" class="text-end">Score</th>
-                            <th scope="col" class="text-center">Badges Récents</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboard-body">
-                        <!-- Les lignes du classement seront chargées ici par JS -->
-                        <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-6"></span></td></tr>
-                        <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-5"></span></td></tr>
-                         <tr><td colspan="4" class="text-center p-5 placeholder-glow"><span class="placeholder col-6"></span></td></tr>
-                    </tbody>
-                    <tbody id="current-user-leaderboard-body">
-                         <!-- La ligne de l'utilisateur connecté sera ajoutée ici si hors top N -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
+<!-- En-tête de la page Compétition -->
+<div class="competition-header">
+    <h1><i class="fas fa-trophy me-2"></i>Espace Compétition AfriCode</h1>
+    <p>Relevez les défis, grimpez dans le classement et gagnez des badges !</p>
+</div>
 
-        <!-- Section Badges -->
-        <section id="badges" class="mb-5">
-            <h2 class="section-title"><i class="fas fa-medal me-2"></i>Galerie des Badges</h2>
-            <div class="badge-grid" id="badges-list">
-                <!-- Les badges seront chargés ici par JS -->
-                 <div class="badge-item placeholder-glow">
-                    <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                    <span class="placeholder col-6"></span>
-                </div>
-                 <div class="badge-item placeholder-glow">
-                     <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                    <span class="placeholder col-7"></span>
-                </div>
-                 <div class="badge-item placeholder-glow locked">
-                     <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                    <span class="placeholder col-5"></span>
-                </div>
-                 <div class="badge-item placeholder-glow locked">
-                     <span class="placeholder" style="width:60px; height: 60px; border-radius: 50%; display: inline-block;"></span>
-                    <span class="placeholder col-6"></span>
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            // --- Simulation de données (remplacer par des appels API réels) ---
-            const currentUser = { id: 101, name: "Mahoulolo SEBIO", avatar: 'https://via.placeholder.com/40/1EA38B/FFFFFF?text=MS', score: 850, rank: 15 };
-
-            const sampleChallenges = [
-                { id: 1, title: "Défi Quotidien : Fonction Inverse", description: "Écrire une fonction JS qui inverse une chaîne.", difficulty: "Débutant", points: 10, timeLeft: "23h 15m" },
-                { id: 2, title: "Défi Hebdomadaire : API Météo", description: "Créer une page simple affichant la météo via une API publique.", difficulty: "Intermédiaire", points: 50, timeLeft: "5j 6h" },
-                 { id: 3, title: "Challenge CSS : Bouton Animé", description: "Recréer un effet de survol complexe sur un bouton.", difficulty: "Débutant", points: 15, timeLeft: "10h 30m" },
-                 { id: 4, title: "Challenge Backend : Authentification", description: "Mettre en place un système d'inscription/connexion basique en Laravel.", difficulty: "Avancé", points: 100, timeLeft: "Terminé" },
-            ];
-
-            const sampleLeaderboard = [
-                { rank: 1, id: 5, name: "Amina Diallo", avatar: 'https://via.placeholder.com/40/FF8E2A/FFFFFF?text=AD', score: 1520, recentBadges: ['fa-star', 'fa-code'] },
-                { rank: 2, id: 23, name: "Kwame Nkrumah", avatar: 'https://via.placeholder.com/40/E32D31/FFFFFF?text=KN', score: 1480, recentBadges: ['fa-fire'] },
-                { rank: 3, id: 12, name: "Fatou Sow", avatar: 'https://via.placeholder.com/40/27B371/FFFFFF?text=FS', score: 1350, recentBadges: ['fa-cogs'] },
-                { rank: 4, id: 8, name: "David Okoye", avatar: 'https://via.placeholder.com/40/1EA38B/FFFFFF?text=DO', score: 1200, recentBadges: [] },
-                { rank: 5, id: 35, name: "Sarah Kone", avatar: 'https://via.placeholder.com/40/FF8E2A/FFFFFF?text=SK', score: 1150, recentBadges: ['fa-laptop-code'] },
-                // ... autres utilisateurs
-                 { rank: 14, id: 99, name: "Test User", avatar: 'https://via.placeholder.com/40/cccccc/FFFFFF?text=TU', score: 860, recentBadges: [] },
-                 // { rank: currentUser.rank, id: currentUser.id, name: currentUser.name, avatar: currentUser.avatar, score: currentUser.score, recentBadges: ['fa-user-graduate'] }, // Utilisateur actuel
-            ];
-
-            const sampleBadges = [
-                { id: 'b1', name: "Premier Code", icon: 'fa-play-circle', locked: false, description: "Avoir soumis son premier exercice." },
-                { id: 'b2', name: "HTML Expert", icon: 'fa-html5', locked: false, description: "Avoir complété le parcours HTML/CSS." },
-                { id: 'b3', name: "JS Ninja", icon: 'fa-js-square', locked: false, description: "Maîtriser les concepts avancés de JavaScript." },
-                { id: 'b4', name: "Database Guru", icon: 'fa-database', locked: true, description: "Terminer le module PHP/MySQL." },
-                { id: 'b5', name: "React Rockstar", icon: 'fa-react', locked: true, description: "Compléter le parcours ReactJS." },
-                 { id: 'b6', name: "Full-Stack Dev", icon: 'fa-layer-group', locked: true, description: "Finir le parcours Full-Stack." },
-                 { id: 'b7', name: "Serial Challenger", icon: 'fa-fire', locked: false, description: "Avoir complété 10 défis." },
-                 { id: 'b8', name: "Top Contributor", icon: 'fa-users', locked: true, description: "Avoir aidé activement sur le forum." },
-            ];
-
-             // --- Fonctions de rendu ---
-
-            function renderChallenges(challenges) {
-                const list = document.getElementById('challenges-list');
-                list.innerHTML = ''; // Vider les placeholders
-                challenges.forEach(c => {
-                     const col = document.createElement('div');
-                     col.className = 'col-md-6';
-                     let difficultyClass = '';
-                    switch (c.difficulty.toLowerCase()) {
-                        case 'débutant': difficultyClass = 'difficulty-debutant'; break;
-                        case 'intermédiaire': difficultyClass = 'difficulty-intermediaire'; break;
-                        case 'avancé': difficultyClass = 'difficulty-avance'; break;
-                        default: difficultyClass = 'bg-secondary';
-                    }
-                    col.innerHTML = `
-                        <div class="challenge-card">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="mb-0">${c.title}</h5>
-                                <span class="badge ${difficultyClass}">${c.difficulty}</span>
+<div class="container mt-4">
+    <!-- Section Compétitions Actuelles -->
+    <section id="competitions" class="mb-5">
+        <h2 class="section-title"><i class="fas fa-trophy me-2"></i>Compétitions Actuelles</h2>
+        <div class="row" id="competitions-list">
+            @if(isset($competitions) && count($competitions) > 0)
+                @foreach($competitions as $competition)
+                    <div class="col-md-6 mb-3">
+                        <div class="challenge-card" style="border-left: 5px solid #1EA38B;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ $competition['title'] }}</h5>
+                                <span class="badge bg-success">Compétition</span>
                             </div>
-                            <p class="text-muted small">${c.description}</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <span class="text-muted small"><i class="fas fa-clock me-1"></i> ${c.timeLeft}</span>
-                                <a href="#" class="btn btn-sm btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color); ${c.timeLeft === 'Terminé' ? 'display: none;' : ''}">
-                                    <i class="fas fa-arrow-right me-1"></i> Participer (${c.points} pts)
+                            <p class="text-muted mb-2">{{ $competition['description'] }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">{{ $competition['participants'] ?? '-' }} participants max</span>
+                                <small class="text-muted">
+                                    {{ $competition['start'] ? (new \Carbon\Carbon($competition['start']))->format('d/m/Y H:i') : '' }}
+                                    -
+                                    {{ $competition['end'] ? (new \Carbon\Carbon($competition['end']))->format('d/m/Y H:i') : '' }}
+                                </small>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <a href="{{ route('competitions.show', $competition['slug']) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Voir
                                 </a>
-                                 <span class="text-success small" style="${c.timeLeft !== 'Terminé' ? 'display: none;' : ''}"><i class="fas fa-check-circle me-1"></i> Terminé</span>
                             </div>
                         </div>
-                    `;
-                    list.appendChild(col);
-                });
-            }
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucune compétition active pour le moment.
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
 
-            function renderLeaderboard(leaderboardData, topN = 10) {
-                const tbody = document.getElementById('leaderboard-body');
-                const currentUserTbody = document.getElementById('current-user-leaderboard-body');
-                tbody.innerHTML = ''; // Vider les placeholders
-                currentUserTbody.innerHTML = ''; // Vider l'ancien rang utilisateur
-                let userInTopN = false;
+    <!-- Section Défis Actuels -->
+    <section id="challenges" class="mb-5">
+        <h2 class="section-title"><i class="fas fa-code me-2"></i>Défis Actuels</h2>
+        <div class="row" id="challenges-list">
+            @if(count($challenges) > 0)
+                @foreach($challenges as $challenge)
+                    <div class="col-md-6 mb-3">
+                        <div class="challenge-card">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="mb-0">{{ $challenge['title'] ?? $challenge->name }}</h5>
+                                <span class="difficulty difficulty-{{ strtolower($challenge['difficulty'] ?? $challenge->difficulty) }}">
+                                    {{ $challenge['difficulty'] ?? ucfirst($challenge->difficulty) }}
+                                </span>
+                            </div>
+                            <p class="text-muted mb-2">{{ $challenge['description'] ?? $challenge->description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">{{ $challenge['points'] ?? ($challenge->points ?? 0) }} points</span>
+                                <small class="text-muted">{{ $challenge['timeLeft'] ?? '' }}</small>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <a href="{{ route('challenges.show', $challenge['id'] ?? $challenge->id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> Voir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Aucun défi actif pour le moment.
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
 
-                leaderboardData.slice(0, topN).forEach(u => {
-                    if (u.id === currentUser.id) userInTopN = true;
-                     const tr = document.createElement('tr');
-                     if (u.id === currentUser.id) {
-                         tr.classList.add('current-user-rank'); // Style spécial pour l'utilisateur connecté
-                     }
-                     let rankClass = '';
-                    if (u.rank === 1) rankClass = 'rank-1';
-                    else if (u.rank === 2) rankClass = 'rank-2';
-                    else if (u.rank === 3) rankClass = 'rank-3';
+    <!-- Section Classement -->
+    <section id="leaderboard" class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+            <h2 class="section-title mb-0"><i class="fas fa-users me-2"></i>Classement</h2>
+            <div class="filter-buttons">
+                <button class="btn btn-sm active" data-filter="global">Global</button>
+                <button class="btn btn-sm" data-filter="weekly">Hebdomadaire</button>
+                <button class="btn btn-sm" data-filter="monthly">Mensuel</button>
+            </div>
+        </div>
+        <div class="table-responsive leaderboard-table">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        
+                        <th scope="col">Utilisateur</th>
+                        <th scope="col" class="text-end">Score</th>
+                     <th scope="col" class="text-center">Badges Récents</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    @if(count($leaderboardData) > 0)
+                        @foreach($leaderboardData as $user)
+                            <tr class="{{ $currentUser && $currentUser['id'] == $user['id'] ? 'current-user-rank' : '' }}">
+                             
+                                <td class="leaderboard-user">
+                                    <div class="user-avatar">{{ substr($user['name'], 0, 2) }}</div>
+                                    {{ $user['name'] }}
+                                </td>
+                                <td class="text-end leaderboard-score">{{ number_format($user['score']) }}</td>
+                                <td class="text-center">
+                                       <td class="text-center leaderboard-rank rank-{{ $user['rank'] }}">
+                                    @if($user['rank'] == 1)
+                                        <i class="fas fa-trophy text-warning"></i>
+                                    @elseif($user['rank'] == 2)
+                                        <i class="fas fa-medal text-secondary"></i>
+                                    @elseif($user['rank'] == 3)
+                                        <i class="fas fa-medal text-danger"></i>
+                                    @else
+                                        {{ $user['rank'] }}
+                                    @endif
+                                </td>
+                                    {{-- <div class="recent-badges">
+                                        @foreach($user['recentBadges'] as $badge)
+                                            <div class="recent-badge" style="background-color: {{ $badge['color'] ?? '#1EA38B' }}" title="{{ $badge['name'] }}">
+                                                <i class="{{ $badge['icon'] }}"></i>
+                                            </div>
+                                        @endforeach
+                                    </div> --}}
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-users me-2"></i>
+                                    Aucun utilisateur dans le classement.
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
+                </tbody>
+                @if($currentUser && !collect($leaderboardData)->contains('id', $currentUser['id']))
+                    <tbody id="current-user-leaderboard-body">
+                        <tr class="current-user-rank">
+                           
+                            <td class="leaderboard-user">
+                                <div class="user-avatar">{{ substr($currentUser['name'], 0, 2) }}</div>
+                                {{ $currentUser['name'] }} (Vous)
+                            </td>
+                            <td class="text-end leaderboard-score">{{ number_format($currentUser['score']) }}</td>
+                            <td class="text-center">-</td>
+                        </tr>
+                    </tbody>
+                @endif
+            </table>
+        </div>
+    </section>
 
-                    let recentBadgesHTML = u.recentBadges.map(icon => `<i class="fas ${icon} mx-1" title="Badge Récent"></i>`).join('');
+    <!-- Section Badges -->
+    <section id="badges" class="mb-5">
+        <h2 class="section-title"><i class="fas fa-medal me-2"></i>Galerie des Badges</h2>
+        <div class="badge-grid" id="badges-list">
+            @if(count($badges) > 0)
+                @foreach($badges as $badge)
+                    <div class="badge-item {{ $badge['locked'] ?? false ? 'locked' : 'unlocked' }}" title="{{ $badge['description'] }}">
+                        <i class="{{ $badge['icon'] ?? 'fas fa-medal' }} badge-icon" style="color: {{ $badge['color'] ?? '#1EA38B' }};"></i>
+                        <span class="badge-name">{{ $badge['name'] }}</span>
+                        <span class="badge-description">{{ $badge['description'] }}</span>
+                        <span class="badge-status {{ $badge['locked'] ?? false ? 'locked' : 'unlocked' }}">
+                            {{ ($badge['locked'] ?? false) ? 'Verrouillé' : 'Débloqué' }}
+                        </span>
+                    </div>
+                @endforeach
+            @else
+                <div class="col-12">
+                    <div class="no-data">
+                        <i class="fas fa-medal me-2"></i>
+                        Aucun badge disponible.
+                    </div>
+                </div>
+            @endif
+        </div>
+    </section>
+</div>
 
-                     tr.innerHTML = `
-                        <td class="leaderboard-rank text-center ${rankClass}">${u.rank}</td>
-                        <td class="leaderboard-user">
-                            <img src="${u.avatar}" alt="${u.name}">
-                            ${u.name}
-                        </td>
-                        <td class="leaderboard-score text-end">${u.score.toLocaleString()} pts</td>
-                         <td class="text-center">${recentBadgesHTML || '-'}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion des filtres de classement
+    const filterButtons = document.querySelectorAll('.filter-buttons .btn');
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    const currentUserBody = document.getElementById('current-user-leaderboard-body');
 
-                 // Ajouter la ligne de l'utilisateur s'il n'est pas dans le top N affiché
-                if (!userInTopN && currentUser.rank > topN) {
-                    const tr = document.createElement('tr');
-                    tr.classList.add('current-user-rank');
-                     let recentBadgesHTML = ['fa-user-graduate'].map(icon => `<i class="fas ${icon} mx-1" title="Badge Récent"></i>`).join(''); // Exemple badge pour user actuel
-                    tr.innerHTML = `
-                        <td class="leaderboard-rank text-center">${currentUser.rank}</td>
-                        <td class="leaderboard-user">
-                            <img src="${currentUser.avatar}" alt="${currentUser.name}">
-                            ${currentUser.name} (Vous)
-                        </td>
-                        <td class="leaderboard-score text-end">${currentUser.score.toLocaleString()} pts</td>
-                        <td class="text-center">${recentBadgesHTML || '-'}</td>
-                    `;
-                    // Ajouter un séparateur visuel si nécessaire
-                    if (tbody.children.length > 0) { // S'il y a déjà des lignes dans le tbody principal
-                         const separatorRow = document.createElement('tr');
-                         separatorRow.innerHTML = `<td colspan="4" class="text-center text-muted py-1" style="border:none; background: none !important;">...</td>`;
-                         currentUserTbody.appendChild(separatorRow);
-                     }
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Retirer la classe active de tous les boutons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Ajouter la classe active au bouton cliqué
+            this.classList.add('active');
 
-                    currentUserTbody.appendChild(tr);
-                }
-            }
-
-            function renderBadges(badges) {
-                const list = document.getElementById('badges-list');
-                list.innerHTML = ''; // Vider les placeholders
-                badges.forEach(b => {
-                     const div = document.createElement('div');
-                     div.className = `badge-item ${b.locked ? 'locked' : ''}`;
-                     div.setAttribute('title', `${b.name}${b.locked ? ' (Verrouillé)' : ''} - ${b.description}`); // Tooltip
-                     div.innerHTML = `
-                        <i class="fas ${b.icon} fa-3x mb-2" style="color: ${b.locked ? '#aaa' : 'var(--secondary-color)'};"></i>
-                        <!-- Ou utiliser une image: <img src="/path/to/badge/${b.id}.png" alt="${b.name}"> -->
-                        <span>${b.name}</span>
-                    `;
-                     // Ajouter un popover Bootstrap pour plus de détails au clic (optionnel)
-                     div.setAttribute('data-bs-toggle', 'popover');
-                     div.setAttribute('data-bs-trigger', 'hover focus');
-                     div.setAttribute('data-bs-placement', 'top');
-                     div.setAttribute('data-bs-content', b.description);
-
-                    list.appendChild(div);
-                });
-                 // Initialiser les popovers Bootstrap après avoir ajouté les éléments
-                 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-                 var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-                     return new bootstrap.Popover(popoverTriggerEl)
-                 });
-            }
-
-             // --- Chargement Initial ---
-            // Simuler un délai de chargement
-            setTimeout(() => {
-                renderChallenges(sampleChallenges);
-                renderLeaderboard(sampleLeaderboard, 10); // Afficher le top 10
-                renderBadges(sampleBadges);
-            }, 500); // 0.5 seconde de délai
-
-            // --- Gestion des Filtres (Classement) ---
-            document.querySelectorAll('.filter-buttons .btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    // Désactiver les autres boutons actifs
-                    document.querySelector('.filter-buttons .btn.active').classList.remove('active');
-                    // Activer le bouton cliqué
-                    this.classList.add('active');
-                    const filterType = this.dataset.filter;
-                    console.log("Filtrer classement par :", filterType);
-                    // Ici, il faudrait refaire un appel API avec le filtre
-                    // Pour la simulation, on peut juste re-render les mêmes données ou des données simulées différentes
-                    // Exemple simple : re-render les mêmes données
-                     renderLeaderboard(sampleLeaderboard, 10); // Remplacer par les données filtrées réelles
-                });
-            });
-
+            const filterType = this.getAttribute('data-filter');
+            loadLeaderboard(filterType);
         });
-    </script>
+    });
+
+    function loadLeaderboard(type) {
+        // Afficher un indicateur de chargement
+        leaderboardBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center p-5">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin me-2"></i>
+                        Chargement du classement...
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        // Faire la requête AJAX
+        fetch(`/api/leaderboard?type=${type}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    leaderboardBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Erreur lors du chargement du classement.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                if (data.length === 0) {
+                    leaderboardBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center p-5">
+                                <div class="no-data">
+                                    <i class="fas fa-users me-2"></i>
+                                    Aucun utilisateur dans ce classement.
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Afficher les données
+                leaderboardBody.innerHTML = data.map(user => `
+                    <tr class="${user.isCurrentUser ? 'current-user-rank' : ''}">
+                        <td class="text-center leaderboard-rank rank-${user.rank}">
+                            ${user.rank === 1 ? '<i class="fas fa-trophy text-warning"></i>' :
+                              user.rank === 2 ? '<i class="fas fa-medal text-secondary"></i>' :
+                              user.rank === 3 ? '<i class="fas fa-medal text-danger"></i>' :
+                              user.rank}
+                        </td>
+                        <td class="leaderboard-user">
+                            <div class="user-avatar">${user.name.substring(0, 2)}</div>
+                            ${user.name}
+                        </td>
+                        <td class="text-end leaderboard-score">${user.score.toLocaleString()}</td>
+                        <td class="text-center">
+                            <div class="recent-badges">
+                                ${user.recentBadges.map(badge => `
+                                    <div class="recent-badge" style="background-color: ${badge.color || '#1EA38B'}" title="${badge.name}">
+                                        <i class="${badge.icon}"></i>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                leaderboardBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center p-5">
+                            <div class="no-data">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Erreur lors du chargement du classement.
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+    }
+});
+</script>
 
 @endsection

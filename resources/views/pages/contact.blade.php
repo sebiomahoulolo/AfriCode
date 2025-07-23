@@ -58,7 +58,7 @@
               <div class="contact-icon">📱</div>
               <div class="contact-details">
                 <h5>Téléphone</h5>
-                <p>+229 90 00 00 00</p>
+                <p>+229 01 65 60 30 40</p>
               </div>
             </div>
             
@@ -66,7 +66,7 @@
               <div class="contact-icon">📍</div>
               <div class="contact-details">
                 <h5>Adresse</h5>
-                <p>Parakou, Bénin</p>
+                <p>Cotonou, Bénin</p>
               </div>
             </div>
             
@@ -86,7 +86,8 @@
         <div class="contact-form-container">
           <div class="organic-container form-container">
             <h4 class="form-title mb-4">Envoyez-nous un message</h4>
-            <form action="#" method="POST" class="modern-form">
+            <form action="{{ route('contact.submit') }}" method="POST" class="modern-form" id="contactForm">
+              @csrf
               <div class="row g-3">
                 <div class="col-md-6">
                   <div class="form-group">
@@ -126,7 +127,7 @@
 
               <div class="form-group">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="newsletter">
+                  <input class="form-check-input" type="checkbox" value="1" id="newsletter" name="newsletter">
                   <label class="form-check-label" for="newsletter">
                     Je souhaite recevoir la newsletter AfriCode
                   </label>
@@ -134,11 +135,14 @@
               </div>
 
               <div class="form-group">
-                <button type="submit" class="btn modern-btn">
+                <button type="submit" class="btn modern-btn" id="submitBtn">
                   <span>Envoyer le message</span>
                   <i class="fas fa-paper-plane ms-2"></i>
                 </button>
               </div>
+
+              <!-- Messages de succès/erreur -->
+              <div id="contactMessage" class="mt-3" style="display: none;"></div>
             </form>
           </div>
         </div>
@@ -160,28 +164,28 @@
         <div class="social-icon linkedin">💼</div>
         <h5>LinkedIn</h5>
         <p>Actualités professionnelles</p>
-        <a href="#" class="social-link">Suivre</a>
+        <a href="https://www.linkedin.com/company/africode-no-code-no-future/" class="social-link">Suivre</a>
       </div>
       
-      <div class="social-card">
-        <div class="social-icon twitter">🐦</div>
+      <!-- <div class="social-card">
+        <div class="social-icon twitter">💻</div>
         <h5>Twitter</h5>
         <p>Actualités en temps réel</p>
         <a href="#" class="social-link">Suivre</a>
-      </div>
+      </div> -->
       
       <div class="social-card">
         <div class="social-icon youtube">📺</div>
         <h5>YouTube</h5>
         <p>Tutoriels et formations</p>
-        <a href="#" class="social-link">S'abonner</a>
+        <a href="https://youtube.com/@africodetechsm?si=k8Y49FJR3tib1KNc" class="social-link">S'abonner</a>
       </div>
       
       <div class="social-card">
-        <div class="social-icon github">💻</div>
-        <h5>GitHub</h5>
-        <p>Projets open source</p>
-        <a href="#" class="social-link">Explorer</a>
+        <div class="social-icon github">🐦</div>
+        <h5>Fecebook</h5>
+        <p>Actualités en temps réel</p>
+        <a href="https://www.facebook.com/profile.php?id=61574681464943" class="social-link">Suivre</a>
       </div>
     </div>
   </div>
@@ -681,5 +685,62 @@
   animation: fadeInUp 0.8s ease-out 0.3s both;
 }
 </style>
+
+<!-- JavaScript pour le formulaire de contact -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactForm = document.getElementById('contactForm');
+    const contactMessage = document.getElementById('contactMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(contactForm);
+        const originalText = submitBtn.innerHTML;
+        
+        // Désactiver le bouton et changer le texte
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span>Envoi en cours...</span><i class="fas fa-spinner fa-spin ms-2"></i>';
+        
+        // Masquer les messages précédents
+        contactMessage.style.display = 'none';
+        contactMessage.className = '';
+        
+        fetch('{{ route("contact.submit") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                contactMessage.className = 'alert alert-success';
+                contactMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                contactForm.reset();
+            } else {
+                contactMessage.className = 'alert alert-danger';
+                contactMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + data.message;
+            }
+        })
+        .catch(error => {
+            contactMessage.className = 'alert alert-danger';
+            contactMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Une erreur est survenue lors de l\'envoi du message. Veuillez réessayer.';
+        })
+        .finally(() => {
+            // Réactiver le bouton et restaurer le texte
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+            contactMessage.style.display = 'block';
+            
+            // Faire défiler vers le message
+            contactMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+});
+</script>
 
 @endsection

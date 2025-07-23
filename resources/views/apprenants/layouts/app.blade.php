@@ -26,14 +26,35 @@
     <link href="{{ asset('css/africode-fixes.css') }}" rel="stylesheet">
     
     <style>
+        :root {
+            --africode-background: #F8F9FA;
+        }
         /* Application équilibrée de la charte AfriCode aux pages apprenants */
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--africode-background);
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: var(--africode-text-primary);
+            background: #F8F9FA !important;
+            color: #333 !important;
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            color: #1EA38B;
+            font-weight: 700;
+        }
+        a, .link {
+            color: #1EA38B;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        a:hover, .link:hover {
+            color: #27B371;
+        }
+        .fa, .fas, .far, .fal, .fab {
+            color: #1EA38B;
+            font-size: 1.1em;
+            vertical-align: middle;
+            margin-right: 0.5em;
         }
 
         /* Sidebar avec charte AfriCode équilibrée */
@@ -768,7 +789,7 @@
             </div>
             
             <div class="nav-item">
-                <a href="#" 
+                <a href="{{ route('badges.index') }}" 
                    class="nav-link"
                    data-title="Progression">
                     <i class="fas fa-chart-line"></i>
@@ -795,7 +816,7 @@
             </div>
             
             <div class="nav-item">
-                <a href="#" 
+                <a href="{{ route('pages.compdisp') }}" 
                    class="nav-link"
                    data-title="Défis">
                     <i class="fas fa-trophy"></i>

@@ -1,9 +1,9 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Créer un examen final')
+@section('title', __('messages.create_final_exam_title'))
 
-@section('page-heading', 'Créer un examen final')
-@section('page-subheading', 'Cours: ' . $course->title)
+@section('page-heading', __('messages.create_final_exam'))
+@section('page-subheading', __('messages.course_for', ['course' => $course->title]))
 
 @section('styles')
 <style>

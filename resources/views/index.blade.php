@@ -1,6 +1,7 @@
 @extends('layouts.layout')
 
 @section('title', 'AfriCode - Façonnez l\'avenir numérique de l\'Afrique')
+@section('content')
 
 {{-- Section pour les meta tags spécifiques à la page d'accueil --}}
 @section('meta_tags')
@@ -41,7 +42,7 @@
 @section('content')
 
     <!-- Hero Section Principal -->
-    <section class="hero-main">
+    <section class="hero-main px-2 py-2">
         <div class="container">
             <div class="row align-items-center min-vh-100">
                 <div class="col-lg-6">
@@ -58,7 +59,7 @@
                             développement, IA et data science. Plus de 96% de nos diplômés trouvent un emploi dans les 6 mois.
                         </p>
                         <div class="hero-actions">
-                            <a href="{{ route('register') }}" class="btn btn-primary btn-hero">
+                            <a href="{{ route('register') }}" class="btn btn-primary btn-hero w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Démarrer ma formation sur AfriCode">
                                 <i class="fas fa-rocket me-2"></i>
                                 Démarrer ma formation
                             </a>
@@ -836,8 +837,8 @@
                 <p>Nous utilisons des cookies pour améliorer votre expérience sur notre site. En continuant, vous acceptez notre utilisation des cookies.</p>
             </div>
             <div class="cookie-actions">
-                <a href="#" class="cookie-link">Déclaration de confidentialité</a>
-                <button class="cookie-settings">Modifier les paramètres</button>
+                <a href="{{ route('confidentialite') }}" class="cookie-link">Déclaration de confidentialité</a>
+                <a href="{{ route('parametres.cookies') }}" class="cookie-settings">Modifier les paramètres</a>
                 <button class="cookie-accept">Accepter</button>
                 <button class="cookie-close" aria-label="Fermer">
                     <i class="fas fa-times"></i>

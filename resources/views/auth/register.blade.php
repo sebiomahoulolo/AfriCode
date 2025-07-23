@@ -1,9 +1,9 @@
 @extends('layouts.layout')
 
-@section('title', 'AfriCode - Inscription')
+@section('title', 'AfriCode')
 
 @section('content')
-<div class="container py-5">
+<div class="container py-5 px-2">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
@@ -113,7 +113,7 @@
                         <div class="mb-4 form-check">
                             <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
                             <label class="form-check-label" for="terms">
-                                J'accepte les <a href="#" class="text-decoration-none">conditions d'utilisation</a> et la <a href="#" class="text-decoration-none">politique de confidentialité</a>
+                                J’accepte les <a href="{{ route('pages.terms') }}" class="text-decoration-none" target="_blank">conditions d’utilisation</a> et la <a href="{{ route('pages.privacy') }}" class="text-decoration-none" target="_blank">politique de confidentialité</a> d’AfriCode.
                             </label>
                         </div>
 
@@ -121,7 +121,7 @@
                             <a class="text-decoration-none" href="{{ route('login') }}">
                                 Déjà inscrit ?
                             </a>
-                            <button type="submit" class="btn btn-primary px-4 py-2">
+                            <button type="submit" class="btn px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B; color:white" aria-label="Créer mon compte AfriCode">
                                 <i class="fas fa-user-plus me-2" style="color:  #FF8E2A;"></i>S'inscrire
                             </button>
                         </div>

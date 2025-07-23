@@ -1,9 +1,9 @@
-<div class="spa-container">
+<div class="spa-container px-2 py-2">
     {{-- Navigation Breadcrumb --}}
     <nav aria-label="breadcrumb" class="mb-4" data-aos="fade-down">
         <ol class="breadcrumb-modern">
             <li class="breadcrumb-item">
-                <button wire:click="showDashboard" class="btn-link {{ $currentView === 'dashboard' ? 'active' : '' }}">
+                <button wire:click="showDashboard" class="btn-link {{ $currentView === 'dashboard' ? 'active' : '' }} focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Retour au tableau de bord">
                     <i class="fas fa-home me-1"></i>Tableau de bord
                 </button>
             </li>
@@ -56,6 +56,41 @@
                 </div>
             </div>
 
+            @if(Auth::user())
+                <div class="my-6 p-4 bg-green-50 border-l-4 border-green-400">
+                    <h2 class="font-bold text-lg mb-2 text-green-700">Recommandations personnalisées</h2>
+                    @php $reco = Auth::user()->recommendedCourses(); @endphp
+                    @if($reco->isEmpty())
+                        <div class="text-gray-500">Aucune recommandation pour le moment. Suivez plus de cours pour en obtenir !</div>
+                    @else
+                        <ul class="space-y-2">
+                            @foreach($reco as $course)
+                                <li class="p-2 bg-white rounded shadow flex flex-col md:flex-row md:items-center gap-2">
+                                    <span class="font-semibold text-green-800">{{ $course->title }}</span>
+                                    <span class="text-xs text-gray-500">({{ $course->category->name ?? 'Sans catégorie' }})</span>
+                                    <a href="{{ route('courses.show', $course->slug) }}" class="ml-auto text-green-600 hover:underline">Voir le cours</a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            @endif
+
+            @if(Auth::user() && Auth::user()->hasLearningDifficulties())
+                <div class="my-6 p-4 bg-red-50 border-l-4 border-red-400">
+                    <h2 class="font-bold text-lg mb-2 text-red-700">Besoin d'aide ?</h2>
+                    <div class="mb-2 text-gray-700">
+                        Nous avons détecté que vous rencontrez des difficultés dans votre apprentissage.<br>
+                        Voici quelques ressources pour vous aider :
+                    </div>
+                    <ul class="list-disc pl-6 text-sm text-gray-800">
+                        <li><a href="{{ route('faq') }}" class="text-blue-600 hover:underline">Consulter la FAQ</a></li>
+                        <li><a href="{{ route('mentorat') }}" class="text-blue-600 hover:underline">Demander l'aide d'un mentor</a></li>
+                        <li><a href="{{ route('contact') }}" class="text-blue-600 hover:underline">Contacter le support</a></li>
+                    </ul>
+                </div>
+            @endif
+
             <div class="row">
                 {{-- Cours en cours --}}
                 <div class="col-lg-8 mb-4">
@@ -72,10 +107,10 @@
                                 <div class="course-card-modern" data-aos="fade-up" data-aos-delay="{{ 600 + $loop->index * 100 }}">
                                     <div class="course-image">
                                         <img src="{{ $enrollment->course->cover_image_path ? asset($enrollment->course->cover_image_path) : asset('assets/images/default-course.jpg') }}" 
-                                             alt="{{ $enrollment->course->title }}" class="img-fluid">
+                                             alt="Image du cours {{ $enrollment->course->title }}" class="img-fluid" />
                                         <div class="course-overlay">
                                             <button wire:click="$emit('continueFromLastLesson', {{ $enrollment->course->id }})" 
-                                                    class="btn btn-modern btn-sm">
+                                                    class="btn btn-modern btn-sm w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Continuer le cours {{ $enrollment->course->title }}">
                                                 <i class="fas fa-play me-2"></i>Continuer
                                             </button>
                                         </div>
@@ -147,7 +182,7 @@
                         </h5>
                         
                         <div class="quick-actions">
-                            <button wire:click="showProfileView" class="action-card">
+                            <button wire:click="showProfileView" class="action-card focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Accéder à mon profil">
                                 <div class="action-icon">
                                     <i class="fas fa-user"></i>
                                 </div>
@@ -155,7 +190,7 @@
                                 <small class="text-muted">Gérer mon compte</small>
                             </button>
                             
-                            <button wire:click="showCertificationsView" class="action-card">
+                            <button wire:click="showCertificationsView" class="action-card focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Voir mes certifications">
                                 <div class="action-icon">
                                     <i class="fas fa-certificate"></i>
                                 </div>
@@ -163,7 +198,7 @@
                                 <small class="text-muted">Mes diplômes</small>
                             </button>
                             
-                            <div class="action-card" onclick="window.location.href='{{ route('courses.index') }}'">
+                            <div class="action-card focus:outline-none focus:ring-2 focus:ring-primary" onclick="window.location.href='{{ route('courses.index') }}'" tabindex="0" aria-label="Explorer les nouveaux cours">
                                 <div class="action-icon">
                                     <i class="fas fa-search"></i>
                                 </div>
@@ -171,7 +206,7 @@
                                 <small class="text-muted">Nouveaux cours</small>
                             </div>
                             
-                            <div class="action-card" onclick="window.location.href='{{ route('pages.forumapp') }}'">
+                            <div class="action-card focus:outline-none focus:ring-2 focus:ring-primary" onclick="window.location.href='{{ route('pages.forumapp') }}'" tabindex="0" aria-label="Accéder à la communauté">
                                 <div class="action-icon">
                                     <i class="fas fa-users"></i>
                                 </div>

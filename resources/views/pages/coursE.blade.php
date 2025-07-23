@@ -148,7 +148,7 @@
                 <img src="{{ asset('assets/images/digital_marketing.jpg') }}" class="card-img-top" alt="Marketing Digital">
                 <div class="card-body">
                     <h5 class="card-title">Marketing Digital</h5>
-                    <p class="card-text">Découvrez les stratégies pour réussir dans le marketing en ligne, la gestion des réseaux sociaux, et l’optimisation SEO.</p>
+                    <p class="card-text">Découvrez les stratégies pour réussir dans le marketing en ligne, la gestion des réseaux sociaux, et l'optimisation SEO.</p>
                     <p class="text-success"><strong>40$</strong> | Certificat inclus | <span class="text-danger">20h</span></p>
                     <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
                 </div>
@@ -161,7 +161,7 @@
                 <img src="{{ asset('assets/images/content_creation.jpg') }}" class="card-img-top" alt="Création de Contenu Vidéo">
                 <div class="card-body">
                     <h5 class="card-title">Création de Contenu Vidéo</h5>
-                    <p class="card-text">Apprenez à créer et éditer des vidéos engageantes pour YouTube, TikTok, et d’autres plateformes avec des outils comme Premiere Pro.</p>
+                    <p class="card-text">Apprenez à créer et éditer des vidéos engageantes pour YouTube, TikTok, et d'autres plateformes avec des outils comme Premiere Pro.</p>
                     <p class="text-success"><strong>45$</strong> | Certificat inclus | <span class="text-danger">18h</span></p>
                     <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
                 </div>
@@ -180,14 +180,14 @@
         @foreach ([
             ['Architecture Logicielle Avancée', 'Concevez des systèmes logiciels complexes en utilisant des modèles comme DDD, CQRS et Clean Architecture.', 'architecture_logicielle.jpg', '120$', 'Certificat inclus', '85h'],
             ['Deep Learning', 'Explorez les réseaux neuronaux profonds et construisez des modèles avec TensorFlow et PyTorch.', 'deep_learning.jpg', '150$', 'Certificat inclus', '120h'],
-            ['Sécurité Informatique et Ethical Hacking', 'Apprenez à effectuer des tests d’intrusion avancés et renforcer la sécurité de vos systèmes critiques.', 'cyber_security.jpg', '140$', 'Certificat inclus', '95h'],
+            ['Sécurité Informatique et Ethical Hacking', 'Apprenez à effectuer des tests d'intrusion avancés et renforcer la sécurité de vos systèmes critiques.', 'cyber_security.jpg', '140$', 'Certificat inclus', '95h'],
             ['Développement Fullstack Avancé', "Maîtrisez Next.js, Nest.js et MongoDB pour des applications fullstack performantes.", 'fullstack.jpg', '100$', 'Certificat inclus', '80h'],
             ['Big Data et Traitement Massif', 'Découvrez Hadoop et Spark pour gérer de grandes quantités de données avec efficacité.', 'big_data.jpg', '135$', 'Certificat inclus', '110h'],
             ['Blockchain Avancée', 'Créez des applications décentralisées et développez des smart contracts complexes.', 'blockchain.jpg', '125$', 'Certificat inclus', '90h'],
-            ['Cloud Computing et Kubernetes', 'Maîtrisez le déploiement d’applications dans le cloud avec Kubernetes et Terraform.', 'cloud_computing.jpg', '130$', 'Certificat inclus', '100h'],
+            ['Cloud Computing et Kubernetes', 'Maîtrisez le déploiement d'applications dans le cloud avec Kubernetes et Terraform.', 'cloud_computing.jpg', '130$', 'Certificat inclus', '100h'],
             ['Gestion de Projets IT', "Optimisez vos compétences en gestion d'équipes et projets technologiques avec des outils modernes.", 'project_management.jpg', '95$', 'Certificat inclus', '70h'],
             ['Développement Mobile Avancé', 'Apprenez à créer des applications mobiles natives et hybrides avec Flutter et Kotlin.', 'mobile_advanced.jpg', '110$', 'Certificat inclus', '85h'],
-            ['AI et Machine Learning Avancé', 'Maîtrisez l’implémentation d’algorithmes d’apprentissage supervisé et non supervisé.', 'ai_advanced.jpg', '160$', 'Certificat inclus', '130h'],
+            ['AI et Machine Learning Avancé', 'Maîtrisez l'implémentation d'algorithmes d'apprentissage supervisé et non supervisé.', 'ai_advanced.jpg', '160$', 'Certificat inclus', '130h'],
             ['DevOps Expérimenté', 'Automatisez vos déploiements avec Jenkins, Docker et CI/CD avancé.', 'devops.jpg', '145$', 'Certificat inclus', '95h'],
             ['Visualisation Avancée des Données', 'Créez des tableaux interactifs et percutants avec Tableau, Power BI et D3.js.', 'data_visualization.jpg', '90$', 'Certificat inclus', '75h']
         ] as $cours)

@@ -40,6 +40,11 @@ class BadgeController extends Controller
             abort(404);
         }
 
+        // Décoder requirements si c'est une chaîne JSON
+        if (is_string($badge->requirements)) {
+            $badge->requirements = json_decode($badge->requirements, true) ?: [];
+        }
+
         $earnedBy = $badge->users()
             ->withPivot('earned_at')
             ->orderBy('pivot_earned_at', 'desc')

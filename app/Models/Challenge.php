@@ -11,6 +11,11 @@ class Challenge extends Model
         'name',
         'description',
         'type',
+        'difficulty',
+        'time_limit_minutes',
+        'hints',
+        'solution_template',
+        'is_featured',
         'requirements',
         'rewards',
         'start_date',
@@ -31,6 +36,11 @@ class Challenge extends Model
         return $this->belongsToMany(User::class)
             ->withPivot('progress', 'is_completed', 'completed_at')
             ->withTimestamps();
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(ChallengeQuestion::class, 'challenge_id');
     }
 
     public function isActive(): bool

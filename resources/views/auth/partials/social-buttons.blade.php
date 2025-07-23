@@ -8,9 +8,9 @@
         <a href="{{ route('social.login', ['provider' => 'google']) }}" class="btn btn-outline-danger">
             <i class="fab fa-google"></i>
         </a>
-        <a href="{{ route('social.login', ['provider' => 'facebook']) }}" class="btn btn-outline-primary">
+        {{-- <a href="{{ route('social.login', ['provider' => 'facebook']) }}" class="btn btn-outline-primary">
             <i class="fab fa-facebook-f"></i>
-        </a>
+        </a> --}}
         <a href="{{ route('social.login', ['provider' => 'github']) }}" class="btn btn-outline-dark">
             <i class="fab fa-github"></i>
         </a>
