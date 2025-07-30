@@ -860,7 +860,6 @@ class FormateurController extends Controller
             $course->ratings()->delete();
 
             // 5. Supprimer les paiements liés au cours
-            Payment::where('course_id', $course->id)
             Payment::where('payable_type', \App\Models\Course::class)
                    ->where('payable_id', $course->id)
                    ->delete();

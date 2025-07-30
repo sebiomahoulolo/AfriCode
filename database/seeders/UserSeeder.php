@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Create admin user
+        User::withoutSyncingToSearch(function () {
         User::create([
             'first_name' => 'Admin',
             'last_name' => 'System',
@@ -112,5 +113,6 @@ class UserSeeder extends Seeder
             'role' => 'apprenant',
             'email_verified_at' => now(),
         ]);
+    });
     }
 }

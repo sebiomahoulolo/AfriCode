@@ -101,35 +101,41 @@ class CourseContentSeeder extends Seeder
 
     private function createFullCourse(string $title, User $formateur): Course
     {
-        $course = Course::create([
-            'title' => $title,
-            'short_description' => 'Description courte pour ' . $title,
-            'level' => ['Débutant', 'Intermédiaire', 'Avancé'][rand(0, 2)],
-            'status' => 'published',
-            'formateur_id' => $formateur->id,
-            'category_id' => 1,
-            'published_at' => now(),
-        ]);
+        return Course::withoutSyncingToSearch(function () use ($title, $formateur) {
+            $course = Course::create([
+                'title' => $title,
+                'short_description' => 'Description courte pour ' . $title,
+                'level' => ['Débutant', 'Intermédiaire', 'Avancé'][rand(0, 2)],
+                'status' => 'published',
+                'formateur_id' => $formateur->id,
+                'category_id' => 1,
+                'published_at' => now(),
+            ]);
 
-        // Modules
-        $module1 = $course->modules()->create(['title' => 'Module 1: Introduction', 'order' => 1]);
-        $module1->lessons()->createMany([
-            ['title' => 'Leçon 1.1: Concepts de base', 'order' => 1, 'duration_minutes' => 15, 'text_content' => 'Contenu...'],
-            ['title' => 'Leçon 1.2: Environnement', 'order' => 2, 'duration_minutes' => 20, 'text_content' => 'Contenu...'],
-        ]);
-        $this->addQuestionsToQuiz($this->createQuizFor($module1, ['title' => 'Quiz du Module 1', 'is_required' => true, 'passing_score' => 70]), 3);
+            // Modules
+            $module1 = $course->modules()->create(['title' => 'Module 1: Introduction', 'order' => 1]);
+            Lesson::withoutSyncingToSearch(function () use ($module1) {
+                $module1->lessons()->createMany([
+                    ['title' => 'Leçon 1.1: Concepts de base', 'order' => 1, 'duration_minutes' => 15, 'text_content' => 'Contenu...'],
+                    ['title' => 'Leçon 1.2: Environnement', 'order' => 2, 'duration_minutes' => 20, 'text_content' => 'Contenu...'],
+                ]);
+            });
+            $this->addQuestionsToQuiz($this->createQuizFor($module1, ['title' => 'Quiz du Module 1', 'is_required' => true, 'passing_score' => 70]), 3);
 
-        $module2 = $course->modules()->create(['title' => 'Module 2: Techniques Avancées', 'order' => 2]);
-        $module2->lessons()->createMany([
-            ['title' => 'Leçon 2.1: Technique A', 'order' => 1, 'duration_minutes' => 25, 'text_content' => 'Contenu...'],
-            ['title' => 'Leçon 2.2: Technique B', 'order' => 2, 'duration_minutes' => 30, 'text_content' => 'Contenu...'],
-        ]);
-        $this->addQuestionsToQuiz($this->createQuizFor($module2, ['title' => 'Quiz du Module 2', 'is_required' => true, 'passing_score' => 75]), 3);
+            $module2 = $course->modules()->create(['title' => 'Module 2: Techniques Avancées', 'order' => 2]);
+            Lesson::withoutSyncingToSearch(function () use ($module2) {
+                $module2->lessons()->createMany([
+                    ['title' => 'Leçon 2.1: Technique A', 'order' => 1, 'duration_minutes' => 25, 'text_content' => 'Contenu...'],
+                    ['title' => 'Leçon 2.2: Technique B', 'order' => 2, 'duration_minutes' => 30, 'text_content' => 'Contenu...'],
+                ]);
+            });
+            $this->addQuestionsToQuiz($this->createQuizFor($module2, ['title' => 'Quiz du Module 2', 'is_required' => true, 'passing_score' => 75]), 3);
 
-        // Quiz Final
-        $this->addQuestionsToQuiz($this->createQuizFor($course, ['title' => 'Examen Final: ' . $title, 'is_required' => true, 'passing_score' => 80]), 10);
-        
-        return $course;
+            // Quiz Final
+            $this->addQuestionsToQuiz($this->createQuizFor($course, ['title' => 'Examen Final: ' . $title, 'is_required' => true, 'passing_score' => 80]), 10);
+            
+            return $course;
+        });
     }
 
     private function createQuizFor($model, array $data): Quiz

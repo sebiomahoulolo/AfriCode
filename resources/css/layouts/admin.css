@@ -30,19 +30,13 @@
 }
 
 body {
-<<<<<<< HEAD
-    background: linear-gradient(135deg, #F8FFFE 0%, #F0F9F8 100%);
-=======
     background: #F8F9FA;
->>>>>>> 9e3ff58c11b871aeeccc07f8084bf12cbbd4c26d
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     color: var(--africode-dark-text);
     line-height: 1.6;
     overflow-x: hidden;
 }
 
-<<<<<<< HEAD
-=======
 .admin-card {
     background: #fff;
     border-radius: 16px;
@@ -108,7 +102,6 @@ button[type=submit]:hover {
     box-shadow: 0 4px 16px rgba(30,163,139,0.12);
 }
 
->>>>>>> 9e3ff58c11b871aeeccc07f8084bf12cbbd4c26d
 /* Layout principal */
 .admin-layout {
     display: flex;
