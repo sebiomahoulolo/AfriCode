@@ -5,12 +5,9 @@
 @section('page-subtitle', 'Module: ' . $module->title)
 
 @section('header-actions')
-    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+    <a href="{{ route('formateur.manage.module', $module) }}" class="btn btn-outline-secondary me-2">
         <i class="fas fa-arrow-left me-2"></i>Retour au module
     </a>
-    <button type="submit" form="create-lesson-form" class="btn-primary-africode">
-        <i class="fas fa-plus me-2"></i>Créer la leçon
-    </button>
 @endsection
 
 @section('styles')
@@ -336,9 +333,12 @@
                 </div>
                 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('formateur.manage.module', $module) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-2"></i>Annuler
                     </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Créer la leçon
+                    </button>
                 </div>
             </form>
         </div>
@@ -415,5 +415,74 @@
             }
         }
     }
+
+    // Handle form submission to ensure CKEditor data is updated
+    document.getElementById('create-lesson-form').addEventListener('submit', function(e) {
+        // Update CKEditor data if it exists
+        if (textEditorInstance) {
+            try {
+                const editorData = textEditorInstance.getData();
+                document.getElementById('text_content').value = editorData;
+            } catch (error) {
+                console.error('Error getting CKEditor data:', error);
+            }
+        }
+
+        // Validate content type selection
+        if (!contentTypeInput.value) {
+            e.preventDefault();
+            alert('Veuillez sélectionner un type de contenu.');
+            return false;
+        }
+
+        // Additional validation based on content type
+        const contentType = contentTypeInput.value;
+        let isValid = true;
+        let errorMessage = '';
+
+        switch(contentType) {
+            case 'video':
+                const videoUrl = document.getElementById('video_url').value.trim();
+                if (!videoUrl) {
+                    isValid = false;
+                    errorMessage = 'Veuillez saisir l\'URL de la vidéo.';
+                }
+                break;
+            case 'text':
+                const textContent = document.getElementById('text_content').value.trim();
+                if (!textContent) {
+                    isValid = false;
+                    errorMessage = 'Veuillez saisir le contenu texte.';
+                }
+                break;
+            case 'pdf':
+                const pdfFile = document.getElementById('pdf_file').files[0];
+                if (!pdfFile) {
+                    isValid = false;
+                    errorMessage = 'Veuillez sélectionner un fichier PDF.';
+                }
+                break;
+            case 'external':
+                const externalUrl = document.getElementById('external_url').value.trim();
+                if (!externalUrl) {
+                    isValid = false;
+                    errorMessage = 'Veuillez saisir l\'URL externe.';
+                }
+                break;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            alert(errorMessage);
+            return false;
+        }
+
+        // Show loading state on submit button
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Création en cours...';
+        }
+    });
 </script>
 @endsection

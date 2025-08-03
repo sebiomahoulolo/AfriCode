@@ -227,7 +227,7 @@
                 
                 <div class="mb-4">
                     <label for="full_description" class="form-label">Description complète <span class="text-danger">*</span></label>
-                    <textarea class="form-control @error('full_description') is-invalid @enderror" id="full_description" name="full_description" rows="6" required>{{ old('full_description') }}</textarea>
+                    <textarea class="form-control @error('full_description') is-invalid @enderror" id="full_description" name="full_description" rows="6">{{ old('full_description') }}</textarea>
                     <div class="form-text">Décrivez en détail ce que les étudiants apprendront dans votre cours.</div>
                     @error('full_description')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -361,43 +361,28 @@
     });
     
     // Initialize CKEditor for full description
+    let fullDescriptionEditor;
     ClassicEditor
         .create(document.querySelector('#full_description'))
+        .then(editor => {
+            fullDescriptionEditor = editor;
+        })
         .catch(error => {
             console.error('Erreur CKEditor pour #full_description:', error);
         });
-        
-    // Handle learning objectives and prerequisites as JSON
-    const courseForm = document.querySelector('form.course-form');
-    if (courseForm) {
-        courseForm.addEventListener('submit', function(e) {
-            try {
-                const learningObjectivesEl = document.getElementById('learning_objectives');
-                if (learningObjectivesEl) {
-                    const learningObjectives = learningObjectivesEl.value
-                        .split('\\n')
-                        .map(line => line.trim()) // Trim each line
-                        .filter(line => line !== ''); // Filter out empty lines
-                    learningObjectivesEl.value = JSON.stringify(learningObjectives);
-                }
 
-                const prerequisitesEl = document.getElementById('prerequisites');
-                if (prerequisitesEl) {
-                    const prerequisites = prerequisitesEl.value
-                        .split('\\n')
-                        .map(line => line.trim()) // Trim each line
-                        .filter(line => line !== ''); // Filter out empty lines
-                    prerequisitesEl.value = JSON.stringify(prerequisites);
-                }
-            } catch (error) {
-                console.error('Erreur lors de la préparation des données du formulaire (cours) avant soumission:', error);
-                // Décommentez les lignes suivantes pour empêcher la soumission et alerter en cas d'erreur critique
-                // e.preventDefault();
-                // alert('Une erreur est survenue lors de la préparation des données du formulaire. Veuillez vérifier la console.');
+    // Validation JS pour s'assurer que la description complète n'est pas vide
+    document.getElementById('create-course-form').addEventListener('submit', function(e) {
+        if (fullDescriptionEditor) {
+            const value = fullDescriptionEditor.getData().trim();
+            if (!value) {
+                alert('La description complète est requise.');
+                fullDescriptionEditor.editing.view.focus();
+                e.preventDefault();
+                return false;
             }
-        });
-    } else {
-        console.error('Le formulaire .course-form n\'a pas été trouvé.');
-    }
+            document.getElementById('full_description').value = value;
+        }
+    });
 </script>
 @endsection

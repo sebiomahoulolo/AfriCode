@@ -60,7 +60,7 @@
             
             <!-- Footer avec profil utilisateur -->
             <div class="sidebar-footer">
-                <a href="{{ route('profile.edit') }}" class="user-profile">
+                <a href="{{ route('formateur.profile.edit') }}" class="user-profile">
                     <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&background=1EA38B&color=fff&size=40' }}" 
                          alt="Profile" class="user-avatar">
                     <div class="user-info">

@@ -397,13 +397,14 @@ class FormateurController extends Controller
     {
         $user = Auth::user();
         $module = Module::with('course')->findOrFail($moduleId);
+        $course = $module->course;
         
         // Vérifier que le formateur est bien le propriétaire du cours
-        if ($module->course->formateur_id !== $user->id && $user->role !== 'admin') {
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce module');
         }
         
-        return view('formateurs.create_lesson', compact('module'));
+        return view('formateurs.create_lesson', compact('module', 'course'));
     }
     
     /**
@@ -423,9 +424,9 @@ class FormateurController extends Controller
             'pdf_file' => 'nullable|file|mimes:pdf|max:10240|required_if:content_type,pdf',
             'external_url' => 'nullable|url|required_if:content_type,external',
             'duration_minutes' => 'nullable|integer|min:1',
-            'is_previewable' => 'nullable|boolean',
+            'is_previewable' => 'nullable|in:on,1,true',
         ]);
-        
+
         $user = Auth::user();
         $module = Module::with('course')->findOrFail($moduleId);
         

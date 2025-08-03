@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ProfileCompletionController;
 use App\Http\Controllers\FormateurController;
+use App\Http\Controllers\Formateur\ProfileController as FormateurProfileController;
 use App\Http\Controllers\Auth\SocialAuthController as AuthSocialAuthController;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
@@ -274,6 +275,12 @@ Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->pr
     Route::post('/cours/evaluations/{ratingId}/repondre', [FormateurController::class, 'replyToRating'])->name('formateur.courses.ratings.reply');
     Route::get('/cours/{courseId}/revenus', [FormateurController::class, 'courseRevenues'])->name('formateur.courses.revenues');
     Route::get('/cours/{courseId}/revenus/exporter', [FormateurController::class, 'exportRevenues'])->name('formateur.courses.revenues.export');
+    
+    // Gestion du profil
+    Route::get('/profile', [FormateurProfileController::class, 'edit'])->name('formateur.profile.edit');
+    Route::patch('/profile', [FormateurProfileController::class, 'update'])->name('formateur.profile.update');
+    Route::put('/profile/password', [FormateurProfileController::class, 'updatePassword'])->name('formateur.profile.password.update');
+    Route::delete('/profile', [FormateurProfileController::class, 'destroy'])->name('formateur.profile.destroy');
 });
 
 // Routes pour apprenants

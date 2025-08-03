@@ -12,17 +12,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modifier l'enum content_type pour accepter 'external' au lieu de 'external_link'
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
-        
-        // Mettre à jour les valeurs existantes si nécessaire
-        DB::table('lessons')
-            ->where('content_type', 'external_link')
-            ->update(['content_type' => 'external']);
+        // Vérifier si la table lessons existe avant de la modifier
+        if (Schema::hasTable('lessons')) {
+            // Modifier l'enum content_type pour accepter 'external' au lieu de 'external_link'
+            DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
             
-        DB::table('lessons')
-            ->where('content_type', 'quiz_link')
-            ->update(['content_type' => 'external']);
+            // Mettre à jour les valeurs existantes si nécessaire
+            DB::table('lessons')
+                ->where('content_type', 'external_link')
+                ->update(['content_type' => 'external']);
+                
+            DB::table('lessons')
+                ->where('content_type', 'quiz_link')
+                ->update(['content_type' => 'external']);
+        }
     }
 
     /**
@@ -30,12 +33,15 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Restaurer l'ancien enum
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
-        
-        // Restaurer les valeurs
-        DB::table('lessons')
-            ->where('content_type', 'external')
-            ->update(['content_type' => 'external_link']);
+        // Vérifier si la table lessons existe avant de la modifier
+        if (Schema::hasTable('lessons')) {
+            // Restaurer l'ancien enum
+            DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
+            
+            // Restaurer les valeurs
+            DB::table('lessons')
+                ->where('content_type', 'external')
+                ->update(['content_type' => 'external_link']);
+        }
     }
 };

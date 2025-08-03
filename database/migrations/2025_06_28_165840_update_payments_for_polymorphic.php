@@ -34,11 +34,48 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('payments', function (Blueprint $table) {
-            // Rétablir course_id avec contrainte étrangère
-            $table->foreignId('course_id')->constrained()->onDelete('cascade');
-
-            // Supprimer les colonnes polymorphiques
-            $table->dropColumn(['payable_id', 'payable_type']);
+            // Vérifier si les colonnes existent avant de les supprimer
+            if (Schema::hasColumn('payments', 'payable_id')) {
+                $table->dropColumn('payable_id');
+            }
+            if (Schema::hasColumn('payments', 'payable_type')) {
+                $table->dropColumn('payable_type');
+            }
+            
+            // Ajouter course_id seulement si elle n'existe pas déjà
+            if (!Schema::hasColumn('payments', 'course_id')) {
+                $table->unsignedBigInteger('course_id')->nullable()->after('user_id');
+            }
         });
+
+        // Nettoyer les données invalides avant d'ajouter la contrainte
+        try {
+            DB::statement('DELETE FROM payments WHERE course_id IS NULL OR course_id NOT IN (SELECT id FROM courses)');
+            
+            // Ajouter la contrainte de clé étrangère dans une deuxième étape
+            Schema::table('payments', function (Blueprint $table) {
+                if (!$this->foreignKeyExists('payments', 'payments_course_id_foreign')) {
+                    $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+                }
+            });
+        } catch (\Exception $e) {
+            // Ignorer les erreurs si la contrainte ne peut pas être ajoutée
+        }
+    }
+
+    /**
+     * Vérifier si une contrainte de clé étrangère existe
+     */
+    private function foreignKeyExists($table, $name)
+    {
+        $result = DB::select("
+            SELECT CONSTRAINT_NAME 
+            FROM information_schema.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = ? 
+            AND CONSTRAINT_NAME = ?
+        ", [$table, $name]);
+        
+        return count($result) > 0;
     }
 };

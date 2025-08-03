@@ -51,24 +51,40 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Supprimer les champs ajoutés à competitions
-        Schema::table('competitions', function (Blueprint $table) {
-            $table->dropColumn(['max_participants', 'entry_fee', 'prizes', 'judging_criteria', 'is_featured', 'views_count']);
-        });
+        // Supprimer les champs ajoutés à competitions (si la table existe)
+        if (Schema::hasTable('competitions')) {
+            Schema::table('competitions', function (Blueprint $table) {
+                if (Schema::hasColumn('competitions', 'max_participants')) {
+                    $table->dropColumn(['max_participants', 'entry_fee', 'prizes', 'judging_criteria', 'is_featured', 'views_count']);
+                }
+            });
+        }
 
-        // Supprimer les champs ajoutés à challenges
-        Schema::table('challenges', function (Blueprint $table) {
-            $table->dropColumn(['difficulty', 'time_limit_minutes', 'hints', 'solution_template', 'is_featured']);
-        });
+        // Supprimer les champs ajoutés à challenges (si la table existe)
+        if (Schema::hasTable('challenges')) {
+            Schema::table('challenges', function (Blueprint $table) {
+                if (Schema::hasColumn('challenges', 'difficulty')) {
+                    $table->dropColumn(['difficulty', 'time_limit_minutes', 'hints', 'solution_template', 'is_featured']);
+                }
+            });
+        }
 
-        // Supprimer les champs ajoutés à badges
-        Schema::table('badges', function (Blueprint $table) {
-            $table->dropColumn(['color', 'is_locked', 'unlock_order']);
-        });
+        // Supprimer les champs ajoutés à badges (si la table existe)
+        if (Schema::hasTable('badges')) {
+            Schema::table('badges', function (Blueprint $table) {
+                if (Schema::hasColumn('badges', 'color')) {
+                    $table->dropColumn(['color', 'is_locked', 'unlock_order']);
+                }
+            });
+        }
 
-        // Supprimer les champs ajoutés à users
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['total_points', 'current_level', 'experience_points', 'last_activity']);
-        });
+        // Supprimer les champs ajoutés à users (si la table existe)
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
+                if (Schema::hasColumn('users', 'total_points')) {
+                    $table->dropColumn(['total_points', 'current_level', 'experience_points', 'last_activity']);
+                }
+            });
+        }
     }
 };

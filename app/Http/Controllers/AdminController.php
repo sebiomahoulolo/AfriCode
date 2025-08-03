@@ -7,6 +7,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use App\Models\User;
 use App\Models\Course;
@@ -353,23 +356,58 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
             'slug' => 'required|string|unique:courses,slug,' . $course->id,
-            'price' => 'required|numeric|min:0',
-            'level' => 'required|in:debutant,intermediaire,avance,expert',
-            'category_id' => 'required|exists:categories,id',
-            'formateur_id' => 'required|exists:users,id',
-            'status' => 'required|in:draft,published',
+            'short_description' => 'nullable|string|max:500',
+            'full_description' => 'nullable|string',
+            'learning_objectives' => 'nullable|string',
+            'prerequisites' => 'nullable|string',
+            'content' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'tags' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|in:EUR,USD,XOF',
+            'price_fcfa' => 'nullable|numeric|min:0',
+            'discounted_price' => 'nullable|numeric|min:0',
+            'discount_starts_at' => 'nullable|date',
+            'discount_ends_at' => 'nullable|date|after:discount_starts_at',
+            'duration' => 'nullable|numeric|min:0.5',
+            'language' => 'nullable|in:fr,en,ar,wo',
+            'level' => 'nullable|in:débutant,intermédiaire,avancé,expert',
+            'category_id' => 'nullable|exists:categories,id',
+            'formateur_id' => 'nullable|exists:users,id',
+            'status' => 'nullable|in:draft,published',
+            'published_at' => 'nullable|date',
             'cover_image' => 'nullable|image|max:2048', // 2MB max
-            'preview_video_url' => 'nullable|url',
-            'duration' => 'nullable|integer|min:0',
-            'is_premium' => 'boolean',
-            'is_certifying' => 'boolean',
+            'preview_video' => 'nullable|url',
+            'is_premium' => 'nullable|boolean',
+            'is_certifying' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
         ]);
         
-        $data = $request->except('_token', '_method', 'image');
-        $data['is_premium'] = $request->has('is_premium');
-        $data['is_certifying'] = $request->has('is_certifying');
+        // Préparer les données pour la mise à jour
+        $data = $request->only([
+            'title', 'slug', 'short_description', 'full_description', 
+            'learning_objectives', 'prerequisites', 'content', 'meta_title', 'tags',
+            'price', 'currency', 'price_fcfa', 'discounted_price', 
+            'discount_starts_at', 'discount_ends_at', 'duration', 'language',
+            'level', 'category_id', 'formateur_id', 'status', 'published_at', 'preview_video'
+        ]);
+        
+        // Gérer les champs boolean - les checkbox renvoient '1' si cochées, null sinon
+        $data['is_premium'] = $request->has('is_premium') ? 1 : 0;
+        $data['is_certifying'] = $request->has('is_certifying') ? 1 : 0;
+        $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
+        
+        // Nettoyer les valeurs vides pour éviter de remplacer par null (sauf les booleans)
+        $filteredData = [];
+        foreach ($data as $key => $value) {
+            // Conserver les champs obligatoires et les booleans même s'ils sont vides
+            if (in_array($key, ['title', 'slug']) || 
+                in_array($key, ['is_premium', 'is_certifying', 'is_featured']) ||
+                ($value !== '' && $value !== null)) {
+                $filteredData[$key] = $value;
+            }
+        }
 
         try {
             // Handle cover image upload
@@ -382,23 +420,23 @@ class AdminController extends Controller
                 $image = $request->file('cover_image');
                 $filename = time() . '.' . $image->getClientOriginalExtension();
                 $path = $image->storeAs('course_covers', $filename, 'public');
-                $data['cover_image_path'] = $path;
+                $filteredData['cover_image_path'] = $path;
             }
             
-            $course->update($data);
-            
-            // Create notification
-            NotificationService::userAction('updated', 'course', $course->title, [
-                'model_id' => $course->id,
-                'action_url' => route('admin.courses.show', $course->id),
-                'action_text' => 'Voir le cours',
-                'icon' => 'graduation-cap',
-                'color' => 'info'
-            ]);
+            $course->update($filteredData);
             
             return redirect()->route('admin.courses.index')->with('success', 'Cours mis à jour avec succès !');
         } catch (\Exception $e) {
-            return $this->handleOperationError($e, 'updated', 'course', $course->title);
+            // Log l'erreur pour le débogage
+            Log::error('Course update error: ' . $e->getMessage(), [
+                'course_id' => $course->id,
+                'data' => $filteredData,
+                'user_id' => Auth::id()
+            ]);
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour du cours: ' . $e->getMessage());
         }
     }
 
@@ -751,7 +789,7 @@ class AdminController extends Controller
         // }
         
         // Clear configuration cache
-        \Artisan::call('config:clear');
+        Artisan::call('config:clear');
         
         return redirect()->route('admin.settings.edit')
             ->with('success', 'Paramètres mis à jour avec succès !');
@@ -769,7 +807,7 @@ class AdminController extends Controller
     protected function handleOperationError(\Exception $exception, string $action, string $modelType, string $modelName)
     {
         // Log the error
-        \Log::error("Admin operation error: {$action} {$modelType} '{$modelName}' failed", [
+        Log::error("Admin operation error: {$action} {$modelType} '{$modelName}' failed", [
             'exception' => $exception,
             'user_id' => Auth::id(),
             'model_type' => $modelType,

@@ -8,9 +8,9 @@ use Laravel\Scout\Searchable;
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
 
-class Course extends Model implements AuditableContract
+class Course extends Model 
 {
-    use HasFactory, SoftDeletes, Searchable, Auditable;
+    use HasFactory, SoftDeletes, Searchable;
 
     protected $fillable = [
         'title', 
@@ -19,26 +19,43 @@ class Course extends Model implements AuditableContract
         'full_description',
         'learning_objectives',
         'prerequisites',
+        'content',
+        'meta_title',
+        'tags',
         'faq',
         'testimonials',
         'level',
         'price',
         'currency',
+        'price_fcfa',
+        'discounted_price',
+        'discount_starts_at',
+        'discount_ends_at',
+        'duration',
+        'language',
         'cover_image_path',
+        'preview_video',
         'status',
         'formateur_id',
         'category_id',
         'published_at',
         'is_certifying',
-        'is_premium'
+        'is_premium',
+        'is_featured'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'price_fcfa' => 'decimal:2',
+        'discounted_price' => 'decimal:2',
+        'duration' => 'decimal:1',
         'published_at' => 'datetime',
+        'discount_starts_at' => 'datetime',
+        'discount_ends_at' => 'datetime',
         'deleted_at' => 'datetime',
-        'learning_objectives' => 'array',
-        'prerequisites' => 'array',
+        'is_certifying' => 'boolean',
+        'is_premium' => 'boolean',
+        'is_featured' => 'boolean',
         'faq' => 'array',
         'testimonials' => 'array'
     ];

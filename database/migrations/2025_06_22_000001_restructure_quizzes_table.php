@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Vérifier si la table existe avant de la modifier
+        if (!Schema::hasTable('quizzes')) {
+            return;
+        }
+
         Schema::table('quizzes', function (Blueprint $table) {
             // ✅ Ajout sécurisé de module_id
             if (!Schema::hasColumn('quizzes', 'module_id')) {
@@ -55,14 +61,30 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Vérifier si la table existe avant de la modifier
+        if (!Schema::hasTable('quizzes')) {
+            return;
+        }
+
+        // Supprimer les contraintes de clé étrangère de manière sécurisée avec SQL direct
+        try {
+            DB::statement('ALTER TABLE quizzes DROP FOREIGN KEY quizzes_module_id_foreign');
+        } catch (\Exception $e) {
+            // La contrainte n'existe pas, on continue
+        }
+
+        try {
+            DB::statement('ALTER TABLE quizzes DROP FOREIGN KEY quizzes_course_id_foreign');
+        } catch (\Exception $e) {
+            // La contrainte n'existe pas, on continue
+        }
+
         Schema::table('quizzes', function (Blueprint $table) {
             if (Schema::hasColumn('quizzes', 'module_id')) {
-                $table->dropForeign(['module_id']);
                 $table->dropColumn('module_id');
             }
 
             if (Schema::hasColumn('quizzes', 'course_id')) {
-                $table->dropForeign(['course_id']);
                 $table->dropColumn('course_id');
             }
 

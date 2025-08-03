@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Module: ' . $module->title)
 
 @section('header-actions')
-    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+    <a href="{{ route('formateur.manage.module', $module) }}" class="btn btn-outline-secondary me-2">
         <i class="fas fa-arrow-left me-2"></i>Retour au module
     </a>
     <button type="submit" form="create-quiz-form" class="btn-primary-africode">

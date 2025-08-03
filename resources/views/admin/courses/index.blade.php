@@ -113,8 +113,8 @@
     <div class="admin-grid admin-grid-3" data-aos="fade-up" data-aos-delay="200">
         @forelse ($courses as $course)
             <div class="admin-card" style="overflow: hidden;">
-                @if($course->image)
-                    <div style="height: 180px; background-image: url('{{ asset('storage/' . $course->image) }}'); background-size: cover; background-position: center; position: relative;">
+                @if($course->cover_image_path)
+                    <div style="height: 180px; background-image: url('{{ asset($course->cover_image_path) }}'); background-size: cover; background-position: center; position: relative;">
                         <div style="position: absolute; top: 1rem; right: 1rem;">
                             @if ($course->status === 'published')
                                 <span style="background: rgba(39, 179, 113, 0.9); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; backdrop-filter: blur(10px);">
@@ -158,7 +158,7 @@
                     </h4>
                     
                     <p style="color: #6C757D; font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5;">
-                        {{ Str::limit($course->description, 80) }}
+                        {{ Str::limit($course->short_description, 80) }}
                     </p>
                     
                     <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">

@@ -5,9 +5,7 @@
 @section('page-subtitle', 'Gérez et organisez tous vos cours')
 
 @section('header-actions')
-    <a href="{{ route('formateur.courses.create') }}" class="btn-primary-africode">
-        <i class="fas fa-plus me-2"></i>Créer un nouveau cours
-    </a>
+   
 @endsection
 
 @section('styles')
@@ -239,6 +237,12 @@
 @endsection
 
 @section('content')
+    <div class="mb-4">
+        <a href="{{ route('formateur.courses.create') }}" class="btn-primary-africode">
+            <i class="fas fa-plus me-2"></i>Créer un nouveau cours
+        </a>
+    </div>
+    
     <!-- Filtres et recherche -->
     <div class="filters-section" data-aos="fade-up">
         <form method="GET" action="{{ route('formateur.courses.index') }}" class="search-and-filter">

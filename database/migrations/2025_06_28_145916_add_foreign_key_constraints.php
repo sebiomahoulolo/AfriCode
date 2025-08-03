@@ -36,21 +36,41 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Supprimer les contraintes dans l'ordre inverse
-        Schema::table('payments', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropForeign(['course_id']);
-            $table->dropForeign(['enrollment_id']);
-        });
+        // Supprimer les contraintes dans l'ordre inverse seulement si les tables existent
+        if (Schema::hasTable('payments')) {
+            Schema::table('payments', function (Blueprint $table) {
+                if (Schema::hasColumn('payments', 'user_id')) {
+                    $table->dropForeign(['user_id']);
+                }
+                if (Schema::hasColumn('payments', 'course_id')) {
+                    $table->dropForeign(['course_id']);
+                }
+                if (Schema::hasColumn('payments', 'enrollment_id')) {
+                    $table->dropForeign(['enrollment_id']);
+                }
+            });
+        }
 
-        Schema::table('quizzes', function (Blueprint $table) {
-            $table->dropForeign(['module_id']);
-            $table->dropForeign(['course_id']);
-        });
+        if (Schema::hasTable('quizzes')) {
+            Schema::table('quizzes', function (Blueprint $table) {
+                if (Schema::hasColumn('quizzes', 'module_id')) {
+                    $table->dropForeign(['module_id']);
+                }
+                if (Schema::hasColumn('quizzes', 'course_id')) {
+                    $table->dropForeign(['course_id']);
+                }
+            });
+        }
 
-        Schema::table('courses', function (Blueprint $table) {
-            $table->dropForeign(['formateur_id']);
-            $table->dropForeign(['category_id']);
-        });
+        if (Schema::hasTable('courses')) {
+            Schema::table('courses', function (Blueprint $table) {
+                if (Schema::hasColumn('courses', 'formateur_id')) {
+                    $table->dropForeign(['formateur_id']);
+                }
+                if (Schema::hasColumn('courses', 'category_id')) {
+                    $table->dropForeign(['category_id']);
+                }
+            });
+        }
     }
 };
