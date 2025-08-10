@@ -1,0 +1,463 @@
+/* ===== AfriCode Fixes CSS ===== */
+/* Corrections critiques pour la visibilité et l'accessibilité */
+
+/* Force l'affichage des éléments essentiels */
+body, html {
+    background: #F8F9FA !important;
+    color: #333333 !important;
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* Correction des textes invisibles */
+.text-white {
+    color: #FFFFFF !important;
+}
+
+.text-dark {
+    color: #333333 !important;
+}
+
+.text-muted {
+    color: #6C757D !important;
+}
+
+/* Forcer la visibilité des éléments cachés */
+.d-none {
+    display: none !important;
+}
+
+.d-block {
+    display: block !important;
+}
+
+.d-flex {
+    display: flex !important;
+}
+
+/* Corrections pour les backgrounds manquants */
+.bg-white {
+    background-color: #FFFFFF !important;
+}
+
+.bg-light {
+    background-color: #F8F9FA !important;
+}
+
+.bg-dark {
+    background-color: #343A40 !important;
+}
+
+.bg-primary {
+    background-color: #1EA38B !important;
+}
+
+.bg-secondary {
+    background-color: #6C757D !important;
+}
+
+.bg-success {
+    background-color: #198754 !important;
+}
+
+.bg-danger {
+    background-color: #DC3545 !important;
+}
+
+.bg-warning {
+    background-color: #FFC107 !important;
+}
+
+.bg-info {
+    background-color: #0DCAF0 !important;
+}
+
+/* Corrections pour les cartes */
+.card {
+    background: #FFFFFF !important;
+    border: 1px solid #DEE2E6 !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+}
+
+.card-header {
+    background: #F8F9FA !important;
+    border-bottom: 1px solid #DEE2E6 !important;
+    padding: 1rem !important;
+}
+
+.card-body {
+    padding: 1.5rem !important;
+    color: #333333 !important;
+}
+
+.card-footer {
+    background: #F8F9FA !important;
+    border-top: 1px solid #DEE2E6 !important;
+    padding: 1rem !important;
+}
+
+/* Corrections pour les boutons */
+.btn {
+    border-radius: 0.375rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.btn-primary {
+    background-color: #1EA38B !important;
+    border-color: #1EA38B !important;
+    color: #FFFFFF !important;
+}
+
+.btn-primary:hover {
+    background-color: #148A73 !important;
+    border-color: #148A73 !important;
+}
+
+.btn-secondary {
+    background-color: #6C757D !important;
+    border-color: #6C757D !important;
+    color: #FFFFFF !important;
+}
+
+.btn-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-danger {
+    background-color: #DC3545 !important;
+    border-color: #DC3545 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-warning {
+    background-color: #FFC107 !important;
+    border-color: #FFC107 !important;
+    color: #212529 !important;
+}
+
+.btn-info {
+    background-color: #0DCAF0 !important;
+    border-color: #0DCAF0 !important;
+    color: #000000 !important;
+}
+
+.btn-light {
+    background-color: #F8F9FA !important;
+    border-color: #F8F9FA !important;
+    color: #212529 !important;
+}
+
+.btn-dark {
+    background-color: #212529 !important;
+    border-color: #212529 !important;
+    color: #FFFFFF !important;
+}
+
+.btn-outline-primary {
+    border-color: #1EA38B !important;
+    color: #1EA38B !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #1EA38B !important;
+    border-color: #1EA38B !important;
+    color: #FFFFFF !important;
+}
+
+/* Corrections pour les liens */
+a {
+    color: #1EA38B !important;
+    text-decoration: none !important;
+}
+
+a:hover {
+    color: #148A73 !important;
+    text-decoration: underline !important;
+}
+
+/* Corrections pour les alertes */
+.alert {
+    border-radius: 0.375rem !important;
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+    border: 1px solid transparent !important;
+}
+
+.alert-success {
+    background-color: #D1E7DD !important;
+    border-color: #BADBCC !important;
+    color: #0A3622 !important;
+}
+
+.alert-danger {
+    background-color: #F8D7DA !important;
+    border-color: #F5C6CB !important;
+    color: #721C24 !important;
+}
+
+.alert-warning {
+    background-color: #FFF3CD !important;
+    border-color: #FFECB5 !important;
+    color: #856404 !important;
+}
+
+.alert-info {
+    background-color: #CCF2FF !important;
+    border-color: #B3E5FC !important;
+    color: #055160 !important;
+}
+
+/* Corrections pour les badges */
+.badge {
+    display: inline-block !important;
+    padding: 0.35em 0.65em !important;
+    font-size: 0.75em !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    vertical-align: baseline !important;
+    border-radius: 0.25rem !important;
+}
+
+.badge-primary {
+    background-color: #1EA38B !important;
+    color: #FFFFFF !important;
+}
+
+.badge-secondary {
+    background-color: #6C757D !important;
+    color: #FFFFFF !important;
+}
+
+.badge-success {
+    background-color: #198754 !important;
+    color: #FFFFFF !important;
+}
+
+.badge-danger {
+    background-color: #DC3545 !important;
+    color: #FFFFFF !important;
+}
+
+.badge-warning {
+    background-color: #FFC107 !important;
+    color: #212529 !important;
+}
+
+.badge-info {
+    background-color: #0DCAF0 !important;
+    color: #000000 !important;
+}
+
+/* Corrections pour les formulaires */
+.form-control {
+    background-color: #FFFFFF !important;
+    border: 1px solid #CED4DA !important;
+    border-radius: 0.375rem !important;
+    color: #495057 !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.form-control:focus {
+    border-color: #1EA38B !important;
+    box-shadow: 0 0 0 0.2rem rgba(30, 163, 139, 0.25) !important;
+    outline: 0 !important;
+}
+
+.form-label {
+    color: #212529 !important;
+    font-weight: 500 !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Corrections pour les tables */
+.table {
+    background-color: #FFFFFF !important;
+    color: #212529 !important;
+}
+
+.table th {
+    background-color: #F8F9FA !important;
+    border-bottom: 2px solid #DEE2E6 !important;
+    color: #495057 !important;
+    font-weight: 600 !important;
+}
+
+.table td {
+    border-top: 1px solid #DEE2E6 !important;
+    color: #212529 !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: #F8F9FA !important;
+}
+
+/* Corrections pour la pagination */
+.pagination .page-link {
+    background-color: #FFFFFF !important;
+    border: 1px solid #DEE2E6 !important;
+    color: #1EA38B !important;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.pagination .page-link:hover {
+    background-color: #E9ECEF !important;
+    border-color: #DEE2E6 !important;
+    color: #148A73 !important;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #1EA38B !important;
+    border-color: #1EA38B !important;
+    color: #FFFFFF !important;
+}
+
+/* Corrections pour les modales */
+.modal-content {
+    background-color: #FFFFFF !important;
+    border: 1px solid #DEE2E6 !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.modal-header {
+    background-color: #F8F9FA !important;
+    border-bottom: 1px solid #DEE2E6 !important;
+    padding: 1rem !important;
+}
+
+.modal-body {
+    padding: 1rem !important;
+    color: #212529 !important;
+}
+
+.modal-footer {
+    background-color: #F8F9FA !important;
+    border-top: 1px solid #DEE2E6 !important;
+    padding: 1rem !important;
+}
+
+/* Corrections pour les dropdowns */
+.dropdown-menu {
+    background-color: #FFFFFF !important;
+    border: 1px solid #DEE2E6 !important;
+    border-radius: 0.375rem !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.dropdown-item {
+    color: #212529 !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.dropdown-item:hover {
+    background-color: #F8F9FA !important;
+    color: #1EA38B !important;
+}
+
+/* Corrections pour les navs */
+.nav-tabs .nav-link {
+    border: 1px solid transparent !important;
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+    color: #495057 !important;
+    padding: 0.5rem 1rem !important;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #FFFFFF !important;
+    border-color: #DEE2E6 #DEE2E6 #FFFFFF !important;
+    color: #1EA38B !important;
+}
+
+/* Corrections pour les progress bars */
+.progress {
+    background-color: #E9ECEF !important;
+    border-radius: 0.25rem !important;
+    height: 1rem !important;
+}
+
+.progress-bar {
+    background-color: #1EA38B !important;
+    color: #FFFFFF !important;
+    font-size: 0.75rem !important;
+    text-align: center !important;
+}
+
+/* Corrections critiques pour l'affichage */
+* {
+    box-sizing: border-box !important;
+}
+
+*::before,
+*::after {
+    box-sizing: border-box !important;
+}
+
+/* Force l'affichage des contenus cachés par erreur */
+.content-wrapper,
+.main-content,
+.page-content {
+    background: #F8F9FA !important;
+    color: #333333 !important;
+    min-height: 100vh !important;
+}
+
+/* Corrections pour les icônes */
+i, .fa, .fas, .far, .fal, .fab {
+    color: inherit !important;
+    display: inline-block !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    text-rendering: auto !important;
+    line-height: 1 !important;
+}
+
+/* Corrections pour les images */
+img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Corrections pour les listes */
+.list-group-item {
+    background-color: #FFFFFF !important;
+    border: 1px solid #DEE2E6 !important;
+    color: #212529 !important;
+    padding: 0.75rem 1.25rem !important;
+}
+
+.list-group-item:first-child {
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.list-group-item:last-child {
+    border-radius: 0 0 0.375rem 0.375rem !important;
+}
+
+.list-group-item.active {
+    background-color: #1EA38B !important;
+    border-color: #1EA38B !important;
+    color: #FFFFFF !important;
+}
+
+/* Force l'affichage en cas de problème critique */
+.force-visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+}
+
+/* Debugging helper - à supprimer en production */
+.debug-border {
+    border: 2px solid #FF0000 !important;
+}
+
+.debug-bg {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}

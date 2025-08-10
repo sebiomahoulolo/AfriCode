@@ -11,9 +11,11 @@ use App\Models\Module;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\UserQuizAnswer;
+use App\Models\Answer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Spatie\Browsershot\Browsershot;
 
@@ -830,22 +832,65 @@ class EtudiantController extends Controller
     public function showQuizResult($quizId, $attemptId)
     {
         $user = Auth::user();
-        $quiz = Quiz::with(['questions.answers', 'module.course', 'course'])->findOrFail($quizId);
+        
+        // Chargement séparé pour éviter les conflits
+        $quiz = Quiz::with(['questions.answers'])->findOrFail($quizId);
+        
+        // S'assurer que les relations sont bien chargées
+        if (!$quiz->relationLoaded('questions')) {
+            $quiz->load('questions.answers');
+        }
+        
+        // Charger les relations supplémentaires si nécessaire
+        if ($quiz->module_id) {
+            $quiz->load('module.course');
+        }
+        if ($quiz->course_id) {
+            $quiz->load('course');
+        }
+        
+        // Charger la tentative avec ses relations
         $attempt = QuizAttempt::with(['answers.answer', 'answers.question'])
             ->where('id', $attemptId)
             ->where('user_id', $user->id)
             ->firstOrFail();
+        
+        // Vérification de sécurité supplémentaire
+        if (!$attempt) {
+            return redirect()->route('apprenant.dashboard')
+                ->with('error', 'Tentative de quiz introuvable.');
+        }
             
         // Statistiques pour la vue
         $totalQuestions = $quiz->questions->count();
-        $correctAnswers = $attempt->answers()->where('is_correct', true)->distinct('question_id')->count();
-        $userAttempts = $quiz->attempts()->where('user_id', $user->id)->count();
+        $correctAnswers = 0;
+        
+        // Vérification de sécurité pour éviter l'erreur sur null
+        if ($attempt->answers && $attempt->answers->count() > 0) {
+            $correctAnswers = $attempt->answers()->where('is_correct', true)->distinct('question_id')->count();
+        }
+        
+        // Utilisation directe de QuizAttempt au lieu de la relation
+        $userAttempts = QuizAttempt::where('quiz_id', $quiz->id)->where('user_id', $user->id)->count();
 
         // Grouper les réponses par question pour l'affichage détaillé
         $questionResults = [];
+        
+        // Pré-charger toutes les réponses correctes pour éviter les requêtes répétées
+        $questionIds = $quiz->questions->pluck('id');
+        $allCorrectAnswers = Answer::whereIn('question_id', $questionIds)
+            ->where('is_correct', true)
+            ->get()
+            ->groupBy('question_id');
+        
         foreach ($quiz->questions as $question) {
-            $userAnswers = $attempt->answers->where('question_id', $question->id);
-            $correctAnswersForQuestion = $question->answers->where('is_correct', true);
+            // S'assurer que $attempt->answers est une collection et non null
+            $userAnswers = collect();
+            if ($attempt->answers && $attempt->answers->count() > 0) {
+                $userAnswers = $attempt->answers->where('question_id', $question->id);
+            }
+            
+            $correctAnswersForQuestion = $allCorrectAnswers->get($question->id, collect());
             
             $questionResults[] = [
                 'question' => $question,

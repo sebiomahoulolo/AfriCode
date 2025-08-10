@@ -152,8 +152,8 @@
                                     @if($course->price > 0)
                                         <a href="{{ route('enrollment.show', $course) }}" 
                                            class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="S'inscrire au cours {{ $course->title }}">
-                                            <i class="fas fa-graduation-cap"></i>
-                                            S'inscrire • {{ number_format($course->price, 0, ',', ' ') }}€
+                                            <i class="fas fa-shopping-cart"></i>
+                                            S'inscrire • {{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'XOF' }}
                                         </a>
                                     @else
                                         <a href="{{ route('enrollment.show', $course) }}" 
@@ -164,10 +164,19 @@
                                     @endif
                                 @endif
                             @else
-                                <a href="{{ route('login') }}" class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Se connecter pour s'inscrire au cours {{ $course->title }}">
-                                    <i class="fas fa-user"></i>
-                                    Se connecter pour s'inscrire
-                                </a>
+                                @if($course->price > 0)
+                                    <a href="{{ route('login', ['intended' => 'enroll_course', 'course_id' => $course->id, 'course_type' => 'paid']) }}" 
+                                       class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Se connecter pour s'inscrire au cours {{ $course->title }}">
+                                        <i class="fas fa-user"></i>
+                                        Se connecter pour s'inscrire
+                                    </a>
+                                @else
+                                    <a href="{{ route('login', ['intended' => 'enroll_course', 'course_id' => $course->id, 'course_type' => 'free']) }}" 
+                                       class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Se connecter pour s'inscrire au cours {{ $course->title }}">
+                                        <i class="fas fa-user"></i>
+                                        Se connecter pour s'inscrire
+                                    </a>
+                                @endif
                             @endauth
 
                             <button class="btn-modern btn-secondary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" data-bs-toggle="modal" data-bs-target="#previewModal" aria-label="Aperçu gratuit du cours {{ $course->title }}">
@@ -823,12 +832,21 @@
                                             </a>
                                         @endif
                                     @endif
-                                @else
-                                    <a href="{{ route('login') }}" class="btn-enroll primary">
-                                        <i class="fas fa-user" style="color: #e67e22"></i>
-                                        <span>Se connecter pour s'inscrire</span>
-                                    </a>
-                                @endauth
+                                    @else
+                                        @if($course->price > 0)
+                                            <a href="{{ route('login', ['intended' => 'enroll_course', 'course_id' => $course->id, 'course_type' => 'paid']) }}" 
+                                               class="btn-enroll primary">
+                                                <i class="fas fa-user" style="color: #e67e22"></i>
+                                                <span>Se connecter pour s'inscrire</span>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('login', ['intended' => 'enroll_course', 'course_id' => $course->id, 'course_type' => 'free']) }}" 
+                                               class="btn-enroll primary">
+                                                <i class="fas fa-user" style="color: #e67e22"></i>
+                                                <span>Se connecter pour s'inscrire</span>
+                                            </a>
+                                        @endif
+                                    @endauth
 <br>
                                 <button class="btn-secondary-action" data-bs-toggle="modal" data-bs-target="#wishlistModal">
                                     <i class="far fa-heart" style="color: #e67e22"></i>

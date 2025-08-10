@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\SocialAuthController;
@@ -28,6 +29,8 @@ use App\Http\Controllers\CoursePrerequisiteController;
 use App\Http\Controllers\RewardController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\CoursePaymentController;
+use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\CertificateVerificationController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ContactController;
@@ -93,10 +96,56 @@ Route::middleware(['auth'])->group(function () {
     // Traitement paiement Stripe côté client
     Route::post('/payment/stripe/process', [\App\Http\Controllers\EnrollmentController::class, 'processStripePayment'])
         ->name('payment.stripe.process');
+    
+    // Protection des fichiers de cours
+    Route::get('/secure/courses/{courseId}/{filename}', function($courseId, $filename) {
+        $course = \App\Models\Course::findOrFail($courseId);
+        $user = Auth::user();
+        
+        // Vérifier l'accès au cours
+        $enrollment = \App\Models\Enrollment::where('user_id', $user->id)
+            ->where('course_id', $courseId)
+            ->first();
+            
+        if (!$enrollment) {
+            abort(403, 'Accès non autorisé');
+        }
+        
+        // Si cours payant, vérifier le paiement
+        if ($course->price > 0) {
+            $payment = \App\Models\Payment::where('enrollment_id', $enrollment->id)
+                ->where('status', 'completed')
+                ->first();
+                
+            if (!$payment) {
+                abort(403, 'Paiement requis');
+            }
+        }
+        
+        // Servir le fichier
+        $path = storage_path("app/courses/{$courseId}/{$filename}");
+        if (!file_exists($path)) {
+            abort(404);
+        }
+        
+        return response()->file($path);
+    })->name('course.file');
+    
+    // Routes pour le contenu sécurisé (vidéos et ressources)
+    Route::get('/secure/video/{courseId}/{lessonId}', [\App\Http\Controllers\SecureContentController::class, 'serveVideo'])
+        ->name('secure.video');
+    Route::get('/secure/resource/{courseId}/{filename}', [\App\Http\Controllers\SecureContentController::class, 'serveResource'])
+        ->name('secure.resource');
+    
+    // Routes pour le contenu sécurisé avec tokens temporaires
+    Route::get('/secure/token/video/{token}', [\App\Http\Controllers\SecureContentController::class, 'serveVideoWithToken'])
+        ->name('secure.video.token');
+    Route::get('/secure/token/resource/{token}', [\App\Http\Controllers\SecureContentController::class, 'serveResourceWithToken'])
+        ->name('secure.resource.token');
 });
 
 // Webhooks et callbacks (pas de middleware auth)
-Route::post('/webhook/stripe', [\AppHttp\Controllers\EnrollmentController::class, 'stripeWebhook'])
+Route::post('/webhook/stripe', [App\Http\Controllers\EnrollmentController::class, 'stripeWebhook'])
     ->name('webhook.stripe');
 Route::post('/callback/fadapay', [\App\Http\Controllers\EnrollmentController::class, 'fadapayCallback'])
     ->name('payment.fadapay.callback');
@@ -181,7 +230,7 @@ Route::prefix('admin')
         // Route::post('/certifications/generate', [AdminController::class, 'certificationsGenerate'])->name('certifications.generate');
 
         // --- Statistiques ---
-        Route::get('/statistics', [AdminController::class, 'statisticsIndex'])->name('statistics.index');
+        Route::get('/platform-data', [AdminController::class, 'platformData'])->name('platform-data.index');
 
         // --- Paiements ---
         Route::get('/payments', [AdminController::class, 'paymentsIndex'])->name('payments.index');
@@ -295,16 +344,30 @@ Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->pr
     // Mes cours
     Route::get('/mes-cours', [EtudiantController::class, 'myCourses'])->name('apprenant.courses');
     
-    // Cours et leçons
-    Route::get('/course/{courseId}', [EtudiantController::class, 'accessCourse'])->name('apprenant.course.access');
-    Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])->name('apprenant.lesson');
-    Route::post('/lesson/{lessonId}/complete', [EtudiantController::class, 'completeLesson'])->name('apprenant.lesson.complete');
+    // Cours et leçons (protégés par vérification d'inscription)
+    Route::get('/course/{courseId}', [EtudiantController::class, 'accessCourse'])
+        ->name('apprenant.course.access')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
+    Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])
+        ->name('apprenant.lesson')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
+    Route::post('/lesson/{lessonId}/complete', [EtudiantController::class, 'completeLesson'])
+        ->name('apprenant.lesson.complete')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
     
-    // Quiz
-    Route::get('/quiz/{quizId}', [EtudiantController::class, 'showQuiz'])->name('apprenant.quiz.show');
-    Route::get('/quiz/{quizId}/start', [EtudiantController::class, 'startQuiz'])->name('apprenant.quiz.start');
-    Route::post('/quiz/{quizId}/take', [EtudiantController::class, 'takeQuiz'])->name('apprenant.quiz.take');
-    Route::get('/quiz/{quizId}/result/{attemptId}', [EtudiantController::class, 'showQuizResult'])->name('apprenant.quiz.result');
+    // Quiz (protégés par vérification d'inscription)
+    Route::get('/quiz/{quizId}', [EtudiantController::class, 'showQuiz'])
+        ->name('apprenant.quiz.show')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
+    Route::get('/quiz/{quizId}/start', [EtudiantController::class, 'startQuiz'])
+        ->name('apprenant.quiz.start')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
+    Route::post('/quiz/{quizId}/take', [EtudiantController::class, 'takeQuiz'])
+        ->name('apprenant.quiz.take')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
+    Route::get('/quiz/{quizId}/result/{attemptId}', [EtudiantController::class, 'showQuizResult'])
+        ->name('apprenant.quiz.result')
+        ->middleware(\App\Http\Middleware\VerifyEnrollmentAccess::class);
     
     // Certifications
     Route::get('/certifications', [EtudiantController::class, 'showCertifications'])->name('apprenant.certifications');
@@ -357,10 +420,42 @@ Route::middleware(['auth'])->group(function () {
 
 // Routes pour le système de paiement
 Route::middleware(['auth'])->group(function () {
+    // Anciennes routes
     Route::post('/payment/initiate/{course}', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
     Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
     Route::post('/payment/{payment}/refund', [PaymentController::class, 'refund'])->name('payment.refund');
     Route::get('/payment/history', [PaymentController::class, 'paymentHistory'])->name('payment.history');
+    
+    // Nouvelles routes pour le système de paiement complet
+    Route::get('/courses/{course}/checkout', [CoursePaymentController::class, 'showCheckout'])->name('courses.checkout');
+    Route::post('/courses/{course}/payment/initiate', [CoursePaymentController::class, 'initiatePayment'])->name('courses.payment.initiate');
+    Route::get('/payment/status/{payment}', [CoursePaymentController::class, 'checkPaymentStatus'])->name('payment.status');
+    Route::get('/payment/success/{payment}', [CoursePaymentController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('/payment/failed/{payment}', [CoursePaymentController::class, 'paymentFailed'])->name('payment.failed');
+    Route::get('/user/payment-history', [CoursePaymentController::class, 'paymentHistory'])->name('user.payment-history');
+});
+
+// Routes API pour les paiements (sans middleware auth pour les webhooks)
+Route::prefix('api')->group(function () {
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/payment-gateways/{gateway}/details', [CoursePaymentController::class, 'getGatewayDetails']);
+        Route::post('/payment/calculate-fees', [CoursePaymentController::class, 'calculateFees']);
+        Route::get('/payment/{payment}/status', [EnrollmentController::class, 'checkPaymentStatus']);
+    });
+    
+    // Webhooks (sans auth)
+    Route::post('/webhooks/stripe', [App\Http\Controllers\WebhookController::class, 'stripe'])->name('webhooks.stripe');
+    Route::post('/webhooks/orange-money', [App\Http\Controllers\WebhookController::class, 'orangeMoney'])->name('webhooks.orange-money');
+    Route::post('/webhooks/paypal', [App\Http\Controllers\WebhookController::class, 'paypal'])->name('webhooks.paypal');
+});
+
+// Routes admin pour les passerelles de paiement
+Route::middleware(['auth', 'can:access-admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('payment-gateways', App\Http\Controllers\Admin\PaymentGatewayController::class);
+    Route::post('/payment-gateways/{paymentGateway}/toggle', [App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
+    Route::post('/payment-gateways/{paymentGateway}/set-default', [App\Http\Controllers\Admin\PaymentGatewayController::class, 'setDefault'])->name('payment-gateways.set-default');
+    Route::post('/payment-gateways/{paymentGateway}/test', [App\Http\Controllers\Admin\PaymentGatewayController::class, 'test'])->name('payment-gateways.test');
+    Route::get('/payment-gateways/install-defaults', [App\Http\Controllers\Admin\PaymentGatewayController::class, 'installDefaults'])->name('payment-gateways.install-defaults');
 });
 
 // Routes pour le chat
@@ -561,7 +656,7 @@ Route::get('/api/forum/leaderboard', function () {
 
         return response()->json(['success' => true, 'leaderboard' => $leaderboardData]);
     } catch (\Exception $e) {
-        \Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
+        Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
         return response()->json(['success' => false, 'error' => 'Erreur serveur'], 500);
     }
 })->name('api.forum.leaderboard');
@@ -598,12 +693,74 @@ Route::get('/competitions/{slug}/play', [\App\Http\Controllers\CompetitionDispla
 Route::middleware(['auth'])->post('/competitions/{slug}/run-code', [\App\Http\Controllers\CompetitionController::class, 'runCode'])->name('competitions.runCode');
 Route::post('/competitions/{slug}/evaluate', [App\Http\Controllers\CompetitionController::class, 'evaluateSubmission'])->name('competitions.evaluate');
 
+// Routes de paiement pour les étudiants
+Route::middleware(['auth'])->group(function () {
+    Route::get('/courses/{course}/checkout', [CoursePaymentController::class, 'checkout'])->name('courses.checkout');
+    Route::post('/courses/{course}/payment/initiate', [CoursePaymentController::class, 'initiatePayment'])->name('courses.payment.initiate');
+    Route::get('/payment/success/{payment}', [CoursePaymentController::class, 'success'])->name('payment.success');
+    Route::get('/payment/cancel/{payment}', [CoursePaymentController::class, 'cancel'])->name('payment.cancel');
+    Route::get('/payment/status/{payment}', [CoursePaymentController::class, 'status'])->name('payment.status');
+});
+
+// Routes de webhooks (publiques)
+Route::post('/webhooks/stripe', [WebhookController::class, 'stripe'])->name('webhooks.stripe');
+Route::post('/webhooks/paypal', [WebhookController::class, 'paypal'])->name('webhooks.paypal');
+Route::post('/webhooks/orange-money', [WebhookController::class, 'orangeMoney'])->name('webhooks.orange-money');
+Route::post('/webhooks/fedapay', [\App\Http\Controllers\EnrollmentController::class, 'fedapayWebhook'])
+    ->name('payment.fedapay.webhook');
+Route::post('/webhooks/payment/{gateway}', [WebhookController::class, 'handle'])->name('webhooks.payment');
+
 Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    // Routes pour la gestion des passerelles de paiement
+    Route::get('payment-gateways', [PaymentGatewayController::class, 'index'])->name('admin.payment-gateways.index');
+    Route::get('payment-gateways/create', [PaymentGatewayController::class, 'create'])->name('admin.payment-gateways.create');
+    Route::post('payment-gateways', [PaymentGatewayController::class, 'store'])->name('admin.payment-gateways.store');
+    Route::get('payment-gateways/{paymentGateway}', [PaymentGatewayController::class, 'show'])->name('admin.payment-gateways.show');
+    Route::get('payment-gateways/{paymentGateway}/edit', [PaymentGatewayController::class, 'edit'])->name('admin.payment-gateways.edit');
+    Route::put('payment-gateways/{paymentGateway}', [PaymentGatewayController::class, 'update'])->name('admin.payment-gateways.update');
+    Route::delete('payment-gateways/{paymentGateway}', [PaymentGatewayController::class, 'destroy'])->name('admin.payment-gateways.destroy');
+    Route::post('payment-gateways/{paymentGateway}/toggle-status', [PaymentGatewayController::class, 'toggleStatus'])->name('admin.payment-gateways.toggle-status');
+    Route::post('payment-gateways/{paymentGateway}/set-default', [PaymentGatewayController::class, 'setDefault'])->name('admin.payment-gateways.set-default');
+    Route::post('payment-gateways/{paymentGateway}/test', [PaymentGatewayController::class, 'test'])->name('admin.payment-gateways.test');
+    
+    // Routes pour les paramètres de paiement
+    Route::get('payment-settings', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'index'])->name('admin.payment-settings.index');
+    Route::put('payment-settings/fedapay', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'updateFedapay'])->name('admin.payment-settings.fedapay.update');
+    Route::put('payment-settings/stripe', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'updateStripe'])->name('admin.payment-settings.stripe.update');
+    Route::get('payment-settings/fedapay/test', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'testFedapay'])->name('admin.payment-settings.fedapay.test');
+    Route::get('payment-settings/stats', [\App\Http\Controllers\Admin\PaymentSettingsController::class, 'getPaymentStats'])->name('admin.payment-settings.stats');
+    
+    // Route de test du système de paiement
+    Route::get('payment-test', function() {
+        $paymentGateways = \App\Models\PaymentGateway::all();
+        $stats = [
+            'total_payments' => \App\Models\Payment::count(),
+            'successful_payments' => \App\Models\Payment::where('status', 'completed')->count(),
+            'pending_payments' => \App\Models\Payment::where('status', 'pending')->count(),
+            'total_revenue' => \App\Models\Payment::where('status', 'completed')->sum('amount'),
+        ];
+        
+        return view('admin.payment-test', compact('paymentGateways', 'stats'));
+    })->name('admin.payment.test');
+    
+    // Routes existantes pour les compétitions
     Route::get('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'index'])->name('admin.competitions.testcases.index');
     Route::get('competitions/{competition}/test-cases/create', [AdminCompetitionTestCaseController::class, 'create'])->name('admin.competitions.testcases.create');
     Route::post('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'store'])->name('admin.competitions.testcases.store');
     Route::get('competitions/{competition}/test-cases/{testcase}/edit', [AdminCompetitionTestCaseController::class, 'edit'])->name('admin.competitions.testcases.edit');
     Route::put('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'update'])->name('admin.competitions.testcases.update');
     Route::delete('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'destroy'])->name('admin.competitions.testcases.destroy');
+});
+
+// Routes de test FedaPay (seulement en mode debug ou pour les admins)
+Route::middleware(['auth'])->prefix('test-fedapay')->name('test-fedapay.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\TestFedaPayController::class, 'index'])->name('index');
+    Route::post('/api-connection', [\App\Http\Controllers\TestFedaPayController::class, 'testApiConnection'])->name('api-connection');
+    Route::post('/transaction', [\App\Http\Controllers\TestFedaPayController::class, 'testTransaction'])->name('transaction');
+    Route::post('/webhook', [\App\Http\Controllers\TestFedaPayController::class, 'testWebhook'])->name('webhook');
+    Route::get('/payment/{payment}', [\App\Http\Controllers\TestFedaPayController::class, 'getPaymentDetails'])->name('payment.details');
+    Route::post('/create-test-data', [\App\Http\Controllers\TestFedaPayController::class, 'createTestData'])->name('create-test-data');
+    Route::post('/clean-test-data', [\App\Http\Controllers\TestFedaPayController::class, 'cleanTestData'])->name('clean-test-data');
+    Route::get('/logs', [\App\Http\Controllers\TestFedaPayController::class, 'getLogs'])->name('logs');
 });
 

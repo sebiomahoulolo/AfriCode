@@ -67,11 +67,18 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
-    'fadapay' => [
-        'api_key' => env('FADAPAY_API_KEY'),
-        'merchant_id' => env('FADAPAY_MERCHANT_ID'),
-        'secret' => env('FADAPAY_SECRET'),
-        'base_url' => env('FADAPAY_BASE_URL', 'https://api.fadapay.com'),
+    'fedapay' => [
+        'api_key' => env('FEDAPAY_API_KEY'),
+        'public_key' => env('FEDAPAY_PUBLIC_KEY'),
+        'secret' => env('FEDAPAY_SECRET'),
+        'environment' => env('FEDAPAY_ENVIRONMENT', 'live'), // 'live' or 'sandbox'
+        'base_url' => env('FEDAPAY_BASE_URL', 'https://api.fedapay.com'),
+        'checkout_url' => env('FEDAPAY_CHECKOUT_URL', 'https://cdn.fedapay.com/checkout.js?v=1.1.7'),
+        'currency' => env('FEDAPAY_CURRENCY', 'XOF'),
+        'webhook_secret' => env('FEDAPAY_WEBHOOK_SECRET'),
+        'webhook_url' => env('FEDAPAY_WEBHOOK_URL'),
+        'default_currency' => env('FEDAPAY_DEFAULT_CURRENCY', 'EUR'),
+        'eur_to_xof_rate' => env('FEDAPAY_EUR_TO_XOF_RATE', 655.957),
     ],
 
 ];

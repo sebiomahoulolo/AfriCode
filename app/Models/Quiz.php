@@ -371,7 +371,7 @@ class Quiz extends Model
         if ($this->isPassedByUser($userId)) {
             $attempts = $this->attempts()
                 ->where('user_id', $userId)
-                ->orderBy('completed_at', 'desc')
+                ->orderBy('submitted_at', 'desc')
                 ->get();
             
             $lastAttempt = $attempts->first();

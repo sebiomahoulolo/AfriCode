@@ -75,7 +75,31 @@
                             
                             <!-- Payment Methods -->
                             <div class="payment-methods mb-4">
-                                <div class="row g-3">
+                                <div class="row g-3 justify-content-center">
+                                    <!-- FedaPay Option (Primary) -->
+                                    <div class="col-md-8">
+                                        <div class="payment-option">
+                                            <input type="radio" name="payment_method" value="fedapay" id="fedapay" class="payment-radio" required checked>
+                                            <label for="fedapay" class="payment-label">
+                                                <div class="payment-card featured">
+                                                    <div class="payment-icon">
+                                                        <i class="fas fa-mobile-alt"></i>
+                                                    </div>
+                                                    <div class="payment-info">
+                                                        <h5>Mobile Money</h5>
+                                                        <p>Orange Money, MTN Money, Moov Money, Wave</p>
+                                                        <small class="badge bg-success">Recommandé</small>
+                                                    </div>
+                                                    <div class="payment-check">
+                                                        <i class="fas fa-check"></i>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Stripe Option (Secondary - commented out) -->
+                                    <!--
                                     <div class="col-md-6">
                                         <div class="payment-option">
                                             <input type="radio" name="payment_method" value="stripe" id="stripe" class="payment-radio" required>
@@ -95,26 +119,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-6">
-                                        <div class="payment-option">
-                                            <input type="radio" name="payment_method" value="fadapay" id="fadapay" class="payment-radio" required>
-                                            <label for="fadapay" class="payment-label">
-                                                <div class="payment-card">
-                                                    <div class="payment-icon">
-                                                        <i class="fas fa-mobile-alt"></i>
-                                                    </div>
-                                                    <div class="payment-info">
-                                                        <h5>Mobile Money</h5>
-                                                        <p>Orange, MTN, Moov, Wave</p>
-                                                    </div>
-                                                    <div class="payment-check">
-                                                        <i class="fas fa-check"></i>
-                                                    </div>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
+                                    -->
                                 </div>
                             </div>
 
@@ -139,7 +144,7 @@
                             <!-- Submit Button -->
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary btn-lg px-5" id="paymentBtn">
-                                    <i class="fas fa-credit-card me-2"></i>Procéder au paiement
+                                    <i class="fas fa-mobile-alt me-2"></i>Payer par Mobile Money
                                 </button>
                             </div>
                         </form>
@@ -209,6 +214,21 @@
 .payment-radio:checked + .payment-label .payment-card {
     border-color: #007bff;
     background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+}
+
+.payment-card.featured {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+}
+
+.payment-card.featured .payment-icon {
+    color: #28a745;
+}
+
+.payment-radio:checked + .payment-label .payment-card.featured {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f0fff4 0%, #d4edda 100%);
 }
 
 .payment-icon {
@@ -283,10 +303,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('enrollmentForm');
     const paymentBtn = document.getElementById('paymentBtn');
-    const paymentRadios = document.querySelectorAll('.payment-radio');
     
     if (form) {
         form.addEventListener('submit', function(e) {
+            // Vérifier que FedaPay est sélectionné (devrait l'être par défaut)
             const selectedPayment = document.querySelector('.payment-radio:checked');
             
             if (!selectedPayment) {
@@ -297,20 +317,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Désactiver le bouton pour éviter les soumissions multiples
             paymentBtn.disabled = true;
-            paymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Traitement...';
+            paymentBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Redirection vers FedaPay...';
+            
+            // Log pour debugging
+            console.log('Submitting form with payment method:', selectedPayment.value);
         });
     }
-    
-    // Mise à jour du texte du bouton selon la méthode sélectionnée
-    paymentRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            if (this.value === 'stripe') {
-                paymentBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>Payer par carte';
-            } else if (this.value === 'fadapay') {
-                paymentBtn.innerHTML = '<i class="fas fa-mobile-alt me-2"></i>Payer par Mobile Money';
-            }
-        });
-    });
 });
 </script>
 @endsection

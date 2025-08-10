@@ -25,6 +25,12 @@
     <!-- AfriCode Visibility Fixes - Corrections critiques -->
     <link href="{{ asset('css/africode-fixes.css') }}" rel="stylesheet">
     
+    <!-- AfriCode Critical Fixes - Corrections urgentes pour la visibilité -->
+    <link href="{{ asset('css/africode-critical-fixes.css') }}" rel="stylesheet">
+    
+    <!-- AfriCode Clean Styles - Interface propre et professionnelle -->
+    <link href="{{ asset('css/africode-clean-styles.css') }}" rel="stylesheet">
+    
     <style>
         :root {
             --africode-background: #F8F9FA;
@@ -96,17 +102,19 @@
             transition: var(--africode-transition);
         }
 
-        /* Logo AfriCode - Normal */
+        /* Logo AfriCode - Taille raisonnabble */
         .africode-logo {
             transition: var(--africode-transition);
             flex-shrink: 0;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            height: 32px !important;
+            width: auto;
         }
         
         /* Styles pour le nouveau logo avec les trois bandes */
         .africode-logo-img {
+            height: 32px !important;
+            width: auto;
             transition: transform 0.2s ease;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         
         .sidebar-brand:hover .africode-logo-img {
@@ -114,19 +122,15 @@
         }
 
         .logo-text {
-            background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.9) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-            font-size: 1.2rem;
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-left: 0.75rem;
             transition: var(--africode-transition);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .sidebar-brand:hover .logo-text {
-            color: var(--africode-secondary) !important;
-            -webkit-text-fill-color: var(--africode-secondary);
+            color: #FFD700 !important;
         }
 
         /* Mode réduit */
@@ -149,7 +153,7 @@
         }
 
         .app-sidebar.collapsed .africode-logo-img {
-            height: 24px !important;
+            height: 28px !important;
             width: auto;
         }
 

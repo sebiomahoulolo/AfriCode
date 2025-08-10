@@ -78,7 +78,15 @@
 
                     <div class="mt-4 pt-3 border-top text-center">
                         <p class="mb-3">Pas encore de compte ?</p>
-                        <a href="{{ route('register') }}" class="btn w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B ; color:white" aria-label="Créer un compte AfriCode">
+                        @php
+                            $registerUrl = route('register');
+                            if (session('login_intended_action') && session('login_intended_course_id')) {
+                                $registerUrl .= '?intended=' . session('login_intended_action') 
+                                    . '&course_id=' . session('login_intended_course_id')
+                                    . '&course_type=' . session('login_intended_course_type');
+                            }
+                        @endphp
+                        <a href="{{ $registerUrl }}" class="btn w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background-color:  #1EA38B ; color:white" aria-label="Créer un compte AfriCode">
                             <i class="fas fa-user-plus me-2" style="color:  #FF8E2A;"></i>S'inscrire
                         </a>
                     </div>

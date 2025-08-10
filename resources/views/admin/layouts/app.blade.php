@@ -298,7 +298,7 @@
                     <span class="admin-nav-text">Paiements</span>
                 </a>
                 
-                <a href="{{ route('admin.statistics.index') }}" class="admin-nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.platform-data.index') }}" class="admin-nav-link {{ request()->routeIs('admin.platform-data.*') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar admin-nav-icon"></i>
                     <span class="admin-nav-text">Statistiques</span>
                 </a>

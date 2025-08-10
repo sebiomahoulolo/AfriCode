@@ -14,9 +14,13 @@ class QuizAttempt extends Model
     protected $fillable = [
         'user_id',
         'quiz_id',
+        'enrollment_id',
         'started_at',
         'submitted_at',
+        'completed_at',
         'score',
+        'passed',
+        'status',
         'answers',
         'anti_cheat_data'
     ];
@@ -24,9 +28,9 @@ class QuizAttempt extends Model
     protected $casts = [
         'started_at' => 'datetime',
         'submitted_at' => 'datetime',
+        'completed_at' => 'datetime',
         'answers' => 'array',
         'anti_cheat_data' => 'array',
-        'completed_at' => 'datetime',
         'score' => 'float',
         'passed' => 'boolean'
     ];
@@ -45,6 +49,14 @@ class QuizAttempt extends Model
     public function quiz(): BelongsTo
     {
         return $this->belongsTo(Quiz::class);
+    }
+
+    /**
+     * Get the answers for this quiz attempt.
+     */
+    public function answers(): HasMany
+    {
+        return $this->hasMany(UserQuizAnswer::class, 'quiz_attempt_id');
     }
 
     /**
@@ -197,8 +209,8 @@ class QuizAttempt extends Model
     // Accesseur pour obtenir le temps pris
     public function getTimeTakenAttribute()
     {
-        if ($this->started_at && $this->completed_at) {
-            return $this->started_at->diffInSeconds($this->completed_at);
+        if ($this->started_at && $this->submitted_at) {
+            return $this->started_at->diffInSeconds($this->submitted_at);
         }
         return 0;
     }

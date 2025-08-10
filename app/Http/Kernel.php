@@ -70,5 +70,7 @@ class Kernel extends HttpKernel
         'formateur' => \App\Http\Middleware\FormateurMiddleware::class,
         'apprenant' => \App\Http\Middleware\ApprenantMiddleware::class,
         'profile.completed' => \App\Http\Middleware\ProfileCompletedMiddleware::class,
+        'verify.enrollment' => \App\Http\Middleware\VerifyEnrollmentAccess::class,
+        'protect.course.files' => \App\Http\Middleware\ProtectCourseFiles::class,
     ];
 }

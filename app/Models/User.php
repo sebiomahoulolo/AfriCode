@@ -50,10 +50,10 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
         return $this->hasMany(Enrollment::class);
     }
     
-    public function enrolledCourses() {
+    public function courses() {
         return $this->belongsToMany(Course::class, 'enrollments')
-            ->withPivot('enrolled_at', 'completed_at', 'progress_percentage')
-            ->withTimestamps();
+                    ->withPivot('enrolled_at', 'completed_at', 'progress_percentage')
+                    ->withTimestamps();
     }
     
     public function payments() {

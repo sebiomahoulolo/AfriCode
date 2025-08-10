@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Payment;
+use App\Services\FedaPayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -28,8 +29,32 @@ class EnrollmentController extends Controller
             ->first();
 
         if ($existingEnrollment) {
-            return redirect()->route('apprenant.course.access', ['courseId' => $course->id])
-                ->with('info', 'Vous êtes déjà inscrit à ce cours.');
+            // Si cours payant, vérifier le statut du paiement
+            if ($course->price > 0) {
+                $payment = Payment::where('enrollment_id', $existingEnrollment->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                
+                if ($payment && $payment->status === 'completed') {
+                    // Paiement complété, rediriger vers le cours
+                    return redirect()->route('apprenant.course.access', ['courseId' => $course->id])
+                        ->with('info', 'Vous êtes déjà inscrit à ce cours.');
+                } elseif ($payment && in_array($payment->status, ['pending', 'processing'])) {
+                    // Paiement en cours, afficher le statut
+                    return view('payment.status', [
+                        'course' => $course,
+                        'payment' => $payment,
+                        'enrollment' => $existingEnrollment
+                    ]);
+                } else {
+                    // Pas de paiement ou paiement échoué, permettre un nouveau paiement
+                    return view('enrollment.show', compact('course'));
+                }
+            } else {
+                // Cours gratuit, rediriger directement
+                return redirect()->route('apprenant.course.access', ['courseId' => $course->id])
+                    ->with('info', 'Vous êtes déjà inscrit à ce cours.');
+            }
         }
 
         return view('enrollment.show', compact('course'));
@@ -42,12 +67,22 @@ class EnrollmentController extends Controller
     {
         $user = Auth::user();
 
+        Log::info('Enrollment store method called', [
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'request_data' => $request->all()
+        ]);
+
         // Vérifier si l'utilisateur est déjà inscrit
         $existingEnrollment = Enrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
             ->first();
 
         if ($existingEnrollment) {
+            Log::info('User already enrolled, redirecting', [
+                'enrollment_id' => $existingEnrollment->id
+            ]);
+            
             return redirect()->route('apprenant.course.access', ['courseId' => $course->id])
                 ->with('info', 'Vous êtes déjà inscrit à ce cours.');
         }
@@ -56,6 +91,8 @@ class EnrollmentController extends Controller
             DB::beginTransaction();
 
             if ($course->price == 0) {
+                Log::info('Processing free course enrollment');
+                
                 // Cours gratuit - inscription directe
                 $enrollment = $this->createFreeEnrollment($user, $course);
                 
@@ -64,27 +101,38 @@ class EnrollmentController extends Controller
                 return redirect()->route('apprenant.course.access', ['courseId' => $course->id])
                     ->with('success', 'Félicitations ! Vous êtes maintenant inscrit au cours.');
             } else {
+                Log::info('Processing paid course enrollment');
+                
                 // Cours payant - redirection vers la page de paiement
                 $paymentMethod = $request->input('payment_method');
                 
-                if (!in_array($paymentMethod, ['stripe', 'fadapay'])) {
+                Log::info('Payment method selected', ['payment_method' => $paymentMethod]);
+                
+                if (!in_array($paymentMethod, ['stripe', 'fedapay'])) {
+                    Log::error('Invalid payment method', ['payment_method' => $paymentMethod]);
                     return back()->with('error', 'Méthode de paiement non valide.');
                 }
 
                 // Créer l'inscription en attente
                 $enrollment = $this->createPendingEnrollment($user, $course);
                 
+                Log::info('Pending enrollment created', ['enrollment_id' => $enrollment->id]);
+                
                 DB::commit();
 
                 if ($paymentMethod === 'stripe') {
+                    Log::info('Redirecting to Stripe payment');
                     return $this->initiateStripePayment($enrollment);
                 } else {
-                    return $this->initiateFadaPayPayment($enrollment);
+                    Log::info('Redirecting to FedaPay payment');
+                    return $this->initiateFedaPayPayment($enrollment);
                 }
             }
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('Erreur lors de l\'inscription: ' . $e->getMessage());
+            Log::error('Error during enrollment: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             
             return back()->with('error', 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
         }
@@ -113,7 +161,7 @@ class EnrollmentController extends Controller
             'currency' => $course->currency ?? 'XOF',
             'payment_gateway' => 'free',
             'payment_method' => 'free',
-            'status' => 'succeeded',
+            'status' => 'completed',
             'paid_at' => now(),
             'transaction_id' => 'FREE_' . uniqid()
         ]);
@@ -183,45 +231,94 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Initier un paiement FadaPay
+     * Initier un paiement FedaPay
      */
-    private function initiateFadaPayPayment($enrollment)
+    private function initiateFedaPayPayment($enrollment)
     {
+        Log::info('Initiating FedaPay payment', [
+            'enrollment_id' => $enrollment->id,
+            'course_id' => $enrollment->course_id,
+            'user_id' => $enrollment->user_id
+        ]);
+
         try {
             $course = $enrollment->course;
-            
-            // Créer l'enregistrement de paiement
+            $user = $enrollment->user;
+            $fedaPayService = new FedaPayService();
+
+            Log::info('Course and user loaded', [
+                'course_title' => $course->title,
+                'course_price' => $course->price,
+                'user_email' => $user->email
+            ]);
+
+            // Créer d'abord l'enregistrement de paiement
             $payment = Payment::create([
                 'user_id' => $enrollment->user_id,
                 'enrollment_id' => $enrollment->id,
-                // 'course_id' => $course->id,
                 'payable_id' => $course->id,
                 'payable_type' => 'App\\Models\\Course',
                 'amount' => $course->price,
-                'currency' => $course->currency ?? 'XOF',
-                'payment_gateway' => 'fadapay',
-                'status' => 'pending'
+                'currency' => 'EUR',
+                'payment_gateway' => 'fedapay',
+                'status' => 'pending',
+                'transaction_id' => 'FEDAPAY_' . uniqid()
             ]);
 
-            // Générer un ID de transaction unique
-            $transactionId = 'AFC_' . time() . '_' . $payment->id;
-            $payment->update(['transaction_id' => $transactionId]);
+            Log::info('Payment record created', [
+                'payment_id' => $payment->id,
+                'transaction_id' => $payment->transaction_id
+            ]);
 
-            return view('payment.fadapay', [
+            // Créer la transaction via le service FedaPay
+            $transaction = $fedaPayService->createTransaction($payment, $user, $course);
+
+            Log::info('FedaPay service called', [
+                'transaction_success' => $transaction !== null,
+                'transaction_data' => $transaction
+            ]);
+
+            if (!$transaction) {
+                Log::error('FedaPay transaction creation failed');
+                return back()->with('error', 'Erreur lors de l\'initialisation du paiement FedaPay.');
+            }
+
+            // Mettre à jour le paiement avec l'ID de transaction FedaPay
+            $payment->update([
+                'gateway_transaction_id' => $transaction['id'] ?? $transaction['reference'] ?? null
+            ]);
+
+            Log::info('Redirecting to FedaPay payment page');
+
+            return view('payment.fedapay', [
                 'course' => $course,
                 'enrollment' => $enrollment,
                 'payment' => $payment,
-                'fadapayConfig' => [
-                    'api_key' => config('services.fadapay.api_key'),
-                    'merchant_id' => config('services.fadapay.merchant_id'),
-                    'callback_url' => route('payment.fadapay.callback'),
-                    'return_url' => route('payment.success')
+                'transaction' => $transaction,
+                'checkoutConfig' => [
+                    'public_key' => config('services.fedapay.public_key'),
+                    'environment' => config('services.fedapay.environment'),
+                    'transaction' => [
+                        'id' => $transaction['id'] ?? $transaction['reference'],
+                        'amount' => $payment->converted_amount ?: $payment->amount,
+                        'description' => "Achat du cours: {$course->title}",
+                        'currency' => [
+                            'iso' => $payment->converted_currency ?: 'XOF'
+                        ]
+                    ],
+                    'customer' => [
+                        'email' => $user->email,
+                        'firstname' => $user->first_name ?? explode(' ', $user->name)[0] ?? 'Client',
+                        'lastname' => $user->last_name ?? explode(' ', $user->name)[1] ?? '',
+                    ]
                 ]
             ]);
 
         } catch (Exception $e) {
-            Log::error('Erreur FadaPay: ' . $e->getMessage());
-            return back()->with('error', 'Erreur lors de l\'initialisation du paiement FadaPay.');
+            Log::error('FedaPay payment initiation error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Erreur lors de l\'initialisation du paiement FedaPay: ' . $e->getMessage());
         }
     }
 
@@ -262,7 +359,7 @@ class EnrollmentController extends Controller
             try {
                 // Mettre à jour le paiement
                 $payment->update([
-                    'status' => 'succeeded',
+                    'status' => 'completed',
                     'paid_at' => now()
                 ]);
 
@@ -281,52 +378,34 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Callback FadaPay
+     * Webhook FedaPay pour confirmer les paiements
      */
-    public function fadapayCallback(Request $request)
+    public function fedapayWebhook(Request $request)
     {
-        $transactionId = $request->input('transaction_id');
-        $status = $request->input('status');
-        $signature = $request->input('signature');
-
-        // Vérifier la signature (sécurité)
-        $expectedSignature = hash('sha256', $transactionId . $status . config('services.fadapay.secret'));
-        
-        if ($signature !== $expectedSignature) {
-            Log::error('FadaPay callback signature mismatch');
-            return response('Invalid signature', 400);
-        }
-
-        $payment = Payment::where('transaction_id', $transactionId)->first();
-        
-        if ($payment && $payment->status === 'pending') {
-            DB::beginTransaction();
+        try {
+            $payload = $request->getContent();
+            $signature = $request->header('X-FedaPay-Signature');
             
-            try {
-                if ($status === 'success') {
-                    // Mettre à jour le paiement
-                    $payment->update([
-                        'status' => 'succeeded',
-                        'paid_at' => now()
-                    ]);
-
-                    // Activer l'inscription
-                    $enrollment = $payment->enrollment;
-                    $enrollment->update(['enrolled_at' => now()]);
-                } else {
-                    $payment->update(['status' => 'failed']);
-                }
-
-                DB::commit();
-                
-                Log::info("Paiement FadaPay traité: " . $transactionId . " - Status: " . $status);
-            } catch (Exception $e) {
-                DB::rollBack();
-                Log::error('Erreur lors du callback FadaPay: ' . $e->getMessage());
+            $fedaPayService = new FedaPayService();
+            
+            // Valider la signature
+            if (!$fedaPayService->validateWebhookSignature($payload, $signature)) {
+                Log::error('FedaPay webhook signature invalide');
+                return response('Invalid signature', 400);
             }
-        }
 
-        return response('OK', 200);
+            $data = json_decode($payload, true);
+            
+            if ($fedaPayService->processWebhook($data)) {
+                return response('OK', 200);
+            } else {
+                return response('Error processing webhook', 400);
+            }
+
+        } catch (Exception $e) {
+            Log::error('Erreur webhook FedaPay: ' . $e->getMessage());
+            return response('Error', 500);
+        }
     }
 
     /**
@@ -334,14 +413,27 @@ class EnrollmentController extends Controller
      */
     public function paymentSuccess(Request $request)
     {
+        $paymentId = $request->input('payment');
         $transactionId = $request->input('transaction_id');
-        $payment = Payment::where('transaction_id', $transactionId)
-            ->where('status', 'succeeded')
-            ->with(['enrollment.course'])
-            ->first();
+        
+        $payment = null;
+        
+        if ($paymentId) {
+            $payment = Payment::where('id', $paymentId)
+                ->where('status', 'completed')
+                ->with(['enrollment.course'])
+                ->first();
+        } elseif ($transactionId) {
+            $payment = Payment::where('transaction_id', $transactionId)
+                ->orWhere('gateway_transaction_id', $transactionId)
+                ->where('status', 'completed')
+                ->with(['enrollment.course'])
+                ->first();
+        }
 
-        if ($payment) {
-            return view('payment.success', compact('payment'));
+        if ($payment && $payment->enrollment && $payment->enrollment->course) {
+            return redirect()->route('apprenant.course.access', ['courseId' => $payment->enrollment->course->id])
+                ->with('success', 'Paiement réussi ! Vous pouvez maintenant accéder à votre formation.');
         }
 
         return redirect()->route('courses.index')->with('error', 'Paiement non trouvé.');
@@ -356,6 +448,26 @@ class EnrollmentController extends Controller
         $payment = Payment::where('transaction_id', $transactionId)->first();
 
         return view('payment.failed', compact('payment'));
+    }
+
+    /**
+     * Vérifier le statut d'un paiement via API
+     */
+    public function checkPaymentStatus(Payment $payment)
+    {
+        // Vérifier que l'utilisateur connecté est le propriétaire du paiement
+        if ($payment->user_id !== Auth::id()) {
+            return response()->json(['error' => 'Non autorisé'], 403);
+        }
+
+        return response()->json([
+            'id' => $payment->id,
+            'status' => $payment->status,
+            'amount' => $payment->amount,
+            'currency' => $payment->currency,
+            'transaction_id' => $payment->transaction_id,
+            'updated_at' => $payment->updated_at->toISOString()
+        ]);
     }
 
     /**

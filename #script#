@@ -1,12 +1,1 @@
-php artisan make:migration add_missing_fields_to_courses_table --table=courses
-rm database/migrations/2025_08_03_165227_add_missing_fields_to_courses_table.php
-php artisan tinker --execute="Schema::getColumnListing('payments')"
-rm database/migrations/2025_06_28_165840_update_payments_for_polymorphic.php
-php artisan make:migration fix_foreign_key_constraints_issue
-php artisan migrate --path=database/migrations/2025_08_03_171156_fix_foreign_key_constraints_issue.php
-php artisan migrate:reset
-rm database/migrations/2025_05_20_072451_create_competition_test_cases_table.php
-php artisan migrate:status
-php artisan tinker --execute="DB::table('migrations')->whereIn('migration', ['2025_06_28_165840_update_payments_for_polymorphic', '2025_06_28_144009_add_foreign_key_constraints', '2025_06_28_143336_add_foreign_key_constraints_to_tables', '2025_05_20_072451_create_competition_test_cases_table'])->delete();"
-rm database/migrations/202_06_23_ajout_certificate_identifier_certifications_table.php
-php artisan tinker --execute="DB::table('migrations')->where('migration', '202_06_23_ajout_certificate_identifier_certifications_table')->delete();"
+ps aux | grep artisan

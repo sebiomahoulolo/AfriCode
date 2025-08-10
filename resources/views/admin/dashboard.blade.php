@@ -190,7 +190,7 @@
                         </div>
                     </a>
                     
-                    <a href="{{ route('admin.statistics.index') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(227, 45, 49, 0.1), rgba(255, 107, 107, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
+                    <a href="{{ route('admin.platform-data.index') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(227, 45, 49, 0.1), rgba(255, 107, 107, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
                         <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #E32D31, #FF6B6B); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                             <i class="fas fa-chart-line"></i>
                         </div>

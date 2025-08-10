@@ -5,7 +5,7 @@
 
 @push('styles')
 <style>
-    /* Dashboard AfriCode - Application équilibrée de la charte graphique */
+    /* Dashboard AfriCode - Interface propre et professionnelle */
     
     .stats-grid {
         display: grid;
@@ -15,15 +15,15 @@
     }
 
     .stat-card {
-        background: var(--africode-surface);
-        border: 1px solid var(--africode-border);
-        border-radius: var(--africode-border-radius);
+        background: #FFFFFF;
+        border: 1px solid #E9ECEF;
+        border-radius: 0.5rem;
         padding: 2rem;
         text-align: center;
-        transition: var(--africode-transition);
+        transition: all 0.2s ease;
         position: relative;
         overflow: hidden;
-        box-shadow: var(--africode-shadow-sm);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
     .stat-card::before {
@@ -32,107 +32,91 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: var(--africode-gradient-primary);
+        height: 3px;
+        background: #1EA38B;
     }
 
     .stat-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--africode-shadow-lg);
-        border-color: var(--africode-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        border-color: #1EA38B;
     }
 
     .stat-icon {
-        width: 80px;
-        height: 80px;
+        width: 60px;
+        height: 60px;
         margin: 0 auto 1rem;
-        border-radius: 50%;
+        border-radius: 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
-        background: var(--africode-gradient-primary);
+        font-size: 1.5rem;
+        background: #1EA38B;
         color: white;
-        box-shadow: var(--africode-shadow-md);
+        box-shadow: 0 2px 8px rgba(30, 163, 139, 0.25);
     }
 
     .stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--africode-text-primary);
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #1EA38B;
         margin-bottom: 0.5rem;
-        background: var(--africode-gradient-primary);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
     }
 
     .stat-label {
-        color: var(--africode-text-secondary);
-        font-weight: 600;
+        color: #6C757D;
+        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         font-size: 0.875rem;
     }
 
     .progress-card {
-        background: var(--africode-gradient-primary);
+        background: #1EA38B;
         color: white;
-        border-radius: var(--africode-border-radius);
+        border-radius: 0.5rem;
         padding: 2rem;
         position: relative;
         overflow: hidden;
-        box-shadow: var(--africode-shadow-md);
-    }
-
-    .progress-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100px;
-        height: 100px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        transform: translate(30px, -30px);
+        box-shadow: 0 2px 8px rgba(30, 163, 139, 0.25);
     }
 
     .course-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1.5rem;
         margin: 2rem 0;
     }
 
     .course-card {
-        background: var(--africode-surface);
-        border-radius: var(--africode-border-radius);
+        background: #FFFFFF;
+        border-radius: 0.5rem;
         overflow: hidden;
-        box-shadow: var(--africode-shadow-sm);
-        transition: var(--africode-transition);
-        border: 1px solid var(--africode-border);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        border: 1px solid #E9ECEF;
     }
 
     .course-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--africode-shadow-lg);
-        border-color: var(--africode-primary);
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        border-color: #1EA38B;
     }
 
     .course-image {
         width: 100%;
-        height: 200px;
+        height: 180px;
         object-fit: cover;
-        background: var(--africode-gradient-primary);
+        background: #1EA38B;
     }
 
     .course-content {
-        padding: 1.5rem;
+        padding: 1.25rem;
     }
 
     .course-title {
-        font-weight: 700;
-        color: var(--africode-text-primary);
+        font-weight: 600;
+        color: #495057;
         margin-bottom: 0.5rem;
         font-size: 1.1rem;
     }

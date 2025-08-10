@@ -1,0 +1,214 @@
+/* ===== AfriCode Learner Theme CSS ===== */
+/* Variables CSS pour la charte graphique AfriCode */
+
+:root {
+    /* Couleurs principales AfriCode */
+    --africode-primary: #1EA38B;
+    --africode-primary-dark: #148A73;
+    --africode-primary-light: #2BB394;
+    --africode-secondary: #FFD700;
+    --africode-accent: #FF6B35;
+    
+    /* Couleurs de surface et backgrounds */
+    --africode-background: #F8F9FA;
+    --africode-surface: #FFFFFF;
+    --africode-surface-dark: #F1F3F4;
+    --africode-surface-accent: rgba(30, 163, 139, 0.05);
+    
+    /* Couleurs de texte */
+    --africode-text-primary: #212529;
+    --africode-text-secondary: #6C757D;
+    --africode-text-light: #ADB5BD;
+    --africode-text-inverse: #FFFFFF;
+    
+    /* Couleurs de bordure */
+    --africode-border: #DEE2E6;
+    --africode-border-light: #F1F3F4;
+    --africode-border-accent: rgba(30, 163, 139, 0.2);
+    
+    /* Couleurs de statut */
+    --africode-success: #198754;
+    --africode-info: #0DCAF0;
+    --africode-warning: #FFC107;
+    --africode-danger: #DC3545;
+    
+    /* Gradients */
+    --africode-gradient-primary: linear-gradient(135deg, #1EA38B 0%, #148A73 100%);
+    --africode-gradient-secondary: linear-gradient(135deg, #FFD700 0%, #FFC107 100%);
+    --africode-gradient-accent: linear-gradient(135deg, #FF6B35 0%, #E55A2B 100%);
+    
+    /* Gray scale (Bootstrap compatible) */
+    --gray-100: #F8F9FA;
+    --gray-200: #E9ECEF;
+    --gray-300: #DEE2E6;
+    --gray-400: #CED4DA;
+    --gray-500: #ADB5BD;
+    --gray-600: #6C757D;
+    --gray-700: #495057;
+    --gray-800: #343A40;
+    --gray-900: #212529;
+    
+    /* Spacings */
+    --africode-spacing-xs: 0.25rem;
+    --africode-spacing-sm: 0.5rem;
+    --africode-spacing-md: 1rem;
+    --africode-spacing-lg: 1.5rem;
+    --africode-spacing-xl: 2rem;
+    --africode-spacing-xxl: 3rem;
+    
+    /* Border radius (Bootstrap compatible) */
+    --africode-border-radius: 0.5rem;
+    --africode-border-radius-sm: 0.375rem;
+    --africode-border-radius-md: 0.5rem;
+    --africode-border-radius-lg: 0.75rem;
+    --africode-border-radius-xl: 1rem;
+    --africode-border-radius-circle: 50%;
+    --border-radius-sm: 0.375rem;
+    
+    /* Shadows */
+    --africode-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --africode-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --africode-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --africode-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Transitions */
+    --africode-transition: all 0.2s ease-in-out;
+    --africode-transition-slow: all 0.3s ease-in-out;
+    --africode-transition-fast: all 0.1s ease-in-out;
+    
+    /* Typography */
+    --africode-font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    --africode-font-size-xs: 0.75rem;
+    --africode-font-size-sm: 0.875rem;
+    --africode-font-size-md: 1rem;
+    --africode-font-size-lg: 1.125rem;
+    --africode-font-size-xl: 1.25rem;
+    --africode-font-size-xxl: 1.5rem;
+    
+    /* Layout */
+    --africode-sidebar-width: 280px;
+    --africode-sidebar-collapsed-width: 80px;
+    --africode-header-height: 70px;
+    
+    /* Legacy variables for compatibility */
+    --primary-color: #1EA38B;
+    --secondary-color: #FFD700;
+    --danger-color: #DC3545;
+    --success-color: #198754;
+    --warning-color: #FFC107;
+    --info-color: #0DCAF0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --border-radius: 0.5rem;
+    --africode-hover-bg: #F8F9FA;
+    
+    /* Z-index levels */
+    --africode-z-dropdown: 1000;
+    --africode-z-sticky: 1020;
+    --africode-z-fixed: 1030;
+    --africode-z-modal-backdrop: 1040;
+    --africode-z-modal: 1050;
+    --africode-z-popover: 1060;
+    --africode-z-tooltip: 1070;
+}
+
+/* Base styles pour l'application apprenant */
+.africode-app {
+    font-family: var(--africode-font-family);
+    background: var(--africode-background);
+    color: var(--africode-text-primary);
+    min-height: 100vh;
+}
+
+/* Utility classes */
+.africode-text-primary { color: var(--africode-primary) !important; }
+.africode-text-secondary { color: var(--africode-secondary) !important; }
+.africode-text-accent { color: var(--africode-accent) !important; }
+.africode-text-success { color: var(--africode-success) !important; }
+.africode-text-info { color: var(--africode-info) !important; }
+.africode-text-warning { color: var(--africode-warning) !important; }
+.africode-text-danger { color: var(--africode-danger) !important; }
+
+.africode-bg-primary { background-color: var(--africode-primary) !important; }
+.africode-bg-secondary { background-color: var(--africode-secondary) !important; }
+.africode-bg-accent { background-color: var(--africode-accent) !important; }
+.africode-bg-surface { background-color: var(--africode-surface) !important; }
+.africode-bg-surface-dark { background-color: var(--africode-surface-dark) !important; }
+
+.africode-border { border-color: var(--africode-border) !important; }
+.africode-border-light { border-color: var(--africode-border-light) !important; }
+.africode-border-accent { border-color: var(--africode-border-accent) !important; }
+
+.africode-shadow-sm { box-shadow: var(--africode-shadow-sm) !important; }
+.africode-shadow-md { box-shadow: var(--africode-shadow-md) !important; }
+.africode-shadow-lg { box-shadow: var(--africode-shadow-lg) !important; }
+.africode-shadow-xl { box-shadow: var(--africode-shadow-xl) !important; }
+
+.africode-rounded-sm { border-radius: var(--africode-border-radius-sm) !important; }
+.africode-rounded-md { border-radius: var(--africode-border-radius-md) !important; }
+.africode-rounded-lg { border-radius: var(--africode-border-radius-lg) !important; }
+.africode-rounded-xl { border-radius: var(--africode-border-radius-xl) !important; }
+
+/* Animations */
+@keyframes africode-fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes africode-slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes africode-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.africode-fade-in {
+    animation: africode-fadeIn 0.3s ease-out;
+}
+
+.africode-slide-in {
+    animation: africode-slideIn 0.3s ease-out;
+}
+
+.africode-pulse {
+    animation: africode-pulse 2s infinite;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+    :root {
+        --africode-sidebar-width: 100%;
+        --africode-spacing-lg: 1rem;
+        --africode-spacing-xl: 1.5rem;
+    }
+}
+
+/* Dark mode support (future) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --africode-background: #0F172A;
+        --africode-surface: #1E293B;
+        --africode-surface-dark: #334155;
+        --africode-text-primary: #F8FAFC;
+        --africode-text-secondary: #CBD5E1;
+        --africode-border: #334155;
+        --africode-border-light: #475569;
+    }
+}
+
+/* Print styles */
+@media print {
+    .app-sidebar,
+    .app-header,
+    .africode-no-print {
+        display: none !important;
+    }
+    
+    .app-main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+}
