@@ -1,0 +1,51 @@
+{
+  "resources/css/admin.css": {
+    "file": "assets/admin-D4sscspL.css",
+    "src": "resources/css/admin.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-BMXsWcxz.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/formateur.css": {
+    "file": "assets/formateur-C6hCGEUP.css",
+    "src": "resources/css/formateur.css",
+    "isEntry": true
+  },
+  "resources/css/homepage.css": {
+    "file": "assets/homepage-DVH-Qzv6.css",
+    "src": "resources/css/homepage.css",
+    "isEntry": true
+  },
+  "resources/css/mentorship.css": {
+    "file": "assets/mentorship-KIJuhSZg.css",
+    "src": "resources/css/mentorship.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BYjrlqjl.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/components/admin.js": {
+    "file": "assets/admin-BGrz82DN.js",
+    "name": "admin",
+    "src": "resources/js/components/admin.js",
+    "isEntry": true
+  },
+  "resources/js/components/formateur.js": {
+    "file": "assets/formateur-DK9Oby62.js",
+    "name": "formateur",
+    "src": "resources/js/components/formateur.js",
+    "isEntry": true
+  },
+  "resources/js/homepage.js": {
+    "file": "assets/homepage-DrY67tPO.js",
+    "name": "homepage",
+    "src": "resources/js/homepage.js",
+    "isEntry": true
+  }
+}
