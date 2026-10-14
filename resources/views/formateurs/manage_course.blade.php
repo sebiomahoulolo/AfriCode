@@ -294,7 +294,7 @@
             <h2 class="mb-2">{{ $course->title }}</h2>
             <p class="mb-0">{{ $course->short_description }}</p>
             <div class="mt-3">
-                <span class="badge bg-{{ $course->status === 'published' ? 'success' : 'warning' }} me-2">
+                <span class="badge me-2" style="background:{{ $course->status === 'published' ? '#27B371' : '#FF8E2A' }};">
                     {{ $course->status === 'published' ? 'Publié' : 'Brouillon' }}
                 </span>
                 <span class="badge bg-light text-dark me-2">
@@ -309,25 +309,150 @@
         </div>
     </div>
     
+    <!-- Messages de validation -->
+    
+    @if($course->validation_status === 'pending_validation')
+        <div class="alert alert-info alert-dismissible fade show" role="alert" style="border-left: 4px solid #1EA38B; background: #E3F2FD; border-color: #1EA38B; margin-bottom: 1.5rem;">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <i class="fas fa-clock fa-2x text-info"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-2">
+                        <i class="fas fa-hourglass-half me-2"></i>Votre cours est en cours d'examen
+                    </h5>
+                    @if($course->submitted_for_validation_at)
+                        <div style="background: white; padding: 0.75rem; border-radius: 8px; margin-top: 0.75rem; border: 1px solid #BBDEFB;">
+                            <div style="font-size: 0.9rem; color: #333;">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                <strong>Soumis le :</strong> {{ $course->submitted_for_validation_at->format('d/m/Y à H:i') }}
+                            </div>
+                        </div>
+                    @endif
+                    <div class="mt-3">
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Vous recevrez une notification une fois quelle est examiné votre cours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    @if($course->validation_status === 'needs_revision' && $course->revision_notes)
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" style="border-left: 4px solid #FF8E2A; background: #FFF3E0; border-color: #FF8E2A;">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <i class="fas fa-edit fa-2x text-warning"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-2">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Corrections demandées
+                    </h5>
+                    <p class="mb-2"><strong>Demandé des corrections pour votre cours.</strong></p>
+                    <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid #FFE0B2;">
+                        <div style="font-size: 0.9rem; color: #333; line-height: 1.6; white-space: pre-wrap;">{{ $course->revision_notes }}</div>
+                    </div>
+                    <div class="mt-3">
+                        <p class="text-muted mb-2">Après avoir apporté les corrections demandées, vous pourrez resoumettre votre cours pour validation.</p>
+                        <a href="{{ route('formateur.courses.edit', ['courseId' => $course->id]) }}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i> Apporter les corrections
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    
+    @if($course->validation_status === 'rejected')
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-left: 4px solid #E32D31; background: #FFEBEE; border-color: #E32D31;">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <i class="fas fa-times-circle fa-2x text-danger"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-2">
+                        <i class="fas fa-ban me-2"></i>Cours rejeté
+                    </h5>
+                    <p class="mb-2"><strong>Votre cours a été rejeté, veuillez apporter les corrections demandées.</strong></p>
+                    @if($course->admin_notes)
+                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid #FFCDD2;">
+                            <div style="font-size: 0.9rem; color: #333; line-height: 1.6; white-space: pre-wrap;">{{ $course->admin_notes }}</div>
+                        </div>
+                    @endif
+                    <div class="mt-3">
+                        @if($course->admin_notes)
+                            <p class="text-muted mb-2">Après avoir apporté les modifications demandées, vous pouvez resoumettre ce cours.</p>
+                        @endif
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+    
     <!-- Course Actions -->
     <div class="course-actions d-flex justify-content-between align-items-center">
         <div>
-            <a href="{{ route('formateur.courses.edit', ['courseId' => $course->id]) }}" class="btn btn-primary">
+            <a href="{{ route('formateur.courses.edit', ['courseId' => $course->id]) }}" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                 <i class="fas fa-edit me-1"></i> Modifier le cours
             </a>
             @if($course->status !== 'published')
-            <form action="{{ route('formateur.courses.publish', ['courseId' => $course->id]) }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn btn-success ms-2">
-                    <i class="fas fa-globe me-1"></i> Publier le cours
-                </button>
-            </form>
+                @if($course->validation_status === 'pending_validation')
+                    <span class="badge ms-2" style="background:#FF8E2A;">
+                        <i class="fas fa-clock me-1"></i> En attente de validation
+                    </span>
+                  
+                @elseif($course->validation_status === 'rejected' || $course->validation_status === 'needs_revision')
+                    {{-- Bouton pour resoumettre après rejet ou corrections --}}
+                    <form action="{{ route('formateur.courses.publish', ['courseId' => $course->id]) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn ms-2 text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
+                            <i class="fas fa-redo me-1"></i>
+                            @if($course->validation_status === 'rejected')
+                                Resoumettre le cours
+                            @else
+                                Resoumettre après corrections
+                            @endif
+                        </button>
+                    </form>
+                    
+                @else
+                    {{-- Première soumission --}}
+                    <form action="{{ route('formateur.courses.publish', ['courseId' => $course->id]) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn ms-2 text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
+                            <i class="fas fa-paper-plane me-1"></i> Soumettre
+                        </button>
+                    </form>
+                    <small class="d-block text-muted mt-1 ms-2">
+                        Le cours sera examiné avant publication
+                    </small>
+                @endif
+            @else
+                {{-- Cours déjà publié --}}
+                <span class="badge ms-2" style="background:#27B371;">
+                    <i class="fas fa-check-circle me-1"></i> Publié
+                </span>
             @endif
         </div>
         <div class="d-flex align-items-center">
-            <a href="{{ route('courses.show', ['slug' => $course->slug]) }}" target="_blank" class="btn btn-outline-primary me-2">
-                <i class="fas fa-eye me-1"></i> Voir comme étudiant
-            </a>
+            @php
+                // Récupérer la première leçon du cours pour l'aperçu
+                $firstLesson = $course->modules->sortBy('order')->flatMap(function ($module) {
+                    return $module->lessons->sortBy('order');
+                })->first();
+            @endphp
+            @if($firstLesson)
+                <a href="{{ route('formateur.view.lesson', ['courseId' => $course->id, 'lessonId' => $firstLesson->id]) }}" class="btn me-2" style="color:#1EA38B;border:1px solid #1EA38B;">
+                    <i class="fas fa-eye me-1"></i> Voir comme étudiant
+                </a>
+            @else
+                <button class="btn btn-outline-secondary me-2" disabled title="Ajoutez d'abord une leçon">
+                    <i class="fas fa-eye me-1"></i> Voir comme étudiant
+                </button>
+            @endif
             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCourseModal">
                 <i class="fas fa-trash-alt me-1"></i> Supprimer le cours
             </button>
@@ -340,16 +465,16 @@
             <div class="stat-card text-center">
                 <h3>{{ $studentsCount }}</h3>
                 <p>Étudiants inscrits</p>
-                <a href="{{ route('formateur.courses.students', ['courseId' => $course->id]) }}" class="btn btn-sm btn-outline-primary mt-2">Voir tous</a>
+                <a href="{{ route('formateur.courses.students', ['courseId' => $course->id]) }}" class="btn btn-sm mt-2" style="color:#1EA38B;border:1px solid #1EA38B;">Voir tous</a>
             </div>
         </div>
-        <div class="col-md-3">
+        {{-- <div class="col-md-3">
             <div class="stat-card text-center">
                 <h3>{{ number_format($averageRating, 1) }} <i class="fas fa-star text-warning"></i></h3>
                 <p>Note moyenne ({{ $ratingsCount }})</p>
-                <a href="{{ route('formateur.courses.ratings', ['courseId' => $course->id]) }}" class="btn btn-sm btn-outline-primary mt-2">Voir les avis</a>
+                <a href="{{ route('formateur.courses.ratings', ['courseId' => $course->id]) }}" class="btn btn-sm mt-2" style="border:1.5px solid #1EA38B;color:#1EA38B;">Voir les avis</a>
             </div>
-        </div>
+        </div> --}}
         <div class="col-md-3">
             <div class="stat-card text-center">
                 <h3>{{ $enrollmentsCount }}</h3>
@@ -358,9 +483,9 @@
         </div>
         <div class="col-md-3">
             <div class="stat-card text-center">
-                <h3>{{ number_format($revenue, 0) }} €</h3>
+                <h3>{{ number_format($revenue, 0) }} FCFA</h3>
                 <p>Revenus générés</p>
-                <a href="{{ route('formateur.courses.revenues', ['courseId' => $course->id]) }}" class="btn btn-sm btn-outline-primary mt-2">Détails</a>
+                <a href="{{ route('formateur.courses.revenues', ['courseId' => $course->id]) }}" class="btn btn-sm mt-2" style="color:#1EA38B;border:1px solid #1EA38B;">Détails</a>
             </div>
         </div>
     </div>
@@ -369,7 +494,7 @@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Contenu du cours</h5>
-            <a href="{{ route('formateur.modules.create', ['courseId' => $course->id]) }}" class="btn btn-success btn-sm">
+            <a href="{{ route('formateur.modules.create', ['courseId' => $course->id]) }}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                 <i class="fas fa-plus me-1"></i> Ajouter un module
             </a>
         </div>
@@ -392,13 +517,13 @@
                             <div id="moduleCollapse-{{ $module->id }}" class="accordion-collapse collapse" aria-labelledby="module-{{ $module->id }}">
                                 <div class="accordion-body p-0">
                                     <div class="d-flex justify-content-end p-2">
-                                        <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-sm btn-outline-primary me-2">
+                                        <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-sm me-2" style="color:#1EA38B;border:1px solid #1EA38B;">
                                             <i class="fas fa-cog me-1"></i> Gérer
                                         </a>
-                                        <a href="{{ route('formateur.lessons.create', ['moduleId' => $module->id]) }}" class="btn btn-sm btn-outline-success me-2">
+                                        <a href="{{ route('formateur.lessons.create', ['moduleId' => $module->id]) }}" class="btn btn-sm me-2" style="color:#27B371;border:1px solid #27B371;">
                                             <i class="fas fa-plus me-1"></i> Ajouter une leçon
                                         </a>
-                                        <a href="{{ route('formateur.quizzes.create', ['moduleId' => $module->id]) }}" class="btn btn-sm btn-outline-warning">
+                                        <a href="{{ route('formateur.quizzes.create', ['moduleId' => $module->id]) }}" class="btn btn-sm" style="color:#FF8E2A;border:1px solid #FF8E2A;">
                                             <i class="fas fa-question-circle me-1"></i> Ajouter un quiz
                                         </a>
                                     </div>
@@ -409,7 +534,7 @@
                                                     <i class="fas fa-{{ $lesson->content_type === 'video' ? 'video' : ($lesson->content_type === 'text' ? 'file-alt' : 'file-pdf') }} me-2"></i>
                                                     {{ $lesson->title }}
                                                     @if($lesson->is_previewable)
-                                                        <span class="badge bg-info ms-1">Aperçu</span>
+                                                        <span class="badge ms-1" style="background:#1EA38B;">Aperçu</span>
                                                     @endif
                                                 </div>
                                                 <span class="badge bg-light text-dark lesson-type-badge">
@@ -429,7 +554,7 @@
                                                     <i class="fas fa-question-circle me-2 text-warning"></i>
                                                     {{ $quiz->title }}
                                                 </div>
-                                                <span class="badge bg-warning lesson-type-badge">Quiz • {{ $quiz->questions->count() }} questions</span>
+                                                <span class="badge lesson-type-badge" style="background:#FF8E2A;">Quiz • {{ $quiz->questions->count() }} questions</span>
                                             </li>
                                         @endforeach
                                     </ul>
@@ -448,12 +573,12 @@
             <h5 class="card-title mb-0">
                 <i class="fas fa-graduation-cap me-2"></i>Examen final
                 @if($course->is_certifying)
-                    <span class="badge bg-warning ms-2">Certifiant</span>
+                    <span class="badge ms-2" style="background:#FF8E2A;">Certifiant</span>
                 @endif
             </h5>
             @if($course->finalQuiz)
                 <div>
-                    <a href="{{ route('formateur.final-exam.edit', ['courseId' => $course->id]) }}" class="btn btn-primary btn-sm me-2">
+                    <a href="{{ route('formateur.final-exam.edit', ['courseId' => $course->id]) }}" class="btn btn-sm me-2 text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-edit me-1"></i> Modifier l'examen
                     </a>
                     <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteFinalExamModal">
@@ -461,7 +586,7 @@
                     </button>
                 </div>
             @else
-                <a href="{{ route('formateur.final-exam.create', ['courseId' => $course->id]) }}" class="btn btn-success btn-sm">
+                <a href="{{ route('formateur.final-exam.create', ['courseId' => $course->id]) }}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                     <i class="fas fa-plus me-1"></i> Créer un examen final
                 </a>
             @endif
@@ -471,7 +596,7 @@
                 <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
                     <div>
                         <h6 class="mb-1">
-                            <i class="fas fa-flag-checkered me-2 text-primary"></i>
+                            <i class="fas fa-flag-checkered me-2" style="color:#1EA38B;"></i>
                             {{ $course->finalQuiz->title }}
                         </h6>
                         <p class="mb-0 text-muted">
@@ -483,7 +608,7 @@
                         </p>
                     </div>
                     <div>
-                        <span class="badge bg-primary lesson-type-badge">
+                        <span class="badge lesson-type-badge" style="background:#1EA38B;">
                             Examen final • {{ $course->finalQuiz->questions->count() }} questions
                         </span>
                     </div>

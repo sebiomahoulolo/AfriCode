@@ -43,22 +43,25 @@ class UserQuizAnswer extends Model
     {
         $question = $this->question;
         
-        if ($question->isOpenText()) {
+        if ($question->type === 'open_text') {
             // For open text questions, manual evaluation is needed
             // This could be done by an instructor/admin or using an AI service
             return null;
         }
         
-        if ($question->isTrueFalse() || $question->isSingleChoice()) {
+        if ($question->type === 'true_false' || $question->type === 'single_choice') {
             // For true/false or single choice, check if the selected answer is correct
             $this->is_correct = optional($this->answer)->is_correct ?? false;
         }
         
-        if ($question->isMultipleChoice()) {
-            // For multiple choice, this gets more complex and would need
-            // to check against all possible correct answers
-            // This implementation assumes a single answer was selected
-            $this->is_correct = optional($this->answer)->is_correct ?? false;
+        if ($question->type === 'multiple_choice') {
+            // For multiple choice, check if all selected answers are correct
+            $correctAnswers = $question->options()->where('is_correct', true)->pluck('id')->toArray();
+            $userAnswers = [$this->answer_id];
+            
+            // Check if user selected exactly the correct answers
+            $this->is_correct = count($correctAnswers) === count($userAnswers) && 
+                               empty(array_diff($correctAnswers, $userAnswers));
         }
         
         $this->save();

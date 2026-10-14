@@ -120,7 +120,7 @@
     }
 
     .admin-breadcrumb a {
-        color: #3498db;
+        color: #1EA38B;
         text-decoration: none;
     }
 
@@ -239,12 +239,12 @@
     }
 
     .admin-button-icon-primary {
-        border-color: #3498db;
-        color: #3498db;
+        border-color: #1EA38B;
+        color: #1EA38B;
     }
 
     .admin-button-icon-primary:hover {
-        background-color: #e3f2fd;
+        background-color: rgba(30,163,139,.1);
     }
 
     .admin-button-icon-danger {
@@ -283,12 +283,13 @@
     }
 
     .admin-button-primary {
-        background-color: #3498db;
+        background: linear-gradient(135deg,#1EA38B,#27B371);
         color: white;
     }
 
     .admin-button-primary:hover {
-        background-color: #2980b9;
+        background: linear-gradient(135deg,#0d7a63,#1EA38B);
+        color: white;
     }
 
     @media (max-width: 768px) {

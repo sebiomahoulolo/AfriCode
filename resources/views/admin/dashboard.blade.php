@@ -2,6 +2,29 @@
 
 @section('breadcrumb', 'Tableau de bord')
 
+@push('styles')
+<style>
+.admin-whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #25D366;
+    color: white !important;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+}
+.admin-whatsapp-link:hover {
+    color: white !important;
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+</style>
+@endpush
+
 @section('content')
 <div class="fade-in">
     <!-- Page Header -->
@@ -11,10 +34,13 @@
                 <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Tableau de bord administrateur</h1>
                 <p class="admin-card-subtitle">Bienvenue dans votre espace d'administration AfriCode</p>
             </div>
-            <div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
                 <span style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 500;">
                     <i class="fas fa-calendar-alt"></i> {{ now()->format('d/m/Y') }}
                 </span>
+                <a href="https://chat.whatsapp.com/KUjG6oZqqJWDNKtHsneGec" target="_blank" rel="noopener noreferrer" class="admin-whatsapp-link" title="Rejoindre le forum des formateurs">
+                    <i class="fab fa-whatsapp"></i>Forum
+                </a>
             </div>
         </div>
     </div>
@@ -22,7 +48,7 @@
     <!-- Statistics Cards -->
     <div class="admin-grid admin-grid-4" style="margin-bottom: 2rem;">
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="100">
-            <div class="admin-stats-icon">
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #1EA38B, #27B371);">
                 <i class="fas fa-users"></i>
             </div>
             <div class="admin-stats-number">{{ $userCounts['total'] }}</div>
@@ -31,7 +57,7 @@
                 <i class="fas fa-arrow-up"></i> +{{ $userCounts['newThisMonth'] }} ce mois
             </div>
         </div>
-        
+
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="200">
             <div class="admin-stats-icon" style="background: linear-gradient(135deg, #FF8E2A, #FFB366);">
                 <i class="fas fa-book"></i>
@@ -42,7 +68,7 @@
                 <i class="fas fa-check-circle"></i> {{ $courseCounts['published'] }} publiés
             </div>
         </div>
-        
+
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="300">
             <div class="admin-stats-icon" style="background: linear-gradient(135deg, #E32D31, #FF6B6B);">
                 <i class="fas fa-user-graduate"></i>
@@ -53,21 +79,21 @@
                 <i class="fas fa-arrow-up"></i> +{{ $enrollmentCounts['thisMonth'] }} ce mois
             </div>
         </div>
-        
+
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="400">
-            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #6C757D, #95A5A6);">
-                <i class="fas fa-euro-sign"></i>
+            <div class="admin-stats-icon" style="background: linear-gradient(135deg, #1EA38B, #27B371);">
+                <i class="fas fa-coins"></i>
             </div>
-            <div class="admin-stats-number">{{ number_format($paymentStats['total'], 0, ',', ' ') }}€</div>
+            <div class="admin-stats-number">{{ number_format($paymentStats['total'], 0, ',', ' ') }} <span style="font-size: 0.75em; font-weight: 500; color: #6C757D;">FCFA</span></div>
             <div class="admin-stats-label">Revenus</div>
             <div class="admin-stats-change positive">
-                <i class="fas fa-arrow-up"></i> +{{ number_format($paymentStats['thisMonth'], 0, ',', ' ') }}€ ce mois
+                <i class="fas fa-arrow-up"></i> +{{ number_format($paymentStats['thisMonth'], 0, ',', ' ') }} FCFA ce mois
             </div>
         </div>
     </div>
 
     <!-- Charts Section -->
-    <div class="admin-grid admin-grid-2" style="margin-bottom: 2rem;">
+    {{-- <div class="admin-grid admin-grid-2" style="margin-bottom: 2rem;">
         <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="100">
             <div class="admin-chart-header">
                 <h3 class="admin-chart-title">Évolution des utilisateurs</h3>
@@ -80,7 +106,7 @@
                 <canvas id="usersChart"></canvas>
             </div>
         </div>
-        
+
         <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="200">
             <div class="admin-chart-header">
                 <h3 class="admin-chart-title">Répartition des cours</h3>
@@ -93,10 +119,10 @@
                 <canvas id="coursesChart"></canvas>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Revenue Chart -->
-    <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="300" style="margin-bottom: 2rem;">
+    {{-- <div class="admin-chart-card" data-aos="fade-up" data-aos-delay="300" style="margin-bottom: 2rem;">
         <div class="admin-chart-header">
             <h3 class="admin-chart-title">Revenus mensuels</h3>
             <div class="admin-chart-controls">
@@ -107,6 +133,73 @@
         </div>
         <div class="admin-chart-body">
             <canvas id="revenueChart"></canvas>
+        </div>
+    </div> --}}
+
+    <!-- Recrutement (accès rapide) -->
+    <div class="admin-card" data-aos="fade-up" data-aos-delay="350" style="margin-bottom: 2rem;">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="fas fa-briefcase"></i> Recrutement
+            </h3>
+            <a href="{{ route('admin.recruitment.index') }}" style="color: #1EA38B; text-decoration: none; font-weight: 500;">Voir tout <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="admin-card-body">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <span class="admin-stats-number" style="font-size: 1.5rem;">{{ $recruitmentCounts['total'] }}</span>
+                    <span class="text-muted"> candidatures</span>
+                </div>
+                <div>
+                    <span class="admin-stats-number" style="font-size: 1.5rem;">{{ $recruitmentCounts['completed'] }}</span>
+                    <span class="text-muted"> test complété</span>
+                </div>
+                <a href="{{ route('admin.recruitment.applications.index') }}" class="btn btn-sm" style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none;">
+                    <i class="fas fa-list me-1"></i> Liste des candidatures
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions - Formateurs -->
+    <div class="admin-card" data-aos="fade-up" data-aos-delay="400" style="margin-bottom: 2rem;">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="fas fa-chalkboard-teacher"></i> Gestion des formateurs
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <div class="admin-grid admin-grid-3">
+                <a href="{{ route('admin.formateurs.index') }}"
+                   class="admin-quick-action-card"
+                   style="text-decoration: none; display: block;">
+                    <div class="admin-quick-action-icon" style="background: linear-gradient(135deg, #1EA38B, #27B371);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="admin-quick-action-title">Liste des formateurs</div>
+                    <div class="admin-quick-action-desc">Gérer tous les formateurs</div>
+                </a>
+
+                <a href="{{ route('admin.formateurs.withdrawals') }}"
+                   class="admin-quick-action-card"
+                   style="text-decoration: none; display: block;">
+                    <div class="admin-quick-action-icon" style="background: linear-gradient(135deg, #FF8E2A, #FFB366);">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="admin-quick-action-title">Retraits</div>
+                    <div class="admin-quick-action-desc">Traiter les demandes de retrait</div>
+                </a>
+
+                <a href="{{ route('admin.courses.index') }}?validation_status=pending_validation"
+                   class="admin-quick-action-card"
+                   style="text-decoration: none; display: block;">
+                    <div class="admin-quick-action-icon" style="background: linear-gradient(135deg, #E32D31, #FF6B6B);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="admin-quick-action-title">Validation cours</div>
+                    <div class="admin-quick-action-desc">Cours en attente de validation</div>
+                </a>
+            </div>
         </div>
     </div>
 
@@ -179,7 +272,7 @@
                             <div style="font-size: 0.8rem; color: #6C757D;">Ajouter un nouvel utilisateur</div>
                         </div>
                     </a>
-                    
+
                     <a href="{{ route('admin.courses.create') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(255, 142, 42, 0.1), rgba(255, 179, 102, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
                         <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #FF8E2A, #FFB366); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                             <i class="fas fa-plus"></i>
@@ -189,7 +282,7 @@
                             <div style="font-size: 0.8rem; color: #6C757D;">Ajouter un nouveau cours</div>
                         </div>
                     </a>
-                    
+
                     <a href="{{ route('admin.statistics.index') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(227, 45, 49, 0.1), rgba(255, 107, 107, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
                         <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #E32D31, #FF6B6B); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                             <i class="fas fa-chart-line"></i>
@@ -199,7 +292,7 @@
                             <div style="font-size: 0.8rem; color: #6C757D;">Analyser les performances</div>
                         </div>
                     </a>
-                    
+
                     <a href="{{ route('admin.settings.edit') }}" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: linear-gradient(135deg, rgba(108, 117, 125, 0.1), rgba(149, 165, 166, 0.1)); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.3s;">
                         <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #6C757D, #95A5A6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
                             <i class="fas fa-cog"></i>
@@ -225,7 +318,7 @@
                 this.style.transform = 'translateY(-2px)';
                 this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
             });
-            
+
             link.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = 'none';

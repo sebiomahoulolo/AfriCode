@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Module: ' . $module->title)
 
 @section('header-actions')
-    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+    <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary me-2">
         <i class="fas fa-arrow-left me-2"></i>Retour au module
     </a>
     <button type="submit" form="create-lesson-form" class="btn-primary-africode">
@@ -219,7 +219,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="content-type-card card text-center p-3 {{ old('content_type') == 'video' ? 'selected' : '' }}" data-type="video">
                                 <div>
-                                    <i class="fas fa-video text-primary"></i>
+                                    <i class="fas fa-video" style="color:#1EA38B;"></i>
                                     <h6 class="mt-2">Vidéo</h6>
                                     <p class="text-muted small mb-0">Lien YouTube, Vimeo, etc.</p>
                                 </div>
@@ -278,6 +278,7 @@
                 <div id="text-section" class="content-type-section {{ old('content_type') == 'text' ? 'active' : '' }}">
                     <div class="mb-3">
                         <label for="text_content" class="form-label">Contenu texte <span class="text-danger">*</span></label>
+                        
                         <textarea class="form-control @error('text_content') is-invalid @enderror" id="text_content" name="text_content" rows="10">{{ old('text_content') }}</textarea>
                         <div class="form-text">Rédigez le contenu de votre leçon avec mise en forme.</div>
                         @error('text_content')
@@ -336,7 +337,7 @@
                 </div>
                 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary">
+                    <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary">
                         <i class="fas fa-times me-2"></i>Annuler
                     </a>
                 </div>
@@ -388,11 +389,85 @@
                 if (contentType === 'text') {
                     const textContentElement = document.querySelector('#text_content');
                     if (textContentElement && !textEditorInstance) {
+                        // Resolve CSRF token robustly (meta tag, hidden input, or backend fallback)
+                        const csrfToken = (function() {
+                            const meta = document.querySelector('meta[name="csrf-token"]');
+                            if (meta) return meta.getAttribute('content');
+                            const input = document.querySelector('input[name="_token"]');
+                            if (input) return input.value;
+                            return '{{ csrf_token() }}';
+                        })();
+
+                        // Custom upload adapter for CKEditor 5
+                        class LaravelUploadAdapter {
+                            constructor(loader) {
+                                this.loader = loader;
+                                this.xhr = null;
+                            }
+                            upload() {
+                                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                                    this._initRequest();
+                                    this._initListeners(resolve, reject, file);
+                                    this._sendFile(file);
+                                }));
+                            }
+                            abort() {
+                                if (this.xhr) {
+                                    this.xhr.abort();
+                                }
+                            }
+                            _initRequest() {
+                                const xhr = this.xhr = new XMLHttpRequest();
+                                xhr.open('POST', '{{ route('formateur.upload.image') }}', true);
+                                xhr.responseType = 'json';
+                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                                if (csrfToken) {
+                                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                                }
+                            }
+                            _initListeners(resolve, reject, file) {
+                                const xhr = this.xhr;
+                                const genericErrorText = `Impossible de téléverser le fichier: ${file.name}.`;
+                                xhr.addEventListener('error', () => reject(genericErrorText));
+                                xhr.addEventListener('abort', () => reject());
+                                xhr.addEventListener('load', () => {
+                                    const response = xhr.response || {};
+                                    if (!response || xhr.status < 200 || xhr.status >= 300) {
+                                        return reject((response && response.error) ? response.error : genericErrorText);
+                                    }
+                                    // CKEditor expects an object with a 'default' url
+                                    resolve({ default: response.url || response.location });
+                                });
+                                if (xhr.upload) {
+                                    xhr.upload.addEventListener('progress', evt => {
+                                        if (evt.lengthComputable) {
+                                            this.loader.uploadTotal = evt.total;
+                                            this.loader.uploaded = evt.loaded;
+                                        }
+                                    });
+                                }
+                            }
+                            _sendFile(file) {
+                                const data = new FormData();
+                                // Support CKEditor 5 field name 'upload'
+                                data.append('upload', file);
+                                this.xhr.send(data);
+                            }
+                        }
+
+                        function LaravelUploadAdapterPlugin(editor) {
+                            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                                return new LaravelUploadAdapter(loader);
+                            };
+                        }
+
                         ClassicEditor
-                            .create(textContentElement)
+                            .create(textContentElement, {
+                                extraPlugins: [ LaravelUploadAdapterPlugin ],
+                                removePlugins: [ 'MediaEmbedToolbar' ]
+                            })
                             .then(editor => {
                                 textEditorInstance = editor;
-                                console.log('CKEditor initialized for #text_content');
                             })
                             .catch(error => {
                                 console.error('Erreur CKEditor pour #text_content:', error);

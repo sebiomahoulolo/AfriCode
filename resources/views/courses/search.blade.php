@@ -35,7 +35,7 @@
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body p-4 text-center">
                             <div class="mb-3">
-                                <i class="fas fa-laptop-code fa-3x text-primary"></i>
+                                <i class="fas fa-laptop-code fa-3x" style="color:#1EA38B;"></i>
                             </div>
                             <h3 class="h5 fw-bold mb-3">Contenu adapté à l'Afrique</h3>
                             <p class="text-muted mb-0">Nos formations sont conçues pour répondre aux besoins spécifiques du marché africain tout en respectant les standards internationaux.</p>
@@ -47,7 +47,7 @@
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body p-4 text-center">
                             <div class="mb-3">
-                                <i class="fas fa-certificate fa-3x text-primary"></i>
+                                <i class="fas fa-certificate fa-3x" style="color:#1EA38B;"></i>
                             </div>
                             <h3 class="h5 fw-bold mb-3">Certifications reconnues</h3>
                             <p class="text-muted mb-0">Obtenez des certifications valorisées par les employeurs et boostez votre CV avec des compétences recherchées.</p>
@@ -59,7 +59,7 @@
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-body p-4 text-center">
                             <div class="mb-3">
-                                <i class="fas fa-users fa-3x text-primary"></i>
+                                <i class="fas fa-users fa-3x" style="color:#1EA38B;"></i>
                             </div>
                             <h3 class="h5 fw-bold mb-3">Communauté active</h3>
                             <p class="text-muted mb-0">Rejoignez une communauté dynamique d'apprenants et d'experts pour échanger, collaborer et progresser ensemble.</p>
@@ -69,7 +69,7 @@
             </div>
             
             <div class="text-center mt-5">
-                <a href="{{ route('pages.apropos') }}" class="btn btn-outline-primary btn-lg">
+                <a href="{{ route('pages.apropos') }}" class="btn btn-lg text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                     <i class="fas fa-info-circle me-2"></i> En savoir plus sur AfriCode
                 </a>
             </div>

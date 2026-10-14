@@ -17,7 +17,7 @@
                             <p class="lead">Votre plateforme d'apprentissage moderne.</p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <div class="bg-primary bg-gradient rounded p-4 text-white">
+                            <div class="rounded p-4 text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);">
                                 <h5><i class="fas fa-user-check"></i> Connecté</h5>
                                 <p class="mb-0">Vous êtes maintenant connecté à votre espace.</p>
                             </div>

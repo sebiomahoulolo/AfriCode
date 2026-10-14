@@ -260,14 +260,14 @@ class NotificationService
     protected function sendEmailNotification($user, $type, $data)
     {
         $template = $this->getEmailTemplate($type);
-        
-        Mail::send($template, [
-            'user' => $user,
-            'data' => $data
-        ], function ($message) use ($user, $type) {
-            $message->to($user->email)
-                   ->subject($this->getEmailSubject($type));
-        });
+        $subject  = $this->getEmailSubject($type);
+
+        Mail::to($user->email)->queue(new \App\Mail\GenericMail(
+            $template,
+            null,
+            ['user' => $user, 'data' => $data],
+            $subject
+        ));
     }
 
     protected function sendPushNotification($user, $type, $data)

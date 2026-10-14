@@ -7,6 +7,8 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class CourseController extends Controller
 {
@@ -15,35 +17,63 @@ class CourseController extends Controller
      */
     public function home()
     {
-        // Récupérer les catégories populaires avec le nombre de cours
-        $categories = Category::withCount('courses')
-            ->orderBy('courses_count', 'desc')
-            ->take(4)
-            ->get();
+        // Récupérer les catégories populaires avec le nombre de cours (cache 1 heure)
+        $categories = Cache::remember('popular_categories', 3600, function () {
+            return Category::withCount('courses')
+                ->orderBy('courses_count', 'desc')
+                ->take(4)
+                ->get();
+        });
 
-        // Solution 1: Utiliser une sous-requête pour éviter l'erreur de GROUP BY
-        $popularCoursesIds = DB::table('enrollments')
-            ->select('course_id', DB::raw('COUNT(*) as count'))
-            ->groupBy('course_id')
-            ->orderBy('count', 'desc')
-            ->limit(4)
-            ->pluck('course_id');
-            
-        $popularCourses = Course::whereIn('id', $popularCoursesIds)
-            ->where('status', 'published')
-            ->with('formateur:id,first_name,last_name')
-            ->get();
+        // Récupérer les cours populaires (cache 30 minutes)
+        $popularCourses = Cache::remember('popular_courses', 1800, function () {
+            // Utiliser une sous-requête pour éviter l'erreur de GROUP BY
+            $popularCoursesIds = DB::table('enrollments')
+                ->select('course_id', DB::raw('COUNT(*) as count'))
+                ->groupBy('course_id')
+                ->orderBy('count', 'desc')
+                ->limit(4)
+                ->pluck('course_id');
+                
+            // Si aucun cours populaire n'est trouvé, récupérer les cours les plus récents
+            if ($popularCoursesIds->isEmpty()) {
+                return Course::where('status', 'published')
+                    ->with([
+                        'formateur:id,first_name,last_name', 
+                        'category:id,name',
+                        'ratings:id,course_id,rating',
+                        'modules.lessons:id,module_id,duration_minutes' // Charger les leçons avec leurs durées
+                    ])
+                    ->withAvg('ratings', 'rating')
+                    ->withCount(['enrollments', 'ratings'])
+                    ->orderBy('published_at', 'desc')
+                    ->limit(4)
+                    ->get();
+            } else {
+                $courses = Course::whereIn('id', $popularCoursesIds)
+                    ->where('status', 'published')
+                    ->with([
+                        'formateur:id,first_name,last_name', 
+                        'category:id,name',
+                        'ratings:id,course_id,rating',
+                        'modules.lessons:id,module_id,duration_minutes' // Charger les leçons avec leurs durées
+                    ])
+                    ->withAvg('ratings', 'rating')
+                    ->withCount(['enrollments', 'ratings'])
+                    ->get();
 
-        // Trier les cours dans le même ordre que les IDs récupérés
-        $popularCourses = $popularCourses->sortBy(function($course) use ($popularCoursesIds) {
-            return array_search($course->id, $popularCoursesIds->toArray());
-        })->values();
+                // Trier les cours dans le même ordre que les IDs récupérés
+                return $courses->sortBy(function($course) use ($popularCoursesIds) {
+                    return array_search($course->id, $popularCoursesIds->toArray());
+                })->values();
+            }
+        });
 
         // Préparer les données des cours pour l'affichage
         $formattedCourses = $popularCourses->map(function ($course) {
-            // Utiliser des valeurs fixes ou aléatoires au lieu de la relation ratings
-            $rating = rand(40, 50) / 10; // Génère un nombre entre 4.0 et 5.0
-            $reviewsCount = rand(50, 200);
+            // Utiliser les vraies données de ratings au lieu de valeurs aléatoires
+            $rating = round($course->ratings_avg_rating ?? 0, 1);
+            $reviewsCount = $course->ratings_count ?? 0;
             
             // Définir les images statiques par défaut si aucune image n'est disponible
             $defaultImages = [
@@ -53,24 +83,71 @@ class CourseController extends Controller
                 'assets/images/th.jpeg',
             ];
             
-            // Utiliser une image par défaut aléatoire si le cours n'a pas d'image
-            $imgPath = $course->cover_image_path;
-            if (empty($imgPath) || !file_exists(public_path($imgPath))) {
-                $imgPath = $defaultImages[array_rand($defaultImages)];
+            // Utiliser l'accessor pour obtenir l'URL de l'image ou une image par défaut
+            if ($course->cover_image_path) {
+                $imgPath = $course->cover_image_url;
+            } else {
+                $imgPath = asset($defaultImages[array_rand($defaultImages)]);
             }
             
+            // Calculer la durée totale en additionnant toutes les durées des leçons
+            $totalDurationMinutes = 0;
+            foreach ($course->modules as $module) {
+                foreach ($module->lessons as $lesson) {
+                    $totalDurationMinutes += $lesson->duration_minutes ?? 0;
+                }
+            }
+            
+            // Convertir en heures (arrondi à l'entier supérieur)
+            $durationHours = $totalDurationMinutes > 0 ? ceil($totalDurationMinutes / 60) : 0;
+            
+            // Si la durée est 0, essayer d'utiliser la méthode du modèle
+            if ($durationHours === 0) {
+                $estimatedDuration = $course->getEstimatedDuration();
+                $durationHours = $estimatedDuration > 0 ? ceil($estimatedDuration / 60) : 0;
+            }
+            
+            // Mapper les niveaux
+            $levelMap = [
+                'debutant' => 'DÉBUTANT',
+                'intermediaire' => 'INTERMÉDIAIRE', 
+                'avance' => 'AVANCÉ',
+                'tous_niveaux' => 'TOUS NIVEAUX'
+            ];
+            
+            $basePrice = (float) $course->price;
+            $oldPrice = null;
+            $discountPercent = 0;
+            $displayPrice = $basePrice;
+
+            if ($course->isCurrentlyOnPromotion() && $course->discount_percentage > 0) {
+                $discountPercent = (int) $course->getSavingsPercentage();
+                $displayPrice = (float) $course->getDiscountedPrice();
+                $oldPrice = $course->original_price ? (float) $course->original_price : $basePrice;
+            } elseif ($basePrice > 0) {
+                $oldPrice = $basePrice * 1.5;
+                $discountPercent = (int) round((1 - $basePrice / $oldPrice) * 100);
+            }
+
             return [
                 'img' => $imgPath,
                 'title' => $course->title,
                 'desc' => $course->short_description,
-                'instructor' => $course->formateur->first_name . ' ' . $course->formateur->last_name,
-                'rating' => $rating,
+                'instructor' => $course->formateur ? ($course->formateur->first_name . ' ' . $course->formateur->last_name) : 'Formateur',
+                'rating' => $rating > 0 ? $rating : 4.5,
                 'reviews' => $reviewsCount,
-                'price' => $course->price,
-                'old_price' => $course->price > 0 ? $course->price * 4 : null, // Prix barré pour montrer la réduction
-                'bestseller' => true, // Les cours les plus populaires sont tous des bestsellers
-                'new' => $course->published_at && $course->published_at->diffInDays(now()) < 30, // Nouveau si publié depuis moins de 30 jours
-                'slug' => $course->slug
+                'price' => $displayPrice,
+                'old_price' => $oldPrice,
+                'discount_percentage' => $discountPercent,
+                'bestseller' => $course->enrollments_count > 50,
+                'new' => $course->published_at && $course->published_at->diffInDays(now()) < 30,
+                'slug' => $course->slug,
+                'level' => $levelMap[$course->level] ?? 'INTERMÉDIAIRE',
+                'duration' => $durationHours > 0 
+                    ? $durationHours . ' heure' . ($durationHours > 1 ? 's' : '') 
+                    : 'Durée non spécifiée',
+                'is_certifying' => $course->is_certifying,
+                'category' => $course->category ? $course->category->name : 'Général'
             ];
         });
 
@@ -85,9 +162,17 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        // Toujours afficher la même page unifiée
-        // Les filtres seront gérés via Ajax/JavaScript
-        return view('courses.index');
+        // Vérifier s'il y a un message de succès de paiement
+        $paymentSuccessMessage = null;
+        
+        if (Auth::check()) {
+            // Vérifier s'il y a un message de succès de paiement
+            if (session('success') && str_contains(session('success'), 'Paiement réussi')) {
+                $paymentSuccessMessage = session('success');
+            }
+        }
+        
+        return view('courses.index', compact('paymentSuccessMessage'));
     }
 
     /**
@@ -100,6 +185,11 @@ class CourseController extends Controller
             ->with([
                 'formateur:id,first_name,last_name',
                 'category:id,name,slug',
+            ])
+            ->withAvg('ratings', 'rating')
+            ->withCount([
+                'enrollments as enrollments_count',
+                'ratings as ratings_count'
             ]);
 
         // Appliquer la recherche textuelle
@@ -112,9 +202,19 @@ class CourseController extends Controller
             });
         }
 
-        // Filtre par catégorie
+        // Filtre par catégorie (accepte ID ou slug)
         if ($request->filled('category') && $request->get('category') !== 'all') {
-            $query->where('category_id', $request->get('category'));
+            $categoryParam = $request->get('category');
+            // Si c'est un nombre, c'est un ID
+            if (is_numeric($categoryParam)) {
+                $query->where('category_id', $categoryParam);
+            } else {
+                // Sinon, c'est un slug - chercher la catégorie par slug
+                $category = Category::where('slug', $categoryParam)->first();
+                if ($category) {
+                    $query->where('category_id', $category->id);
+                }
+            }
         }
 
         // Filtre par niveau
@@ -165,6 +265,9 @@ class CourseController extends Controller
 
         // Formater les données pour l'Ajax
         $formattedCourses = $courses->map(function ($course) {
+            // Calculer la durée totale en minutes
+            $durationMinutes = $course->getEstimatedDuration();
+            
             return [
                 'id' => $course->id,
                 'title' => $course->title,
@@ -176,6 +279,9 @@ class CourseController extends Controller
                 'cover_image_path' => $course->cover_image_path,
                 'created_at' => $course->created_at,
                 'updated_at' => $course->updated_at,
+                'ratings_avg_rating' => $course->ratings_avg_rating,
+                'enrollments_count' => $course->enrollments_count,
+                'duration_minutes' => $durationMinutes,
                 'formateur' => $course->formateur ? [
                     'id' => $course->formateur->id,
                     'first_name' => $course->formateur->first_name,
@@ -214,10 +320,13 @@ class CourseController extends Controller
      */
     public function categories(Request $request)
     {
-        $categories = Category::withCount('courses')
-            ->having('courses_count', '>', 0)
-            ->orderBy('name', 'asc')
-            ->get(['id', 'name', 'slug']);
+        // Cache des catégories (1 heure)
+        $categories = Cache::remember('all_categories', 3600, function () {
+            return Category::withCount('courses')
+                ->having('courses_count', '>', 0)
+                ->orderBy('name', 'asc')
+                ->get(['id', 'name', 'slug']);
+        });
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -269,8 +378,36 @@ class CourseController extends Controller
                 ->with(['formateur', 'modules.lessons', 'category', 'ratings', 'enrollments'])
                 ->firstOrFail();
         }
+
+        // Vérifier les informations de paiement pour l'utilisateur connecté
+        $userEnrollment = null;
+        $hasValidPayment = false;
+        $paymentStatus = null;
+        
+        if (Auth::check()) {
+            $userEnrollment = $course->enrollments->where('user_id', Auth::id())->first();
             
-        return view('courses.show', compact('course'));
+            if ($userEnrollment) {
+                // Vérifier si l'utilisateur a un paiement réussi pour ce cours
+                if ($course->price > 0) {
+                    // Vérifier s'il y a au moins un paiement réussi (comme dans checkCourseAccess)
+                    $successfulPayment = $userEnrollment->payments()
+                        ->where('status', 'succeeded')
+                        ->first();
+                    $hasValidPayment = $successfulPayment !== null;
+                    $paymentStatus = $successfulPayment ? $successfulPayment->status : 'none';
+                    
+                    // Si l'utilisateur a une inscription mais pas de paiement réussi, 
+                    // on laisse l'utilisateur voir la page du cours et décider de s'inscrire
+                } else {
+                    // Cours gratuit - accès automatique
+                    $hasValidPayment = true;
+                    $paymentStatus = 'free';
+                }
+            }
+        }
+            
+        return view('courses.show', compact('course', 'userEnrollment', 'hasValidPayment', 'paymentStatus'));
     }
 
     /**

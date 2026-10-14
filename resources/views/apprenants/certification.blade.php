@@ -123,6 +123,7 @@
     .content {
         text-align: center;
         margin-bottom: 15px;
+        margin-top: -15px;
         padding: 0 1rem; /* Empêche le texte de toucher les bords */
     }
 
@@ -432,10 +433,10 @@
 <div class="container-fluid">
     <div class="row mb-3 print-btn-container">
         <div class="col text-end">
-            <button class="btn btn-sm btn-success" id="downloadPDF">
+            <button class="btn btn-sm text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;" id="downloadPDF">
                 <i class="fas fa-download me-1"></i> Télécharger en PDF
             </button>
-            <button class="btn btn-sm btn-primary ms-2" style="background-color: var(--primary-color); border-color: var(--primary-color);" onclick="window.print()">
+            <button class="btn btn-sm text-white ms-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;" onclick="window.print()">
                 <i class="fas fa-print me-1"></i> Imprimer
             </button>
             <a href="{{ route('apprenant.certifications') }}" class="btn btn-sm btn-secondary ms-2">
@@ -451,7 +452,6 @@
 
             <div class="certificate">
                 <div class="certificate-number">Série: AF-{{ now()->format('Y') }}-{{ str_pad($certification->id, 4, '0', STR_PAD_LEFT) }}</div>
-
                 <div class="header">
                     <div class="logo-container">
                         <div class="logo-bg">
@@ -467,45 +467,19 @@
                     <h1 class="title">Certificat de Formation</h1>
                     <p class="subtitle">Centre de Formation Numérique AfriCode</p>
                 </div>
-
-                <div class="content">
-                    <p class="description">Ce certificat est fièrement décerné à</p>
-                    <h2 class="student-name">{{ $certification->user->first_name }} {{ $certification->user->last_name }}</h2>
-                    <p class="description">pour avoir complété avec succès la formation</p>
+                    <p class="description">
+                        Ce certificat est fièrement décerné à <span class="student-name"> {{ $certification->user->first_name }} {{ $certification->user->last_name }}</span> pour avoir complété avec succès la formation :
+                    </p>
                     <h3 class="course-name">{{ $certification->course->title }}</h3>
-
-                    <div class="skills-container">
-                        @forelse($certification->course->skills ?? [] as $skill)
-                            <span class="skills-badge">{{ $skill }}</span>
-                        @empty
-                            <span class="skills-badge">Formation Complète</span>
-                        @endforelse
-                    </div>
-
                     <p class="description" style="margin-top: 15px;">ayant démontré compétence et excellence dans les domaines clés du programme.</p>
-
-                    <div class="details">
-                        <span class="detail-item">
-                            <i class="fas fa-clock"></i>
-                            Durée: {{ $certification->course->duration }}
-                        </span>
-                        <span class="detail-item">
-                            <i class="fas fa-layer-group"></i>
-                            Niveau: {{ $certification->course->level }}
-                        </span>
-                        <span class="detail-item">
-                            <i class="fas fa-medal"></i>
-                            Mention: {{ $certification->grade }}
-                        </span>
-                    </div>
-
-                    <p class="date">Délivré le : {{ $certification->issued_at->format('d F Y') }}</p>
-
                     <div class="validation-info">
-                        <p>Vérifiez l'authenticité sur <a href="{{ route('verification.form', ['verification_code' => $certification->verification_code]) }}" target="_blank"><strong>www.africode.tech/verify</strong></a> ou via le QR Code.</p>
-                        <p>Code de validation: <span class="validation-code">{{ $certification->verification_code }}</span></p>
+                    <p class="date">Délivré le : {{ $certification->issued_at->format('d F Y') }}  <span class="detail-item">
+                        <i class="fas fa-layer-group"></i>
+                        Niveau: {{ $certification->course->level }}
+                    </span>
+                        Code de validation: <span class="validation-code">{{ $certification->verification_code }}</span></p>
                     </div>
-                </div>
+                
 
                 <!-- <div class="signatures">
                     <div class="signature">
@@ -526,13 +500,8 @@
                         AfriCode<br>Formation<br>Certifiée<br>Qualité
                     </div>
                 </div>
-
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=75x75&data={{ urlencode(route('verification.form', ['verification_code' => $certification->verification_code])) }}"
                      alt="QR Code de Validation" class="qr-code">
-
-                <div class="slogan">
-                    No Code, No Future
-                </div>
             </div>
         </div>
     </div>

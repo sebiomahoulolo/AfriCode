@@ -10,6 +10,7 @@ use App\Models\UserScore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CompetitionDisplayController extends Controller
 {
@@ -119,14 +120,21 @@ class CompetitionDisplayController extends Controller
 
             return view('pages.compdisp', compact('challenges', 'competitions', 'leaderboardData', 'badges', 'currentUser', 'challengeParticipants'));
         } catch (\Exception $e) {
-            dd($e->getMessage(), $e->getTraceAsString());
+            \Log::error('Erreur dans CompetitionDisplayController::index', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id()
+            ]);
+            
+            return redirect()->route('home')
+                ->with('error', 'Une erreur est survenue lors du chargement des compétitions. Veuillez réessayer plus tard.');
         }
     }
 
     public function show($slug)
     {
         $competition = \App\Models\Competition::where('slug', $slug)->firstOrFail();
-        $user = auth()->user();
+        $user = Auth::user();
         $isRegistered = false;
         if ($user) {
             $isRegistered = \App\Models\CompetitionRegistration::where('competition_id', $competition->id)
@@ -139,7 +147,7 @@ class CompetitionDisplayController extends Controller
 
     public function register($id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (!$user) {
             return redirect()->route('login')->with('error', 'Vous devez être connecté pour participer.');
         }
@@ -186,7 +194,7 @@ class CompetitionDisplayController extends Controller
 
             return response()->json($leaderboardData);
         } catch (\Exception $e) {
-            \Log::error('Erreur dans getLeaderboard: ' . $e->getMessage());
+            Log::error('Erreur dans getLeaderboard: ' . $e->getMessage());
             return response()->json(['error' => 'Erreur serveur'], 500);
         }
     }
@@ -194,7 +202,7 @@ class CompetitionDisplayController extends Controller
     public function showChallenge($id)
     {
         $challenge = \App\Models\Challenge::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
         $isParticipating = false;
         if ($user) {
             $isParticipating = $challenge->users()->where('user_id', $user->id)->exists();
@@ -205,7 +213,7 @@ class CompetitionDisplayController extends Controller
 
     public function participateChallenge($id)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (!$user) {
             return redirect()->route('login')->with('error', 'Vous devez être connecté pour participer.');
         }
@@ -224,7 +232,7 @@ class CompetitionDisplayController extends Controller
     public function playChallenge($id, Request $request)
     {
         $challenge = \App\Models\Challenge::findOrFail($id);
-        $user = auth()->user();
+        $user = Auth::user();
         $isParticipating = $user ? $challenge->users()->where('user_id', $user->id)->exists() : false;
         if (!$isParticipating) {
             return redirect()->route('challenges.show', $challenge->id)->with('error', 'Vous devez vous inscrire au défi pour participer.');
@@ -269,7 +277,7 @@ class CompetitionDisplayController extends Controller
     public function playCompetition($slug, Request $request)
     {
         $competition = \App\Models\Competition::where('slug', $slug)->firstOrFail();
-        $user = auth()->user();
+        $user = Auth::user();
         $isRegistered = $user ? \App\Models\CompetitionRegistration::where('competition_id', $competition->id)->where('user_id', $user->id)->exists() : false;
         if (!$isRegistered) {
             return redirect()->route('competitions.show', $competition->slug)->with('error', 'Vous devez vous inscrire à la compétition pour participer.');
@@ -329,7 +337,7 @@ class CompetitionDisplayController extends Controller
 
         // Sinon, créer un avatar avec les initiales
         $initials = strtoupper(substr($user->name, 0, 2));
-        $colors = ['#1EA38B', '#FF8E2A', '#E32D31', '#27B371', '#9B59B6'];
+        $colors = ['#11c06d', '#fea837', '#fa1c39', '#239e79', '#9B59B6'];
         $color = $colors[array_rand($colors)];
         
         return "https://via.placeholder.com/40/{$color}/FFFFFF?text=" . urlencode($initials);
@@ -418,7 +426,7 @@ class CompetitionDisplayController extends Controller
 
                 // Badge pour score élevé (1000+ points)
                 if ($score >= 1000) {
-                    $this->assignBadgeToUser($userId, 'fa-star', 'Expert', 'A atteint 1000 points', '#FF8E2A');
+                    $this->assignBadgeToUser($userId, 'fa-star', 'Expert', 'A atteint 1000 points', '#fea837');
                 }
 
                 // Badge pour score très élevé (2000+ points)
@@ -428,17 +436,17 @@ class CompetitionDisplayController extends Controller
 
                 // Badge pour score exceptionnel (5000+ points)
                 if ($score >= 5000) {
-                    $this->assignBadgeToUser($userId, 'fa-gem', 'Légende', 'A atteint 5000 points', '#E32D31');
+                    $this->assignBadgeToUser($userId, 'fa-gem', 'Légende', 'A atteint 5000 points', '#fa1c39');
                 }
 
                 // Badge pour participation (score > 0)
                 if ($score > 0) {
-                    $this->assignBadgeToUser($userId, 'fa-user-graduate', 'Participant', 'A participé aux compétitions', '#27B371');
+                    $this->assignBadgeToUser($userId, 'fa-user-graduate', 'Participant', 'A participé aux compétitions', '#239e79');
                 }
             }
 
         } catch (\Exception $e) {
-            \Log::error('Erreur lors de l\'attribution des badges: ' . $e->getMessage());
+            Log::error('Erreur lors de l\'attribution des badges: ' . $e->getMessage());
         }
     }
 
@@ -456,6 +464,7 @@ class CompetitionDisplayController extends Controller
                     'name' => $name,
                     'description' => $description,
                     'icon' => $icon,
+                    'type' => 'achievement', // Ajout du champ type obligatoire
                     'color' => $color,
                     'is_active' => true,
                     'unlock_order' => 1
@@ -478,11 +487,11 @@ class CompetitionDisplayController extends Controller
                     'updated_at' => now()
                 ]);
 
-                \Log::info("Badge '{$name}' attribué à l'utilisateur {$userId}");
+                Log::info("Badge '{$name}' attribué à l'utilisateur {$userId}");
             }
 
         } catch (\Exception $e) {
-            \Log::error("Erreur lors de l'attribution du badge '{$name}' à l'utilisateur {$userId}: " . $e->getMessage());
+            Log::error("Erreur lors de l'attribution du badge '{$name}' à l'utilisateur {$userId}: " . $e->getMessage());
         }
     }
 }

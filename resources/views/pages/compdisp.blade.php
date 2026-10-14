@@ -1,15 +1,15 @@
-@extends('layouts.layout')
+@extends('apprenants.layouts.app')
 
-@section('title', 'AfriCode')
+@section('title', 'Espace Compétition — AfriCode')
+@section('page-title', 'Espace Compétition')
 
-@section('content')
-
+@push('styles')
 <style>
     :root {
-        --primary-color: #1EA38B; /* Vert émeraude */
-        --secondary-color: #FF8E2A; /* Orange */
-        --accent-color: #E32D31; /* Rouge */
-        --highlight-color: #27B371; /* Vert clair */
+        --primary-color: #27B371;
+        --secondary-color: #FF8E2A;
+        --accent-color: #E32D31;
+        --highlight-color: #1EA38B;
         --background-color: #f4f7f6; /* Fond légèrement différent */
         --light-accent: #ECF0F1;
         --text-color: #333333;
@@ -20,7 +20,7 @@
     }
 
     body {
-        background-color: var(--background-color);
+        background-color: #ffffff !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: var(--text-color);
     }
@@ -122,7 +122,7 @@
     }
 
     .current-user-rank {
-        background-color: rgba(255, 142, 42, 0.15) !important;
+        background-color: rgba(254, 168, 55, 0.15) !important;
         border-top: 2px solid var(--secondary-color);
         border-bottom: 2px solid var(--secondary-color);
         font-weight: bold;
@@ -289,14 +289,10 @@
         background-color: var(--primary-color);
     }
 </style>
+@endpush
 
-<!-- En-tête de la page Compétition -->
-<div class="competition-header">
-    <h1><i class="fas fa-trophy me-2"></i>Espace Compétition AfriCode</h1>
-    <p>Relevez les défis, grimpez dans le classement et gagnez des badges !</p>
-</div>
-
-<div class="container mt-4">
+@section('content')
+<div class="container-fluid py-2">
     <!-- Section Compétitions Actuelles -->
     <section id="competitions" class="mb-5">
         <h2 class="section-title"><i class="fas fa-trophy me-2"></i>Compétitions Actuelles</h2>
@@ -304,10 +300,10 @@
             @if(isset($competitions) && count($competitions) > 0)
                 @foreach($competitions as $competition)
                     <div class="col-md-6 mb-3">
-                        <div class="challenge-card" style="border-left: 5px solid #1EA38B;">
+                        <div class="challenge-card" style="border-left: 5px solid #27B371;">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h5 class="mb-0">{{ $competition['title'] }}</h5>
-                                <span class="badge bg-success">Compétition</span>
+                                <span class="badge" style="background:#27B371;">Compétition</span>
                             </div>
                             <p class="text-muted mb-2">{{ $competition['description'] }}</p>
                             <div class="d-flex justify-content-between align-items-center">
@@ -319,7 +315,7 @@
                                 </small>
                             </div>
                             <div class="mt-2 text-end">
-                                <a href="{{ route('competitions.show', $competition['slug']) }}" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('competitions.show', $competition['slug']) }}" class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
                             </div>
@@ -353,11 +349,11 @@
                             </div>
                             <p class="text-muted mb-2">{{ $challenge['description'] ?? $challenge->description }}</p>
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary">{{ $challenge['points'] ?? ($challenge->points ?? 0) }} points</span>
+                                <span class="badge" style="background:#1EA38B;">{{ $challenge['points'] ?? ($challenge->points ?? 0) }} points</span>
                                 <small class="text-muted">{{ $challenge['timeLeft'] ?? '' }}</small>
                             </div>
                             <div class="mt-2 text-end">
-                                <a href="{{ route('challenges.show', $challenge['id'] ?? $challenge->id) }}" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('challenges.show', $challenge['id'] ?? $challenge->id) }}" class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
                             </div>
@@ -481,7 +477,9 @@
         </div>
     </section>
 </div>
+@endsection
 
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Gestion des filtres de classement
@@ -588,5 +586,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
-@endsection
+@endpush

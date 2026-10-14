@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <title>Certificat AfriCode</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1EA38B; /* Vert émeraude */
-            --secondary-color: #FF8E2A; /* Orange */
-            --accent-color: #E32D31; /* Rouge */
-            --highlight-color: #27B371; /* Vert clair */
+            --primary-color: #27B371; /* Vert émeraude */
+            --secondary-color: #fea837; /* Orange */
+            --accent-color: #fa1c39; /* Rouge */
+            --highlight-color: #1EA38B; /* Vert clair */
             --background-color: #F8F9FA;
             --light-accent: #ECF0F1;
             --text-color: #333333;
@@ -177,7 +178,7 @@
             transition: all 0.2s ease;
         }
         .detail-item:hover {
-            background-color: rgba(30, 163, 139, 0.1); /* Vert primaire très léger */
+            background-color: rgba(17, 192, 109, 0.1); /* Vert primaire très léger */
             transform: translateY(-2px);
         }
         .detail-item i {
@@ -349,7 +350,7 @@
             transition: all 0.2s ease;
         }
         .skills-badge:hover {
-            background-color: rgba(30, 163, 139, 0.1);
+            background-color: rgba(17, 192, 109, 0.1);
             transform: translateY(-2px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
@@ -364,7 +365,7 @@
             background-color: rgba(255,255,255,0.8);
             padding: 2px 6px;
             border-radius: 3px;
-            border: 1px solid rgba(30, 163, 139, 0.5); /* Bordure légère */
+            border: 1px solid rgba(17, 192, 109, 0.5); /* Bordure légère */
             font-weight: 500;
             z-index: 3;
         }
@@ -380,7 +381,7 @@
             background-color: rgba(255,255,255,0.8);
             padding: 2px 6px;
             border-radius: 3px;
-            border: 1px solid rgba(30, 163, 139, 0.5);
+            border: 1px solid rgba(17, 192, 109, 0.5);
             font-family: 'Courier New', Courier, monospace;
             z-index: 3;
         }
@@ -425,17 +426,17 @@
         <!-- Conteneur pour les boutons -->
         <div class="row mb-3 mt-4 print-btn-container"> <!-- Ajout mt-4 pour espace avec langue -->
             <div class="col text-end">
-                <button class="btn btn-sm btn-primary" style="background-color: var(--primary-color); border-color: var(--primary-color);" onclick="window.print()">
+                <button class="btn btn-sm text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;" onclick="window.print()">
                     <i class="fas fa-print me-1"></i> <span data-translate="print">Imprimer</span>
                 </button>
-                <button class="btn btn-sm btn-secondary ms-2" style="background-color: var(--secondary-color); border-color: var(--secondary-color);" id="customizeBtn">
+                <button class="btn btn-sm ms-2" style="background-color: var(--secondary-color); border-color: var(--secondary-color); color:white;" id="customizeBtn">
                     <i class="fas fa-edit me-1"></i> <span data-translate="customize">Personnaliser</span>
                 </button>
-                <button class="btn btn-sm btn-success ms-2" id="saveLocalBtn"> <!-- Couleur verte pour sauvegarder -->
+                <button class="btn btn-sm text-white ms-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;" id="saveLocalBtn"> <!-- Couleur verte pour sauvegarder -->
                     <i class="fas fa-save me-1"></i> <span data-translate="save">Sauvegarder</span>
                 </button>
                 <div class="dropdown d-inline-block ms-2">
-                    <button class="btn btn-sm btn-info dropdown-toggle" type="button" id="loadSavedBtn" data-bs-toggle="dropdown" aria-expanded="false"> <!-- Couleur bleue pour charger -->
+                    <button class="btn btn-sm text-white dropdown-toggle" type="button" id="loadSavedBtn" data-bs-toggle="dropdown" aria-expanded="false" style="background:linear-gradient(135deg,#1EA38B,#0d7a63);border:none;"> <!-- Couleur bleue pour charger -->
                         <i class="fas fa-folder-open me-1"></i> <span data-translate="load">Charger</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" id="savedCertificatesList">

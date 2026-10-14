@@ -137,7 +137,7 @@
                     <h5 class="card-title">Développement de Jeux Vidéo</h5>
                     <p class="card-text">Apprenez à créer des jeux en 2D et 3D avec Unity et Unreal Engine. Comprenez les bases du game design et de la programmation interactive.</p>
                     <p class="text-success"><strong>50$</strong> | Certificat inclus | <span class="text-danger">25h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -150,7 +150,7 @@
                     <h5 class="card-title">Marketing Digital</h5>
                     <p class="card-text">Découvrez les stratégies pour réussir dans le marketing en ligne, la gestion des réseaux sociaux, et l'optimisation SEO.</p>
                     <p class="text-success"><strong>40$</strong> | Certificat inclus | <span class="text-danger">20h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -163,7 +163,7 @@
                     <h5 class="card-title">Création de Contenu Vidéo</h5>
                     <p class="card-text">Apprenez à créer et éditer des vidéos engageantes pour YouTube, TikTok, et d'autres plateformes avec des outils comme Premiere Pro.</p>
                     <p class="text-success"><strong>45$</strong> | Certificat inclus | <span class="text-danger">18h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -198,7 +198,7 @@
                     <h5 class="card-title" style="font-size: 1.1rem; height: 50px; overflow: hidden;">{{ $cours[0] }}</h5>
                     <p class="card-text" style="font-size: 0.9rem; height: 60px; overflow: hidden;" title="{{ $cours[1] }}">{{ $cours[1] }}</p>
                     <p class="text-success" style="font-size: 1rem;"><strong>{{ $cours[3] }}</strong> | {{ $cours[4] }} | <span class="text-danger">{{ $cours[5] }}</span></p>
-                    <a href="#" class="btn btn-primary btn-hover mt-auto" style="font-size: 0.9rem;">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white mt-auto" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;font-size:0.9rem;">S'inscrire</a>
                 </div>
             </div>
         </div>

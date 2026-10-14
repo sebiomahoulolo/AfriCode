@@ -165,7 +165,7 @@
                                         </div>
                                     @endforeach
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                                <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                                     <i class="fas fa-plus me-1"></i> Ajouter une réponse
                                 </button>
                             </div>
@@ -181,7 +181,7 @@
                 <div class="d-flex justify-content-between mt-4">
                     <div>
                         <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-secondary me-2">Annuler</a>
-                        <button type="submit" class="btn btn-primary">Mettre à jour l'examen final</button>
+                        <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Mettre à jour l'examen final</button>
                     </div>
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteFinalExamModal">
                         <i class="fas fa-trash-alt"></i> Supprimer l'examen final
@@ -305,7 +305,7 @@
                     <div class="answers-container">
                         <!-- Answers will be added here -->
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                    <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-plus me-1"></i> Ajouter une réponse
                     </button>
                 </div>

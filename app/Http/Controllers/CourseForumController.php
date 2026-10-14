@@ -193,7 +193,29 @@ class CourseForumController extends Controller
         if ($cat = $request->input('category')) {
             $query->where('course_id', $cat);
         }
-        $forums = $query->orderByDesc('created_at')->paginate(10);
+        
+        // Gestion du tri
+        $sort = $request->input('sort', 'recent');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'replies':
+                $query->withCount('posts as replies_count')->orderByDesc('replies_count');
+                break;
+            case 'views':
+                $query->orderByDesc('views');
+                break;
+            case 'title':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'recent':
+            default:
+                $query->orderByDesc('created_at');
+                break;
+        }
+        
+        $forums = $query->paginate(10);
         $data = $forums->map(function($forum) {
             $lastPost = $forum->posts()->latest()->first();
             return [

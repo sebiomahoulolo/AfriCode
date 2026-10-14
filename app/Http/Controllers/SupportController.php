@@ -54,7 +54,7 @@ class SupportController extends Controller
     {
         $this->authorize('view', $ticket);
         
-        $ticket->load(['replies.user', 'attachments']);
+        $ticket->load(['replies.user']);
         return view('support.tickets.show', compact('ticket'));
     }
 
@@ -132,11 +132,9 @@ class SupportController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // Administration du support
+    // Administration du support (accès réservé aux admins via middleware admin sur la route)
     public function adminTickets()
     {
-        $this->authorize('manageSupport', Auth::user());
-
         $tickets = SupportTicket::with(['user', 'assignedTo', 'replies'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -146,8 +144,6 @@ class SupportController extends Controller
 
     public function assignTicket(Request $request, SupportTicket $ticket)
     {
-        $this->authorize('manageSupport', Auth::user());
-
         $validated = $request->validate([
             'assigned_to' => 'required|exists:users,id'
         ]);
@@ -162,8 +158,6 @@ class SupportController extends Controller
 
     public function updateTicketStatus(Request $request, SupportTicket $ticket)
     {
-        $this->authorize('manageSupport', Auth::user());
-
         $validated = $request->validate([
             'status' => 'required|in:open,in_progress,resolved,closed'
         ]);

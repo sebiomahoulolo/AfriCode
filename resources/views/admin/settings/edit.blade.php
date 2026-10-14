@@ -139,7 +139,7 @@
                             
                             <div class="admin-form-group">
                                 <label for="facebook_url" class="admin-form-label">
-                                    <i class="fab fa-facebook me-2 text-primary"></i>Facebook
+                                    <i class="fab fa-facebook me-2" style="color:#1EA38B;"></i>Facebook
                                 </label>
                                 <input type="url" class="admin-form-input @error('facebook_url') error @enderror" id="facebook_url" name="facebook_url" value="{{ old('facebook_url', $settings['facebook_url']) }}">
                                 @error('facebook_url')
@@ -169,7 +169,7 @@
                             
                             <div class="admin-form-group">
                                 <label for="linkedin_url" class="admin-form-label">
-                                    <i class="fab fa-linkedin me-2 text-primary"></i>LinkedIn
+                                    <i class="fab fa-linkedin me-2" style="color:#1EA38B;"></i>LinkedIn
                                 </label>
                                 <input type="url" class="admin-form-input @error('linkedin_url') error @enderror" id="linkedin_url" name="linkedin_url" value="{{ old('linkedin_url', $settings['linkedin_url']) }}">
                                 @error('linkedin_url')
@@ -219,7 +219,13 @@
                                     
                                     <div class="admin-form-group">
                                         <label for="stripe_secret" class="admin-form-label">Clé secrète Stripe</label>
-                                        <input type="password" class="admin-form-input" id="stripe_secret" name="stripe_secret" value="{{ old('stripe_secret', $settings['stripe_secret'] ?? '') }}">
+                                        <div style="position:relative;">
+                                            <input type="password" class="admin-form-input" id="stripe_secret" name="stripe_secret" value="{{ old('stripe_secret', $settings['stripe_secret'] ?? '') }}" style="padding-right:2.8rem;">
+                                            <button type="button" tabindex="-1" onclick="togglePwd('stripe_secret','eye_stripe')"
+                                                    style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                                                <i class="fas fa-eye" id="eye_stripe"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -235,7 +241,13 @@
                                     
                                     <div class="admin-form-group">
                                         <label for="orange_money_api_key" class="admin-form-label">Clé API</label>
-                                        <input type="password" class="admin-form-input" id="orange_money_api_key" name="orange_money_api_key" value="{{ old('orange_money_api_key', $settings['orange_money_api_key'] ?? '') }}">
+                                        <div style="position:relative;">
+                                            <input type="password" class="admin-form-input" id="orange_money_api_key" name="orange_money_api_key" value="{{ old('orange_money_api_key', $settings['orange_money_api_key'] ?? '') }}" style="padding-right:2.8rem;">
+                                            <button type="button" tabindex="-1" onclick="togglePwd('orange_money_api_key','eye_orange')"
+                                                    style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                                                <i class="fas fa-eye" id="eye_orange"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -368,5 +380,12 @@ document.addEventListener('DOMContentLoaded', function() {
         paymentGatewaySelect.dispatchEvent(new Event('change'));
     }
 });
+
+function togglePwd(inputId, eyeId) {
+    const input = document.getElementById(inputId);
+    const eye   = document.getElementById(eyeId);
+    if (input.type === 'password') { input.type = 'text'; eye.classList.replace('fa-eye','fa-eye-slash'); }
+    else { input.type = 'password'; eye.classList.replace('fa-eye-slash','fa-eye'); }
+}
 </script>
 @endpush

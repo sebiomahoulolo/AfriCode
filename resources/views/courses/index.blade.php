@@ -1,6 +1,6 @@
 @extends('layouts.layout')
 
-@section('title', __('messages.courses_index_title'))
+@section('title')
 
 @section('meta_tags')
     <meta name="description" content="Découvrez toutes les formations disponibles sur AfriCode. Apprenez la programmation, le développement web, mobile, l'IA et plus encore.">
@@ -50,6 +50,27 @@
             </div>
         </div>
     </section>
+
+
+    <!-- Message de succès de paiement -->
+    @if($paymentSuccessMessage)
+        <section class="py-4">
+            <div class="container">
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-gift text-success fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="alert-heading mb-1">Paiement confirmé !</h6>
+                            <p class="mb-0">{{ $paymentSuccessMessage }}</p>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    @endif
 
     <!-- Section de recherche et filtrage -->
     <section class="courses-filters py-4" id="filters-section" style="display: none;">
@@ -153,15 +174,31 @@
     <!-- Liste des cours dynamique -->
     <section class="courses-list py-5">
         <div class="container">
-            <!-- État de chargement -->
-            <div id="loading-state" class="text-center py-5">
-                <div class="organic-container loading-container mb-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Chargement...</span>
+            <!-- Skeleton Loader -->
+            <div id="loading-state">
+                <div class="row g-4">
+                    @for($i = 0; $i < 8; $i++)
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <div class="skeleton-card">
+                            <div class="sk sk-image"></div>
+                            <div class="sk-body">
+                                <div class="sk sk-line" style="width:55%"></div>
+                                <div class="sk sk-title"></div>
+                                <div class="sk sk-title" style="width:70%"></div>
+                                <div class="sk-row">
+                                    <div class="sk sk-avatar"></div>
+                                    <div class="sk sk-line" style="width:45%; flex:1"></div>
+                                </div>
+                                <div class="sk-row" style="padding-top:.75rem; border-top:1px solid #f0f0f0;">
+                                    <div class="sk sk-line" style="width:28%"></div>
+                                    <div class="sk sk-line" style="width:32%"></div>
+                                </div>
+                                <div class="sk sk-btn"></div>
+                            </div>
+                        </div>
                     </div>
+                    @endfor
                 </div>
-                <h4 class="section-title mb-3">Chargement des formations...</h4>
-                <p class="text-content">Veuillez patienter</p>
             </div>
 
             <!-- État vide -->
@@ -202,7 +239,7 @@
                 </div>
                 <div class="col-lg-4 text-center text-lg-end">
                     <div class="organic-container cta-container">
-                        <a href="#" class="modern-btn-secondary">
+                        <a href="{{ route('register') }}" class="modern-btn-secondary">
                             <i class="fas fa-chalkboard-teacher me-2"></i>
                             <span>Devenir instructeur</span>
                         </a>
@@ -220,7 +257,7 @@
 <style>
     /* Styles pour la page des cours unifiée */
     .courses-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
         color: white;
         position: relative;
         overflow: hidden;
@@ -268,17 +305,17 @@
     }
 
     .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        border-color: #1EA38B;
+        box-shadow: 0 0 0 0.2rem rgba(30, 163, 139, 0.25);
     }
 
     .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        border-color: #1EA38B;
+        box-shadow: 0 0 0 0.2rem rgba(30, 163, 139, 0.25);
     }
 
     .modern-btn-sm {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
         border: none;
         color: white;
         padding: 0.5rem 1rem;
@@ -293,8 +330,15 @@
 
     .modern-btn-sm:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 25px rgba(30, 163, 139, 0.3);
         color: white;
+    }
+
+    .card-full-link {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: 16px;
     }
 
     .course-card-modern {
@@ -547,22 +591,22 @@
     .page-link {
         border-radius: 8px;
         border: 1px solid #e9ecef;
-        color: #667eea;
+        color: #1EA38B;
         font-weight: 500;
         padding: 0.5rem 0.75rem;
         transition: all 0.3s ease;
     }
-    
+
     .page-link:hover {
-        background-color: #667eea;
-        border-color: #667eea;
+        background-color: #1EA38B;
+        border-color: #1EA38B;
         color: white;
         transform: translateY(-1px);
     }
-    
+
     .page-item.active .page-link {
-        background-color: #667eea;
-        border-color: #667eea;
+        background-color: #1EA38B;
+        border-color: #1EA38B;
         color: white;
     }
     
@@ -609,6 +653,7 @@
         }
     }
 </style>
+<!-- Système d'aspects marketing - Page des cours -->
 @endpush
 
 @push('scripts')
@@ -639,6 +684,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyFiltersBtn = document.getElementById('apply-filters');
     const resetFiltersBtn = document.getElementById('reset-filters');
     const clearAllFiltersBtn = document.getElementById('clear-all-filters');
+    
+    // Stocker les catégories avec leurs slugs pour le mapping
+    let categoriesMap = {};
 
     // Toggle des filtres
     toggleFiltersBtn.addEventListener('click', function() {
@@ -758,6 +806,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fonction pour afficher les cours
     function displayCourses(courses) {
+        // Vérifier l'état de la wishlist pour les utilisateurs connectés
+        const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+        if (isAuthenticated && courses.length > 0) {
+            const courseIds = courses.map(c => c.id).join(',');
+            fetch(`/courses/wishlist/check-batch?ids=${courseIds}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Mettre à jour les icônes des cours dans la wishlist
+                    data.wishlistItems.forEach(courseId => {
+                        const btn = document.querySelector(`.course-save[data-course-id="${courseId}"]`);
+                        if (btn) {
+                            const icon = btn.querySelector('i');
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            btn.title = 'Retirer des favoris';
+                        }
+                    });
+                })
+                .catch(error => console.error('Erreur vérification wishlist:', error));
+        }
         if (!courses || courses.length === 0) {
             showEmptyState();
             return;
@@ -765,6 +833,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         coursesGrid.innerHTML = courses.map(course => createCourseCard(course)).join('');
         showCoursesGrid();
+    }
+
+    // Fonction pour générer les initiales d'un nom
+    function getInitials(name) {
+        const parts = name.trim().split(' ');
+        const initials = parts.map(p => p[0].toUpperCase()).slice(0, 2).join('');
+        return initials;
     }
 
     // Fonction pour créer une carte de cours
@@ -797,7 +872,7 @@ document.addEventListener('DOMContentLoaded', function() {
             : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
 
         const priceHtml = course.price > 0 
-            ? `<span>${new Intl.NumberFormat('fr-FR').format(parseInt(course.price))} €</span>`
+            ? `<span>${new Intl.NumberFormat('fr-FR').format(parseInt(course.price))} FCFA</span>`
             : `<span>Gratuit</span>`;
 
         const freeBadge = course.price === 0 || course.price === '0' 
@@ -813,12 +888,19 @@ document.addEventListener('DOMContentLoaded', function() {
                </div>`
             : '';
 
-        // Générer un avatar d'instructeur aléatoire
-        const instructorAvatar = `https://randomuser.me/api/portraits/${Math.random() > 0.5 ? 'men' : 'women'}/${Math.floor(Math.random() * 50) + 1}.jpg`;
+        // Générer les initiales du formateur
+        const instructorName = course.formateur ? (course.formateur.first_name + ' ' + course.formateur.last_name) : 'Instructeur AfriCode';
+        const instructorInitials = getInitials(instructorName);
+
+        // Calculer la durée en heures (comme dans show.blade.php)
+        const totalMinutes = course.duration_minutes || 0;
+        const hours = totalMinutes > 0 ? Math.ceil(totalMinutes / 60) : 0;
+        const durationText = hours > 0 ? hours + 'h' : 'N/A';
 
         return `
             <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
-                <div class="course-card-enhanced">
+                <div class="course-card-enhanced" style="position: relative;">
+                    <a href="/courses/${course.slug}" class="card-full-link" aria-label="${course.title || 'Voir ce cours'}"></a>
                     <div class="course-image">
                         <img src="${imageUrl}" alt="${course.title}" class="img-fluid">
                         ${course.level ? `<div class="course-level-badge level-${course.level}">${levelText[course.level] || course.level}</div>` : ''}
@@ -831,36 +913,35 @@ document.addEventListener('DOMContentLoaded', function() {
                                 ${starsHtml}
                                 <span class="rating-value">${rating}</span>
                             </div>
-                            <span class="student-count">${studentsCount} étudiants</span>
                         </div>
-                        
+
                         <h4 class="course-title">${course.title || 'Titre du cours indisponible'}</h4>
-                        
+
                         <div class="course-instructor">
-                            <img src="${instructorAvatar}" alt="${course.formateur ? (course.formateur.first_name + ' ' + course.formateur.last_name) : 'Instructeur AfriCode'}" class="instructor-avatar">
-                            <span class="instructor-name">${course.formateur ? (course.formateur.first_name + ' ' + course.formateur.last_name) : 'Instructeur AfriCode'}</span>
+                            <div class="instructor-avatar initials-circle">${instructorInitials}</div>
+                            <span class="instructor-name">${instructorName}</span>
                         </div>
-                        
+
                         <div class="course-meta">
                             <div class="course-duration">
                                 <i class="far fa-clock"></i>
-                                <span>${Math.floor(Math.random() * 20) + 10}h</span>
+                                <span>${durationText}</span>
                             </div>
                             <div class="course-price ${course.price === 0 || course.price === '0' ? 'free' : ''}">
                                 <i class="fas fa-tag"></i>
                                 ${priceHtml}
                             </div>
                         </div>
-                        
-                        <div class="course-actions">
-                            <a href="/courses/${course.slug}" class="btn btn-primary btn-sm course-enroll">
+
+                        <div class="course-actions" style="position: relative; z-index: 2;">
+                            <a href="/courses/${course.slug}" class="btn btn-sm text-white course-enroll" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <i class="fas fa-play me-1"></i>
                                 ${course.price === 0 || course.price === '0' ? 'Commencer' : 'S\'inscrire'}
                             </a>
-                            <button class="course-save">
+                            <button class="course-save" style="position: relative; z-index: 2;" data-course-id="${course.id}" data-course-slug="${course.slug}" title="Ajouter aux favoris">
                                 <i class="far fa-heart"></i>
                             </button>
-                            <button class="course-share">
+                            <button class="course-share" style="position: relative; z-index: 2;" data-course-id="${course.id}" data-course-slug="${course.slug}" data-course-title="${course.title}" title="Partager">
                                 <i class="fas fa-share-alt"></i>
                             </button>
                         </div>
@@ -989,18 +1070,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.value = category.id;
                     option.textContent = category.name;
                     categoryFilter.appendChild(option);
+                    // Stocker le mapping slug -> id
+                    if (category.slug) {
+                        categoriesMap[category.slug] = category.id;
+                    }
                 });
             }
         } catch (error) {
             console.error('Erreur lors du chargement des catégories:', error);
             // Utiliser des catégories statiques en cas d'erreur
             const staticCategories = [
-                { id: 1, name: 'Développement Web' },
-                { id: 2, name: 'Développement Mobile' },
-                { id: 3, name: 'Intelligence Artificielle' },
-                { id: 4, name: 'Data Science' },
-                { id: 5, name: 'DevOps' },
-                { id: 6, name: 'Design' }
+                { id: 1, name: 'Développement Web', slug: 'developpement-web' },
+                { id: 2, name: 'Développement Mobile', slug: 'developpement-mobile' },
+                { id: 3, name: 'Intelligence Artificielle', slug: 'intelligence-artificielle' },
+                { id: 4, name: 'Data Science', slug: 'data-science' },
+                { id: 5, name: 'DevOps', slug: 'devops-et-cloud' },
+                { id: 6, name: 'Design', slug: 'design-ui-ux' }
             ];
 
             staticCategories.forEach(category => {
@@ -1008,6 +1093,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.value = category.id;
                 option.textContent = category.name;
                 categoryFilter.appendChild(option);
+                // Stocker le mapping slug -> id
+                if (category.slug) {
+                    categoriesMap[category.slug] = category.id;
+                }
             });
         }
     }
@@ -1029,7 +1118,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function applyUrlParams(filters) {
         if (filters.search) searchInput.value = filters.search;
-        if (filters.category) categoryFilter.value = filters.category;
+        if (filters.category) {
+            // Si c'est un slug (non numérique), trouver l'ID correspondant
+            if (isNaN(filters.category) && categoriesMap[filters.category]) {
+                categoryFilter.value = categoriesMap[filters.category];
+            } else {
+                // Sinon, c'est déjà un ID
+                categoryFilter.value = filters.category;
+            }
+        }
         if (filters.level) levelFilter.value = filters.level;
         if (filters.price) priceFilter.value = filters.price;
         if (filters.certification) certificationFilter.value = filters.certification;
@@ -1037,8 +1134,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialisation
-    function init() {
-        loadCategories();
+    async function init() {
+        await loadCategories();
         
         // Appliquer les paramètres URL s'ils existent
         const urlParams = getUrlParams();
@@ -1097,8 +1194,165 @@ document.addEventListener('DOMContentLoaded', function() {
             toastElement.remove();
         });
     }
+
+    // Gestionnaire pour les boutons favoris (wishlist)
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.course-save')) {
+            e.preventDefault();
+            const btn = e.target.closest('.course-save');
+            const courseId = btn.dataset.courseId;
+            const courseSlug = btn.dataset.courseSlug;
+            const icon = btn.querySelector('i');
+            
+            // Vérifier si l'utilisateur est connecté
+            const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+            
+            if (isAuthenticated) {
+                // Utilisateur connecté - utiliser l'API wishlist
+                fetch(`/courses/${courseId}/wishlist/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.isInWishlist) {
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            btn.title = 'Retirer des favoris';
+                        } else {
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            btn.title = 'Ajouter aux favoris';
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                });
+            } else {
+                // Utilisateur non connecté - rediriger vers la page de connexion
+                window.location.href = `{{ route('login') }}?redirect=/courses/${courseSlug}`;
+            }
+        }
+
+        // Gestionnaire pour les boutons partage
+        if (e.target.closest('.course-share')) {
+            e.preventDefault();
+            const btn = e.target.closest('.course-share');
+            const courseSlug = btn.dataset.courseSlug;
+            const courseTitle = btn.dataset.courseTitle;
+            const courseUrl = `${window.location.origin}/courses/${courseSlug}`;
+            const shareText = encodeURIComponent(`Découvrez ce cours : ${courseTitle}`);
+            const encodedUrl = encodeURIComponent(courseUrl);
+            
+            // Supprimer le menu existant s'il y en a un
+            const existingMenu = document.querySelector('.share-menu-popup');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Créer le menu de partage
+            const shareMenu = document.createElement('div');
+            shareMenu.className = 'share-menu-popup';
+            shareMenu.innerHTML = `
+                <div class="social-share-menu">
+                    <h5>Partager ce cours</h5>
+                    <div class="social-buttons">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}" target="_blank" class="social-btn facebook" title="Partager sur Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}" target="_blank" class="social-btn twitter" title="Partager sur Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}" target="_blank" class="social-btn linkedin" title="Partager sur LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://wa.me/?text=${shareText}%20${encodedUrl}" target="_blank" class="social-btn whatsapp" title="Partager sur WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-btn copy" title="Copier le lien" data-url="${courseUrl}">
+                            <i class="fas fa-link"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+            
+            // Positionner le menu près du bouton (responsive)
+            const rect = btn.getBoundingClientRect();
+            const isMobile = window.innerWidth <= 768;
+            
+            shareMenu.style.position = 'fixed';
+            shareMenu.style.zIndex = '10000';
+            
+            if (isMobile) {
+                // Sur mobile : centrer le menu en bas de l'écran
+                shareMenu.style.bottom = '20px';
+                shareMenu.style.left = '50%';
+                shareMenu.style.transform = 'translateX(-50%)';
+                shareMenu.style.right = '20px';
+                shareMenu.style.width = 'calc(100% - 40px)';
+                shareMenu.style.maxWidth = '400px';
+            } else {
+                // Sur desktop : positionner près du bouton
+                shareMenu.style.top = `${rect.bottom + 10}px`;
+                shareMenu.style.left = `${Math.max(20, rect.left - 100)}px`;
+                shareMenu.style.maxWidth = '320px';
+            }
+            
+            document.body.appendChild(shareMenu);
+            
+            // Fermer le menu si on clique ailleurs
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(event) {
+                    if (!shareMenu.contains(event.target) && !btn.contains(event.target)) {
+                        shareMenu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 100);
+            
+            // Gérer le clic sur "Copier le lien"
+            shareMenu.querySelector('.social-btn.copy').addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.dataset.url;
+                copyToClipboard(url);
+                shareMenu.remove();
+            });
+        }
+    });
+
+    // Fonction pour copier dans le presse-papiers
+    function copyToClipboard(text) {
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('success', 'Lien copié dans le presse-papiers !');
+            }).catch(() => {
+                prompt('Copiez ce lien pour partager:', text);
+            });
+        } else {
+            // Fallback pour les navigateurs plus anciens
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('success', 'Lien copié dans le presse-papiers !');
+            } catch (err) {
+                prompt('Copiez ce lien pour partager:', text);
+            }
+            document.body.removeChild(textarea);
+        }
+    }
 });
 </script>
+<!-- Système d'aspects marketing - Page des cours -->
 @endpush
 
 @push('styles')
@@ -1432,6 +1686,20 @@ document.addEventListener('DOMContentLoaded', function() {
         height: 32px;
         border-radius: 50%;
         object-fit: cover;
+    }
+
+    .instructor-avatar.initials-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #1EA38B;
+        color: #FF8E2A;
+        font-weight: bold;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
     }
 
     .instructor-name {
@@ -1784,6 +2052,20 @@ document.addEventListener('DOMContentLoaded', function() {
         object-fit: cover;
     }
 
+    .instructor-avatar.initials-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #1EA38B;
+        color: #FF8E2A;
+        font-weight: bold;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
     .instructor-name {
         font-size: 0.875rem;
         color: var(--africode-gray-dark);
@@ -1859,6 +2141,122 @@ document.addEventListener('DOMContentLoaded', function() {
         border-color: var(--africode-primary);
         color: var(--africode-primary);
         transform: scale(1.1);
+    }
+
+    /* Menu de partage popup */
+    .share-menu-popup {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        padding: 1.5rem;
+        min-width: 280px;
+        animation: fadeInUp 0.3s ease;
+    }
+
+    .social-share-menu h5 {
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        text-align: center;
+    }
+
+    .social-buttons {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .social-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+    }
+
+    .social-btn:hover {
+        transform: translateY(-3px) scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .social-btn.facebook {
+        background: #1877F2;
+    }
+
+    .social-btn.twitter {
+        background: #1DA1F2;
+    }
+
+    .social-btn.linkedin {
+        background: #0077B5;
+    }
+
+    .social-btn.whatsapp {
+        background: #25D366;
+    }
+
+    .social-btn.copy {
+        background: #6c757d;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive pour le menu de partage */
+    @media (max-width: 768px) {
+        .share-menu-popup {
+            width: calc(100% - 40px) !important;
+            max-width: 400px !important;
+            padding: 1.25rem;
+            bottom: 20px !important;
+            top: auto !important;
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%) !important;
+        }
+
+        .social-share-menu h5 {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .social-buttons {
+            gap: 0.5rem;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .share-menu-popup {
+            padding: 1rem;
+            bottom: 15px !important;
+        }
+
+        .social-btn {
+            width: 38px;
+            height: 38px;
+            font-size: 0.9rem;
+        }
     }
 
     .btn-outline {
@@ -1958,22 +2356,22 @@ document.addEventListener('DOMContentLoaded', function() {
     .page-link {
         border-radius: 8px;
         border: 1px solid #e9ecef;
-        color: #667eea;
+        color: #1EA38B;
         font-weight: 500;
         padding: 0.5rem 0.75rem;
         transition: all 0.3s ease;
     }
-    
+
     .page-link:hover {
-        background-color: #667eea;
-        border-color: #667eea;
+        background-color: #1EA38B;
+        border-color: #1EA38B;
         color: white;
         transform: translateY(-1px);
     }
-    
+
     .page-item.active .page-link {
-        background-color: #667eea;
-        border-color: #667eea;
+        background-color: #1EA38B;
+        border-color: #1EA38B;
         color: white;
     }
     
@@ -2020,4 +2418,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 </style>
+<!-- Système d'aspects marketing - Page des cours -->
 @endpush

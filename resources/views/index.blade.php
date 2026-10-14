@@ -14,7 +14,8 @@
     <meta property="og:title" content="AfriCode - Façonnez l'avenir numérique de l'Afrique">
     <meta property="og:description" content="AfriCode est un programme de formation professionnelle qui façonne la main-d'œuvre de demain. Depuis 2024, nous avons pour mission de démocratiser l'accès à l'éducation technologique en Afrique.">
     <meta property="og:image" content="{{ asset('assets/images/africode-og-image.jpg') }}">
-
+<meta name="facebook-domain-verification" content="u57iy063pazf4alikzjmppuwkxtqhz" />
+    {{-- Pixels gérés par layouts.layout (x-tracking-pixels) --}}
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url('/') }}">
@@ -55,11 +56,11 @@
                             Transformez votre passion tech en <span class="text-highlight">carrière d'exception</span>
                         </h1>
                         <p class="hero-subtitle">
-                            Rejoignez la révolution numérique africaine ! Formations certifiantes en cybersécurité, 
-                            développement, IA et data science. Plus de 96% de nos diplômés trouvent un emploi dans les 6 mois.
+                            Rejoignez la révolution numérique africaine ! Formations certifiantes en cybersécurité,
+                            développement, IA et data science. 60+ professionnels africains déjà certifiés.
                         </p>
                         <div class="hero-actions">
-                            <a href="{{ route('register') }}" class="btn btn-primary btn-hero w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Démarrer ma formation sur AfriCode">
+                            <a href="{{ route('register') }}" class="btn text-white btn-hero w-full focus:outline-none" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;" aria-label="Démarrer ma formation sur AfriCode">
                                 <i class="fas fa-rocket me-2"></i>
                                 Démarrer ma formation
                             </a>
@@ -73,7 +74,7 @@
                             </div>
                             <div class="trust-item">
                                 <i class="fas fa-users"></i>
-                                <span>+50,000 diplômés</span>
+                                <span>60+ certifiés</span>
                             </div>
                             <div class="trust-item">
                                 <i class="fas fa-globe-africa"></i>
@@ -81,7 +82,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div><br><br><br>
                 <div class="col-lg-6">
                     <div class="hero-visual">
                         <!-- Composition asymétrique avec formes arrondies organiques (galets) -->
@@ -89,7 +90,7 @@
                             <!-- Image principale (haut gauche) - Femme en jaune, la plus grande -->
                             <div class="composition-item main-image">
                                 <div class="rounded-container organic-shape">
-                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" 
+                                    <img src="{{ asset('assets/images/pyton.webp') }}" 
                                          alt="Professionnelle tech AfriCode" class="img-fluid">
                                 </div>
                             </div>
@@ -105,10 +106,11 @@
                             <!-- Image bas droite - Homme avec casque et enfant -->
                             <div class="composition-item bottom-right-image">
                                 <div class="rounded-container organic-shape">
-                                    <img src="https://images.unsplash.com/photo-1609902726285-00668009f004?w=350&h=280&fit=crop&crop=faces" 
+                                    <img src="{{ asset('assets/images/Africode19.webp') }}" 
                                          alt="Homme avec casque et jeune fille, télétravail en famille" class="img-fluid">
                                 </div>
                             </div>
+                            
                             
                             <!-- Éléments graphiques décoratifs -->
                             <div class="decorative-elements">
@@ -183,7 +185,7 @@
                             <div class="stat-icon">
                                 <i class="fas fa-users"></i>
                             </div>
-                            <h3 class="stat-number">50K+</h3>
+                            <h3 class="stat-number">200+</h3>
                             <p class="stat-label">Étudiants formés</p>
                         </div>
                     </div>
@@ -192,8 +194,8 @@
                             <div class="stat-icon">
                                 <i class="fas fa-chalkboard-teacher"></i>
                             </div>
-                            <h3 class="stat-number">500+</h3>
-                            <p class="stat-label">Experts formateurs</p>
+                            <h3 class="stat-number">50+</h3>
+                            <p class="stat-label">Formateurs disponibles</p>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-4 col-6">
@@ -201,7 +203,7 @@
                             <div class="stat-icon">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <h3 class="stat-number">200+</h3>
+                            <h3 class="stat-number">12+</h3>
                             <p class="stat-label">Entreprises partenaires</p>
                         </div>
                     </div>
@@ -217,10 +219,10 @@
                     <div class="col-lg-3 col-md-8 col-12">
                         <div class="stat-item stat-highlight">
                             <div class="stat-icon highlight">
-                                <i class="fas fa-trophy"></i>
+                                <i class="fas fa-certificate"></i>
                             </div>
-                            <h3 class="stat-number">96%</h3>
-                            <p class="stat-label">de nos diplômés trouvent un emploi dans les 6 mois</p>
+                            <h3 class="stat-number">60+</h3>
+                            <p class="stat-label">Professionnels certifiés</p>
                         </div>
                     </div>
                 </div>
@@ -238,10 +240,10 @@
                         <i class="fas fa-quote-left"></i>
                     </div>
                     <blockquote class="quote-text">
-                        Plus de <span class="highlight-underline">50,000 professionnels africains</span> ont transformé leur carrière grâce à nos formations certifiantes.
+                        Plus de <span class="highlight-underline">60 professionnels africains</span> ont transformé leur carrière grâce à nos formations certifiantes.
                     </blockquote>
                     <div class="quote-author">
-                        <span>— Étude d'impact AfriCode 2024</span>
+                        <span>— Étude d'impact AfriCode 2026</span>
                     </div>
                 </div>
             </div>
@@ -257,64 +259,68 @@
                     @php
                         $domains = [
                             [
-                                'icon' => 'fas fa-shield-alt', 
+                                
                                 'title' => 'Cybersécurité', 
+                                'image' => asset('assets/images/cyber.webp'), 
                                 'description' => 'Protégez l\'infrastructure numérique africaine',
                                 'courses' => '12 formations',
                                 'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 'category' => 'cybersecurity'
                             ],
-                            [
-                                'icon' => 'fas fa-code', 
+                            [                                
                                 'title' => 'Développement Web', 
+                                'image' => asset('assets/images/web.webp'), 
                                 'description' => 'Créez des applications web modernes',
                                 'courses' => '18 formations',
                                 'gradient' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                                 'category' => 'web-development'
                             ],
                             [
-                                'icon' => 'fas fa-brain', 
                                 'title' => 'Intelligence Artificielle', 
+                                'image' => asset('assets/images/ai.webp'), 
                                 'description' => 'Maîtrisez l\'IA et le Machine Learning',
                                 'courses' => '15 formations',
                                 'gradient' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                 'category' => 'artificial-intelligence'
                             ],
                             [
-                                'icon' => 'fas fa-mobile-alt', 
                                 'title' => 'Développement Mobile', 
+                                'image' => asset('assets/images/mobile.webp'), 
                                 'description' => 'Développez des apps iOS et Android',
                                 'courses' => '10 formations',
                                 'gradient' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
                                 'category' => 'mobile-development'
                             ],
                             [
-                                'icon' => 'fas fa-chart-line', 
-                                'title' => 'Data Science', 
+                               
+                                'title' => 'Data Science',
+                                'image' => asset('assets/images/data.webp'),  
                                 'description' => 'Analysez et visualisez les données',
                                 'courses' => '14 formations',
                                 'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
                                 'category' => 'data-science'
                             ],
                             [
-                                'icon' => 'fas fa-cloud', 
-                                'title' => 'Cloud Computing', 
+                                'title' => 'Cloud Computing',
+                                'image' => asset('assets/images/cloud.webp'), 
                                 'description' => 'Maîtrisez AWS, Azure et GCP',
                                 'courses' => '8 formations',
                                 'gradient' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
                                 'category' => 'cloud-computing'
                             ],
                             [
-                                'icon' => 'fas fa-database', 
+                                 
                                 'title' => 'Base de données', 
+                                'image' => asset('assets/images/bdd.webp'), 
                                 'description' => 'Gérez efficacement vos données',
                                 'courses' => '9 formations',
                                 'gradient' => 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
                                 'category' => 'database'
                             ],
                             [
-                                'icon' => 'fas fa-cogs', 
+                                
                                 'title' => 'DevOps', 
+                                'image' => asset('assets/images/devops.webp'), 
                                 'description' => 'Automatisez et optimisez vos déploiements',
                                 'courses' => '11 formations',
                                 'gradient' => 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
@@ -323,31 +329,50 @@
                         ];
                     @endphp
 
+                    @php
+                        $categoryUrls = [
+                            'cybersecurity'          => '/cours?category=cybersecurity',
+                            'web-development'        => '/cours?category=web-development',
+                            'artificial-intelligence'=> '/cours?category=artificial-intelligence',
+                            'mobile-development'     => '/cours?category=mobile-development',
+                            'data-science'           => '/cours?category=data-science',
+                            'cloud-computing'        => '/cours?category=devops-et-cloud',
+                            'database'               => '/cours?category=base-de-donnees',
+                            'devops'                 => '/cours?category=devops-et-cloud',
+                        ];
+                    @endphp
                     @foreach($domains as $domain)
                     <div class="col-lg-3 col-md-4 col-sm-6">
-                        <div class="domain-card" data-category="{{ $domain['category'] }}">
+                        <a href="{{ $categoryUrls[$domain['category']] ?? '/cours' }}"
+                           class="domain-card d-block text-decoration-none"
+                           style="color: inherit;"
+                           data-category="{{ $domain['category'] }}">
                             <div class="domain-background" style="background: {{ $domain['gradient'] }}"></div>
                             <div class="domain-content">
-                                <div class="domain-icon">
-                                    <i class="{{ $domain['icon'] }}"></i>
-                                </div>
+                                @if(isset($domain['image']))
+            <div class="domain-image mb-3">
+                <img src="{{ $domain['image'] }}" alt="{{ $domain['title'] }}" class="img-fluid rounded">
+            </div>
+
+        @endif
                                 <h4 class="domain-title">{{ $domain['title'] }}</h4>
                                 <p class="domain-description">{{ $domain['description'] }}</p>
                                 <div class="domain-meta">
                                     <span class="course-count">{{ $domain['courses'] }}</span>
-                                </div>
-                                <div class="domain-action">
+                                    <div style="color: #1EA38B;">
                                     <span>Explorer →</span>
                                 </div>
+                                </div>
+
                             </div>
-                        </div>
+                        </a>
                     </div>
                     @endforeach
                 </div>
             </div>
             
             <div class="text-center mt-5">
-                <a href="/cours" class="btn btn-primary btn-lg">
+                <a href="/cours" class="btn text-white btn-lg" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                     <i class="fas fa-graduation-cap me-2"></i>
                     Découvrir toutes nos formations
                 </a>
@@ -371,92 +396,21 @@
                 </button>
                 
                 <div class="courses-carousel" id="coursesCarousel">
-                    @php
-                        $courses = [
-                            [
-                                'title' => 'Cybersécurité Éthique & Pentesting',
-                                'duration' => '120 heures',
-                                'level' => 'INTERMÉDIAIRE',
-                                'image' => 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=250&fit=crop',
-                                'price' => '299,000 FCFA',
-                                'free' => false,
-                                'certified' => true,
-                                'instructor' => 'Dr. Kofi Asante',
-                                'instructor_image' => 'https://randomuser.me/api/portraits/men/32.jpg',
-                                'rating' => 4.9,
-                                'students' => 2450
-                            ],
-                            [
-                                'title' => 'Développement Full Stack JavaScript',
-                                'duration' => '160 heures',
-                                'level' => 'DÉBUTANT',
-                                'image' => 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop',
-                                'price' => 'Gratuit',
-                                'free' => true,
-                                'certified' => true,
-                                'instructor' => 'Aminata Traoré',
-                                'instructor_image' => 'https://randomuser.me/api/portraits/women/44.jpg',
-                                'rating' => 4.8,
-                                'students' => 5200
-                            ],
-                            [
-                                'title' => 'Data Science avec Python & IA',
-                                'duration' => '200 heures',
-                                'level' => 'AVANCÉ',
-                                'image' => 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=400&h=250&fit=crop',
-                                'price' => '399,000 FCFA',
-                                'free' => false,
-                                'certified' => true,
-                                'instructor' => 'Prof. Ébène Kouassi',
-                                'instructor_image' => 'https://randomuser.me/api/portraits/women/68.jpg',
-                                'rating' => 5.0,
-                                'students' => 1850
-                            ],
-                            [
-                                'title' => 'Développement Mobile Flutter',
-                                'duration' => '100 heures',
-                                'level' => 'INTERMÉDIAIRE',
-                                'image' => 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?w=400&h=250&fit=crop',
-                                'price' => '199,000 FCFA',
-                                'free' => false,
-                                'certified' => true,
-                                'instructor' => 'Ibrahim Diallo',
-                                'instructor_image' => 'https://randomuser.me/api/portraits/men/45.jpg',
-                                'rating' => 4.7,
-                                'students' => 3100
-                            ],
-                            [
-                                'title' => 'Cloud Computing avec AWS',
-                                'duration' => '80 heures',
-                                'level' => 'INTERMÉDIAIRE',
-                                'image' => 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop',
-                                'price' => '249,000 FCFA',
-                                'free' => false,
-                                'certified' => true,
-                                'instructor' => 'Sarah Kaba',
-                                'instructor_image' => 'https://randomuser.me/api/portraits/women/32.jpg',
-                                'rating' => 4.9,
-                                'students' => 1650
-                            ]
-                        ];
-                    @endphp
-
-                    @foreach($courses as $course)
-                    <div class="course-card-enhanced">
+                    @if(isset($popularCourses) && $popularCourses->count() > 0)
+                        @foreach($popularCourses as $course)
+                    <div class="course-card-enhanced" style="position: relative;">
+                        <a href="{{ route('courses.show', $course['slug'] ?? '#') }}" class="card-full-link" aria-label="{{ $course['title'] ?? 'Voir ce cours' }}"></a>
                         <div class="course-image">
-                            <img src="{{ $course['image'] }}" alt="{{ $course['title'] }}" class="img-fluid">
-                            <div class="course-level-badge level-{{ strtolower($course['level']) }}">
-                                {{ $course['level'] }}
-                            </div>
-                            @if($course['free'])
-                                <div class="free-badge">
-                                    <i class="fas fa-gift"></i>
-                                    <span>Gratuit</span>
-                                </div>
+                            <img src="{{ asset($course['img'] ?? 'assets/images/default-course.jpg') }}" alt="{{ $course['title'] ?? 'Cours' }}" class="img-fluid">
+                            @if(($course['discount_percentage'] ?? 0) > 0)
+                                <div class="course-discount-badge">-{{ $course['discount_percentage'] }}%</div>
                             @endif
-                            @if($course['certified'])
+                            <div  style="background: #FF8E2A;" class="course-level-badge level-{{ strtolower(str_replace('É', 'e', $course['level'] ?? 'intermédiaire')) }}">
+                                {{ $course['level'] ?? 'INTERMÉDIAIRE' }}
+                            </div>
+                            @if($course['is_certifying'] ?? false)
                                 <div class="certified-badge">
-                                    <i class="fas fa-certificate"></i>
+                                    <i class="fas fa-certificate"></i>Certified
                                 </div>
                             @endif
                         </div>
@@ -464,46 +418,74 @@
                             <div class="course-rating">
                                 <div class="stars">
                                     @for($i = 1; $i <= 5; $i++)
-                                        <i class="fas fa-star{{ $i <= $course['rating'] ? '' : ' opacity-25' }}"></i>
+                                        <i class="fas fa-star{{ $i <= ($course['rating'] ?? 0) ? '' : ' opacity-25' }}"></i>
                                     @endfor
-                                    <span class="rating-value">{{ $course['rating'] }}</span>
+                                    <span class="rating-value">{{ $course['rating'] ?? 0 }}</span>
                                 </div>
-                                <span class="student-count">{{ number_format($course['students']) }} étudiants</span>
                             </div>
                             
-                            <h4 class="course-title">{{ $course['title'] }}</h4>
+                            <h4 class="course-title">{{ $course['title'] ?? 'Titre du cours' }}</h4>
                             
                             <div class="course-instructor">
-                                <img src="{{ $course['instructor_image'] }}" alt="{{ $course['instructor'] }}" class="instructor-avatar">
-                                <span class="instructor-name">{{ $course['instructor'] }}</span>
+                                @php
+                                    $instructorName = $course['instructor'] ?? 'Instructeur';
+                                    $initials = strtoupper(substr($instructorName, 0, 1) . substr(explode(' ', $instructorName)[1] ?? '', 0, 1));
+                                @endphp
+                                <div class="instructor-avatar initials-circle">{{ $initials }}</div>
+                                <span class="instructor-name">{{ $instructorName }}</span>
                             </div>
+<style>
+    .instructor-avatar.initials-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1EA38B;
+    color: #FF8E2A;
+    font-weight: bold;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>                            
                             
                             <div class="course-meta">
                                 <div class="course-duration">
                                     <i class="far fa-clock"></i>
-                                    <span>{{ $course['duration'] }}</span>
+                                    <span>{{ $course['duration'] ?? 'Non spécifié' }}</span>
                                 </div>
-                                <div class="course-price {{ $course['free'] ? 'free' : '' }}">
+                                <div class="course-price {{ ($course['price'] ?? 0) == 0 ? 'free' : '' }}">
                                     <i class="fas fa-tag"></i>
-                                    <span>{{ $course['price'] }}</span>
+                                    @if(($course['old_price'] ?? 0) > 0 && ($course['price'] ?? 0) < ($course['old_price'] ?? 0))
+                                        <span class="course-old-price">{{ number_format($course['old_price'], 0, ',', ' ') }} FCFA</span>
+                                        <span class="course-current-price">{{ number_format($course['price'], 0, ',', ' ') }} FCFA</span>
+                                    @else
+                                        <span>{{ ($course['price'] ?? 0) == 0 ? 'Gratuit' : number_format($course['price'] ?? 0, 0, ',', ' ') . ' FCFA' }}</span>
+                                    @endif
                                 </div>
                             </div>
                             
-                            <div class="course-actions">
-                                <button class="btn btn-primary btn-sm course-enroll">
+                            <div class="course-actions" style="position: relative; z-index: 2;">
+                                <a href="{{ route('courses.show', $course['slug'] ?? '#') }}" class="btn btn-sm text-white course-enroll" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                     <i class="fas fa-play me-1"></i>
-                                    {{ $course['free'] ? 'Commencer' : 'S\'inscrire' }}
-                                </button>
-                                <button class="course-save">
+                                    {{ ($course['price'] ?? 0) == 0 ? 'Commencer' : 'S\'inscrire' }}
+                                </a>
+                                <button class="course-save" style="position: relative; z-index: 2;">
                                     <i class="far fa-heart"></i>
                                 </button>
-                                <button class="course-share">
+                                <button class="course-share" style="position: relative; z-index: 2;">
                                     <i class="fas fa-share-alt"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    @endforeach
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <p class="text-muted">Aucun cours disponible pour le moment. ( Bientôt
+)</p>
+                        </div>
+                    @endif
                 </div>
                 
                 <button class="carousel-btn carousel-next" id="coursesCarouselNext">
@@ -512,7 +494,7 @@
             </div>
             
             <div class="text-center mt-5">
-                <a href="/cours" class="btn btn-primary btn-lg">
+                <a href="/cours" class="btn text-white btn-lg" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                     <i class="fas fa-graduation-cap me-2"></i>
                     Découvrir toutes nos formations
                 </a>
@@ -537,8 +519,8 @@
                                     <i class="fas fa-briefcase"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number-cert">96%</h3>
-                                    <p class="stat-desc">de nos certifiés trouvent un emploi dans les 6 mois</p>
+                                    <h3 class="stat-number-cert">60+</h3>
+                                    <p class="stat-desc">professionnels certifiés AfriCode</p>
                                 </div>
                             </div>
                             <div class="stat-item-cert">
@@ -546,7 +528,7 @@
                                     <i class="fas fa-chart-line"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number-cert">45%</h3>
+                                    <h3 class="stat-number-cert">25%</h3>
                                     <p class="stat-desc">d'augmentation salariale moyenne après certification</p>
                                 </div>
                             </div>
@@ -555,13 +537,13 @@
                                     <i class="fas fa-rocket"></i>
                                 </div>
                                 <div class="stat-content">
-                                    <h3 class="stat-number-cert">89%</h3>
+                                    <h3 class="stat-number-cert">45%</h3>
                                     <p class="stat-desc">obtiennent une promotion dans l'année</p>
                                 </div>
                             </div>
                         </div>
                         
-                        <a href="{{ route('certificate.verification') }}" class="btn btn-success btn-lg mt-4">
+                        <a href="{{ route('certificate.verification') }}" class="btn text-white btn-lg mt-4" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                             <i class="fas fa-award me-2"></i>
                             Découvrir nos certifications
                         </a>
@@ -606,7 +588,7 @@
         <div class="container">
             <div class="section-header text-center mb-5">
                 <h2 class="section-title">Ils ont transformé leur carrière avec AfriCode</h2>
-                <p class="section-subtitle">Découvrez les parcours inspirants de nos diplômés</p>
+                <p class="section-subtitle">Découvrez les parcours inspirants de nos certifiés</p>
             </div>
             
             <div class="testimonials-carousel-container">
@@ -764,8 +746,8 @@
                                 Votre transformation numérique commence <span class="highlight-text">aujourd'hui</span>
                             </h2>
                             <p class="final-cta-subtitle">
-                                Plus de 50,000 professionnels nous font confiance. 
-                                Rejoignez la communauté tech la plus dynamique d'Afrique et 
+                                Plus de 200 apprenants nous font confiance.
+                                Rejoignez la communauté tech la plus dynamique d'Afrique et
                                 transformez votre passion en expertise reconnue.
                             </p>
                             
@@ -784,43 +766,40 @@
                                 </div>
                                 <div class="feature-item">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>Placement garanti</span>
+                                    <span>Accès à vie aux ressources</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="cta-actions-enhanced">
-                            <a href="{{ route('register') }}" class="btn btn-primary btn-xl cta-main-btn">
+                            <a href="{{ route('register') }}" class="btn text-white btn-xl cta-main-btn" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <div class="btn-content">
-                                    <i class="fas fa-rocket"></i>
+                                    <i class="fas fa-user-plus"></i>
                                     <div class="btn-text">
-                                        <span class="main-text">Commencer ma formation</span>
-                                        <span class="sub-text">Inscription gratuite</span>
+                                        <span class="main-text">Créer mon compte</span>
+                                        <span class="sub-text">Gratuit — 2 minutes</span>
                                     </div>
                                 </div>
                             </a>
-                            
+
                             <div class="cta-alternative">
-                                <p>Ou découvrez nos programmes</p>
-                                <a href="/cours" class="btn btn-outline-light btn-lg">
-                                    <i class="fas fa-graduation-cap me-2"></i>
-                                    Parcourir les formations
+                                <p>Pas encore convaincu ?</p>
+                                <a href="{{ route('courses.index') }}" class="btn btn-outline-light btn-lg">
+                                    <i class="fas fa-search me-2"></i>
+                                    Explorer le catalogue
                                 </a>
                             </div>
                             
                             <div class="trust-indicators">
                                 <div class="trust-item">
-                                    <div class="trust-number">4.9/5</div>
+                                    <div class="trust-number">4.5/5</div>
                                     <div class="trust-label">Satisfaction</div>
                                 </div>
+                            
                                 <div class="trust-item">
-                                    <div class="trust-number">96%</div>
-                                    <div class="trust-label">Emploi garanti</div>
-                                </div>
-                                <div class="trust-item">
-                                    <div class="trust-number">50K+</div>
-                                    <div class="trust-label">Diplômés</div>
+                                    <div class="trust-number">60+</div>
+                                    <div class="trust-label">Certifiés</div>
                                 </div>
                             </div>
                         </div>
@@ -829,23 +808,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Bannière de cookies -->
-    <div class="cookie-banner" id="cookieBanner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <p>Nous utilisons des cookies pour améliorer votre expérience sur notre site. En continuant, vous acceptez notre utilisation des cookies.</p>
-            </div>
-            <div class="cookie-actions">
-                <a href="{{ route('confidentialite') }}" class="cookie-link">Déclaration de confidentialité</a>
-                <a href="{{ route('parametres.cookies') }}" class="cookie-settings">Modifier les paramètres</a>
-                <button class="cookie-accept">Accepter</button>
-                <button class="cookie-close" aria-label="Fermer">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    </div>
 
 @endsection
 
@@ -882,9 +844,9 @@
 
     /* Hero Section Amélioré */
     .hero-main {
-        background: linear-gradient(135deg, 
-            rgba(30, 163, 139, 0.08) 0%, 
-            rgba(255, 142, 42, 0.05) 50%, 
+        background: linear-gradient(135deg,
+            rgba(30, 163, 139, 0.08) 0%,
+            rgba(255, 142, 42, 0.05) 50%,
             rgba(39, 179, 113, 0.08) 100%);
         padding: 120px 0 80px;
         position: relative;
@@ -1709,25 +1671,33 @@
         right: -25px;
     }
 
+    .card-full-link {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: 20px;
+    }
+
     .course-card-enhanced {
         background: var(--africode-white);
         border-radius: 20px;
         overflow: hidden;
         min-width: 320px;
-        box-shadow: var(--africode-shadow-md);
+        box-shadow: var(--africode-shadow-lg);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         border: 1px solid var(--africode-gray-medium);
     }
 
     .course-card-enhanced:hover {
         transform: translateY(-10px);
-        box-shadow: var(--africode-shadow-lg);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
 
     .course-image {
         position: relative;
         height: 200px;
         overflow: hidden;
+        
     }
 
     .course-image img {
@@ -1739,6 +1709,19 @@
 
     .course-card-enhanced:hover .course-image img {
         transform: scale(1.1);
+    }
+
+    .course-discount-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: var(--africode-secondary);
+        color: white;
+        padding: 0.4rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        z-index: 2;
     }
 
     .course-level-badge {
@@ -1795,6 +1778,18 @@
         align-items: center;
         justify-content: center;
         font-size: 1.2rem;
+    }
+
+    .course-old-price {
+        text-decoration: line-through;
+        color: var(--africode-gray-medium);
+        font-size: 0.9rem;
+        margin-right: 0.5rem;
+    }
+
+    .course-current-price {
+        font-weight: 700;
+        color: var(--africode-primary);
     }
 
     .course-content {
@@ -2459,93 +2454,6 @@
         opacity: 0.8;
     }
 
-    /* Bannière de cookies */
-    .cookie-banner {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--africode-white);
-        box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        transform: translateY(100%);
-        transition: transform 0.3s ease;
-        border-top: 3px solid var(--africode-primary);
-    }
-
-    .cookie-banner.show {
-        transform: translateY(0);
-    }
-
-    .cookie-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 2rem;
-        gap: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .cookie-text p {
-        margin: 0;
-        color: var(--africode-dark-text);
-        font-size: 0.9rem;
-    }
-
-    .cookie-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .cookie-link {
-        color: var(--africode-primary);
-        text-decoration: none;
-        font-size: 0.875rem;
-    }
-
-    .cookie-settings,
-    .cookie-accept {
-        background: var(--africode-primary);
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.875rem;
-        transition: var(--africode-transition);
-    }
-
-    .cookie-settings {
-        background: transparent;
-        color: var(--africode-primary);
-        border: 1px solid var(--africode-primary);
-    }
-
-    .cookie-settings:hover {
-        background: var(--africode-primary);
-        color: white;
-    }
-
-    .cookie-accept:hover {
-        background: var(--africode-highlight-green);
-    }
-
-    .cookie-close {
-        background: none;
-        border: none;
-        color: var(--africode-gray-dark);
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: var(--africode-transition);
-    }
-
-    .cookie-close:hover {
-        background: var(--africode-gray-light);
-        color: var(--africode-primary);
-    }
 </style>
 @endpush
 
@@ -2645,32 +2553,6 @@
             academyNameInput.addEventListener('input', toggleSearchButton);
         }
 
-        // Bannière de cookies
-        const cookieBanner = document.getElementById('cookieBanner');
-        const cookieAccept = document.querySelector('.cookie-accept');
-        const cookieClose = document.querySelector('.cookie-close');
-        
-        // Afficher la bannière après 3 secondes si pas de cookie
-        if (cookieBanner && !localStorage.getItem('cookiesAccepted')) {
-            setTimeout(() => {
-                cookieBanner.classList.add('show');
-            }, 3000);
-        }
-        
-        function hideCookieBanner() {
-            if (cookieBanner) {
-                cookieBanner.classList.remove('show');
-                localStorage.setItem('cookiesAccepted', 'true');
-            }
-        }
-        
-        if (cookieAccept) {
-            cookieAccept.addEventListener('click', hideCookieBanner);
-        }
-        if (cookieClose) {
-            cookieClose.addEventListener('click', hideCookieBanner);
-        }
-
         // Animation d'apparition progressive
         const animateOnScroll = () => {
             const elements = document.querySelectorAll('.domain-card, .course-card, .stat-item-cert');
@@ -2721,17 +2603,18 @@
             });
         }
 
-        // Gestion du clic sur les cartes de domaine
-        const domainCards = document.querySelectorAll('.domain-card');
-        domainCards.forEach(card => {
-            card.addEventListener('click', function() {
-                const category = this.getAttribute('data-category');
-                if (category) {
-                    // Redirection vers la page des cours avec filtrage par catégorie
-                    window.location.href = `/cours?category=${category}`;
-                }
-            });
-        });
+        // Mapping des slugs de domaines vers les slugs réels des catégories
+        const categorySlugMapping = {
+            'cybersecurity': 'cybersecurite',
+            'web-development': 'developpement-web',
+            'artificial-intelligence': 'intelligence-artificielle',
+            'mobile-development': 'developpement-mobile',
+            'data-science': 'data-science',
+            'cloud-computing': 'devops-et-cloud',
+            'database': 'base-de-donnees',
+            'devops': 'devops-et-cloud'
+        };
+
 
         // Carrousel des témoignages
         const testimonialsCarousel = document.getElementById('testimonialsCarousel');
@@ -2784,4 +2667,8 @@
         }
     });
 </script>
+
+<!-- Système d'aspects marketing -->
+<script src="{{ asset('js/marketing-automation.js') }}"></script>
+
 @endpush

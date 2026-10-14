@@ -141,7 +141,7 @@
                 </flux:menu>
             </flux:dropdown>
         </flux:header>
-<div class="avatar bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center">
+<div class="avatar text-white rounded-full w-10 h-10 flex items-center justify-center" style="background:#1EA38B;">
     @if($user && $user->profile_photo_path)
         <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="{{ $user->name }}" class="rounded-full w-10 h-10">
     @else

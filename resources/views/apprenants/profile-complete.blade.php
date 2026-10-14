@@ -729,31 +729,52 @@
                 
                 <div class="form-group">
                     <label for="current_password" class="form-label-modern">Mot de passe actuel</label>
-                    <input type="password" id="current_password" name="current_password" 
-                           class="form-control-modern @error('current_password') is-invalid @enderror">
+                    <div style="position:relative;">
+                        <input type="password" id="current_password" name="current_password"
+                               class="form-control-modern @error('current_password') is-invalid @enderror"
+                               style="padding-right:2.8rem;">
+                        <button type="button" tabindex="-1" onclick="togglePwd('current_password','eye_cur')"
+                                style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                            <i class="fas fa-eye" id="eye_cur"></i>
+                        </button>
+                    </div>
                     <small class="text-muted">Laissez vide si vous ne souhaitez pas changer votre mot de passe</small>
                     @error('current_password')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="password" class="form-label-modern">Nouveau mot de passe</label>
-                            <input type="password" id="password" name="password" 
-                                   class="form-control-modern @error('password') is-invalid @enderror">
+                            <div style="position:relative;">
+                                <input type="password" id="password" name="password"
+                                       class="form-control-modern @error('password') is-invalid @enderror"
+                                       style="padding-right:2.8rem;">
+                                <button type="button" tabindex="-1" onclick="togglePwd('password','eye_new')"
+                                        style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                                    <i class="fas fa-eye" id="eye_new"></i>
+                                </button>
+                            </div>
                             @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
-                    
+
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="password_confirmation" class="form-label-modern">Confirmer mot de passe</label>
-                            <input type="password" id="password_confirmation" name="password_confirmation" 
-                                   class="form-control-modern">
+                            <div style="position:relative;">
+                                <input type="password" id="password_confirmation" name="password_confirmation"
+                                       class="form-control-modern"
+                                       style="padding-right:2.8rem;">
+                                <button type="button" tabindex="-1" onclick="togglePwd('password_confirmation','eye_conf')"
+                                        style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                                    <i class="fas fa-eye" id="eye_conf"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -894,7 +915,7 @@
                         <h6 class="mb-1">Dernière modification du mot de passe</h6>
                         <p class="mb-0 text-muted">{{ $user->updated_at->diffForHumans() }}</p>
                     </div>
-                    <span class="badge bg-success">
+                    <span class="badge" style="background:#27B371;">
                         <i class="fas fa-check"></i> Sécurisé
                     </span>
                 </div>
@@ -925,6 +946,18 @@
                 document.getElementById('profilePreview').src = e.target.result;
             }
             reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function togglePwd(inputId, eyeId) {
+        const input = document.getElementById(inputId);
+        const eye   = document.getElementById(eyeId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            eye.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            eye.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 

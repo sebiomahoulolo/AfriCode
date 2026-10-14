@@ -140,6 +140,25 @@
             margin-top: 0.25rem;
         }
     }
+    
+    /* Styles pour les boutons de modification */
+    .list-group-item .btn-sm {
+        min-width: 36px;
+    }
+    
+    .list-group-item .d-flex.gap-2 {
+        gap: 0.5rem !important;
+    }
+    
+    @media (max-width: 576px) {
+        .list-group-item .d-flex.align-items-center {
+            flex-wrap: wrap;
+        }
+        
+        .list-group-item .btn-sm {
+            margin-top: 0.25rem;
+        }
+    }
 </style>
 @endsection
 
@@ -173,12 +192,26 @@
                         @forelse($course->modules as $module)
                             <div class="list-group-item">
                                 <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <h6 class="mb-1">{{ $module->order }}. {{ $module->title }}</h6>
-                                    <small>{{ $module->lessons->count() }} leçon(s)</small>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ $module->order }}. {{ $module->title }}</h6>
+                                        @if($module->description)
+                                            <p class="mb-1 text-muted small">{{ Str::limit($module->description, 100) }}</p>
+                                        @endif
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-muted me-2">{{ $module->lessons->count() }} leçon(s)</small>
+                                        <a href="{{ route('formateur.modules.edit', ['moduleId' => $module->id]) }}"
+                                           class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;"
+                                           title="Modifier le module">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}"
+                                           class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;"
+                                           title="Gérer le module">
+                                            <i class="fas fa-cog"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                @if($module->description)
-                                    <p class="mb-1 text-muted small">{{ Str::limit($module->description, 100) }}</p>
-                                @endif
                             </div>
                         @empty
                             <div class="list-group-item text-muted">Aucun module existant. Ce sera le premier module du cours.</div>
@@ -188,7 +221,7 @@
                 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Ajouter le module</button>
+                    <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Ajouter le module</button>
                 </div>
             </form>
         </div>

@@ -5,7 +5,7 @@
 @section('page-subtitle', 'Module: ' . $module->title)
 
 @section('header-actions')
-    <a href="{{ route('formateur.modules.manage', [$course, $module]) }}" class="btn btn-outline-secondary me-2">
+    <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary me-2">
         <i class="fas fa-arrow-left me-2"></i>Retour au module
     </a>
     <button type="submit" form="create-quiz-form" class="btn-primary-africode">
@@ -308,7 +308,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                                    <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                                         <i class="fas fa-plus me-1"></i> Ajouter une réponse
                                     </button>
                                 </div>
@@ -324,7 +324,7 @@
                 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Créer le quiz</button>
+                    <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Créer le quiz</button>
                 </div>
             </form>
         </div>
@@ -333,18 +333,47 @@
 
 @section('scripts')
 <script>
+(function() {
+    // Protection globale contre l'exécution multiple
+    if (window.quizFormInitialized) {
+        return;
+    }
+    window.quizFormInitialized = true;
+    
     document.addEventListener('DOMContentLoaded', function() {
-        let questionCounter = {{ old('questions') ? count(old('questions')) : 0 }};
+        // Compter les questions existantes dans le DOM (old questions)
+        const questionsContainer = document.getElementById('questions-container');
+        if (!questionsContainer) return;
+        
+        const existingQuestions = questionsContainer.querySelectorAll('.question-card').length;
+        let questionCounter = existingQuestions;
         
         // Add first question if none exists
         if (questionCounter === 0) {
             addQuestion();
         }
         
-        // Add new question
-        document.getElementById('add-question-btn').addEventListener('click', function() {
-            addQuestion();
-        });
+        // Add new question with protection against double clicks
+        let isAdding = false;
+        const addQuestionBtn = document.getElementById('add-question-btn');
+        if (addQuestionBtn && !addQuestionBtn.dataset.listenerAttached) {
+            addQuestionBtn.dataset.listenerAttached = 'true';
+            
+            addQuestionBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                if (isAdding) {
+                    return false;
+                }
+                
+                isAdding = true;
+                addQuestion();
+                setTimeout(() => { isAdding = false; }, 500);
+                return false;
+            });
+        }
         
         // Remove question (delegated event)
         document.getElementById('questions-container').addEventListener('click', function(e) {
@@ -409,6 +438,11 @@
         // Function to add a new question
         function addQuestion() {
             const questionsContainer = document.getElementById('questions-container');
+            if (!questionsContainer) return;
+            
+            // Synchroniser le compteur avec le nombre réel de questions dans le DOM
+            const currentQuestions = questionsContainer.querySelectorAll('.question-card').length;
+            questionCounter = Math.max(questionCounter, currentQuestions);
             
             const questionCard = document.createElement('div');
             questionCard.className = 'question-card';
@@ -426,7 +460,7 @@
                     <div class="answers-container">
                         <!-- Answers will be added here -->
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                    <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-plus me-1"></i> Ajouter une réponse
                     </button>
                 </div>
@@ -475,10 +509,14 @@
                 const questionLabel = card.querySelector('label[for^="questions["]');
                 const questionInput = card.querySelector('input[name^="questions["][name$="][text]"]');
                 
-                questionLabel.setAttribute('for', `questions[${index}][text]`);
-                questionLabel.innerHTML = `Question ${index + 1} <span class="text-danger">*</span>`;
-                questionInput.setAttribute('name', `questions[${index}][text]`);
-                questionInput.setAttribute('id', `questions[${index}][text]`);
+                if (questionLabel) {
+                    questionLabel.setAttribute('for', `questions[${index}][text]`);
+                    questionLabel.innerHTML = `Question ${index + 1} <span class="text-danger">*</span>`;
+                }
+                if (questionInput) {
+                    questionInput.setAttribute('name', `questions[${index}][text]`);
+                    questionInput.setAttribute('id', `questions[${index}][text]`);
+                }
                 
                 // Update answers
                 const answerRows = card.querySelectorAll('.answer-row');
@@ -487,15 +525,23 @@
                     const textInput = row.querySelector('input[type="text"]');
                     const hiddenInput = row.querySelector('.is-correct-input');
                     
-                    radioInput.setAttribute('name', `questions[${index}][correct_answer]`);
-                    radioInput.setAttribute('value', aIndex);
-                    textInput.setAttribute('name', `questions[${index}][answers][${aIndex}][text]`);
-                    hiddenInput.setAttribute('name', `questions[${index}][answers][${aIndex}][is_correct]`);
+                    if (radioInput) {
+                        radioInput.setAttribute('name', `questions[${index}][correct_answer]`);
+                        radioInput.setAttribute('value', aIndex);
+                    }
+                    if (textInput) {
+                        textInput.setAttribute('name', `questions[${index}][answers][${aIndex}][text]`);
+                    }
+                    if (hiddenInput) {
+                        hiddenInput.setAttribute('name', `questions[${index}][answers][${aIndex}][is_correct]`);
+                    }
                 });
             });
             
+            // Update counter to match actual number of questions
             questionCounter = questionCards.length;
         }
     });
+})();
 </script>
 @endsection

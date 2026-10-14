@@ -35,11 +35,11 @@ class ProgressionMilestone extends Notification
     public function toMail($notifiable)
     {
         return (new \Illuminate\Notifications\Messages\MailMessage)
-            ->subject('Bravo pour votre progression !')
-            ->greeting('Félicitations ' . $notifiable->first_name . ' !')
-            ->line('Vous avez atteint un nouveau palier de progression sur AfriCode.')
-            ->action('Voir ma progression', url('/dashboard'))
-            ->line('Continuez sur cette lancée !');
+            ->subject("Bravo pour votre progression !")
+            ->view('emails.notifications.progression-milestone', [
+                'firstName'    => $notifiable->first_name,
+                'dashboardUrl' => url('/dashboard'),
+            ]);
     }
 
     /**

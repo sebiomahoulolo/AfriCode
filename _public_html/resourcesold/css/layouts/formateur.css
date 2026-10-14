@@ -1,0 +1,163 @@
+/* AfriCode - Layout Formateur */
+
+/* ═══════════════════════════════════════════════
+   PALETTE OFFICIELLE AFRICODE
+   ═══════════════════════════════════════════════ */
+:root {
+    /* Couleurs AfriCode */
+    --africode-primary:         #11c06d;
+    --africode-primary-dark:    #239e79;
+    --africode-teal:            #20c49c;
+    --africode-secondary:       #fea837;
+    --africode-accent-red:      #fa1c39;
+    --africode-accent-dark-red: #b5444a;
+    --africode-light-green:     #b2e5d9;
+    --africode-highlight-green: #239e79;
+    --africode-white:           #FFFFFF;
+    --africode-dark-text:       #333333;
+    --africode-gray-light:      #F8F9FA;
+    --africode-gray-medium:     #E9ECEF;
+    --africode-gray-dark:       #6C757D;
+    --africode-gradient-primary: linear-gradient(135deg, #11c06d 0%, #239e79 100%);
+    --africode-gradient-accent:  linear-gradient(135deg, #fea837 0%, #FFB366 100%);
+    --africode-shadow-sm:        0 2px 4px rgba(0,0,0,.10);
+    --africode-shadow-md:        0 4px 8px rgba(0,0,0,.15);
+    --africode-shadow-lg:        0 8px 25px rgba(0,0,0,.15);
+    --africode-border-radius:    12px;
+    --africode-transition:       all .3s cubic-bezier(.4,0,.2,1);
+
+    /* ─── Override Bootstrap 5 : PLUS DE BLEU ─── */
+    --bs-primary:            #11c06d;
+    --bs-primary-rgb:        17, 192, 109;
+    --bs-success:            #239e79;
+    --bs-success-rgb:        35, 158, 121;
+    --bs-warning:            #fea837;
+    --bs-warning-rgb:        254, 168, 55;
+    --bs-danger:             #fa1c39;
+    --bs-danger-rgb:         250, 28, 57;
+    --bs-info:               #20c49c;
+    --bs-info-rgb:           32, 196, 156;
+    --bs-link-color:         #11c06d;
+    --bs-link-hover-color:   #239e79;
+}
+
+/* ─── Boutons Bootstrap : override complet ─── */
+.btn-primary {
+    --bs-btn-color: #fff; --bs-btn-bg: #11c06d; --bs-btn-border-color: #11c06d;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #239e79; --bs-btn-hover-border-color: #239e79;
+    --bs-btn-active-bg: #239e79; --bs-btn-active-border-color: #239e79;
+}
+.btn-outline-primary {
+    --bs-btn-color: #11c06d; --bs-btn-border-color: #11c06d;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #11c06d; --bs-btn-hover-border-color: #11c06d;
+    --bs-btn-active-bg: #239e79; --bs-btn-active-border-color: #239e79;
+}
+.btn-success {
+    --bs-btn-color: #fff; --bs-btn-bg: #239e79; --bs-btn-border-color: #239e79;
+    --bs-btn-hover-bg: #11c06d; --bs-btn-hover-border-color: #11c06d;
+}
+.btn-outline-success {
+    --bs-btn-color: #239e79; --bs-btn-border-color: #239e79;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #239e79; --bs-btn-hover-border-color: #239e79;
+}
+.btn-warning {
+    --bs-btn-color: #fff; --bs-btn-bg: #fea837; --bs-btn-border-color: #fea837;
+    --bs-btn-hover-bg: #e5942a; --bs-btn-hover-border-color: #e5942a;
+}
+.btn-outline-warning {
+    --bs-btn-color: #fea837; --bs-btn-border-color: #fea837;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #fea837; --bs-btn-hover-border-color: #fea837;
+}
+.btn-danger {
+    --bs-btn-color: #fff; --bs-btn-bg: #fa1c39; --bs-btn-border-color: #fa1c39;
+    --bs-btn-hover-bg: #b5444a; --bs-btn-hover-border-color: #b5444a;
+}
+.btn-outline-danger {
+    --bs-btn-color: #fa1c39; --bs-btn-border-color: #fa1c39;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #fa1c39; --bs-btn-hover-border-color: #fa1c39;
+}
+.btn-info {
+    --bs-btn-color: #fff; --bs-btn-bg: #20c49c; --bs-btn-border-color: #20c49c;
+    --bs-btn-hover-bg: #239e79; --bs-btn-hover-border-color: #239e79;
+}
+.btn-outline-info {
+    --bs-btn-color: #20c49c; --bs-btn-border-color: #20c49c;
+    --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #20c49c; --bs-btn-hover-border-color: #20c49c;
+}
+
+/* ─── Couleurs de texte ─── */
+.text-primary { color: #11c06d !important; }
+.text-success { color: #239e79 !important; }
+.text-warning { color: #fea837 !important; }
+.text-danger  { color: #fa1c39 !important; }
+.text-info    { color: #20c49c !important; }
+
+/* ─── Badges ─── */
+.badge.bg-primary { background-color: #11c06d !important; }
+.badge.bg-success { background-color: #239e79 !important; }
+.badge.bg-warning { background-color: #fea837 !important; color: #fff !important; }
+.badge.bg-danger  { background-color: #fa1c39 !important; }
+.badge.bg-info    { background-color: #20c49c !important; }
+
+/* ─── Progress bars ─── */
+.progress-bar.bg-primary { background-color: #11c06d !important; }
+.progress-bar.bg-success { background-color: #239e79 !important; }
+.progress-bar.bg-warning { background-color: #fea837 !important; }
+.progress-bar.bg-info    { background-color: #20c49c !important; }
+.bg-primary { background-color: #11c06d !important; }
+.bg-success { background-color: #239e79 !important; }
+
+/* ─── Notification bell : cachée sur mobile ─── */
+@media (max-width: 768px) {
+    .nb-wrap { display: none !important; }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #F8FFFE 0%, #F0F9F8 100%);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--africode-dark-text);
+    line-height: 1.6;
+}
+
+/* Layout principal */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Contenu principal */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Content area */
+.content-body {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Animations et effets */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}

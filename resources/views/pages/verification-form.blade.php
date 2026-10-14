@@ -7,8 +7,8 @@
 <style>
     :root {
         --primary-color: #1EA38B;
-        --secondary-color: #FF8E2A;
-        --accent-color: #E32D31;
+        --secondary-color: #fea837;
+        --accent-color: #fa1c39;
         --background-color: #F0F4F7;
         --text-color: #333;
         --light-gray: #f8f9fa;
@@ -135,7 +135,7 @@
                                        aria-label="Code de Vérification">
                             </div>
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg" style="background-color: var(--primary-color); border-color: var(--primary-color);">
+                                <button type="submit" class="btn btn-lg" style="background-color: var(--primary-color); border-color: var(--primary-color);">
                                     <i class="fas fa-check-circle me-2"></i>Vérifier Maintenant
                                 </button>
                             </div>
@@ -152,34 +152,34 @@
                             <div class="card-body cert-result-body">
                                 <div class="row">
                                     <div class="col-md-6 info-item">
-                                        <label>Détenteur</label>
+                                        <label>Détenteur :</label>
                                         <span>{{ $certification->user->first_name }} {{ $certification->user->last_name }}</span>
                                     </div>
                                     <div class="col-md-6 info-item">
-                                        <label>Formation</label>
+                                        <label>Formation :</label>
                                         <span>{{ $certification->course->title }}</span>
                                     </div>
                                     <div class="col-md-6 info-item">
-                                        <label>Date d'émission</label>
+                                        <label>Date d'émission :</label>
                                         <span>{{ $certification->issued_at->format('d F Y') }}</span>
                                     </div>
                                     <div class="col-md-6 info-item">
-                                        <label>Code de vérification</label>
+                                        <label>Code de vérification :</label>
                                         <span class="font-monospace">{{ $certification->verification_code }}</span>
                                     </div>
                                     @if($certification->course->category)
                                     <div class="col-md-6 info-item">
-                                        <label>Catégorie</label>
+                                        <label>Catégorie :</label>
                                         <span>{{ $certification->course->category->name }}</span>
                                     </div>
                                     @endif
                                 </div>
                                 <hr class="my-3">
-                                <div class="text-center">
-                                    <a href="{{ route('public.certificate.show', ['certification' => $certification->verification_code]) }}" class="btn btn-outline-primary">
-                                        <i class="fas fa-eye me-2"></i>Voir le certificat complet
-                                    </a>
-                                </div>
+                                <!--<div class="text-center">-->
+                                <!--    <a href="{{ route('public.certificate.show', ['certification' => $certification->verification_code]) }}" class="btn btn-outline-primary">-->
+                                <!--        <i class="fas fa-eye me-2"></i>Voir le certificat complet-->
+                                <!--    </a>-->
+                                <!--</div>-->
                             </div>
                         </div>
                     @elseif(isset($error) && $error)

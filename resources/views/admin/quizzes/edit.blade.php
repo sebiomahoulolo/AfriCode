@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
+            <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">
                 <i class="fas fa-edit fa-fw me-1"></i> Modifier le quiz
             </h6>
             <div>
@@ -62,7 +62,7 @@
                 </div>
                 
                 <div class="d-flex mt-4">
-                    <button type="submit" class="btn btn-primary me-2">
+                    <button type="submit" class="btn text-white me-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
                     </button>
                     @if($module)
@@ -82,10 +82,10 @@
     <!-- Questions du quiz -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
+            <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">
                 <i class="fas fa-question-circle fa-fw me-1"></i> Questions
             </h6>
-            <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn btn-sm btn-success">
+            <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                 <i class="fas fa-plus fa-fw"></i> Ajouter une question
             </a>
         </div>
@@ -107,16 +107,16 @@
                                     <td>{{ $question->question }}</td>
                                     <td>
                                         @if($question->type === 'multiple_choice')
-                                            <span class="badge bg-info">Choix multiple</span>
+                                            <span class="badge" style="background:#1EA38B;">Choix multiple</span>
                                         @elseif($question->type === 'true_false')
-                                            <span class="badge bg-success">Vrai/Faux</span>
+                                            <span class="badge" style="background:#27B371;">Vrai/Faux</span>
                                         @elseif($question->type === 'short_answer')
-                                            <span class="badge bg-warning">Réponse courte</span>
+                                            <span class="badge" style="background:#FF8E2A;">Réponse courte</span>
                                         @endif
                                     </td>
                                     <td>{{ $question->points }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-info view-question-btn" data-bs-toggle="modal" data-bs-target="#viewQuestionModal" 
+                                        <button type="button" class="btn btn-sm text-white view-question-btn" style="background:linear-gradient(135deg,#1EA38B,#0d7a63);border:none;" data-bs-toggle="modal" data-bs-target="#viewQuestionModal"
                                                 data-question="{{ $question->question }}"
                                                 data-type="{{ $question->type }}"
                                                 data-options="{{ json_encode($question->options) }}"
@@ -124,7 +124,7 @@
                                                 data-explanation="{{ $question->explanation }}">
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <a href="{{ route('admin.question.edit', $question->id) }}" class="btn btn-sm btn-primary">
+                                        <a href="{{ route('admin.question.edit', $question->id) }}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-sm btn-danger delete-question-btn" 
@@ -216,7 +216,7 @@
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Réponse correcte:</strong> <span id="modal-correct-answer" class="badge bg-success"></span>
+                    <strong>Réponse correcte:</strong> <span id="modal-correct-answer" class="badge" style="background:#27B371;"></span>
                 </div>
                 
                 <div id="modal-explanation-section" class="mb-3">

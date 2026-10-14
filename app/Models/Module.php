@@ -61,11 +61,15 @@ class Module extends Model
     {
         $totalLessons = $this->lessons()->count();
         if ($totalLessons === 0) return true;
-        
+
         $completedLessons = LessonCompletion::where('user_id', $userId)
             ->whereIn('lesson_id', $this->lessons()->pluck('id'))
+            ->where(function($query) {
+                $query->whereNotNull('completed_at')
+                      ->orWhere('can_complete', true);
+            })
             ->count();
-            
+
         return $completedLessons >= $totalLessons;
     }
     

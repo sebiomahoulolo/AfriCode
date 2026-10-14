@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l database/seeders/RecruitmentSeeder.php)",
+      "Bash(php -l app/Http/Controllers/AdminRecruitmentController.php)",
+      "Bash(php -l routes/web.php)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8008/recrute)",
+      "Bash(curl -s http://127.0.0.1:8008/recrute)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8008/admin/recruitment/positions/1/edit)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://127.0.0.1:8008/recrute/merci)",
+      "Bash(curl -s http://127.0.0.1:8008/recrute/merci)",
+      "Bash(php -l resources/views/recruitment/thank-you.blade.php)",
+      "Bash(php -l app/Notifications/VerifyEmailNotification.php)",
+      "Bash(php -l app/Models/User.php)",
+      "Bash(php -v)",
+      "Bash(grep -rn \"ExceptionHandler\\\\|Debug\\\\\\\\\\\\\\\\ExceptionHandler\" --include=\"*.php\" app bootstrap)",
+      "Bash(nslookup africode.tech)",
+      "Bash(nslookup www.africode.tech)",
+      "Bash(curl -s -c /tmp/cookies.txt -b /tmp/cookies.txt 'http://127.0.0.1:8123/verify-email/118/231fd79c026a0826a434d7900819ffdf3213a5ca?expires=1784887169&signature=4b5927eda9c4582960a64696d6368323cfffe559c6cd031d779245faa3e8c6f0' -w '\\\\nHTTP_CODE=%{http_code}\\\\nREDIRECT=%{redirect_url}\\\\n' -o /tmp/verify_a.html)",
+      "Bash(curl -s 'http://127.0.0.1:8123/verify-email/119/cbe53bd322fc1483d7b7b5aae2c8c16d4ad839e4?expires=1784887198&signature=8ac4fdeb65264836aa6364fea460a255de5024378e1bfb72be892ecfc4461f7a' -w '\\\\nHTTP_CODE=%{http_code}\\\\nREDIRECT=%{redirect_url}\\\\n' -o /tmp/verify_b.html)",
+      "Bash(git check-ignore *)",
+      "Bash(cp bootstrap/app.php /tmp/app.php.new)",
+      "Bash(curl -s http://127.0.0.1:8123/admin -w \"\\\\nHTTP_CODE=%{http_code}\\\\n\" -o /tmp/admin_before.html)",
+      "Bash(rm -f /tmp/cookies3.txt)",
+      "Bash(curl -s -c /tmp/cookies3.txt -b /tmp/cookies3.txt http://127.0.0.1:8123/login -o /tmp/login_page3.html)",
+      "Bash(curl -s -c /tmp/cookies3.txt -b /tmp/cookies3.txt -X POST http://127.0.0.1:8123/login --data-urlencode _token=__TRACKED_VAR__ --data-urlencode email=test-admin-check-1784884096@example.com --data-urlencode password=Password123! -o /tmp/login_result3.html -w 'LOGIN_CODE=%{http_code}\\\\n')",
+      "Bash(cp bootstrap/app.php /tmp/app.php.fixed)",
+      "Bash(curl -s -b /tmp/cookies3.txt http://127.0.0.1:8123/admin -w \"\\\\nHTTP_CODE=%{http_code}\\\\n\" -o /tmp/admin_before2.html)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8123 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Start-Sleep -Milliseconds 500; Get-NetTCPConnection -LocalPort 8123 -ErrorAction SilentlyContinue)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

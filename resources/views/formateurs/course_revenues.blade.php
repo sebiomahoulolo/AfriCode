@@ -1,6 +1,6 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.course_revenues_title'))
+@section('title')
 
 @section('page-heading', $course->title)
 @section('page-subheading', __('messages.revenues_and_transactions'))
@@ -67,7 +67,7 @@
             <div class="card">
                 <div class="card-body revenue-stats text-center">
                     <h5 class="card-title mb-4">Revenus totaux</h5>
-                    <div class="stat-value">{{ number_format($totalRevenue, 2) }} €</div>
+                    <div class="stat-value">{{ number_format($totalRevenue, 2) }} FCFA</div>
                     <p class="stat-label mb-4">Depuis la création du cours</p>
                     
                     <div class="divider my-4"></div>
@@ -78,14 +78,14 @@
                             <p class="stat-label">Ventes</p>
                         </div>
                         <div class="col-6">
-                            <div class="stat-value">{{ number_format($totalRevenue > 0 && $payments->total() > 0 ? $totalRevenue / $payments->total() : 0, 2) }} €</div>
+                            <div class="stat-value">{{ number_format($totalRevenue > 0 && $payments->total() > 0 ? $totalRevenue / $payments->total() : 0, 2) }} FCFA</div>
                             <p class="stat-label">Prix moyen</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="card-footer bg-white">
-                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-primary btn-block w-100">
+                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-block w-100" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-arrow-left me-1"></i> Retour au cours
                     </a>
                 </div>
@@ -159,15 +159,15 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $payment->paid_at->format('d/m/Y H:i') }}</td>
-                                <td class="fw-bold">{{ number_format($payment->amount, 2) }} €</td>
+                                <td>{{ $payment->paid_at?->format('d/m/Y H:i') ?? $payment->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="fw-bold">{{ number_format($payment->amount, 2) }} FCFA</td>
                                 <td>
                                     <span class="badge bg-light text-dark">
                                         {{ $payment->payment_method }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-success">
+                                    <span class="badge" style="background:#27B371;">
                                         Complété
                                     </span>
                                 </td>
@@ -199,7 +199,7 @@
     
     <!-- Export Button -->
     <div class="text-end mt-4">
-        <a href="{{ route('formateur.courses.revenues.export', ['courseId' => $course->id]) }}" class="btn btn-outline-primary">
+        <a href="{{ route('formateur.courses.revenues.export', ['courseId' => $course->id]) }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
             <i class="fas fa-file-export me-1"></i> Exporter les transactions
         </a>
     </div>
@@ -229,7 +229,7 @@
             data: {
                 labels: formattedLabels,
                 datasets: [{
-                    label: 'Revenus (€)',
+                    label: 'Revenus (FCFA)',
                     data: values,
                     backgroundColor: 'rgba(44, 115, 210, 0.2)',
                     borderColor: '#2C73D2',
@@ -250,7 +250,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.parsed.y + ' €';
+                                return context.parsed.y + ' FCFA';
                             }
                         }
                     }
@@ -260,7 +260,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return value + ' €';
+                                return value + ' FCFA';
                             }
                         }
                     }

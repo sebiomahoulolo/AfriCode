@@ -7,8 +7,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1EA38B; --secondary-color: #FF8E2A; --accent-color: #E32D31;
-            --highlight-color: #27B371; --background-color: #F8F9FA; --light-accent: #ECF0F1;
+            --primary-color: #27B371; --secondary-color: #fea837; --accent-color: #fa1c39;
+            --highlight-color: #1EA38B; --background-color: #F8F9FA; --light-accent: #ECF0F1;
             --text-color: #333333;
         }
         body { background-color: var(--background-color); font-family: 'Segoe UI', sans-serif; }
@@ -70,7 +70,7 @@
             @endif
 
             <div class="actions">
-                <a href="{{ route('verification.form') }}" class="btn btn-primary">
+                <a href="{{ route('verification.form') }}" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                     <i class="fas fa-search me-2"></i>Effectuer une autre vérification
                 </a>
             </div>

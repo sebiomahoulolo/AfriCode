@@ -73,19 +73,19 @@
         <p class="text-content mb-5">AfriCode aspire à atteindre les objectifs suivants :</p>
         <div class="objectives-grid">
           <div class="objective-card">
-            <div class="objective-icon">🎯</div>
+            <div class="objective-icon"><i class="fas fa-bullseye"></i></div>
             <p>Former plus de 100,000 jeunes africains aux outils numériques d'ici 2030</p>
           </div>
           <div class="objective-card">
-            <div class="objective-icon">🌍</div>
+            <div class="objective-icon"><i class="fas fa-globe-africa"></i></div>
             <p>Créer un réseau de communautés technologiques dynamiques sur tout le continent</p>
           </div>
           <div class="objective-card">
-            <div class="objective-icon">💡</div>
+            <div class="objective-icon"><i class="fas fa-lightbulb"></i></div>
             <p>Encourager l'innovation locale à travers des hackathons et des projets concrets</p>
           </div>
           <div class="objective-card">
-            <div class="objective-icon">🚀</div>
+            <div class="objective-icon"><i class="fas fa-rocket"></i></div>
             <p>Favoriser l'accès aux opportunités globales pour les talents africains</p>
           </div>
         </div>
@@ -103,42 +103,42 @@
     <div class="row g-4">
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">♿</div>
+          <div class="value-icon"><i class="fas fa-universal-access"></i></div>
           <h5>Accessibilité</h5>
           <p>Nous veillons à ce que la technologie soit accessible à tous, sans barrière.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">📚</div>
+          <div class="value-icon"><i class="fas fa-book-open"></i></div>
           <h5>Partage</h5>
           <p>Nous encourageons l'échange de connaissances pour grandir ensemble.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">💡</div>
+          <div class="value-icon"><i class="fas fa-lightbulb"></i></div>
           <h5>Innovation</h5>
           <p>Nous croyons au pouvoir de l'innovation pour relever les défis locaux.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">👥</div>
+          <div class="value-icon"><i class="fas fa-users"></i></div>
           <h5>Communauté</h5>
           <p>Nous construisons une communauté solidaire, où les talents collaborent.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">🌍</div>
+          <div class="value-icon"><i class="fas fa-globe-africa"></i></div>
           <h5>Impact global</h5>
           <p>Nous aspirons à transformer le continent grâce à des solutions durables.</p>
         </div>
       </div>
       <div class="col-md-4">
         <div class="value-card">
-          <div class="value-icon">🏆</div>
+          <div class="value-icon"><i class="fas fa-trophy"></i></div>
           <h5>Leadership</h5>
           <p>Nous valorisons les jeunes leaders pour un avenir responsable.</p>
         </div>
@@ -205,7 +205,7 @@
         </h2>
         <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
           <div class="accordion-body">
-            AfriCode est une plateforme de formation tech africaine qui démocratise l'accès à l'éducation numérique. Nous proposons des formations certifiantes en programmation, développement web, cybersécurité, intelligence artificielle et data science. Notre mission est de former la prochaine génération de talents tech africains avec plus de 80% de nos diplômés qui trouvent un emploi dans les 6 mois.
+            AfriCode est une plateforme de formation tech africaine qui démocratise l'accès à l'éducation numérique. Nous proposons des formations certifiantes en programmation, développement web, cybersécurité, intelligence artificielle et data science. Notre mission est de former et certifier la prochaine génération de talents tech africains.
           </div>
         </div>
       </div>
@@ -323,7 +323,7 @@
             • Mise en relation avec nos partenaires entreprises<br>
             • Réseau d'anciens élèves pour le networking<br>
             • Compétitions et hackathons pour se faire remarquer<br><br>
-            80% de nos diplômés trouvent un emploi dans les 6 mois suivant leur formation.
+            Notre réseau de partenaires entreprises vous aide à vous connecter avec les meilleures opportunités du marché tech africain.
           </div>
         </div>
       </div>
@@ -372,8 +372,8 @@
 /* Variables CSS AfriCode - Cohérentes avec la page d'accueil */
 :root {
   --africode-primary: #1EA38B;
-  --africode-secondary: #FF8E2A;
-  --africode-accent-red: #E32D31;
+  --africode-secondary: #fea837;
+  --africode-accent-red: #fa1c39;
   --africode-highlight-green: #27B371;
   --africode-white: #FFFFFF;
   --africode-dark-text: #333333;
@@ -391,9 +391,9 @@
 
 /* Hero Section */
 .about-hero {
-  background: linear-gradient(135deg, 
-    rgba(30, 163, 139, 0.08) 0%, 
-    rgba(255, 142, 42, 0.05) 50%, 
+  background: linear-gradient(135deg,
+    rgba(30, 163, 139, 0.08) 0%,
+    rgba(254, 168, 55, 0.05) 50%,
     rgba(39, 179, 113, 0.08) 100%);
   position: relative;
   overflow: hidden;
@@ -581,8 +581,16 @@
 }
 
 .objective-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1EA38B, #27B371);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.6rem;
+  color: white;
 }
 
 /* Section Valeurs */
@@ -607,8 +615,20 @@
 }
 
 .value-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1EA38B22, #27B37133);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  font-size: 1.4rem;
+  color: #1EA38B;
+}
+.value-card:hover .value-icon {
+  background: linear-gradient(135deg, #1EA38B, #27B371);
+  color: white;
 }
 
 .value-card h5 {

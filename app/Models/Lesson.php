@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
+
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
 
 class Lesson extends Model implements AuditableContract
 {
-    use HasFactory, Searchable, Auditable;
+    use HasFactory,  Auditable;
 
     protected $fillable = [
         'module_id',
@@ -22,13 +22,15 @@ class Lesson extends Model implements AuditableContract
         'external_url',
         'duration_minutes',
         'order',
-        'is_previewable'
+        'is_previewable',
+        'images'
     ];
 
     protected $casts = [
         'is_previewable' => 'boolean',
         'duration_minutes' => 'integer',
-        'order' => 'integer'
+        'order' => 'integer',
+        'images' => 'array'
     ];
 
     public function module()
@@ -48,7 +50,10 @@ class Lesson extends Model implements AuditableContract
 
     public function isCompletedBy($userId)
     {
-        return $this->completions()->where('user_id', $userId)->exists();
+        return $this->completions()
+            ->where('user_id', $userId)
+            ->whereNotNull('completed_at')
+            ->exists();
     }
 
     public function getCourse()

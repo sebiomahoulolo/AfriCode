@@ -215,32 +215,28 @@
                 </p>
             </div>
 
-            <!-- Liens utiles --> 
+            <!-- Liens utiles -->
             <div class="col-lg-4 col-md-6 mb-4 mb-lg-0"> <!-- Ajout mb-lg-0 -->
                 <h5 class="text-uppercase fw-bold footer-title">Liens utiles</h5>
                 <ul class="list-unstyled footer-links">
                     <!-- Accueil -->
                     <li><a href="{{ url('/') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-home me-2"></i>Accueil</a></li>
-                   
+
                     <li><a href="{{ route('courses.index', ['level' => 'debutant']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-chalkboard-teacher me-2"></i>Débutant</a></li>
                     <li><a href="{{ route('courses.index', ['level' => 'intermediaire']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-laptop-code me-2"></i>Intermédiaire</a></li>
                     <li><a href="{{ route('courses.index', ['level' => 'avance']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-rocket me-2"></i>Avancé / Expert</a></li>
-                 
+
                     <li><a href="{{ route('courses.index', ['price' => 'free']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-gift me-2"></i>Cours gratuits</a></li>
                     <li><a href="{{ route('courses.index', ['price' => 'paid']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-credit-card me-2"></i>Cours payants</a></li>
-              
+
                     <li><a href="{{ route('courses.index', ['certification' => 'certified']) }}" class="text-light text-decoration-none link-animated"><i class="fas fa-award me-2"></i>Formations certifiées</a></li>
-              
+
+                    <li><a href="{{ route('pages.services') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-layer-group me-2"></i>Nos Services</a></li>
                     <li><a href="{{ route('pages.compdisp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-trophy me-2"></i>Compétitions</a></li>
                     <li><a href="{{ route('pages.test') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-vial me-2"></i>Test de niveau</a></li>
                     <li><a href="{{ url('/le-forum-des-experts') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-user-tie me-2"></i>Forum des Experts</a></li>
                     <li><a href="{{ route('pages.forumapp') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-users me-2"></i>Forum des Apprenants</a></li>
-                    <!-- Vérifier Certificat -->
-                    {{-- <li class="mt-2"><a href="{{ route('certificate.verification') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-shield-check me-2 text-success"></i>Vérifier un Certificat</a></li>
-                    <!-- À propos -->
-                    <li class="mt-2"><a href="{{ route('pages.apropos') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-info-circle me-2"></i>À Propos</a></li>
-                    <!-- Contact -->
-                    <li><a href="{{ route('pages.contact') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-envelope me-2"></i>Contact</a></li> --}}
+                    <li><a href="{{ route('recruitment.index') }}" class="text-light text-decoration-none link-animated"><i class="fas fa-briefcase me-2"></i>Recrutement</a></li>
                 </ul>
             </div>
 
@@ -253,6 +249,7 @@
                     <a href="https://www.instagram.com/africode1?igsh=YzljYTk1ODg3Zg==" class="btn btn-outline-light btn-floating m-1" title="Instagram" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
                     <a href="https://www.linkedin.com/company/africode-no-code-no-future/" class="btn btn-outline-light btn-floating m-1" title="LinkedIn" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin-in"></i></a>
                     <a href="https://youtube.com/@africodetechsm?si=k8Y49FJR3tib1KNc" class="btn btn-outline-light btn-floating m-1" title="YouTube" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
+                    <a href="https://www.tiktok.com/@africodetech?_r=1&_t=ZS-93v9AuqVviq" class="btn btn-outline-light btn-floating m-1" title="TikTok" target="_blank" rel="noopener noreferrer"><i class="fab fa-tiktok"></i></a>
                     <a href="https://wa.me/22965603040" class="btn btn-outline-light btn-floating m-1" title="WhatsApp" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i></a>
                 </div>
 
@@ -263,7 +260,7 @@
                         @csrf
                         <div class="input-group">
                             <input type="email" name="email" class="form-control" placeholder="Votre adresse email" aria-label="Email address" required>
-                            <button class="btn btn-primary" type="submit">S'abonner</button>
+                            <button class="btn text-white" type="submit" style="background:linear-gradient(135deg,#e53434,#e67e22);border:none;">S'abonner</button>
                         </div>
                         <small class="form-text" style='color: white' >Nous respectons votre vie privée.</small>
                         <div id="newsletterMessage" class="mt-2" style="display: none;"></div>
@@ -271,7 +268,7 @@
                 </div>
 
                 <!-- Autres liens -->
-                
+
             </div>
         </div>
     </div>
@@ -286,7 +283,7 @@
                         <form class="newsletter-form">
                             <div class="input-group">
                                 <input type="email" class="form-control" placeholder="Votre adresse email" aria-label="Email address">
-                                <button class="btn btn-primary" type="button">S'abonner</button>
+                                <button class="btn text-white" type="button" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'abonner</button>
                             </div>
                             <small class="form-text">Nous respectons votre vie privée.</small>
                         </form>
@@ -310,22 +307,22 @@
 document.addEventListener('DOMContentLoaded', function() {
     const newsletterForm = document.getElementById('newsletterForm');
     const newsletterMessage = document.getElementById('newsletterMessage');
-    
+
     newsletterForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(newsletterForm);
         const submitButton = newsletterForm.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
-        
+
         // Désactiver le bouton et changer le texte
         submitButton.disabled = true;
         submitButton.textContent = 'Inscription...';
-        
+
         // Masquer les messages précédents
         newsletterMessage.style.display = 'none';
         newsletterMessage.className = '';
-        
+
         fetch('{{ route("newsletter.subscribe") }}', {
             method: 'POST',
             body: formData,

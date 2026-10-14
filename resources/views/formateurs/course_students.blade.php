@@ -1,6 +1,6 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Étudiants inscrits')
+@section('title')
 @section('page-title', $course->title)
 @section('page-subtitle', 'Liste des étudiants inscrits (' . $enrollments->count() . ' étudiants)')
 
@@ -64,7 +64,7 @@
                     <p class="text-muted mb-0">{{ $enrollments->total() }} étudiants inscrits</p>
                 </div>
                 <div>
-                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-primary">
+                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-arrow-left me-1"></i> Retour au cours
                     </a>
                 </div>
@@ -78,7 +78,7 @@
             <form action="{{ route('formateur.courses.students', ['courseId' => $course->id]) }}" method="GET" class="student-search">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Rechercher un étudiant..." name="search" value="{{ request('search') }}">
-                    <button class="btn btn-primary" type="submit">
+                    <button class="btn text-white" type="submit" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -96,8 +96,25 @@
         </div>
     </div>
     
+    <!-- Skeleton table (visible pendant la soumission du formulaire) -->
+    <div id="students-skeleton" class="card" style="display:none;">
+        <div class="card-body p-0">
+            @for($sk = 0; $sk < 6; $sk++)
+            <div class="skeleton-table-row" style="{{ $sk > 0 ? '' : '' }}">
+                <div class="sk sk-circle" style="width:28px; height:28px; flex-shrink:0;"></div>
+                <div class="sk sk-avatar" style="width:40px; height:40px; flex-shrink:0;"></div>
+                <div class="sk sk-cell" style="flex:2; max-width:200px;"></div>
+                <div class="sk sk-cell"></div>
+                <div class="sk sk-progress" style="flex:1.5;"></div>
+                <div class="sk sk-cell"></div>
+                <div class="sk sk-badge" style="width:80px;"></div>
+            </div>
+            @endfor
+        </div>
+    </div>
+
     <!-- Students List -->
-    <div class="card">
+    <div id="students-list" class="card">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -134,7 +151,7 @@
                                             return $count + $module->lessons->count() + $module->quizzes->count();
                                         }, 0);
                                         
-                                        $completedItems = $enrollment->user->completedLessons()
+                                        $completedItems = $enrollment->user->lessonCompletions()
                                             ->whereHas('lesson', function($query) use ($course) {
                                                 $query->whereHas('module', function($q) use ($course) {
                                                     $q->where('course_id', $course->id);
@@ -147,14 +164,18 @@
                                     
                                     <div class="d-flex align-items-center">
                                         <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $progressPercentage }}%;" aria-valuenow="{{ $progressPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress-bar" role="progressbar" style="width: {{ $progressPercentage }}%; background:#1EA38B !important;" aria-valuenow="{{ $progressPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                         <span>{{ $progressPercentage }}%</span>
                                     </div>
                                 </td>
                                 <td>
                                     @php
-                                        $lastActivity = $enrollment->user->lastActivity($course->id);
+                                        // Récupérer la dernière activité de l'utilisateur pour ce cours
+                                        $lastActivity = $enrollment->user->activities()
+                                            ->whereJsonContains('metadata->course_id', $course->id)
+                                            ->latest()
+                                            ->first();
                                     @endphp
                                     
                                     @if($lastActivity)
@@ -165,7 +186,7 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <button type="button" class="btn btn-sm dropdown-toggle" style="color:#1EA38B;border:1px solid #1EA38B;" data-bs-toggle="dropdown" aria-expanded="false">
                                             Actions
                                         </button>
                                         <ul class="dropdown-menu">
@@ -193,7 +214,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Pagination -->
     <div class="d-flex justify-content-center mt-4">
         {{ $enrollments->links() }}
@@ -228,9 +249,32 @@
     function confirmRemoveStudent(enrollmentId) {
         const form = document.getElementById('removeStudentForm');
         form.action = `/formateur/enrollments/${enrollmentId}/delete`;
-        
         const modal = new bootstrap.Modal(document.getElementById('removeStudentModal'));
         modal.show();
     }
+
+    // Skeleton au submit du formulaire de recherche/tri
+    document.addEventListener('DOMContentLoaded', function () {
+        var searchForm = document.querySelector('.student-search');
+        var sortSelect = document.querySelector('select[name="sort"]');
+
+        function showTableSkeleton() {
+            document.getElementById('students-list').style.display = 'none';
+            document.getElementById('students-skeleton').style.display = 'block';
+        }
+
+        if (searchForm) searchForm.addEventListener('submit', showTableSkeleton);
+        if (sortSelect) {
+            sortSelect.closest('form') && sortSelect.closest('form').addEventListener('submit', showTableSkeleton);
+            sortSelect.addEventListener('change', function () { showTableSkeleton(); this.form && this.form.submit(); });
+        }
+
+        // Animation révèle sur les lignes de la table
+        document.querySelectorAll('#students-list tbody tr.student-item').forEach(function (row, i) {
+            row.style.opacity = '0';
+            row.style.transition = 'opacity .25s ease';
+            setTimeout(function () { row.style.opacity = '1'; }, 60 + i * 40);
+        });
+    });
 </script>
 @endsection

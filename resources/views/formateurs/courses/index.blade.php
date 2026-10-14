@@ -44,7 +44,9 @@
         height: 200px;
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
         position: relative;
+        min-height: 200px;
     }
     
     .course-image::before {
@@ -56,6 +58,7 @@
         bottom: 0;
         background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
         z-index: 1;
+        pointer-events: none;
     }
     
     .course-status-badge {
@@ -138,10 +141,114 @@
         margin-bottom: 1.5rem;
     }
     
-    .pagination-wrapper {
+    /* Pagination */
+    .pagination-container {
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--africode-border-color);
+    }
+    
+    .pagination-top {
         display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .pagination-info-text {
+        color: var(--africode-gray-dark);
+        font-size: 0.9rem;
+    }
+    
+    .pagination-info-text strong {
+        color: var(--africode-primary);
+        font-weight: 600;
+    }
+    
+    .per-page-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .per-page-wrapper label {
+        font-size: 0.9rem;
+        color: var(--africode-gray-dark);
+        margin: 0;
+        white-space: nowrap;
+    }
+    
+    .per-page-wrapper select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+        background: white;
+        min-width: 70px;
+        cursor: pointer;
+    }
+    
+    .per-page-wrapper select:focus {
+        outline: none;
+        border-color: var(--africode-primary);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    /* Pagination Bootstrap personnalisée */
+    .pagination {
         justify-content: center;
-        margin-top: 2rem;
+        margin: 0;
+    }
+    
+    .pagination .page-item {
+        margin: 0 0.25rem;
+    }
+    
+    .pagination .page-link {
+        color: var(--africode-primary);
+        background-color: white;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease;
+        min-width: 38px;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .pagination .page-link i {
+        font-size: 0.85rem;
+    }
+    
+    .pagination .page-link:hover {
+        color: white;
+        background-color: var(--africode-primary);
+        border-color: var(--africode-primary);
+    }
+    
+    .pagination .page-item.active .page-link {
+        color: white;
+        background-color: var(--africode-primary);
+        border-color: var(--africode-primary);
+        font-weight: 600;
+    }
+    
+    .pagination .page-item.disabled .page-link {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+    
+    .pagination .page-item.disabled .page-link:hover {
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
     }
     
     /* Responsive */
@@ -201,6 +308,19 @@
         .filter-group {
             justify-content: space-between;
         }
+        
+        .pagination-top {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .pagination-info-text {
+            text-align: center;
+        }
+        
+        .per-page-wrapper {
+            justify-content: center;
+        }
     }
     
     @media (max-width: 576px) {
@@ -233,6 +353,25 @@
         
         .filter-group .form-select {
             margin-bottom: 0.5rem;
+        }
+        
+        .pagination-info-text {
+            font-size: 0.85rem;
+        }
+        
+        .pagination .page-link {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.875rem;
+            min-width: 32px;
+        }
+        
+        .per-page-wrapper label {
+            font-size: 0.85rem;
+        }
+        
+        .per-page-wrapper select {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.6rem;
         }
     }
 </style>
@@ -275,6 +414,7 @@
                     <option value="beginner" {{ request('level') == 'beginner' ? 'selected' : '' }}>Débutant</option>
                     <option value="intermediate" {{ request('level') == 'intermediate' ? 'selected' : '' }}>Intermédiaire</option>
                     <option value="advanced" {{ request('level') == 'advanced' ? 'selected' : '' }}>Avancé</option>
+                    <option value="expert" {{ request('level') == 'expert' ? 'selected' : '' }}>Expert</option>
                 </select>
                 
                 <select name="sort" class="form-select sort-dropdown" onchange="this.form.submit()">
@@ -293,7 +433,7 @@
                 <small class="text-muted">
                     <strong>{{ $courses->total() }}</strong> cours trouvé{{ $courses->total() > 1 ? 's' : '' }}
                     @if(request()->hasAny(['search', 'status', 'level']))
-                        - <a href="{{ route('formateur.courses.index') }}" class="text-primary">Réinitialiser les filtres</a>
+                        - <a href="{{ route('formateur.courses.index') }}" class="" style="color:#1EA38B;">Réinitialiser les filtres</a>
                     @endif
                 </small>
             </div>
@@ -306,14 +446,14 @@
             @foreach($courses as $course)
                 <div class="course-card">
                     <!-- Image du cours -->
-                    <div class="course-image" style="background-image: url('{{ $course->cover_image_path ? asset($course->cover_image_path) : 'https://via.placeholder.com/400x200?text='.urlencode($course->title) }}')">
+                    <div class="course-image" style="background-image: url('{{ $course->cover_image_url }}'); background-size: cover; background-position: center; background-repeat: no-repeat; position: relative; height: 200px; overflow: hidden;">
                         <div class="course-status-badge">
                             @if($course->status === 'published')
-                                <span class="badge bg-success">
+                                <span class="badge" style="background:#27B371;">
                                     <i class="fas fa-eye me-1"></i>Publié
                                 </span>
                             @else
-                                <span class="badge bg-warning">
+                                <span class="badge" style="background:#FF8E2A;">
                                     <i class="fas fa-edit me-1"></i>Brouillon
                                 </span>
                             @endif
@@ -328,7 +468,7 @@
                         <!-- Statistiques -->
                         <div class="course-stats">
                             <div class="course-stat">
-                                <i class="fas fa-users text-primary"></i>
+                                <i class="fas fa-users" style="color:#1EA38B;"></i>
                                 <span>{{ $course->students_count ?? 0 }} étudiants</span>
                             </div>
                             <div class="course-stat">
@@ -349,14 +489,19 @@
                         
                         <!-- Actions -->
                         <div class="course-actions">
-                            <a href="{{ route('formateur.manage.course', $course) }}" class="btn btn-primary btn-sm flex-fill">
+                            <a href="{{ route('formateur.manage.course', $course) }}" class="btn btn-sm flex-fill text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <i class="fas fa-cog me-1"></i>Gérer
                             </a>
                             <a href="{{ route('formateur.courses.edit', $course) }}" class="btn btn-outline-secondary btn-sm flex-fill">
                                 <i class="fas fa-edit me-1"></i>Modifier
                             </a>
-                            @if($course->status === 'published')
-                                <a href="#" class="btn btn-outline-info btn-sm flex-fill" title="Voir en tant qu'étudiant">
+                            @php
+                                $firstLesson = $course->modules->sortBy('order')->flatMap(function ($module) {
+                                    return $module->lessons->sortBy('order');
+                                })->first();
+                            @endphp
+                            @if($firstLesson)
+                                <a href="{{ route('formateur.view.lesson', ['courseId' => $course->id, 'lessonId' => $firstLesson->id]) }}" class="btn btn-sm flex-fill" style="color:#1EA38B;border:1px solid #1EA38B;" title="Voir en tant qu'étudiant">
                                     <i class="fas fa-eye me-1"></i>Aperçu
                                 </a>
                             @endif
@@ -381,9 +526,76 @@
         </div>
         
         <!-- Pagination -->
-        @if($courses->hasPages())
-            <div class="pagination-wrapper" data-aos="fade-up" data-aos-delay="200">
-                {{ $courses->appends(request()->query())->links() }}
+        @if($courses->total() > 0)
+            <div class="pagination-container">
+                <!-- Informations et sélecteur -->
+                <div class="pagination-top">
+                    <div class="pagination-info-text">
+                        Affichage de <strong>{{ $courses->firstItem() }}</strong> à <strong>{{ $courses->lastItem() }}</strong> 
+                        sur <strong>{{ $courses->total() }}</strong> cours
+                    </div>
+                    
+                    <div class="per-page-wrapper">
+                        <label for="perPageSelect">Afficher :</label>
+                        <select id="perPageSelect" name="per_page" class="form-select form-select-sm" onchange="updatePerPage(this.value)">
+                            <option value="6" {{ request('per_page', 9) == 6 ? 'selected' : '' }}>6</option>
+                            <option value="9" {{ request('per_page', 9) == 9 ? 'selected' : '' }}>9</option>
+                            <option value="12" {{ request('per_page', 9) == 12 ? 'selected' : '' }}>12</option>
+                            <option value="18" {{ request('per_page', 9) == 18 ? 'selected' : '' }}>18</option>
+                            <option value="24" {{ request('per_page', 9) == 24 ? 'selected' : '' }}>24</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Liens de pagination -->
+                @if($courses->hasPages())
+                    <nav aria-label="Navigation des pages">
+                        <ul class="pagination">
+                            <!-- Bouton Précédent -->
+                            @if($courses->onFirstPage())
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </span>
+                                </li>
+                            @else
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $courses->appends(request()->except('page'))->previousPageUrl() }}" aria-label="Précédent">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            @endif
+
+                            <!-- Numéros de pages -->
+                            @foreach($courses->getUrlRange(max(1, $courses->currentPage() - 2), min($courses->lastPage(), $courses->currentPage() + 2)) as $page => $url)
+                                @if($page == $courses->currentPage())
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $courses->appends(request()->except('page'))->url($page) }}">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+
+                            <!-- Bouton Suivant -->
+                            @if($courses->hasMorePages())
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $courses->appends(request()->except('page'))->nextPageUrl() }}" aria-label="Suivant">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            @else
+                                <li class="page-item disabled">
+                                    <span class="page-link">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                @endif
             </div>
         @endif
     @else
@@ -394,7 +606,7 @@
                     <i class="fas fa-search"></i>
                     <h4>Aucun cours trouvé</h4>
                     <p>Aucun cours ne correspond à vos critères de recherche.</p>
-                    <a href="{{ route('formateur.courses.index') }}" class="btn btn-outline-primary">
+                    <a href="{{ route('formateur.courses.index') }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-times me-2"></i>Effacer les filtres
                     </a>
                 @else
@@ -451,5 +663,13 @@
     
     // Initialiser les animations
     document.addEventListener('DOMContentLoaded', animateOnScroll);
+    
+    // Fonction pour mettre à jour le nombre de cours par page
+    function updatePerPage(value) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', '1'); // Retourner à la première page
+        window.location.href = url.toString();
+    }
 </script>
 @endsection

@@ -20,9 +20,9 @@
                                          class="rounded me-3" 
                                          style="width: 60px; height: 60px; object-fit: cover;">
                                 @else
-                                    <div class="bg-primary rounded me-3 d-flex align-items-center justify-content-center" 
-                                         style="width: 60px; height: 60px;">
-                                        <i class="fas fa-book text-white"></i>
+                                    <div class=" rounded me-3 d-flex align-items-center justify-content-center" 
+                                         style="width: 60px; height: 60px ; background-color: #e67e22">
+                                        <i class="fas fa-book text-white" style="color: #e67e22"></i>
                                     </div>
                                 @endif
                                 <div>
@@ -40,7 +40,7 @@
                             
                             <div class="d-flex justify-content-between fw-bold">
                                 <span>Total</span>
-                                <span class="text-primary">{{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'EUR' }}</span>
+                                <span  style="color: #f32819">{{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'EUR' }}</span>
                             </div>
                             
                             <div class="mt-3 p-3 bg-light rounded">
@@ -80,9 +80,9 @@
                                     </div>
                                 </div>
                                 
-                                <button type="submit" id="submit-payment" class="btn btn-primary btn-lg w-100">
+                                <button type="submit" id="submit-payment" class="btn btn-lg w-100" style="background-color: #1EA38B; color: white;">
                                     <span id="button-text">
-                                        <i class="fas fa-lock me-2"></i>
+                                        <i class="fas fa-lock me-2" style="color: #e67e22"></i>
                                         Payer {{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'EUR' }}
                                     </span>
                                     <span id="spinner" class="d-none">
@@ -95,14 +95,14 @@
                             <div class="mt-4 text-center">
                                 <div class="row text-muted small">
                                     <div class="col-4">
-                                        <i class="fab fa-cc-visa"></i>
-                                        <i class="fab fa-cc-mastercard ms-1"></i>
+                                        <i class="fab fa-cc-visa" style="color: #e67e22"></i>
+                                        <i class="fab fa-cc-mastercard ms-1" style="color: #e67e22"></i>
                                     </div>
                                     <div class="col-4">
-                                        <i class="fas fa-shield-alt"></i> SSL
+                                        <i class="fas fa-shield-alt" style="color: #e67e22"></i> SSL
                                     </div>
                                     <div class="col-4">
-                                        <i class="fas fa-lock"></i> Sécurisé
+                                        <i class="fas fa-lock" style="color: #e67e22"></i> Sécurisé
                                     </div>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                     
                     <div class="text-center mt-3">
                         <a href="{{ route('courses.show', $course) }}" class="btn btn-link">
-                            <i class="fas fa-arrow-left me-2"></i>Retour au cours
+                            <i class="fas fa-arrow-left me-2" style="color: #e67e22"></i>Retour au cours
                         </a>
                     </div>
                 </div>

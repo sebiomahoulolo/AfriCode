@@ -51,23 +51,18 @@ class CourseShowcase extends Component
             ->where('status', 'published')
             ->where('published_at', '<=', now())
             ->with([
-                // Charger les colonnes nécessaires pour l'accesseur full_name du formateur
-                'formateur:id,first_name,last_name', 
-                // Vous pourriez charger la catégorie si besoin pour d'autres infos, mais ce n'est pas dans la carte
-                // 'category:id,name,slug', 
+                'formateur:id,first_name,last_name',
+                'category:id,name,slug',
+                'modules.lessons:id,module_id' // Précharger pour éviter N+1
             ])
-            // Charger les données pour l'affichage dans la carte
-            // Assurez-vous que votre modèle Course a les colonnes :
-            // - title, slug, short_description (ou description si vous préférez), level
-            // - price, original_price (si utilisé), cover_image_path
-            // - created_at (pour le badge "Nouveau")
-            // Les relations 'ratings' et 'enrollments' sont utilisées pour les withAvg/withCount
             ->withAvg('ratings as ratings_avg_rating', 'rating')
             ->withCount([
                 'ratings as ratings_count',
                 'enrollments as enrollments_count',
-                // Si vous avez une relation pour les leçons et que vous voulez le compte :
-                // 'lessons as total_lessons_count' // Nécessiterait une relation `lessons()` dans le modèle Course
+                'modules as modules_count',
+                'modules as total_lessons_count' => function($query) {
+                    $query->join('lessons', 'modules.id', '=', 'lessons.module_id');
+                }
             ]);
 
         if ($this->selectedCategory) {

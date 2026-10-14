@@ -8,7 +8,10 @@
     .quiz-form-container { max-width: 900px; margin: auto; }
     .question-card { display: none; }
     .question-card.active { display: block; }
-    .answer-option .form-check-input { display: none; }
+    /* Afficher clairement le type de question : radio (choix unique) ou checkbox (choix multiple) */
+    .answer-option .form-check-input {
+        margin-right: 0.75rem;
+    }
     .answer-label {
         display: block;
         padding: 1rem 1.5rem;
@@ -23,9 +26,9 @@
         border-color: var(--primary-color-light);
     }
     .form-check-input:checked + .answer-label {
-        background: var(--primary-color-lightest);
-        border-color: var(--primary-color);
-        font-weight: 600;
+        background: #fff9c4; /* jaune pâle pour bien voir le choix */
+        border-color: #fbc02d;
+        font-weight: 400; /* ne pas mettre en gras */
         color: var(--primary-color-dark);
     }
     .quiz-progress-bar-container {
@@ -60,7 +63,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h3 class="mb-0">Question <span id="question-number">1</span>/{{ $quiz->questions->count() }}</h3>
                     @if($quiz->time_limit_minutes)
-                        <div id="timer-display" class="badge badge-lg badge-primary">
+                        <div id="timer-display" class="badge badge-lg" style="background:#1EA38B;">
                             <i class="fas fa-clock me-2"></i>
                             <span id="timer"></span>
                     </div>
@@ -82,8 +85,9 @@
                 <div class="list-group">
                     @foreach($question->answers as $answer)
                         <div class="answer-option form-check">
+                            {{-- Sur l'interface apprenant, toutes les questions de quiz sont présentées en choix unique (radio) --}}
                             <input class="form-check-input" 
-                                   type="{{ $question->type === 'multiple_choice' ? 'checkbox' : 'radio' }}" 
+                                   type="radio"
                                    name="question_{{ $question->id }}[]" 
                                    value="{{ $answer->id }}" 
                                    id="answer-{{ $answer->id }}">
@@ -105,7 +109,7 @@
                 <button type="button" id="next-btn" class="btn btn-modern focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Question suivante">
                     Suivant<i class="fas fa-arrow-right ms-2"></i>
                 </button>
-                <button type="submit" id="submit-btn" class="btn btn-success w-full focus:outline-none focus:ring-2 focus:ring-primary" style="display: none;" aria-label="Soumettre mes réponses">
+                <button type="submit" id="submit-btn" class="btn text-white w-full focus:outline-none focus:ring-2 focus:ring-primary" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;display: none;" aria-label="Soumettre mes réponses">
                     <i class="fas fa-check-circle me-2"></i>Soumettre mes réponses
                     </button>
                 </div>

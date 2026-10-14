@@ -13,6 +13,7 @@ use App\Models\QuizAttempt;
 use App\Models\UserQuizAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Spatie\Browsershot\Browsershot;
@@ -39,8 +40,20 @@ class EtudiantController extends Controller
         $user = Auth::user();
         
         // Récupérer les cours auxquels l'apprenant est inscrit avec la progression
+        // Seulement les cours avec paiement réussi pour les formations payantes
         $enrollments = Enrollment::where('user_id', $user->id)
-            ->with('course')
+            ->with(['course', 'payment'])
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0); // Cours gratuits
+                });
+            })
             ->orderBy('enrolled_at', 'desc')
             ->get();
         
@@ -49,7 +62,17 @@ class EtudiantController extends Controller
             ->with('course')
             ->get();
         
-        return view('apprenants.dashboard', compact('enrollments', 'certifications'));
+        // Récupérer les cours recommandés (cours publiés auxquels l'utilisateur n'est pas inscrit)
+        $enrolledCourseIds = $enrollments->pluck('course_id')->toArray();
+        
+        $recommendedCourses = Course::where('status', 'published')
+            ->whereNotIn('id', $enrolledCourseIds)
+            ->with(['formateur', 'category', 'ratings'])
+            ->orderBy('created_at', 'desc')
+            ->take(6) // Limiter à 6 cours recommandés
+            ->get();
+        
+        return view('apprenants.dashboard', compact('enrollments', 'certifications', 'recommendedCourses'));
     }
     
     /**
@@ -61,11 +84,22 @@ class EtudiantController extends Controller
     {
         $user = Auth::user();
         
-        // Récupérer les inscriptions avec cours
+        // Récupérer les inscriptions avec cours (seulement celles avec paiement réussi)
         $enrollments = Enrollment::where('user_id', $user->id)
             ->with(['course' => function($query) {
                 $query->with(['modules.lessons', 'formateur', 'category']);
-            }])
+            }, 'payment'])
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0); // Cours gratuits
+                });
+            })
             ->orderBy('enrolled_at', 'desc')
             ->get();
         
@@ -154,17 +188,17 @@ class EtudiantController extends Controller
             $user->password = Hash::make($request->password);
         }
         
-        // Gérer l'upload de l'image de profil
+        // Gérer l'upload de l'image de profil avec optimisation
         if ($request->hasFile('profile_image')) {
             // Supprimer l'ancienne image si elle existe
-            if ($user->profile_image_path && file_exists(public_path($user->profile_image_path))) {
-                unlink(public_path($user->profile_image_path));
+            if ($user->profile_image_path) {
+                $imageService = new \App\Services\ImageOptimizationService();
+                $imageService->deleteImage($user->profile_image_path);
             }
             
-            $image = $request->file('profile_image');
-            $imageName = 'profile_' . $user->id . '_' . time() . '.' . $image->extension();
-            $image->move(public_path('storage/profiles'), $imageName);
-            $user->profile_image_path = 'storage/profiles/' . $imageName;
+            // Optimiser et sauvegarder la nouvelle image
+            $imageService = new \App\Services\ImageOptimizationService();
+            $user->profile_image_path = $imageService->optimizeProfileImage($request->file('profile_image'));
         }
         
         $user->save();
@@ -181,21 +215,68 @@ class EtudiantController extends Controller
     {
         $user = Auth::user();
         
-        // Récupérer les cours auxquels l'apprenant est inscrit avec la progression
+        // Récupérer les cours auxquels l'apprenant est inscrit avec la progression (seulement ceux avec paiement réussi)
         $enrollments = Enrollment::where('user_id', $user->id)
             ->with(['course' => function($query) {
                 $query->with(['modules.lessons', 'formateur', 'category']);
-            }])
+            }, 'payment'])
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0); // Cours gratuits
+                });
+            })
             ->orderBy('enrolled_at', 'desc')
             ->paginate(12);
         
-        // Récupérer les statistiques générales
-        $totalEnrollments = Enrollment::where('user_id', $user->id)->count();
+        // Récupérer les statistiques générales (avec la même logique de filtrage)
+        $totalEnrollments = Enrollment::where('user_id', $user->id)
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0);
+                });
+            })
+            ->count();
+            
         $completedCourses = Enrollment::where('user_id', $user->id)
             ->where('completed_at', '!=', null)
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0);
+                });
+            })
             ->count();
+            
         $inProgressCourses = Enrollment::where('user_id', $user->id)
             ->where('completed_at', null)
+            ->whereHas('course', function($query) {
+                $query->where('status', 'published');
+            })
+            ->where(function($query) {
+                $query->whereHas('payment', function($paymentQuery) {
+                    $paymentQuery->where('status', 'succeeded');
+                })
+                ->orWhereHas('course', function($courseQuery) {
+                    $courseQuery->where('price', 0);
+                });
+            })
             ->count();
         $totalCertifications = Certification::where('user_id', $user->id)->count();
         
@@ -223,14 +304,25 @@ class EtudiantController extends Controller
         $user = Auth::user();
         $course = Course::findOrFail($courseId);
         
-        // Vérifier si l'apprenant est inscrit au cours
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $courseId)
-            ->first();
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
             
-        if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+            // Log pour debugging
+            Log::info('Redirection vers page de paiement', [
+                'user_id' => $user->id,
+                'course_id' => $course->id,
+                'route' => $route,
+                'params' => $params,
+                'error' => $accessCheck['error']
+            ]);
+            
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
         }
+        
+        $enrollment = $accessCheck['enrollment'];
         
         // Utiliser la structure de cours pour trouver la prochaine étape
         $courseStructure = $this->getCourseStructureForUser($course, $user);
@@ -274,14 +366,15 @@ class EtudiantController extends Controller
         $lesson = Lesson::with('module.course.modules')->findOrFail($lessonId);
         $course = $lesson->module->course;
         
-        // Vérifier l'inscription
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
-            
-        if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours.');
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
         }
+        
+        $enrollment = $accessCheck['enrollment'];
 
         // --- Préparation de la structure du cours pour la sidebar ---
         $courseStructure = $this->getCourseStructureForUser($course, $user);
@@ -326,6 +419,15 @@ class EtudiantController extends Controller
             ->first();
         }
 
+        // Récupérer les informations de progression de la leçon
+        $lessonProgress = LessonCompletion::where('user_id', $user->id)
+            ->where('lesson_id', $lessonId)
+            ->where('enrollment_id', $enrollment->id)
+            ->first();
+        
+        $watchTimeSeconds = $lessonProgress ? $lessonProgress->watch_time_seconds : 0;
+        $canComplete = $lessonProgress ? $lessonProgress->can_complete : false;
+
         return view('apprenants.lesson', compact(
             'lesson',
             'course',
@@ -338,8 +440,80 @@ class EtudiantController extends Controller
             'moduleQuiz',
             'moduleQuizPassed',
             'firstLessonNextModule',
-            'certification'
+            'certification',
+            'watchTimeSeconds',
+            'canComplete'
         ));
+    }
+
+    /**
+     * Vérifie si l'utilisateur a accès au cours (inscription + paiement si nécessaire)
+     */
+    private function checkCourseAccess(Course $course, User $user)
+    {
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->with('payments') // Récupérer TOUS les paiements, pas seulement le premier
+            ->first();
+            
+        if (!$enrollment) {
+            return [
+                'has_access' => false,
+                'error' => 'Vous n\'êtes pas inscrit à ce cours',
+                'redirect' => 'apprenant.dashboard'
+            ];
+        }
+
+        // Vérifier le paiement pour les cours payants
+        if ($course->price > 0) {
+            // Vérifier s'il y a au moins un paiement réussi
+            $successfulPayment = $enrollment->payments()
+                ->where('status', 'succeeded')
+                ->first();
+                
+            if (!$successfulPayment) {
+                // CORRECTION : Si l'inscription est activée mais sans paiement réussi, la désactiver
+                if ($enrollment->enrolled_at) {
+                    Log::warning('Inscription activée sans paiement réussi - correction automatique', [
+                        'enrollment_id' => $enrollment->id,
+                        'user_id' => $user->id,
+                        'course_id' => $course->id,
+                        'enrolled_at' => $enrollment->enrolled_at
+                    ]);
+                    
+                    // Désactiver l'inscription
+                    $enrollment->update(['enrolled_at' => null]);
+                }
+                
+                // Vérifier s'il y a des paiements en attente ou échoués
+                $pendingOrFailedPayments = $enrollment->payments()
+                    ->whereIn('status', ['pending', 'failed'])
+                    ->exists();
+                    
+                if ($pendingOrFailedPayments) {
+                    // L'utilisateur a déjà tenté de payer, rediriger vers la page d'inscription
+                    return [
+                        'has_access' => false,
+                        'error' => 'Votre paiement est en attente ou a échoué. Veuillez compléter votre paiement pour accéder au cours.',
+                        'redirect' => 'enrollment.show',
+                        'course' => $course
+                    ];
+                } else {
+                    // Aucun paiement tenté, rediriger vers la page d'inscription
+                    return [
+                        'has_access' => false,
+                        'error' => 'Le paiement pour ce cours n\'a pas été effectué. Veuillez compléter votre paiement pour accéder au cours.',
+                        'redirect' => 'enrollment.show',
+                        'course' => $course
+                    ];
+                }
+            }
+        }
+
+        return [
+            'has_access' => true,
+            'enrollment' => $enrollment
+        ];
     }
 
     /**
@@ -357,6 +531,7 @@ class EtudiantController extends Controller
 
         $completedLessons = LessonCompletion::where('user_id', $user->id)
             ->whereIn('lesson_id', $course->modules->flatMap->lessons->pluck('id'))
+            ->whereNotNull('completed_at')
             ->pluck('lesson_id');
 
         $structure = [
@@ -402,8 +577,9 @@ class EtudiantController extends Controller
                 'quiz' => $moduleQuizData,
             ];
 
-            // Pour le module suivant, il faut que le quiz du module actuel soit passé (s'il existe)
-            $previousModuleCompleted = $allLessonsInModuleCompleted && (!$module->quiz || $module->quiz->isPassedByUser($user->id));
+            // Pour le module suivant, il faut que toutes les leçons soient complétées
+            // Le quiz n'est pas obligatoire pour débloquer le module suivant
+            $previousModuleCompleted = $allLessonsInModuleCompleted;
         }
 
         if ($course->finalQuiz) {
@@ -445,16 +621,31 @@ class EtudiantController extends Controller
         $lesson = Lesson::with('module.course')->findOrFail($lessonId);
         $course = $lesson->module->course;
         
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->firstOrFail();
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
+        }
+        
+        $enrollment = $accessCheck['enrollment'];
         
         // Marquer la leçon comme complétée si elle ne l'est pas déjà
-        LessonCompletion::firstOrCreate([
+        $completion = LessonCompletion::firstOrCreate([
             'user_id' => $user->id,
             'lesson_id' => $lessonId,
             'enrollment_id' => $enrollment->id
-        ], ['completed_at' => now()]);
+        ], [
+            'completed_at' => now(),
+            'can_complete' => true,
+            'watch_time_seconds' => 0
+        ]);
+
+        // Si l'enregistrement existait déjà, mettre à jour completed_at
+        if (!$completion->wasRecentlyCreated && !$completion->completed_at) {
+            $completion->update(['completed_at' => now()]);
+        }
         
         // Mettre à jour la progression du cours
         $this->updateCourseProgress($enrollment);
@@ -470,13 +661,63 @@ class EtudiantController extends Controller
         return redirect($nextUrl)->with('success', 'Leçon marquée comme terminée !');
     }
 
+    /**
+     * Mettre à jour le temps de visionnage d'une leçon
+     */
+    public function updateWatchTime(Request $request, $lessonId)
+    {
+        $user = Auth::user();
+        $lesson = Lesson::with('module.course')->findOrFail($lessonId);
+        $course = $lesson->module->course;
+        
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            return response()->json(['error' => 'Accès non autorisé'], 403);
+        }
+        
+        $enrollment = $accessCheck['enrollment'];
+        $watchTimeSeconds = $request->input('watch_time_seconds', 0);
+        
+        // Calculer le pourcentage de visionnage
+        $totalDurationSeconds = $lesson->duration_minutes * 60;
+        $watchPercentage = $totalDurationSeconds > 0 ? ($watchTimeSeconds / $totalDurationSeconds) * 100 : 0;
+        
+        // Vérifier si l'utilisateur peut marquer la leçon comme terminée (75% du temps)
+        $canComplete = $watchPercentage >= 75;
+        
+        // Créer ou mettre à jour l'enregistrement de progression
+        $completion = LessonCompletion::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'lesson_id' => $lessonId,
+                'enrollment_id' => $enrollment->id
+            ],
+            [
+                'watch_time_seconds' => $watchTimeSeconds,
+                'can_complete' => $canComplete,
+                'completed_at' => $canComplete ? now() : null
+            ]
+        );
+        
+        return response()->json([
+            'success' => true,
+            'watch_time_seconds' => $watchTimeSeconds,
+            'watch_percentage' => round($watchPercentage, 2),
+            'can_complete' => $canComplete,
+            'total_duration_seconds' => $totalDurationSeconds
+        ]);
+    }
+
     private function updateCourseProgress(Enrollment $enrollment)
     {
         $course = $enrollment->course;
         $totalLessons = $course->getLessonsCount();
         
         if ($totalLessons > 0) {
-            $completedLessons = LessonCompletion::where('enrollment_id', $enrollment->id)->count();
+            $completedLessons = LessonCompletion::where('enrollment_id', $enrollment->id)
+                ->whereNotNull('completed_at')
+                ->count();
             $enrollment->progress_percentage = ($completedLessons / $totalLessons) * 100;
         } else {
             $enrollment->progress_percentage = 100;
@@ -492,14 +733,14 @@ class EtudiantController extends Controller
             $enrollment->completed_at = now();
             $enrollment->save();
         }
-            
+
         // On ne génère un certificat que si le cours est certifiant (is_certifying = 1)
         if ($enrollment->course->is_certifying == 1) {
             $finalQuiz = $enrollment->course->finalQuiz;
-            
+
             // Vérifier si le quiz final existe et est réussi
-            $finalQuizPassed = $finalQuiz && $finalQuiz->isPassedByUser($enrollment->user_id);
-            
+            $finalQuizPassed = $finalQuiz ? $finalQuiz->isPassedByUser($enrollment->user_id) : true;
+
             // Vérifier tous les quiz requis
             $allRequiredQuizzesPassed = true;
             foreach ($enrollment->course->modules as $module) {
@@ -509,8 +750,11 @@ class EtudiantController extends Controller
                 }
             }
 
+            // Vérifier que toutes les leçons sont complétées
+            $allLessonsCompleted = $enrollment->course->allModulesCompletedByUser($enrollment->user_id);
+
             // Si toutes les conditions sont remplies, créer ou récupérer la certification
-            if ($finalQuizPassed && $allRequiredQuizzesPassed) {
+            if ($finalQuizPassed && $allRequiredQuizzesPassed && $allLessonsCompleted) {
                 $certification = Certification::firstOrCreate(
                     [
                         'user_id' => $enrollment->user_id,
@@ -518,9 +762,9 @@ class EtudiantController extends Controller
                     ],
                     [
                         'enrollment_id' => $enrollment->id,
-                    'issued_at' => now(),
-                    'certificate_path' => '',
-                    'verification_code' => 'VERIFY-' . uniqid(),
+                        'issued_at' => now(),
+                        'certificate_path' => '',
+                        'verification_code' => 'VERIFY-' . uniqid(),
                         'certificate_identifier' => 'CERT-' . $enrollment->user_id . '-' . $enrollment->course_id . '-' . time()
                     ]
                 );
@@ -633,14 +877,15 @@ class EtudiantController extends Controller
         $course = $quiz->course ?? $quiz->module->course;
         $module = $quiz->module; // Peut être null pour un quiz de cours
         
-        // Vérifier l'inscription au cours
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
-            
-        if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
         }
+        
+        $enrollment = $accessCheck['enrollment'];
         
         // Vérifier si l'utilisateur peut accéder à ce quiz
         if (!$quiz->canBeAccessedByUser($user->id)) {
@@ -652,7 +897,7 @@ class EtudiantController extends Controller
         }
         
         // Récupérer les tentatives et le statut
-        $attempts = $quiz->attempts()->where('user_id', $user->id)->latest()->get();
+        $attempts = QuizAttempt::where('quiz_id', $quiz->id)->where('user_id', $user->id)->latest()->get();
         $latestAttempt = $attempts->first();
         $bestAttempt = $quiz->bestAttemptByUser($user->id);
         $passed = $quiz->isPassedByUser($user->id);
@@ -686,13 +931,15 @@ class EtudiantController extends Controller
         $quiz = Quiz::with(['questions.answers', 'module.course', 'course'])->findOrFail($quizId);
         $course = $quiz->course ?? $quiz->module->course;
 
-        // Vérifier l'inscription
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
-        if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
         }
+        
+        $enrollment = $accessCheck['enrollment'];
 
         // Vérifier si l'utilisateur peut accéder à ce quiz
         if (!$quiz->canBeAccessedByUser($user->id)) {
@@ -726,13 +973,17 @@ class EtudiantController extends Controller
         
         // Vérifier l'inscription au cours
         $courseId = $quiz->course_id ?? $quiz->module->course_id;
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $courseId)
-            ->first();
-            
-        if (!$enrollment) {
-            return redirect()->route('apprenant.dashboard')->with('error', 'Vous n\'êtes pas inscrit à ce cours');
+        $course = Course::findOrFail($courseId);
+        
+        // Vérifier l'accès au cours (inscription + paiement)
+        $accessCheck = $this->checkCourseAccess($course, $user);
+        if (!$accessCheck['has_access']) {
+            $route = $accessCheck['redirect'];
+            $params = isset($accessCheck['course']) ? [$accessCheck['course']] : [];
+            return redirect()->route($route, $params)->with('error', $accessCheck['error']);
         }
+        
+        $enrollment = $accessCheck['enrollment'];
         
         // Créer une nouvelle tentative
         $attempt = QuizAttempt::create([
@@ -740,7 +991,7 @@ class EtudiantController extends Controller
             'quiz_id' => $quiz->id,
             'enrollment_id' => $enrollment->id,
             'started_at' => now(),
-            'status' => 'completed'
+            'status' => 'in_progress'
         ]);
         
         $totalPoints = 0;
@@ -759,14 +1010,21 @@ class EtudiantController extends Controller
             $isCorrect = false;
             
             if ($question->type === 'single_choice') {
-                $correctAnswer = $question->answers->where('is_correct', true)->first();
+                $correctAnswer = $question->options->where('is_correct', true)->first();
                 $isCorrect = $correctAnswer && in_array($correctAnswer->id, $userAnswerIds);
             } elseif ($question->type === 'multiple_choice') {
-                $correctAnswers = $question->answers->where('is_correct', true)->pluck('id')->toArray();
-                $isCorrect = count($correctAnswers) === count($userAnswerIds) && 
-                           empty(array_diff($correctAnswers, $userAnswerIds));
+                $correctAnswers = $question->options->where('is_correct', true)->pluck('id')->toArray();
+                
+                // Si il n'y a qu'une seule réponse correcte, traiter comme single_choice
+                if (count($correctAnswers) === 1) {
+                    $isCorrect = in_array($correctAnswers[0], $userAnswerIds);
+                } else {
+                    // Vraie logique multiple_choice : toutes les bonnes réponses et aucune mauvaise
+                    $isCorrect = count($correctAnswers) === count($userAnswerIds) && 
+                               empty(array_diff($correctAnswers, $userAnswerIds));
+                }
             } elseif ($question->type === 'true_false') {
-                $correctAnswer = $question->answers->where('is_correct', true)->first();
+                $correctAnswer = $question->options->where('is_correct', true)->first();
                 $isCorrect = $correctAnswer && in_array($correctAnswer->id, $userAnswerIds);
             }
             
@@ -794,9 +1052,11 @@ class EtudiantController extends Controller
         
         // Mettre à jour la tentative
         $attempt->update([
+            'submitted_at' => now(),
             'completed_at' => now(),
             'score' => $scorePercentage,
-            'passed' => $passed
+            'passed' => $passed,
+            'status' => 'completed'
         ]);
         
         // Si le quiz est réussi, vérifier si le cours est terminé pour générer le certificat
@@ -830,29 +1090,40 @@ class EtudiantController extends Controller
     public function showQuizResult($quizId, $attemptId)
     {
         $user = Auth::user();
-        $quiz = Quiz::with(['questions.answers', 'module.course', 'course'])->findOrFail($quizId);
+        $quiz = Quiz::with(['questions.answers', 'module.course', 'course', 'attempts'])->findOrFail($quizId);
         $attempt = QuizAttempt::with(['answers.answer', 'answers.question'])
             ->where('id', $attemptId)
             ->where('user_id', $user->id)
             ->firstOrFail();
             
+        // Vérifications de sécurité
+        if (!$quiz) {
+            abort(404, 'Quiz non trouvé');
+        }
+        
+        if (!$attempt) {
+            abort(404, 'Tentative de quiz non trouvée');
+        }
+            
         // Statistiques pour la vue
-        $totalQuestions = $quiz->questions->count();
-        $correctAnswers = $attempt->answers()->where('is_correct', true)->distinct('question_id')->count();
-        $userAttempts = $quiz->attempts()->where('user_id', $user->id)->count();
+        $totalQuestions = $quiz->questions ? $quiz->questions->count() : 0;
+        $correctAnswers = $attempt->answers() ? $attempt->answers()->where('is_correct', true)->distinct('question_id')->count() : 0;
+        $userAttempts = QuizAttempt::where('quiz_id', $quiz->id)->where('user_id', $user->id)->count();
 
         // Grouper les réponses par question pour l'affichage détaillé
         $questionResults = [];
-        foreach ($quiz->questions as $question) {
-            $userAnswers = $attempt->answers->where('question_id', $question->id);
-            $correctAnswersForQuestion = $question->answers->where('is_correct', true);
-            
-            $questionResults[] = [
-                'question' => $question,
-                'user_answers' => $userAnswers,
-                'correct_answers' => $correctAnswersForQuestion,
-                'is_correct' => $userAnswers->isNotEmpty() && $userAnswers->first()->is_correct
-            ];
+        if ($quiz->questions) {
+            foreach ($quiz->questions as $question) {
+                $userAnswers = $attempt->answers ? $attempt->answers->where('question_id', $question->id) : collect();
+                $correctAnswersForQuestion = $question->answers ? $question->answers->where('is_correct', true) : collect();
+                
+                $questionResults[] = [
+                    'question' => $question,
+                    'user_answers' => $userAnswers,
+                    'correct_answers' => $correctAnswersForQuestion,
+                    'is_correct' => $userAnswers->isNotEmpty() && $userAnswers->first() && $userAnswers->first()->is_correct
+                ];
+            }
         }
         
         $passed = $attempt->score >= $quiz->passing_score;

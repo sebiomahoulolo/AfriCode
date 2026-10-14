@@ -1,0 +1,342 @@
+<?php
+namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable;
+
+class Course extends Model implements AuditableContract
+{
+    use HasFactory, SoftDeletes,  Auditable;
+
+    protected $fillable = [
+        'title', 
+        'slug', 
+        'short_description',
+        'full_description',
+        'learning_objectives',
+        'prerequisites',
+        'faq',
+        'testimonials',
+        'level',
+        'price',
+        'currency',
+        'cover_image_path',
+        'status',
+        'formateur_id',
+        'category_id',
+        'published_at',
+        'is_certifying',
+        'is_premium',
+        'is_promotional',
+        'discount_percentage',
+        'original_price',
+        'promotion_start_date',
+        'promotion_end_date'
+    ];
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
+        'published_at' => 'datetime',
+        'promotion_start_date' => 'datetime',
+        'promotion_end_date' => 'datetime',
+        'deleted_at' => 'datetime',
+        'validated_at' => 'datetime',
+        'submitted_for_validation_at' => 'datetime',
+        'learning_objectives' => 'array',
+        'prerequisites' => 'array',
+        'faq' => 'array',
+        'testimonials' => 'array',
+        'is_promotional' => 'boolean'
+    ];
+
+    /**
+     * Accessor pour obtenir l'URL complète de l'image de couverture
+     */
+    public function getCoverImageUrlAttribute()
+    {
+        if (!$this->cover_image_path) {
+            return asset('assets/images/course-placeholder.jpg');
+        }
+
+        // Normaliser le chemin - enlever le préfixe storage/ s'il existe déjà
+        $path = $this->cover_image_path;
+        if (str_starts_with($path, 'storage/')) {
+            // Le chemin contient déjà storage/, utiliser tel quel
+            return asset($path);
+        }
+        
+        // Si le chemin ne commence pas par storage/, l'ajouter
+        return asset('storage/' . $path);
+    }
+
+    // --- Relations ---
+    public function formateur() {
+        return $this->belongsTo(User::class, 'formateur_id');
+    }
+    
+    public function category() {
+        return $this->belongsTo(Category::class);
+    }
+    
+    public function modules() {
+        return $this->hasMany(Module::class);
+    }
+    
+    public function enrollments() {
+        return $this->hasMany(Enrollment::class);
+    }
+    
+    public function students() {
+        return $this->belongsToMany(User::class, 'enrollments')
+                ->withPivot('enrolled_at', 'completed_at', 'progress_percentage')
+                ->withTimestamps();
+    }
+    
+    public function payments() {
+        return $this->morphMany(Payment::class, 'payable');
+    }
+    
+    public function ratings() {
+        return $this->hasMany(Rating::class);
+    }
+    
+    public function certifications() {
+        return $this->hasMany(Certification::class);
+    }
+    
+    public function forums() {
+        return $this->hasMany(CourseForum::class);
+    }
+    
+    // Relation directe pour les quiz finaux du cours
+    public function finalQuiz()
+    {
+        return $this->hasOne(Quiz::class)->where('quiz_type', 'course_final');
+    }
+    
+    public function quizzes() {
+        return $this->hasMany(Quiz::class);
+    }
+
+    /**
+     * Les utilisateurs qui ont ce cours dans leur wishlist.
+     */
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
+    }
+
+    /**
+     * Les prérequis de ce cours.
+     */
+    public function prerequisites()
+    {
+        return $this->hasMany(CoursePrerequisite::class);
+    }
+
+    /**
+     * Les cours qui ont ce cours comme prérequis.
+     */
+    public function requiredFor()
+    {
+        return $this->hasMany(CoursePrerequisite::class, 'prerequisite_course_id');
+    }
+
+    /**
+     * Vérifie si un utilisateur peut accéder à ce cours.
+     */
+    public function canBeAccessedBy(User $user): bool
+    {
+        // Vérifier les prérequis
+        if (!CoursePrerequisite::canAccessCourse($user, $this)) {
+            return false;
+        }
+
+        // Vérifier l'inscription
+        $enrollment = $user->enrollments()->where('course_id', $this->id)->first();
+        if (!$enrollment) {
+            return false;
+        }
+
+        // Vérifier le paiement pour les cours payants
+        if ($this->price > 0) {
+            if (!$enrollment->payment || $enrollment->payment->status !== 'succeeded') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Récupère les prérequis manquants pour un utilisateur.
+     */
+    public function getMissingPrerequisitesFor(User $user): array
+    {
+        return CoursePrerequisite::getMissingPrerequisites($user, $this);
+    }
+
+    /**
+     * Prépare les données à indexer pour la recherche avancée.
+     */
+    public function toSearchableArray()
+    {
+        return [
+            'title' => $this->title,
+            'short_description' => $this->short_description,
+            'full_description' => $this->full_description,
+            'category' => optional($this->category)->name,
+            'level' => $this->level,
+            'price' => $this->price,
+            'is_certifying' => $this->is_certifying,
+            'is_premium' => $this->is_premium,
+            'formateur' => optional($this->formateur)->first_name . ' ' . optional($this->formateur)->last_name,
+            'tags' => $this->tags ?? [],
+        ];
+    }
+
+    // Générer le slug automatiquement lors de la création/mise à jour
+    protected static function boot() {
+        parent::boot();
+        static::saving(function ($course) {
+            if (empty($course->slug)) {
+                $course->slug = Str::slug($course->title);
+            }
+        });
+    }
+    
+    public function isPublished() {
+        return $this->status === 'published' && $this->published_at !== null && $this->published_at <= now();
+    }
+    
+    public function getLessonsCount() {
+        return $this->hasManyThrough(Lesson::class, Module::class)->count();
+    }
+    
+    /**
+     * Calcule la durée totale du cours en additionnant toutes les durées des leçons
+     * 
+     * @return int Durée totale en minutes
+     */
+    public function getEstimatedDuration() {
+        // Utiliser une requête optimisée pour calculer la somme
+        return (int) DB::table('lessons')
+            ->join('modules', 'lessons.module_id', '=', 'modules.id')
+            ->where('modules.course_id', $this->id)
+            ->whereNotNull('lessons.duration_minutes')
+            ->sum('lessons.duration_minutes');
+    }
+    
+    // Vérifier si tous les modules sont complétés (leçons + quiz)
+    public function allModulesCompletedByUser($userId)
+    {
+        $modules = $this->modules;
+        foreach ($modules as $module) {
+            if (!$module->isCompletedByUser($userId)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Vérifier si le quiz final est réussi
+    public function finalQuizPassedByUser($userId)
+    {
+        $finalQuiz = $this->finalQuiz;
+        if (!$finalQuiz) return true; // Pas de quiz final = considéré comme réussi
+        
+        return $finalQuiz->isPassedByUser($userId);
+    }
+    
+    // Vérifier si le cours est complètement terminé
+    public function isCompletedByUser($userId)
+    {
+        return $this->allModulesCompletedByUser($userId) && $this->finalQuizPassedByUser($userId);
+    }
+    
+    // Vérifier si l'utilisateur peut accéder au quiz final
+    public function canUserAccessFinalQuiz($userId)
+    {
+        return $this->allModulesCompletedByUser($userId);
+    }
+
+    // --- Méthodes pour les promotions ---
+    
+    /**
+     * Vérifier si le cours est actuellement en promotion
+     */
+    public function isCurrentlyOnPromotion()
+    {
+        if (!$this->is_promotional) {
+            return false;
+        }
+
+        $now = now();
+        
+        // Vérifier si la promotion est active dans la période définie
+        if ($this->promotion_start_date && $this->promotion_end_date) {
+            return $now->between($this->promotion_start_date, $this->promotion_end_date);
+        }
+
+        // Si pas de dates définies, considérer comme toujours active si is_promotional = true
+        return true;
+    }
+
+    /**
+     * Obtenir le prix avec remise appliquée
+     */
+    public function getDiscountedPrice()
+    {
+        if (!$this->isCurrentlyOnPromotion()) {
+            return $this->price;
+        }
+
+        if ($this->discount_percentage > 0) {
+            return $this->price * (1 - $this->discount_percentage / 100);
+        }
+
+        return $this->price;
+    }
+
+    /**
+     * Obtenir le pourcentage d'économie
+     */
+    public function getSavingsPercentage()
+    {
+        if (!$this->isCurrentlyOnPromotion()) {
+            return 0;
+        }
+
+        if ($this->original_price && $this->original_price > $this->price) {
+            return round((($this->original_price - $this->price) / $this->original_price) * 100);
+        }
+
+        return $this->discount_percentage ?? 0;
+    }
+
+    /**
+     * Scope pour récupérer les cours en promotion
+     */
+    public function scopePromotional($query)
+    {
+        return $query->where('is_promotional', true)
+                    ->where(function($q) {
+                        $q->where(function($subQ) {
+                            $subQ->whereNotNull('promotion_start_date')
+                                 ->whereNotNull('promotion_end_date')
+                                 ->where('promotion_start_date', '<=', now())
+                                 ->where('promotion_end_date', '>=', now());
+                        })->orWhere(function($subQ) {
+                            $subQ->whereNull('promotion_start_date')
+                                 ->whereNull('promotion_end_date');
+                        });
+                    });
+    }
+}

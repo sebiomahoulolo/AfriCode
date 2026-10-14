@@ -427,18 +427,18 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon primary">
-                <i class="fas fa-medal"></i>
+                <i class="fas fa-medal"  ></i>
             </div>
             <div class="stat-number">{{ $stats['total_certifications'] }}</div>
             <div class="stat-label">Certifications Obtenues</div>
         </div>
-        <div class="stat-card">
+        {{-- <div class="stat-card">
             <div class="stat-icon secondary">
                 <i class="fas fa-calendar-alt"></i>
             </div>
             <div class="stat-number">{{ $stats['this_year_certifications'] }}</div>
             <div class="stat-label">Cette Année</div>
-        </div>
+        </div> --}}
         <div class="stat-card">
             <div class="stat-icon success">
                 <i class="fas fa-graduation-cap"></i>
@@ -501,7 +501,7 @@
 
                 @if($certification->verification_code)
                 <div class="verification-info">
-                    <small class="text-primary">
+                    <small class="" style="color:#1EA38B;">
                         <i class="fas fa-shield-alt me-1"></i>
                         <strong>Code de vérification :</strong> {{ $certification->verification_code }}
                     </small>
@@ -521,7 +521,7 @@
         <p class="empty-text">
             Complétez vos cours pour obtenir vos premières certifications AfriCode !
         </p>
-        <a href="{{ route('apprenant.courses') }}" class="btn btn-primary btn-lg">
+        <a href="{{ route('apprenant.courses') }}" class="btn text-white btn-lg" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
             <i class="fas fa-book me-2"></i>
             Voir mes cours
         </a>

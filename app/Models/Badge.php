@@ -74,10 +74,10 @@ class Badge extends Model
     private function checkCourseCompletion(User $user): bool
     {
         $completedCourses = $user->enrollments()
-            ->where('status', 'completed')
+            ->whereNotNull('completed_at')
             ->count();
 
-        return $completedCourses >= $this->level;
+        return $completedCourses >= ($this->requirements['courses_completed'] ?? 1);
     }
 
     /**
@@ -89,7 +89,7 @@ class Badge extends Model
             ->where('score', '>=', 80)
             ->count();
 
-        return $quizAttempts >= $this->level;
+        return $quizAttempts >= ($this->requirements['quizzes_passed'] ?? 5);
     }
 
     /**
@@ -101,7 +101,7 @@ class Badge extends Model
             ->whereIn('type', ['post_created', 'comment_created', 'like_given'])
             ->count();
 
-        return $socialActivities >= $this->level;
+        return $socialActivities >= ($this->requirements['social_activities'] ?? 10);
     }
 
     /**
@@ -150,18 +150,53 @@ class Badge extends Model
         $type = $requirement['type'] ?? null;
         $value = $requirement['value'] ?? null;
 
-        if (!$type || !$value) {
+        if (!$type || $value === null) {
             return false;
         }
 
-        return match ($type) {
-            'level' => $user->progress->current_level >= $value,
-            'points' => $user->progress->total_points >= $value,
-            'courses_completed' => $user->completedCourses()->count() >= $value,
-            'quizzes_passed' => $user->passedQuizzes()->count() >= $value,
-            'perfect_quizzes' => $user->perfectQuizzes()->count() >= $value,
-            'streak_days' => $user->currentStreak() >= $value,
-            default => false,
-        };
+        try {
+            return match ($type) {
+                'level' => ($user->progress?->current_level ?? 1) >= $value,
+                'points' => ($user->progress?->total_points ?? 0) >= $value,
+                'courses_completed' => $user->enrollments()->whereNotNull('completed_at')->count() >= $value,
+                'quizzes_passed' => $user->quizAttempts()->where('score', '>=', 70)->count() >= $value,
+                'perfect_quizzes' => $user->quizAttempts()->where('score', 100)->count() >= $value,
+                'streak_days' => $this->calculateUserStreak($user) >= $value,
+                'social_activities' => $user->activities()->whereIn('type', ['post_created', 'comment_created', 'like_given'])->count() >= $value,
+                'certifications_earned' => $user->certifications()->count() >= $value,
+                'forum_posts' => $user->forumPosts()->count() >= $value,
+                default => false,
+            };
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Erreur lors de l'évaluation du badge {$this->id} pour l'utilisateur {$user->id}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Calcule la série de jours consécutifs d'activité de l'utilisateur
+     */
+    private function calculateUserStreak(User $user): int
+    {
+        $activities = $user->activities()
+            ->where('created_at', '>=', now()->subDays(30))
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy(function ($activity) {
+                return $activity->created_at->format('Y-m-d');
+            });
+
+        $streak = 0;
+        $currentDate = now()->format('Y-m-d');
+
+        foreach ($activities as $date => $dayActivities) {
+            if ($date === $currentDate || $date === now()->subDays($streak)->format('Y-m-d')) {
+                $streak++;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
     }
 } 

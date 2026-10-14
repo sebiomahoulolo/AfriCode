@@ -35,11 +35,11 @@ class InactiveUserReminder extends Notification
     public function toMail($notifiable)
     {
         return (new \Illuminate\Notifications\Messages\MailMessage)
-            ->subject('On ne vous voit plus sur AfriCode !')
-            ->greeting('Bonjour ' . $notifiable->first_name . ',')
-            ->line('Nous avons remarqué que vous n’avez pas progressé depuis quelques jours.')
-            ->action('Reprendre ma formation', url('/dashboard'))
-            ->line('Votre réussite nous tient à cœur !');
+            ->subject("On ne vous voit plus sur AfriCode !")
+            ->view('emails.notifications.inactive-reminder', [
+                'firstName'    => $notifiable->first_name,
+                'dashboardUrl' => url('/dashboard'),
+            ]);
     }
 
     /**
@@ -50,9 +50,9 @@ class InactiveUserReminder extends Notification
     public function toArray($notifiable)
     {
         return [
-            'title' => 'On ne vous voit plus !',
-            'body' => 'Vous n’avez pas progressé depuis quelques jours. Reprenez votre parcours !',
-            'url' => url('/dashboard'),
+            'title' => "On ne vous voit plus !",
+            'body'  => "Vous n'avez pas progressé depuis quelques jours. Reprenez votre parcours !",
+            'url'   => url('/dashboard'),
         ];
     }
 }

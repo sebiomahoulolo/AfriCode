@@ -7,12 +7,12 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="card border-0 shadow rounded-lg">
-                <div class="card-header bg-primary text-white text-center py-3">
+                <div class="card-header text-white text-center py-3" style="background:linear-gradient(135deg,#1EA38B,#27B371);">
                     <h4 class="mb-0">Compléter votre profil</h4>
                 </div>
                 <div class="card-body p-4 p-md-5">
                     <div class="text-center mb-4">
-                        <i class="fas fa-user-edit fa-3x text-primary mb-3"></i>
+                        <i class="fas fa-user-edit fa-3x mb-3" style="color:#1EA38B;"></i>
                         <p>Merci de vous être inscrit ! Veuillez compléter les informations ci-dessous pour personnaliser votre expérience sur AfriCode.</p>
                     </div>
 
@@ -71,7 +71,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary py-2">
+                            <button type="submit" class="btn text-white py-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <i class="fas fa-save me-2"></i>Enregistrer et continuer
                             </button>
                         </div>

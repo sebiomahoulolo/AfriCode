@@ -1,0 +1,8 @@
+/* AfriCode - Styles Formateur */
+
+/* Import des composants */
+@import 'layouts/formateur.css';
+@import 'components/sidebar.css';
+@import 'components/header.css';
+@import 'components/cards.css';
+@import 'components/responsive.css';

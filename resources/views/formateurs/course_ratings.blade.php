@@ -1,6 +1,6 @@
 @extends('formateurs.layouts.app')
 
-@section('title', 'AfriCode - Évaluations du cours')
+@section('title')
 @section('page-title', $course->title)
 @section('page-subtitle', 'Évaluations et commentaires (' . $course->ratings->count() . ' avis)')
 
@@ -9,7 +9,7 @@
         <i class="fas fa-arrow-left me-2"></i>Retour au cours
     </a>
     <div class="d-flex align-items-center">
-        <span class="badge bg-success me-2">
+        <span class="badge me-2" style="background:#27B371;">
             <i class="fas fa-star me-1"></i>{{ number_format($averageRating, 1) }}
         </span>
         <small class="text-muted">Note moyenne</small>
@@ -141,7 +141,7 @@
                 </div>
                 
                 <div class="card-footer bg-white">
-                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-primary btn-block w-100">
+                    <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-block w-100" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-arrow-left me-1"></i> {{ __('messages.back_to_course') }}
                     </a>
                 </div>
@@ -210,7 +210,7 @@
                                 </div>
                             @else
                                 <div class="mt-3">
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#replyModal{{ $rating->id }}">
+                                    <button type="button" class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;" data-bs-toggle="modal" data-bs-target="#replyModal{{ $rating->id }}">
                                         <i class="fas fa-reply me-1"></i> Répondre
                                     </button>
                                 </div>
@@ -233,7 +233,7 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    <button type="submit" class="btn btn-primary">Publier la réponse</button>
+                                                    <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Publier la réponse</button>
                                                 </div>
                                             </form>
                                         </div>

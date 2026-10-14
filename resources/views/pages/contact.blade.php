@@ -1,9 +1,42 @@
 @extends('layouts.layout')
 
-@section('title', 'Contact - AfriCode')
+@section('title', 'Contactez-nous — AfriCode | Hub Numérique Africain')
+@section('meta_description', 'Contactez l\'équipe AfriCode pour vos projets de formation, de développement numérique ou de partenariat. Nous sommes à votre écoute.')
+@section('meta_keywords', 'contact AfriCode, support AfriCode, partenariat numérique Afrique, nous contacter, contact@africode.tech')
+@section('og_title', 'Contactez AfriCode — Hub Numérique Africain')
+@section('og_description', 'Une question sur nos formations ou services ? Contactez l\'équipe AfriCode. Réponse sous 24h.')
+@section('og_image', asset('images/africode-og.jpg'))
+
+@push('meta')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  "name": "Contact AfriCode",
+  "url": "{{ url()->current() }}",
+  "mainEntity": {
+    "@type": "Organization",
+    "name": "AfriCode",
+    "email": "contact@africode.tech",
+    "url": "{{ url('/') }}"
+  }
+}
+</script>
+@endpush
 
 @section('content')
 
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WJFL3W2W');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WJFL3W2W"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 <!-- Hero Section pour Contact -->
 <section class="contact-hero py-5">
   <div class="container">
@@ -44,34 +77,34 @@
         <div class="contact-info-container">
           <h3 class="section-title mb-4">Restons <span class="text-gradient">connectés</span></h3>
           <p class="text-content mb-4">Nous répondons généralement sous 24h. N'hésitez pas à nous écrire pour toute question ou collaboration !</p>
-          
+
           <div class="contact-cards">
             <div class="contact-card">
-              <div class="contact-icon">📧</div>
+              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
               <div class="contact-details">
                 <h5>Email</h5>
                 <p>contact@africode.tech</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">📱</div>
+              <div class="contact-icon"><i class="fas fa-mobile-alt"></i></div>
               <div class="contact-details">
                 <h5>Téléphone</h5>
                 <p>+229 01 65 60 30 40</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">📍</div>
+              <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
               <div class="contact-details">
                 <h5>Adresse</h5>
                 <p>Cotonou, Bénin</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">⏰</div>
+              <div class="contact-icon"><i class="fas fa-clock"></i></div>
               <div class="contact-details">
                 <h5>Horaires</h5>
                 <p>Lun - Ven : 8h - 18h</p>
@@ -86,7 +119,7 @@
         <div class="contact-form-container">
           <div class="organic-container form-container">
             <h4 class="form-title mb-4">Envoyez-nous un message</h4>
-            <form action="{{ route('contact.submit') }}" method="POST" class="modern-form" id="contactForm">
+            <form action="{{ route('contact.submit') }}" method="POST" class="modern-form" id="contactForm" enctype="multipart/form-data">
               @csrf
               <div class="row g-3">
                 <div class="col-md-6">
@@ -125,6 +158,28 @@
                 <textarea class="form-control modern-input" id="message" name="message" rows="5" placeholder="Décrivez votre projet, question ou demande..." required></textarea>
               </div>
 
+              <!-- Pièce jointe (optionnelle) -->
+              <div class="form-group">
+                <label class="form-label">Pièce jointe <span class="badge-optional">Optionnel</span></label>
+                <div class="file-drop-zone" id="fileDropZone">
+                  <input type="file" class="file-input-hidden" id="attachment" name="attachment"
+                         accept=".pdf,.jpg,.jpeg,.png,.gif,.webp">
+                  <div class="file-drop-content" id="fileDropContent">
+                    <div class="file-drop-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <p class="file-drop-label">Glissez un fichier ici ou <span class="file-browse-link">parcourez</span></p>
+                    <p class="file-drop-hint">PDF, JPG, PNG, GIF, WEBP — max 5 Mo</p>
+                  </div>
+                  <div class="file-selected-info" id="fileSelectedInfo" style="display:none;">
+                    <i class="fas fa-paperclip me-2"></i>
+                    <span id="fileSelectedName"></span>
+                    <button type="button" class="file-remove-btn" id="fileRemoveBtn" title="Supprimer">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="fileError" class="file-error-msg" style="display:none;"></div>
+              </div>
+
               <div class="form-group">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" value="1" id="newsletter" name="newsletter">
@@ -158,34 +213,41 @@
       <h3 class="section-title">Suivez-nous sur les <span class="text-gradient">réseaux</span></h3>
       <p class="text-content">Rejoignez notre communauté et restez informés de nos dernières actualités</p>
     </div>
-    
+
     <div class="social-cards-container">
       <div class="social-card">
-        <div class="social-icon linkedin">💼</div>
+        <div class="social-icon linkedin"><i class="fab fa-linkedin-in"></i></div>
         <h5>LinkedIn</h5>
         <p>Actualités professionnelles</p>
         <a href="https://www.linkedin.com/company/africode-no-code-no-future/" class="social-link">Suivre</a>
       </div>
-      
+
       <!-- <div class="social-card">
-        <div class="social-icon twitter">💻</div>
+        <div class="social-icon twitter"><i class="fab fa-twitter"></i></div>
         <h5>Twitter</h5>
         <p>Actualités en temps réel</p>
         <a href="#" class="social-link">Suivre</a>
       </div> -->
-      
+
       <div class="social-card">
-        <div class="social-icon youtube">📺</div>
+        <div class="social-icon youtube"><i class="fab fa-youtube"></i></div>
         <h5>YouTube</h5>
         <p>Tutoriels et formations</p>
         <a href="https://youtube.com/@africodetechsm?si=k8Y49FJR3tib1KNc" class="social-link">S'abonner</a>
       </div>
-      
+
       <div class="social-card">
-        <div class="social-icon github">🐦</div>
-        <h5>Fecebook</h5>
+        <div class="social-icon github"><i class="fab fa-facebook-f" ></i></div>
+        <h5>Facebook</h5>
         <p>Actualités en temps réel</p>
         <a href="https://www.facebook.com/profile.php?id=61574681464943" class="social-link">Suivre</a>
+      </div>
+
+      <div class="social-card">
+        <div class="social-icon tiktok"><i class="fab fa-tiktok"></i></div>
+        <h5>TikTok</h5>
+        <p>Vidéos et actualités</p>
+        <a href="https://www.tiktok.com/@africodetech?_r=1&_t=ZS-93v9AuqVviq" class="social-link" target="_blank" rel="noopener noreferrer">Suivre</a>
       </div>
     </div>
   </div>
@@ -198,32 +260,32 @@
       <h3 class="section-title">Questions <span class="text-gradient">rapides</span></h3>
       <p class="text-content">Les réponses aux questions les plus fréquentes</p>
     </div>
-    
+
     <div class="row g-4">
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>🚀 Comment rejoindre AfriCode ?</h5>
+          <h5>Comment rejoindre AfriCode ?</h5>
           <p>Inscrivez-vous simplement sur notre plateforme et choisissez les formations qui vous intéressent.</p>
         </div>
       </div>
-      
+
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>💰 Les formations sont-elles gratuites ?</h5>
+          <h5> Les formations sont-elles gratuites ?</h5>
           <p>Oui, la plupart de nos formations de base sont entièrement gratuites pour tous les participants.</p>
         </div>
       </div>
-      
+
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>🌍 Où se déroulent les formations ?</h5>
+          <h5> Où se déroulent les formations ?</h5>
           <p>Nos formations sont disponibles en ligne et en présentiel dans plusieurs villes d'Afrique.</p>
         </div>
       </div>
-      
+
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>📜 Y a-t-il des certifications ?</h5>
+          <h5> Y a-t-il des certifications ?</h5>
           <p>Oui, nous délivrons des certifications reconnues à la fin de chaque parcours de formation.</p>
         </div>
       </div>
@@ -236,8 +298,8 @@
 /* Variables CSS AfriCode - Cohérentes avec la page d'accueil */
 :root {
   --africode-primary: #1EA38B;
-  --africode-secondary: #FF8E2A;
-  --africode-accent-red: #E32D31;
+  --africode-secondary: #fea837;
+  --africode-accent-red: #fa1c39;
   --africode-highlight-green: #27B371;
   --africode-white: #FFFFFF;
   --africode-dark-text: #333333;
@@ -255,9 +317,9 @@
 
 /* Hero Section */
 .contact-hero {
-  background: linear-gradient(135deg, 
-    rgba(30, 163, 139, 0.08) 0%, 
-    rgba(255, 142, 42, 0.05) 50%, 
+  background: linear-gradient(135deg,
+    rgba(30, 163, 139, 0.08) 0%,
+    rgba(254, 168, 55, 0.05) 50%,
     rgba(39, 179, 113, 0.08) 100%);
   position: relative;
   overflow: hidden;
@@ -434,14 +496,15 @@
 }
 
 .contact-icon {
-  font-size: 2.5rem;
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1EA38B, #27B371);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--africode-gradient-primary);
-  border-radius: 50%;
+  font-size: 1.3rem;
+  color: white;
   flex-shrink: 0;
 }
 
@@ -528,11 +591,11 @@
   background: linear-gradient(135deg, var(--africode-gray-light) 0%, var(--africode-gray-medium) 100%);
 }
 
+/* Cadres réseaux sociaux - même ligne */
 .social-cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  max-width: 800px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   margin: 0 auto;
 }
 
@@ -560,7 +623,23 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  background: var(--africode-gradient-primary);
+  color: white;
+}
+
+.social-icon.linkedin {
+  background: #0A66C2;
+}
+
+.social-icon.youtube {
+  background: #FF0000;
+}
+
+.social-icon.github {
+  background: #1877F2;
+}
+
+.social-icon.tiktok {
+  background: #000000;
 }
 
 .social-card h5 {
@@ -628,35 +707,135 @@
   .hero-title {
     font-size: 2.5rem;
   }
-  
+
   .section-title {
     font-size: 2rem;
   }
-  
+
   .organic-container {
     transform: none !important;
   }
-  
+
   .main-container {
     height: 250px;
   }
-  
+
   .form-container {
     padding: 2rem;
   }
-  
+
   .contact-cards {
     gap: 1rem;
   }
-  
+
   .contact-card {
     padding: 1rem;
   }
-  
+
   .social-cards-container {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
+}
+
+@media (max-width: 576px) {
+  .social-cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Zone upload fichier */
+.badge-optional {
+  background: rgba(30, 163, 139, 0.12);
+  color: var(--africode-primary);
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 0.15rem 0.55rem;
+  border-radius: 10px;
+  vertical-align: middle;
+  border: 1px solid rgba(30, 163, 139, 0.2);
+}
+
+.file-drop-zone {
+  border: 2px dashed rgba(30, 163, 139, 0.35);
+  border-radius: 15px;
+  background: rgba(248, 249, 250, 0.5);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--africode-transition);
+  position: relative;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-over {
+  border-color: var(--africode-primary);
+  background: rgba(30, 163, 139, 0.06);
+}
+
+.file-input-hidden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-drop-icon {
+  font-size: 2rem;
+  color: var(--africode-primary);
+  margin-bottom: 0.5rem;
+}
+
+.file-drop-label {
+  margin: 0;
+  color: var(--africode-dark-text);
+  font-size: 0.95rem;
+}
+
+.file-browse-link {
+  color: var(--africode-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.file-drop-hint {
+  margin: 0.25rem 0 0;
+  color: var(--africode-gray-dark);
+  font-size: 0.8rem;
+}
+
+.file-selected-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--africode-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.file-remove-btn {
+  background: none;
+  border: none;
+  color: var(--africode-accent-red);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 0.25rem;
+  line-height: 1;
+  transition: var(--africode-transition);
+}
+
+.file-remove-btn:hover {
+  transform: scale(1.2);
+}
+
+.file-error-msg {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
 }
 
 /* Animations d'entrée */
@@ -692,21 +871,95 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactForm = document.getElementById('contactForm');
     const contactMessage = document.getElementById('contactMessage');
     const submitBtn = document.getElementById('submitBtn');
-    
+
+    // --- Gestion de la zone d'upload ---
+    const dropZone     = document.getElementById('fileDropZone');
+    const fileInput    = document.getElementById('attachment');
+    const dropContent  = document.getElementById('fileDropContent');
+    const selectedInfo = document.getElementById('fileSelectedInfo');
+    const selectedName = document.getElementById('fileSelectedName');
+    const removeBtn    = document.getElementById('fileRemoveBtn');
+    const fileError    = document.getElementById('fileError');
+
+    const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const MAX_SIZE_MB   = 5;
+
+    function showFile(file) {
+        fileError.style.display = 'none';
+        dropContent.style.display = 'none';
+        selectedName.textContent = file.name;
+        selectedInfo.style.display = 'flex';
+    }
+
+    function clearFile() {
+        fileInput.value = '';
+        selectedInfo.style.display = 'none';
+        dropContent.style.display = 'block';
+        fileError.style.display = 'none';
+    }
+
+    function validateAndShow(file) {
+        if (!file) return;
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            fileError.textContent = 'Type de fichier non autorisé. Utilisez PDF, JPG, PNG, GIF ou WEBP.';
+            fileError.style.display = 'block';
+            clearFile();
+            return;
+        }
+        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+            fileError.textContent = 'Le fichier dépasse la taille maximale de 5 Mo.';
+            fileError.style.display = 'block';
+            clearFile();
+            return;
+        }
+        showFile(file);
+    }
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) validateAndShow(this.files[0]);
+    });
+
+    removeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        clearFile();
+    });
+
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', function() {
+        dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInput.files = dt.files;
+            validateAndShow(file);
+        }
+    });
+    // --- Fin gestion upload ---
+
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(contactForm);
         const originalText = submitBtn.innerHTML;
-        
+
         // Désactiver le bouton et changer le texte
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span>Envoi en cours...</span><i class="fas fa-spinner fa-spin ms-2"></i>';
-        
+
         // Masquer les messages précédents
         contactMessage.style.display = 'none';
         contactMessage.className = '';
-        
+
         fetch('{{ route("contact.submit") }}', {
             method: 'POST',
             body: formData,
@@ -721,6 +974,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 contactMessage.className = 'alert alert-success';
                 contactMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
                 contactForm.reset();
+                clearFile();
             } else {
                 contactMessage.className = 'alert alert-danger';
                 contactMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + data.message;
@@ -735,7 +989,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
             contactMessage.style.display = 'block';
-            
+
             // Faire défiler vers le message
             contactMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });

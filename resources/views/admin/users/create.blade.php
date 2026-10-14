@@ -44,12 +44,24 @@
             <div class="admin-form-grid">
                 <div class="admin-form-group">
                     <label for="password" class="admin-form-label">Mot de passe *</label>
-                    <input type="password" class="admin-form-input @error('password') error @enderror" id="password" name="password" required>
+                    <div style="position:relative;">
+                        <input type="password" class="admin-form-input @error('password') error @enderror" id="password" name="password" required style="padding-right:2.8rem;">
+                        <button type="button" tabindex="-1" onclick="togglePwd('password','eye_pwd_create')"
+                                style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                            <i class="fas fa-eye" id="eye_pwd_create"></i>
+                        </button>
+                    </div>
                     @error('password') <span class="admin-form-error">{{ $message }}</span> @enderror
                 </div>
                 <div class="admin-form-group">
                     <label for="password_confirmation" class="admin-form-label">Confirmer Mot de passe *</label>
-                    <input type="password" class="admin-form-input" id="password_confirmation" name="password_confirmation" required>
+                    <div style="position:relative;">
+                        <input type="password" class="admin-form-input" id="password_confirmation" name="password_confirmation" required style="padding-right:2.8rem;">
+                        <button type="button" tabindex="-1" onclick="togglePwd('password_confirmation','eye_pwdc_create')"
+                                style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                            <i class="fas fa-eye" id="eye_pwdc_create"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -81,3 +93,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function togglePwd(inputId, eyeId) {
+    const input = document.getElementById(inputId);
+    const eye   = document.getElementById(eyeId);
+    if (input.type === 'password') { input.type = 'text'; eye.classList.replace('fa-eye','fa-eye-slash'); }
+    else { input.type = 'password'; eye.classList.replace('fa-eye-slash','fa-eye'); }
+}
+</script>
+@endpush

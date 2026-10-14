@@ -196,12 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .admin-button-outline {
     background-color: transparent;
-    border: 1px solid #3498db;
-    color: #3498db;
+    border: 1px solid #1EA38B;
+    color: #1EA38B;
 }
 
 .admin-button-outline:hover {
-    background-color: #e3f2fd;
+    background-color: rgba(30,163,139,.1);
 }
 
 @media (max-width: 768px) {

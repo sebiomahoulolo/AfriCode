@@ -20,8 +20,8 @@
                                          class="rounded me-3" 
                                          style="width: 60px; height: 60px; object-fit: cover;">
                                 @else
-                                    <div class="bg-primary rounded me-3 d-flex align-items-center justify-content-center" 
-                                         style="width: 60px; height: 60px;">
+                                    <div class="rounded me-3 d-flex align-items-center justify-content-center"
+                                         style="width: 60px; height: 60px; background:#1EA38B;">
                                         <i class="fas fa-book text-white"></i>
                                     </div>
                                 @endif
@@ -40,7 +40,7 @@
                             
                             <div class="d-flex justify-content-between fw-bold">
                                 <span>Total</span>
-                                <span class="text-primary">{{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'XOF' }}</span>
+                                <span style="color:#1EA38B;">{{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'XOF' }}</span>
                             </div>
                             
                             <div class="mt-3 p-3 bg-light rounded">
@@ -67,6 +67,7 @@
                                 <input type="hidden" name="enrollment_id" value="{{ $enrollment->id }}">
                                 <input type="hidden" name="payment_method" value="fadapay">
                                 <input type="hidden" name="transaction_id" value="{{ $payment->transaction_id }}">
+                                <input type="hidden" name="redirect_url" value="{{ $redirectUrl }}">
                                 
                                 <div class="mb-4">
                                     <label class="form-label">Choisissez votre opérateur</label>
@@ -150,26 +151,28 @@
                                     </div>
                                 </div>
                                 
-                                <button type="submit" id="submit-payment" class="btn btn-primary btn-lg w-100">
+                                <button type="submit" id="submit-payment" class="btn text-white btn-lg w-100" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                     <span id="button-text">
                                         <i class="fas fa-mobile-alt me-2"></i>
-                                        Payer {{ number_format($course->price, 0, ',', ' ') }} {{ $course->currency ?? 'XOF' }}
+                                        Continuer vers le paiement Mobile Money
                                     </span>
                                     <span id="spinner" class="d-none">
                                         <span class="spinner-border spinner-border-sm me-2" role="status"></span>
-                                        Traitement...
+                                        Redirection...
                                     </span>
                                 </button>
                             </form>
                             
                             <div class="mt-4">
-                                <div class="alert alert-info">
+                                <div class="alert" style="background:rgba(30,163,139,0.1);border:1px solid rgba(30,163,139,0.3);color:#0a5c50;">
                                     <h6 class="alert-heading">
                                         <i class="fas fa-info-circle me-2"></i>Comment ça marche ?
                                     </h6>
                                     <ol class="mb-0 small">
                                         <li>Sélectionnez votre opérateur Mobile Money</li>
                                         <li>Entrez votre numéro de téléphone</li>
+                                        <li>Cliquez sur "Continuer" pour être redirigé vers FedaPay</li>
+                                        <li>Suivez les instructions sur la page FedaPay</li>
                                         <li>Vous recevrez un SMS avec un code de confirmation</li>
                                         <li>Validez le paiement avec votre code PIN</li>
                                     </ol>
@@ -206,14 +209,14 @@
 }
 
 .operator-card:hover {
-    border-color: #0d6efd;
-    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+    border-color: #1EA38B;
+    box-shadow: 0 2px 4px rgba(30, 163, 139, 0.2);
 }
 
 .operator-radio:checked + .operator-label .operator-card {
-    border-color: #0d6efd;
-    background-color: rgba(13, 110, 253, 0.1);
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+    border-color: #1EA38B;
+    background-color: rgba(30, 163, 139, 0.1);
+    box-shadow: 0 2px 8px rgba(30, 163, 139, 0.3);
 }
 
 .operator-radio:checked + .operator-label .operator-card::after {
@@ -223,7 +226,7 @@
     position: absolute;
     top: 8px;
     right: 8px;
-    color: #0d6efd;
+    color: #1EA38B;
     font-size: 14px;
 }
 </style>

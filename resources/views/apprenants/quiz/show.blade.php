@@ -265,28 +265,28 @@
         <!-- Quiz Stats -->
         <div class="quiz-stats" data-aos="fade-up" data-aos-delay="100">
             <div class="stat-card">
-                <span class="stat-number">{{ $quiz->questions->count() }}</span>
-                <div class="stat-label">{{ $quiz->questions->count() > 1 ? 'Questions' : 'Question' }}</div>
+                
+                <div class="stat-label">{{ $quiz->questions->count() > 1 ? 'Questions' : 'Question' }} : <span class="stat-number">{{ $quiz->questions->count() }}</span></div>
             </div>
             <div class="stat-card">
-                <span class="stat-number">{{ $quiz->passing_score }}%</span>
-                <div class="stat-label">Score minimum requis</div>
+               
+                <div class="stat-label">Score minimum requis : <span class="stat-number">{{ $quiz->passing_score }}%</span></div>
             </div>
             @if($quiz->time_limit)
             <div class="stat-card">
-                <span class="stat-number">{{ $quiz->time_limit }}</span>
-                <div class="stat-label">Minutes allouées</div>
+                
+                <div class="stat-label">Minutes allouées : <span class="stat-number">{{ $quiz->time_limit }}</span></div>
             </div>
             @endif
             <div class="stat-card">
-                <span class="stat-number">{{ $attempts->count() }}</span>
-                <div class="stat-label">{{ $attempts->count() > 1 ? 'Tentatives' : 'Tentative' }}</div>
+                
+                <div class="stat-label">{{ $attempts->count() > 1 ? 'Tentatives' : 'Tentative' }} : <span class="stat-number">{{ $attempts->count() }}</span></div>
             </div>
         </div>
 
         <!-- Quiz Info -->
         <div class="quiz-info" data-aos="fade-up" data-aos-delay="200">
-            <h4 class="mb-3"><i class="fas fa-info-circle me-2 text-primary"></i>Instructions</h4>
+            <h4 class="mb-3"><i class="fas fa-info-circle me-2" style="color:#1EA38B;"></i>Instructions</h4>
             <ul class="list-unstyled">
                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Lisez attentivement chaque question</li>
                 <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Sélectionnez la meilleure réponse pour chaque question</li>
@@ -303,12 +303,12 @@
         @if($attempts->count() > 0)
             <!-- Attempts History -->
             <div class="attempts-history" data-aos="fade-up" data-aos-delay="300">
-                <h4 class="mb-3"><i class="fas fa-history me-2 text-primary"></i>Historique des tentatives</h4>
+                <h4 class="mb-3"><i class="fas fa-history me-2" style="color:#1EA38B;"></i>Historique des tentatives</h4>
                 @foreach($attempts as $attempt)
                     <div class="attempt-item">
                         <div>
                             <strong>Tentative {{ $loop->iteration }}</strong>
-                            <small class="text-muted d-block">{{ $attempt->completed_at->format('d/m/Y à H:i') }}</small>
+                            <small class="text-muted d-block">{{ $attempt->submitted_at ? $attempt->submitted_at->format('d/m/Y à H:i') : 'Non terminé' }}</small>
                         </div>
                         <div class="text-end">
                             <div class="attempt-score {{ $attempt->score_percentage >= $quiz->passing_score ? 'passed' : 'failed' }}">
@@ -320,7 +320,7 @@
                         </div>
                         <div>
                             <a href="{{ route('apprenant.quiz.result', ['quizId' => $quiz->id, 'attemptId' => $attempt->id]) }}" 
-                               class="btn btn-sm btn-outline-primary">
+                               class="btn btn-sm" style="border:1.5px solid #1EA38B;color:#1EA38B;">
                                 <i class="fas fa-eye me-1"></i>Voir le résultat
                             </a>
                         </div>

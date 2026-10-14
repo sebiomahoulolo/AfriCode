@@ -4,10 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @laravelPWA
 
     <title>{{ config('app.name', 'AfriCode') }} - Administration</title>
 
     <!-- Fonts -->
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,10 +20,47 @@
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    <!-- Admin CSS -->
+    <!-- Admin CSS + JS -->
     @vite(['resources/css/admin.css', 'resources/js/components/admin.js'])
-    <!-- Custom styles for charts and notifications -->
+   
+
     <style>
+    /* ── Remap Bootstrap colors → AfriCode brand ── */
+    :root {
+        --bs-primary:     #1EA38B; --bs-primary-rgb:  30,163,139;
+        --bs-success:     #27B371; --bs-success-rgb:  39,179,113;
+        --bs-info:        #1EA38B; --bs-info-rgb:     30,163,139;
+        --bs-warning:     #FF8E2A; --bs-warning-rgb:  255,142,42;
+        --bs-danger:      #E32D31; --bs-danger-rgb:   227,45,49;
+        --bs-link-color:  #1EA38B; --bs-link-hover-color:#27B371;
+    }
+    .btn-primary { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-primary:hover { background-color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-outline-primary { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-primary:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-success,.btn-outline-success:hover { background-color:#27B371 !important; border-color:#27B371 !important; color:#fff !important; }
+    .btn-outline-success { color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-info { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-outline-info { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-info:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-warning { background-color:#FF8E2A !important; border-color:#FF8E2A !important; color:#fff !important; }
+    .text-primary { color:#1EA38B !important; } .text-success { color:#27B371 !important; }
+    .text-info    { color:#1EA38B !important; } .text-warning { color:#FF8E2A !important; }
+    .text-danger  { color:#E32D31 !important; }
+    .bg-primary   { background-color:#1EA38B !important; } .bg-success { background-color:#27B371 !important; }
+    .bg-info      { background-color:#1EA38B !important; } .bg-warning { background-color:#FF8E2A !important; }
+    .bg-danger    { background-color:#E32D31 !important; }
+    .badge.bg-primary,.badge.bg-info { background-color:#1EA38B !important; }
+    .badge.bg-success { background-color:#27B371 !important; }
+    .progress-bar { background-color:#1EA38B !important; }
+    a { color:#1EA38B; } a:hover { color:#27B371; }
+    /* Fallback : si AOS JS ne charge pas, montrer les éléments normalement */
+    body:not(.aos-init) [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
         .admin-notifications-dropdown {
             position: absolute;
             top: 100%;
@@ -263,12 +302,12 @@
         <!-- Sidebar -->
         <aside class="admin-sidebar" id="adminSidebar">
             <div class="admin-sidebar-brand">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="admin-logo-img">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%234ade80' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="admin-logo-img">
                 <span class="admin-logo-text">AFRICODE</span>
             </div>
 
             <!-- Toggle Button -->
-            <button class="admin-sidebar-toggle">
+            <button class="admin-sidebar-toggle" onclick="if(window.adminInterface){window.adminInterface.toggleSidebar()}else{var s=document.getElementById('adminSidebar');s&&s.classList.toggle('collapsed')}">
                 <i class="fas fa-chevron-left" id="adminToggleIcon"></i>
             </button>
             
@@ -288,6 +327,16 @@
                     <span class="admin-nav-text">Cours</span>
                 </a>
                 
+                <a href="{{ route('admin.formateurs.index') }}" class="admin-nav-link {{ request()->routeIs('admin.formateurs.*') ? 'active' : '' }}">
+                    <i class="fas fa-chalkboard-teacher admin-nav-icon"></i>
+                    <span class="admin-nav-text">Formateurs</span>
+                </a>
+                
+                <a href="{{ route('admin.formateurs.withdrawals') }}" class="admin-nav-link {{ request()->routeIs('admin.formateurs.withdrawals*') ? 'active' : '' }}">
+                    <i class="fas fa-money-bill-wave admin-nav-icon"></i>
+                    <span class="admin-nav-text">Retraits</span>
+                </a>
+                
                 <a href="{{ route('admin.certifications.index') }}" class="admin-nav-link {{ request()->routeIs('admin.certifications.*') ? 'active' : '' }}">
                     <i class="fas fa-certificate admin-nav-icon"></i>
                     <span class="admin-nav-text">Certifications</span>
@@ -297,10 +346,20 @@
                     <i class="fas fa-credit-card admin-nav-icon"></i>
                     <span class="admin-nav-text">Paiements</span>
                 </a>
+
+                <a href="{{ route('admin.recruitment.index') }}" class="admin-nav-link {{ request()->routeIs('admin.recruitment.*') ? 'active' : '' }}">
+                    <i class="fas fa-briefcase admin-nav-icon"></i>
+                    <span class="admin-nav-text">Recrutement</span>
+                </a>
                 
                 <a href="{{ route('admin.statistics.index') }}" class="admin-nav-link {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
                     <i class="fas fa-chart-bar admin-nav-icon"></i>
                     <span class="admin-nav-text">Statistiques</span>
+                </a>
+                
+                <a href="{{ route('admin.tracking.index') }}" class="admin-nav-link {{ request()->routeIs('admin.tracking.*') ? 'active' : '' }}">
+                    <i class="fas fa-chart-line admin-nav-icon"></i>
+                    <span class="admin-nav-text">Tracking / Analytics</span>
                 </a>
                 
                 <a href="{{ route('admin.messages.index') }}" class="admin-nav-link {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}">
@@ -313,11 +372,26 @@
                     <span class="admin-nav-text">Événements</span>
                 </a>
                 
+                <a href="{{ route('admin.tasks.index') }}" class="admin-nav-link {{ request()->routeIs('admin.tasks.*') ? 'active' : '' }}">
+                    <i class="fas fa-tasks admin-nav-icon"></i>
+                    <span class="admin-nav-text">Tâches</span>
+                </a>
+                
+                <a href="{{ route('admin.support.tickets.index') }}" class="admin-nav-link {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
+                    <i class="fas fa-ticket-alt admin-nav-icon"></i>
+                    <span class="admin-nav-text">Support (tickets)</span>
+                </a>
+                
                 <a href="{{ route('admin.challenges.index') }}" class="admin-nav-link {{ request()->routeIs('admin.challenges.create') ? 'active' : '' }}">
                     <i class="fas fa-bolt admin-nav-icon"></i>
                     <span class="admin-nav-text">Créer Défi/Compétition</span>
                 </a>
                 
+                <a href="{{ route('admin.push-campaigns.index') }}" class="admin-nav-link {{ request()->routeIs('admin.push-campaigns.*') ? 'active' : '' }}">
+                    <i class="fas fa-bell admin-nav-icon"></i>
+                    <span class="admin-nav-text">Campagnes Push</span>
+                </a>
+
                 <a href="{{ route('admin.settings.edit') }}" class="admin-nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
                     <i class="fas fa-cog admin-nav-icon"></i>
                     <span class="admin-nav-text">Paramètres</span>
@@ -370,10 +444,7 @@
                         <i class="fas fa-search admin-search-icon"></i>
                     </div>
                     
-                    <button class="admin-notifications">
-                        <i class="fas fa-bell"></i>
-                        <span class="admin-notification-badge">3</span>
-                    </button>
+                    <x-notification-bell />
                     
                     <div class="admin-user-menu">
                         <button class="admin-user-button">
@@ -415,7 +486,6 @@
                         </button>
                     </div>
                 @endif
-
                 @yield('content')
             </div>
         </main>
@@ -426,10 +496,25 @@
 
     <!-- AOS Animation -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
+    <script>
+        if (typeof AOS !== 'undefined') {
+            AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true });
+        }
+    </script>
+
     <!-- Chart.js for admin charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+    {{-- admin.js inclus via @vite() dans le <head> --}}
+
+    <script>
+        /* Fallback : si adminInterface n'a pas été instancié par admin.js (erreur Vite), on l'initialise ici */
+        if (!window.adminInterface && typeof AdminInterface !== 'undefined') {
+            window.adminInterface = new AdminInterface();
+        }
+    </script>
+
     @stack('scripts')
+    {{-- ═══ PROTECTION GLOBALE (clic droit + DevTools + raccourcis) ══════ --}}
+    @include('partials.security-lock')
 </body>
 </html>

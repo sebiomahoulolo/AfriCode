@@ -30,7 +30,7 @@
             <div class="welcome-hero mb-4">
                 <div class="hero-content">
                     <h1 class="hero-title">
-                        Bonjour {{ $user->first_name }} ! 👋
+                        Bonjour {{ $user->first_name }} !
                     </h1>
                     <p class="hero-subtitle">
                         Continuez votre parcours d'apprentissage et atteignez vos objectifs.
@@ -97,7 +97,7 @@
                     <div class="modern-card" data-aos="fade-up" data-aos-delay="500">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
-                                <i class="fas fa-play-circle me-2 text-primary"></i>
+                                <i class="fas fa-play-circle me-2" style="color:#1EA38B;"></i>
                                 Mes cours en cours
                             </h5>
                         </div>

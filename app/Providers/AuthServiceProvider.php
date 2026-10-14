@@ -5,7 +5,9 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Question;
+use App\Models\SupportTicket;
 use App\Policies\QuestionPolicy;
+use App\Policies\SupportTicketPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,8 +17,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // ... existing policies ...
         Question::class => QuestionPolicy::class,
+        SupportTicket::class => SupportTicketPolicy::class,
     ];
 
     /**
@@ -26,6 +28,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // ... existing code ...
+        Gate::define('manageSupport', function ($user) {
+            return $user->isAdmin();
+        });
     }
 } 

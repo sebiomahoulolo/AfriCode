@@ -11,14 +11,14 @@
                 <span class="africode-text text-white fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px; margin-top: 2px;">AFRICODE</span>
             </div>
         </a>
-        
+
         <!-- Toggler pour mobile -->
-        <button class="navbar-toggler border-light" type="button" data-bs-toggle="collapse" 
-                data-bs-target="#africode-navbar" aria-controls="africode-navbar" 
+        <button class="navbar-toggler border-light" type="button" data-bs-toggle="collapse"
+                data-bs-target="#africode-navbar" aria-controls="africode-navbar"
                 aria-expanded="false" aria-label="Toggle navigation"  style="color:  #FF8E2A" >
             <span class="navbar-toggler-icon" ></span>
         </button>
-        
+
         <!-- Contenu principal navbar -->
         <div class="collapse navbar-collapse" id="africode-navbar">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -27,13 +27,13 @@
                         <i class="fas fa-home me-1" style="color: #FF8E2A;"></i> Accueil
                     </a>
                 </li>
-                
+
                 <!-- Menu Formations -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle {{ request()->routeIs(['courses.*', 'pages.compdisp', 'pages.test', 'pages.forumexp', 'pages.forumapp']) ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-book me-1" style="color: #FF8E2A;"></i> Formations
                     </a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" >
                         <li><h6 class="dropdown-header"style="color:  #FF8E2A;">Par Niveau</h6></li>
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'debutant']) }}">Débutant</a></li>
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['level' => 'intermediaire']) }}">Intermédiaire</a></li>
@@ -45,13 +45,16 @@
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header" style="color: #FF8E2A;">Par Certification</h6></li>
                         <li><a class="dropdown-item" href="{{ route('courses.index', ['certification' => 'certified']) }}">Formations certifiées</a></li>
-                        
+
                         <li><hr class="dropdown-divider"></li>
                         <li><h6 class="dropdown-header" style="color: #FF8E2A;">Communauté & Outils</h6></li>
                         <li><a class="dropdown-item" href="{{ route('pages.compdisp') }}">Compétitions</a></li>
                         <li><a class="dropdown-item" href="{{ route('pages.test') }}">Test de niveau</a></li>
-                        <li><a class="dropdown-item" href="{{ url('/le-forum-des-experts') }}">Forum des Experts</a></li>
-                        <li><a class="dropdown-item" href="{{ route('pages.forumapp') }}">Forum des Apprenants</a></li>
+                        @auth
+                        <li><a class="dropdown-item" href="{{ url('/le-forum-des-experts') }}">Forum</a></li>
+                        @else
+                        <li><a class="dropdown-item text-muted" href="{{ route('login') }}"><i class="fas fa-lock me-2"></i>Forum (connexion requise)</a></li>
+                        @endauth
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{{ route('certificate.verification') }}">
                             <i class="fas fa-shield-check me-2 text-success"></i>
@@ -59,46 +62,69 @@
                         </a></li>
                     </ul>
                 </li>
-                
+
+
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('certificate.verification') ? 'active' : '' }}" href="{{ route('certificate.verification') }}">
-                        <i class="fas fa-shield-check me-1" style="color: #FF8E2A;"></i> Vérifier Certificat
+                    <a class="nav-link {{ request()->routeIs('pages.services') ? 'active' : '' }}" href="{{ route('pages.services') }}">
+                        <i class="fas fa-layer-group me-1" style="color: #FF8E2A;"></i> Nos Services
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('pages.apropos') ? 'active' : '' }}" href="{{ route('pages.apropos') }}">
                         <i class="fas fa-info-circle me-1" style="color: #FF8E2A;"></i> À Propos
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('pages.contact') ? 'active' : '' }}" href="{{ route('pages.contact') }}">
                         <i class="fas fa-envelope me-1" style="color: #FF8E2A;"></i> Contact
                     </a>
                 </li>
             </ul>
-            
+
             <!-- Section de droite -->
             <div class="navbar-nav ms-auto d-flex align-items-center">
                 <!-- Sélecteur de langue -->
-                <form class="d-flex me-2 search-form">
+                <form class="d-flex me-2 search-form" action="{{ route('courses.index') }}" method="GET">
                     <div class="input-group">
-                        <input type="search" class="form-control form-control-sm" placeholder="Rechercher..." aria-label="Recherche">
+                        <input type="search" name="search" class="form-control form-control-sm" placeholder="Rechercher un cours..." aria-label="Recherche" value="{{ request('search') }}">
                         <button class="btn btn-outline-light btn-sm" type="submit">
                             <i class="fas fa-search" style="color: #FF8E2A;"></i>
                         </button>
                     </div>
                 </form>
-                <div class="nav-item dropdown user-dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @guest
+                <div class="nav-item">
+                    <a class="nav-link d-flex align-items-center" href="{{ route('login') }}">
                         <i class="fas fa-user me-1" style="color: #FF8E2A;"></i> S'identifier
                     </a>
+                </div>
+                @else
+                <div class="nav-item dropdown user-dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1" style="color: #FF8E2A; font-size: 1.2rem;"></i>
+                        <span>{{ auth()->user()->first_name ?? auth()->user()->email }}</span>
+                    </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ route('login') }}">Connexion</a></li>
-                        <li><a class="dropdown-item" href="{{ route('register') }}">Créer un compte</a></li>
+                        <li><h6 class="dropdown-header text-muted small">Connecté</h6></li>
+                        <li>
+                            <a class="dropdown-item" href="{{ route('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2" style="color: #1EA38B;"></i> Mon tableau de bord
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger border-0 bg-transparent w-100 text-start">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
+                @endguest
             </div>
         </div>
     </div>
@@ -114,41 +140,41 @@
         --africode-highlight-green:  #1EA38B;
         --africode-dark-text: #333333;
     }
-    
+
     /* Ajustement pour fixed navbar */
     body {
         padding-top: 60px;
     }
-    
+
     /* Styles navbar */
     .navbar {
         background-color: var(--africode-primary) !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    
+
     .navbar-brand {
         font-weight: 600;
         padding: 0.5rem 0;
         white-space: nowrap;
     }
-    
+
     /* Styles pour le logo AfriCode */
     .africode-logo-img {
         transition: transform 0.2s ease;
     }
-    
+
     .navbar-brand:hover .africode-logo-img {
         transform: scale(1.05);
     }
-    
+
     .africode-text {
         transition: color 0.2s ease;
     }
-    
+
     .navbar-brand:hover .africode-text {
         color: var(--africode-accent-orange) !important;
     }
-    
+
     /* Styles liens navbar avec indicateur actif amélioré */
     .navbar .nav-link {
         padding: 0.5rem 0.8rem;
@@ -157,7 +183,7 @@
         font-weight: 500;
         transition: all 0.3s ease;
     }
-    
+
     .navbar .nav-link:after {
         content: '';
         position: absolute;
@@ -170,24 +196,24 @@
         transition: width 0.3s ease;
         border-radius: 2px;
     }
-    
-    .navbar .nav-link:hover:after, 
+
+    .navbar .nav-link:hover:after,
     .navbar .nav-link.active:after {
         width: 60%;
     }
-    
-    .navbar .nav-link:hover, 
+
+    .navbar .nav-link:hover,
     .navbar .nav-link.active {
         color: var(--africode-white) !important;
         background: rgba(255, 142, 42, 0.1);
         border-radius: 8px;
     }
-    
+
     .navbar .nav-link.active {
         font-weight: 600;
         position: relative;
     }
-    
+
     .navbar .nav-link.active::before {
         content: '';
         position: absolute;
@@ -199,7 +225,7 @@
         border-radius: 8px;
         z-index: -1;
     }
-    
+
     /* Styles dropdown */
     .dropdown-menu {
         margin-top: 0.5rem;
@@ -208,7 +234,7 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         overflow: hidden;
     }
-    
+
     .dropdown-header {
         color: var(--africode-primary);
         font-weight: 600;
@@ -216,7 +242,7 @@
         font-size: 0.8rem;
         padding: 0.5rem 1rem;
     }
-    
+
     .dropdown-item {
         padding: 0.5rem 1rem;
         color: var(--africode-dark-text);
@@ -224,85 +250,83 @@
         white-space: normal;
         word-wrap: break-word;
     }
-    
+
     .dropdown-item:hover, .dropdown-item:focus {
         background-color: var(--africode-highlight-green);
         color: var(--africode-white);
     }
-    
+
     /* Styles recherche */
     .search-form .form-control {
         background-color: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.3);
         color: white;
     }
-    
+
     .search-form .form-control::placeholder {
         color: rgba(255, 255, 255, 0.7);
     }
-    
+
     .search-form .form-control:focus {
         background-color: rgba(255, 255, 255, 0.2);
         box-shadow: none;
         border-color: white;
     }
-    
+
     .search-form .btn {
         border-color: rgba(255, 255, 255, 0.3);
     }
-    
+
     .search-form .btn:hover {
         background-color: var(--africode-accent-orange);
         border-color: var(--africode-accent-orange);
     }
-    
+
     /* Styles dropdown utilisateur */
     .user-dropdown .nav-link {
         color: var(--africode-white) !important;
         display: inline-flex;
         align-items: center;
     }
-    
+
     /* Media queries */
     @media (min-width: 992px) {
         .search-form {
             width: 200px;
         }
     }
-    
+
     @media (max-width: 991.98px) {
         .navbar-collapse {
             padding: 1rem 0;
         }
-        
+
         .navbar .nav-link:after {
             display: none;
         }
-        
+
         .dropdown-menu {
             border: none;
             background-color: rgba(255, 255, 255, 0.05);
             box-shadow: none;
         }
-        
+
         .dropdown-header {
             color: white;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .dropdown-item {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-        
+
+
+
         .dropdown-item:hover, .dropdown-item:focus {
             background-color: var(--africode-accent-orange);
         }
-        
+
         .search-form {
             margin-bottom: 0.5rem;
             width: 100%;
         }
-        
+
         .user-dropdown {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             margin-top: 0.5rem;

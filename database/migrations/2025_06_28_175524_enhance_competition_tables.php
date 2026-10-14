@@ -32,7 +32,7 @@ return new class extends Migration
 
         // Ajouter des champs à la table badges
         Schema::table('badges', function (Blueprint $table) {
-            $table->string('color')->default('#FF8E2A')->after('icon');
+            $table->string('color')->default('#fea837')->after('icon');
             $table->boolean('is_locked')->default(false)->after('color');
             $table->integer('unlock_order')->nullable()->after('is_locked');
         });

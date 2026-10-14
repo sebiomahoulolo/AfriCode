@@ -1,25 +1,34 @@
 @extends('layouts.layout')
 
 @section('title', $course->title . ' | AfriCode')
+@section('meta_description', Str::limit(strip_tags($course->short_description ?? $course->description ?? ''), 160))
+@section('meta_keywords', 'cours ' . ($course->title ?? '') . ', ' . ($course->category?->name ?? 'formation') . ', apprendre à coder, AfriCode, formation en ligne Afrique')
+@section('og_type', 'article')
+@section('og_title', ($course->title ?? '') . ' | AfriCode')
+@section('og_description', Str::limit(strip_tags($course->short_description ?? $course->description ?? ''), 160))
+@section('og_image', asset($course->cover_image_path ?? 'images/africode-og.jpg'))
 
-@section('meta_tags')
-    <meta name="description" content="{{ $course->short_description }}">
-    <meta name="keywords" content="cours en ligne, {{ $course->title }}, {{ $course->category ? $course->category->name : 'programmation' }}, apprendre à coder">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $course->title }} | AfriCode">
-    <meta property="og:description" content="{{ $course->short_description }}">
-    <meta property="og:image" content="{{ asset($course->cover_image_path ?? 'assets/images/course-placeholder.jpg') }}">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ url()->current() }}">
-    <meta property="twitter:title" content="{{ $course->title }} | AfriCode">
-    <meta property="twitter:description" content="{{ $course->short_description }}">
-    <meta property="twitter:image" content="{{ asset($course->cover_image_path ?? 'assets/images/course-placeholder.jpg') }}">
-@endsection
+@push('meta')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "{{ addslashes($course->title ?? '') }}",
+  "description": "{{ addslashes(Str::limit(strip_tags($course->short_description ?? $course->description ?? ''), 200)) }}",
+  "provider": { "@type": "Organization", "name": "AfriCode", "sameAs": "{{ url('/') }}" },
+  "url": "{{ url()->current() }}",
+  "image": "{{ asset($course->cover_image_path ?? 'images/africode-og.jpg') }}",
+  "inLanguage": "fr",
+  "educationalLevel": "{{ $course->level ?? 'Tous niveaux' }}",
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ $course->price ?? 0 }}",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+@endpush
 
 @section('content')
     <!-- Hero Section Moderne avec Design Immersif -->
@@ -40,9 +49,9 @@
                 <ol class="breadcrumb-modern">
                     <li><a href="/" class="breadcrumb-link">Accueil</a></li>
                     <li><a href="{{ route('courses.index') }}" class="breadcrumb-link">Formations</a></li>
-                    <li><a href="{{ route('courses.index', ['cat' => $course->category_id]) }}" class="breadcrumb-link">
+                    {{-- <li><a href="{{ route('courses.index', ['cat' => $course->category_id]) }}" class="breadcrumb-link">
                         {{ $course->category ? $course->category->name : 'Développement' }}
-                    </a></li>
+                    </a></li> --}}
                     <li class="breadcrumb-current">{{ $course->title }}</li>
                 </ol>
             </nav>
@@ -65,7 +74,7 @@
                                     <i class="fas fa-crown"></i> Meilleure Vente
                                 </span>
                             @elseif($isNew)
-                                <span class="modern-badge badge-new">
+                                <span class="modern-badge badge-new" style="background-color:#F59E0B; color:white">
                                     <i class="fas fa-sparkles"></i> Nouveau
                                 </span>
                             @endif
@@ -91,45 +100,55 @@
                         <p class="hero-description-modern mb-4">{{ $course->short_description }}</p>
 
                         <!-- Statistiques Visuelles -->
-                        <div class="course-stats-modern mb-4">
-                            <div class="stat-item">
-                                <div class="stat-value">{{ number_format($avgRating, 1) }}</div>
-                                <div class="stat-stars">
-                                    @for ($i = 1; $i <= 5; $i++)
-                                        @if ($i <= floor($avgRating))
-                                            <i class="fas fa-star"></i>
-                                        @elseif ($i - 0.5 <= $avgRating)
-                                            <i class="fas fa-star-half-alt"></i>
-                                        @else
-                                            <i class="far fa-star"></i>
-                                        @endif
-                                    @endfor
-                                </div>
-                                <div class="stat-label">({{ $reviewsCount }} avis)</div>
-                            </div>
+                       <div class="course-stats-modern mb-4 course-stats-row">
+    <div class="stat-item">
+        <div class="stat-value">{{ number_format($avgRating, 1) }}</div>
+        <div class="stat-stars">
+            @for ($i = 1; $i <= 5; $i++)
+                @if ($i <= floor($avgRating))
+                    <i class="fas fa-star"></i>
+                @elseif ($i - 0.5 <= $avgRating)
+                    <i class="fas fa-star-half-alt"></i>
+                @else
+                    <i class="far fa-star"></i>
+                @endif
+            @endfor
+        </div>
+        <div class="stat-label">({{ $reviewsCount }} avis)</div>
+    </div>
 
-                            <div class="stat-divider"></div>
+    <div class="stat-divider"></div>
 
-                            <div class="stat-item">
-                                <div class="stat-value">{{ number_format($course->enrollments->count()) }}</div>
-                                <div class="stat-label">Apprenants</div>
-                            </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ number_format($course->enrollments->count()) }}</div>
+        <div class="stat-label">Apprenants</div>
+    </div>
 
-                            <div class="stat-divider"></div>
+    <div class="stat-divider"></div>
 
-                            <div class="stat-item">
-                                <div class="stat-value">{{ $course->getEstimatedDuration() ?? '10h' }}</div>
-                                <div class="stat-label">de contenu</div>
-                            </div>
-                        </div>
+    <div class="stat-item">
+        <div class="stat-value">
+            @php
+                $totalMinutes = $course->getEstimatedDuration() ?? 0;
+                $hours = $totalMinutes > 0 ? ceil($totalMinutes / 60) : 0;
+                echo $hours > 0 ? $hours . 'h' : 'N/A';
+            @endphp
+        </div>
+        <div class="stat-label">de contenu</div>
+    </div>
+</div>
+
 
                         <!-- Informations Instructeur -->
                         <div class="instructor-preview mb-4">
-                            <img src="{{ $course->formateur->profile_image ?? 'https://randomuser.me/api/portraits/men/32.jpg' }}" 
-                                 alt="Instructeur" class="instructor-avatar">
+                            @php
+                                $instructorName = $course->formateur ? $course->formateur->first_name . ' ' . $course->formateur->last_name : 'Instructeur AfriCode';
+                                $initials = strtoupper(substr($instructorName, 0, 1) . substr(explode(' ', $instructorName)[1] ?? '', 0, 1));
+                            @endphp
+                            <div class="instructor-avatar initials-circle">{{ $initials }}</div>
                             <div class="instructor-info">
                                 <div class="instructor-name">
-                                    {{ $course->formateur ? $course->formateur->first_name . ' ' . $course->formateur->last_name : 'Instructeur AfriCode' }}
+                                    {{ $instructorName }}
                                 </div>
                                 <div class="instructor-title">Expert {{ $course->category ? $course->category->name : 'Développement' }}</div>
                             </div>
@@ -138,22 +157,42 @@
                         <!-- Actions Rapides -->
                         <div class="hero-actions">
                             @auth
-                                @php
-                                    $userEnrollment = $course->enrollments->where('user_id', auth()->id())->first();
-                                @endphp
-                                
-                                @if($userEnrollment)
+                                @if($hasValidPayment)
                                     <a href="{{ route('apprenant.course.access', ['courseId' => $course->id]) }}" 
                                        class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Continuer la formation {{ $course->title }}">
                                         <i class="fas fa-play"></i>
                                         Continuer la Formation
+                                    </a>
+                                @elseif($userEnrollment && $paymentStatus === 'pending')
+                                    <div class="alert alert-warning border-0 shadow-sm mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-clock text-warning me-2"></i>
+                                            <span>Paiement en cours de traitement. Veuillez patienter...</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('enrollment.show', $course) }}" 
+                                       class="btn-modern btn-secondary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Finaliser le paiement pour {{ $course->title }}">
+                                        <i class="fas fa-credit-card"></i>
+                                        Finaliser le Paiement
+                                    </a>
+                                @elseif($userEnrollment && $paymentStatus === 'failed')
+                                    <div class="alert alert-danger border-0 shadow-sm mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                            <span>Le paiement a échoué. Veuillez réessayer.</span>
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('enrollment.show', $course) }}" 
+                                       class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="Réessayer le paiement pour {{ $course->title }}">
+                                        <i class="fas fa-redo"></i>
+                                        Réessayer le Paiement
                                     </a>
                                 @else
                                     @if($course->price > 0)
                                         <a href="{{ route('enrollment.show', $course) }}" 
                                            class="btn-modern btn-primary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" aria-label="S'inscrire au cours {{ $course->title }}">
                                             <i class="fas fa-graduation-cap"></i>
-                                            S'inscrire • {{ number_format($course->price, 0, ',', ' ') }}€
+                                            S'inscrire • {{ number_format($course->price, 0, ',', ' ') }}FCFA
                                         </a>
                                     @else
                                         <a href="{{ route('enrollment.show', $course) }}" 
@@ -170,10 +209,10 @@
                                 </a>
                             @endauth
 
-                            <button class="btn-modern btn-secondary-modern w-full focus:outline-none focus:ring-2 focus:ring-primary" data-bs-toggle="modal" data-bs-target="#previewModal" aria-label="Aperçu gratuit du cours {{ $course->title }}">
+                            {{-- <button class="btn-modern btn-secondary-modern w-full max-w-md mx-auto block mt-3 focus:outline-none focus:ring-2 focus:ring-primary" data-bs-toggle="modal" data-bs-target="#previewModal" aria-label="Aperçu gratuit du cours {{ $course->title }}">
                                 <i class="fas fa-eye"></i>
                                 Aperçu Gratuit
-                            </button>
+                            </button> --}}
                         </div>
                     </div>
                 </div>
@@ -211,6 +250,61 @@
             </div>
         </div>
     </section>
+
+    <!-- Notification du statut de paiement -->
+    @auth
+        @if($userEnrollment && $course->price > 0)
+            @if($paymentStatus === 'pending')
+                <section class="py-3">
+                    <div class="container">
+                        <div class="alert alert-warning border-0 shadow-sm" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-clock text-warning fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="alert-heading mb-1">Paiement en cours</h6>
+                                    <p class="mb-0">Votre paiement est en cours de traitement. Vous recevrez une confirmation par email une fois le paiement validé.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @elseif($paymentStatus === 'failed')
+                <section class="py-3">
+                    <div class="container">
+                        <div class="alert alert-danger border-0 shadow-sm" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-danger fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="alert-heading mb-1">Paiement échoué</h6>
+                                    <p class="mb-0">Votre paiement n'a pas pu être traité. Veuillez réessayer ou contacter le support si le problème persiste.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @elseif($hasValidPayment)
+                <section class="py-3">
+                    <div class="container">
+                        <div class="alert alert-success border-0 shadow-sm" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-success fs-4"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="alert-heading mb-1">Paiement confirmé !</h6>
+                                    <p class="mb-0">Vous avez accès complet à cette formation. Bon apprentissage !</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            @endif
+        @endif
+    @endauth
 
     <!-- Navigation Moderne avec Onglets -->
     <section class="course-navigation-modern">
@@ -297,13 +391,13 @@
                                         '<div class="rich-description">
                                             <p class="lead">Cette formation complète vous guidera pas à pas dans la maîtrise de cette technologie, en combinant théorie solide et pratique intensive.</p>
                                             
-                                            <h4>🎯 Objectifs pédagogiques</h4>
+                                            <h4> Objectifs pédagogiques</h4>
                                             <p>Que vous soyez débutant ou avec une expérience préalable, cette formation est conçue pour vous faire progresser efficacement. Nous commencerons par les fondamentaux avant d\'aborder des concepts plus avancés.</p>
                                             
-                                            <h4>🛠️ Approche pratique</h4>
+                                            <h4> Approche pratique</h4>
                                             <p>Chaque section comprend des projets concrets pour appliquer immédiatement ce que vous apprenez. Vous développerez un portfolio de projets professionnels.</p>
                                             
-                                            <h4>🎓 Résultats attendus</h4>
+                                            <h4> Résultats attendus</h4>
                                             <p>À la fin de cette formation, vous serez capable de créer vos propres applications et d\'appliquer ces connaissances dans des projets professionnels réels.</p>
                                         </div>'
                                     !!}
@@ -354,7 +448,14 @@
                                     <span class="stat-divider">•</span>
                                     <span class="stat">{{ $course->modules->sum(function($module) { return $module->lessons->count(); }) }} leçons</span>
                                     <span class="stat-divider">•</span>
-                                    <span class="stat">{{ $course->getEstimatedDuration() ?? '10h' }} de contenu</span>
+                                    <span class="stat"></span>
+                                        @php
+                                            $totalMinutes = $course->getEstimatedDuration() ?? 0;
+                                            $hours = $totalMinutes > 0 ? ceil($totalMinutes / 60) : 0;
+                                            $durationText = $hours > 0 ? $hours . ' heure' . ($hours > 1 ? 's' : '') : 'Durée non spécifiée';
+                                        @endphp
+                                        {{ $durationText }}
+                                    </span>
                                 </div>
                             </div>
                             <div class="card-content-modern">
@@ -394,8 +495,15 @@
                                                             </div>
                                                             <div class="lesson-info">
                                                                 <h4 class="lesson-title">{{ $lesson->title }}</h4>
-                                                                @if ($lesson->is_free)
-                                                                    <span class="preview-badge">Aperçu gratuit</span>
+                                                                @if ($lesson->is_free && $lesson->video_url)
+                                                                    <span class="preview-badge" 
+                                                                          data-bs-toggle="modal" 
+                                                                          data-bs-target="#previewVideoModal"
+                                                                          data-lesson-title="{{ $lesson->title }}"
+                                                                          data-video-url="{{ $lesson->video_url }}"
+                                                                          style="cursor: pointer;">
+                                                                        Aperçu gratuit
+                                                                    </span>
                                                                 @endif
                                                             </div>
                                                             <div class="lesson-duration">{{ $lesson->duration_minutes ?? 10 }}:00</div>
@@ -433,14 +541,17 @@
                                 @if($course->formateur)
                                     <div class="instructor-profile">
                                         <div class="instructor-avatar-large">
-                                            <img src="{{ $course->formateur->profile_image ?? 'https://randomuser.me/api/portraits/men/32.jpg' }}" 
-                                                 alt="Photo de l'instructeur {{ $course->formateur ? $course->formateur->first_name . ' ' . $course->formateur->last_name : 'Instructeur AfriCode' }}" class="instructor-avatar">
+                                            @php
+                                                $instructorName = $course->formateur->first_name . ' ' . $course->formateur->last_name;
+                                                $initials = strtoupper(substr($instructorName, 0, 1) . substr(explode(' ', $instructorName)[1] ?? '', 0, 1));
+                                            @endphp
+                                            <div class="instructor-avatar initials-circle-large">{{ $initials }}</div>
                                             <div class="verified-badge">
                                                 <i class="fas fa-check"></i>
                                             </div>
                                         </div>
                                         <div class="instructor-details">
-                                            <h3 class="instructor-name">{{ $course->formateur->first_name }} {{ $course->formateur->last_name }}</h3>
+                                            <h3 class="instructor-name">{{ $instructorName }}</h3>
                                             <p class="instructor-title">Expert {{ $course->category ? $course->category->name : 'Développement' }}</p>
                                             
                                             <div class="instructor-stats">
@@ -454,7 +565,7 @@
                                                     </div>
                                                 </div>
                                                 
-                                                <div class="stat-item">
+                                                {{-- <div class="stat-item">
                                                     <div class="stat-icon">
                                                         <i class="fas fa-users"></i>
                                                     </div>
@@ -462,7 +573,7 @@
                                                         <div class="stat-value">{{ number_format($course->formateur->students_count ?? 1250) }}</div>
                                                         <div class="stat-label">Apprenants</div>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                                 
                                                 <div class="stat-item">
                                                     <div class="stat-icon">
@@ -493,7 +604,7 @@
                                 @else
                                     <div class="instructor-profile">
                                         <div class="instructor-avatar-large">
-                                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Instructeur AfriCode">
+                                            <div class="instructor-avatar initials-circle-large">EA</div>
                                             <div class="verified-badge">
                                                 <i class="fas fa-check"></i>
                                             </div>
@@ -518,7 +629,7 @@
                                                         <i class="fas fa-users"></i>
                                                     </div>
                                                     <div class="stat-content">
-                                                        <div class="stat-value">5000+</div>
+                                                        <div class="stat-value">200+</div>
                                                         <div class="stat-label">Apprenants</div>
                                                     </div>
                                                 </div>
@@ -773,9 +884,9 @@
                                 @endphp
                                 
                                 @if($course->price > 0)
-                                    <div class="current-price">{{ number_format($course->price, 0, ',', ' ') }}€</div>
+                                    <div class="current-price">{{ number_format($course->price, 0, ',', ' ') }}FCFA</div>
                                     <div class="price-details">
-                                        <span class="original-price">{{ number_format($originalPrice, 0, ',', ' ') }}€</span>
+                                        <span class="original-price">{{ number_format($originalPrice, 0, ',', ' ') }}FCFA</span>
                                         <span class="discount">{{ $discountPercentage }}% de réduction</span>
                                     </div>
                                 @else
@@ -794,11 +905,7 @@
                             <!-- Actions Principales -->
                             <div class="enrollment-actions">
                                 @auth
-                                    @php
-                                        $userEnrollment = $course->enrollments->where('user_id', auth()->id())->first();
-                                    @endphp
-                                    
-                                    @if($userEnrollment)
+                                    @if($hasValidPayment)
                                         <a href="{{ route('apprenant.course.access', ['courseId' => $course->id]) }}" 
                                            class="btn-enroll enrolled">
                                             <i class="fas fa-play" style="color: #e67e22"></i>
@@ -806,8 +913,32 @@
                                         </a>
                                         <div class="enrollment-status">
                                             <i class="fas fa-check-circle" style="color: #e67e22"></i>
-                                            Vous êtes inscrit à cette formation
+                                            Vous avez accès à cette formation
                                         </div>
+                                    @elseif($userEnrollment && $paymentStatus === 'pending')
+                                        <div class="alert alert-warning border-0 shadow-sm mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-clock text-warning me-2"></i>
+                                                <span>Paiement en attente</span>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('enrollment.show', $course) }}" 
+                                           class="btn-enroll secondary">
+                                            <i class="fas fa-credit-card" style="color: #e67e22"></i>
+                                            <span>Finaliser le Paiement</span>
+                                        </a>
+                                    @elseif($userEnrollment && $paymentStatus === 'failed')
+                                        <div class="alert alert-danger border-0 shadow-sm mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                                <span>Paiement échoué</span>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('enrollment.show', $course) }}" 
+                                           class="btn-enroll primary">
+                                            <i class="fas fa-redo" style="color: #e67e22"></i>
+                                            <span>Réessayer le Paiement</span>
+                                        </a>
                                     @else
                                         @if($course->price > 0)
                                             <a href="{{ route('enrollment.show', $course) }}" 
@@ -830,10 +961,17 @@
                                     </a>
                                 @endauth
 <br>
-                                <button class="btn-secondary-action" data-bs-toggle="modal" data-bs-target="#wishlistModal">
-                                    <i class="far fa-heart" style="color: #e67e22"></i>
-                                    <span>Ajouter à mes favoris</span>
-                                </button>
+                                @auth
+                                    <button class="btn-secondary-action" id="wishlistBtn" data-course-id="{{ $course->id }}">
+                                        <i class="far fa-heart" id="wishlistIcon" style="color: #e67e22"></i>
+                                        <span id="wishlistText">Ajouter à mes favoris</span>
+                                    </button>
+                                @else
+                                    <a href="{{ route('login') }}" class="btn-secondary-action">
+                                        <i class="far fa-heart" style="color: #e67e22"></i>
+                                        <span>Se connecter pour ajouter aux favoris</span>
+                                    </a>
+                                @endauth
                             </div>
 
                             <!-- Garanties et Promesses -->
@@ -856,7 +994,7 @@
                             <div class="includes-section">
                                 <h3 class="includes-title">Cette formation comprend :</h3>
                                 <div class="includes-list">
-                                    <div class="include-item">
+                                    {{-- <div class="include-item">
                                         <i class="fas fa-video" style="color: #e67e22"></i>
                                         <span>{{ $course->getEstimatedDuration() ?? '10h' }} de vidéos HD</span>
                                     </div>
@@ -867,7 +1005,7 @@
                                     <div class="include-item">
                                         <i class="fas fa-code" style="color: #e67e22"></i>
                                         <span>{{ rand(8, 20) }} exercices pratiques</span>
-                                    </div>
+                                    </div> --}}
                                     <div class="include-item">
                                         <i class="fas fa-certificate" style="color: #e67e22"></i>
                                         <span>Certificat d'achèvement</span>
@@ -963,7 +1101,7 @@
                                                 </div>
                                             </div>
                                             <div class="course-price">
-                                                {{ $related->price > 0 ? number_format($related->price, 0) . '€' : 'Gratuit' }}
+                                                {{ $related->price > 0 ? number_format($related->price, 0) . 'FCFA' : 'Gratuit' }}
                                             </div>
                                         </div>
                                     </div>
@@ -1026,7 +1164,7 @@
                                                         @endfor
                                                     </div>
                                                 </div>
-                                                <div class="course-price">{{ $related['price'] }}€</div>
+                                                <div class="course-price">{{ $related['price'] }}FCFA</div>
                                             </div>
                                         </div>
                                     @endforeach
@@ -1063,6 +1201,23 @@
                     <div class="preview-info">
                         <h6>{{ $course->title }}</h6>
                         <p>{{ $course->short_description }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de prévisualisation vidéo -->
+    <div class="modal fade" id="previewVideoModal" tabindex="-1" aria-labelledby="previewVideoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewVideoTitle">Aperçu de la leçon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div id="previewVideoPlayer" style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000;">
+                        <!-- La vidéo sera chargée ici dynamiquement -->
                     </div>
                 </div>
             </div>
@@ -1214,11 +1369,11 @@
 .breadcrumb-modern li:not(:last-child)::after {
     content: '/';
     margin-left: 0.5rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: #27B371;
 }
 
 .breadcrumb-link {
-    color: rgba(255, 255, 255, 0.7);
+    color: #27B371;
     text-decoration: none;
     transition: var(--transition-fast);
 }
@@ -1253,7 +1408,7 @@
     border-radius: var(--radius-xl);
     font-size: 0.875rem;
     font-weight: 600;
-    color: white;
+    color: rgb(28, 112, 22);
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow-sm);
 }
@@ -1262,9 +1417,9 @@
     background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
 }
 
-.badge-new {
-    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-}
+/* .badge-new {
+    background: linear-gradient(135deg, #3B82F6 0%, #adbde9 100%);
+} */
 
 .badge-level-beginner {
     background: linear-gradient(135deg, #10B981 0%, #059669 100%);
@@ -1355,6 +1510,21 @@
     height: 60px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid var(--course-primary);
+}
+
+.instructor-avatar.initials-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #1EA38B;
+    color: #FF8E2A;
+    font-weight: bold;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     border: 3px solid var(--course-primary);
 }
 
@@ -1610,6 +1780,37 @@
     color: #1f2937;
     margin: 0;
 }
+.course-stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.course-stats-row .stat-item {
+    flex: 1 1 auto;
+    min-width: 100px;
+    text-align: center;
+}
+
+.course-stats-row .stat-divider {
+    display: none; /* Optionnel : cacher les dividers sur mobile */
+}
+
+/* Responsive: sur les petits écrans, tout reste sur une ligne */
+@media (max-width: 768px) {
+    .course-stats-row {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .course-stats-row .stat-item {
+        flex: 0 0 auto;
+        min-width: 120px;
+    }
+}
 
 .section-title-modern i {
     color: var(--course-primary);
@@ -1790,12 +1991,117 @@
     border-radius: var(--radius-sm);
     font-size: 0.75rem;
     font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.preview-badge:hover {
+    background: var(--course-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .lesson-duration {
     color: #6b7280;
     font-size: 0.875rem;
     font-weight: 500;
+}
+
+/* Styles pour le modal de prévisualisation vidéo */
+#previewVideoModal {
+    z-index: 1055;
+}
+
+#previewVideoModal .modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 90%;
+    width: 100%;
+}
+
+@media (min-width: 576px) {
+    #previewVideoModal .modal-dialog {
+        max-width: 540px;
+    }
+}
+
+@media (min-width: 768px) {
+    #previewVideoModal .modal-dialog {
+        max-width: 720px;
+    }
+}
+
+@media (min-width: 992px) {
+    #previewVideoModal .modal-dialog {
+        max-width: 960px;
+    }
+}
+
+#previewVideoModal .modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 100%;
+}
+
+#previewVideoModal .modal-header {
+    background: linear-gradient(135deg, var(--course-primary) 0%, var(--course-secondary) 100%);
+    color: white;
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+
+#previewVideoModal .modal-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+#previewVideoModal .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+#previewVideoModal .btn-close:hover {
+    opacity: 1;
+}
+
+#previewVideoPlayer {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    background: #000;
+    overflow: hidden;
+}
+
+#previewVideoPlayer iframe,
+#previewVideoPlayer video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+@media (max-width: 575px) {
+    #previewVideoModal .modal-dialog {
+        margin: 0.5rem auto;
+        max-width: calc(100% - 1rem);
+        width: calc(100% - 1rem);
+    }
+    
+    #previewVideoModal .modal-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    #previewVideoModal .modal-title {
+        font-size: 1rem;
+    }
+    
+    #previewVideoPlayer {
+        padding-bottom: 56.25%;
+    }
 }
 
 /* Prérequis */
@@ -1834,6 +2140,21 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
+    border: 4px solid var(--course-primary);
+}
+
+.instructor-avatar.initials-circle-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #1EA38B;
+    color: #FF8E2A;
+    font-weight: bold;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     border: 4px solid var(--course-primary);
 }
 
@@ -2625,7 +2946,7 @@
     }
     
     .course-stats-modern {
-        flex-direction: column;
+        /* flex-direction: column; */
         gap: 1rem;
     }
     
@@ -2647,7 +2968,7 @@
     }
     
     .guarantees {
-        flex-direction: column;
+        /* flex-direction: column; */
         align-items: center;
     }
     
@@ -2673,19 +2994,43 @@
         grid-template-columns: 1fr;
     }
     
+    /* Navigation : barre d'onglets horizontale scrollable sur mobile */
+    .course-navigation-modern {
+        padding: 0;
+    }
+
+    .nav-wrapper {
+        padding: 0 4px;
+    }
+
     .nav-modern {
-        flex-direction: column;
+        flex-direction: row;
+        min-width: max-content;
+        gap: 0;
     }
-    
+
     .nav-item-modern {
-        border-bottom: none;
-        border-left: 3px solid transparent;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 14px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        border-bottom: 3px solid transparent;
+        border-left: none;
+        min-width: 64px;
+        text-align: center;
+        justify-content: center;
     }
-    
+
+    .nav-item-modern i {
+        font-size: 1rem;
+    }
+
     .nav-item-modern:hover,
     .nav-item-modern.active {
-        border-left-color: var(--course-primary);
-        border-bottom-color: transparent;
+        border-bottom-color: var(--course-primary);
+        border-left-color: transparent;
+        background: rgba(30, 163, 139, 0.06);
     }
 }
 
@@ -2735,6 +3080,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    @if(config('tracking.enabled'))
+    if (window.AfriCodeTracking && window.AfriCodeTracking.track) {
+        window.AfriCodeTracking.track('view_content', {
+            content_name: @json($course->title),
+            content_ids: [@json((string) $course->id)],
+            content_type: 'product',
+            content_category: @json($course->category->name ?? 'Formation')
+        });
+    }
+    @endif
+
     // Initialize AOS animations
     AOS.init({
         duration: 800,
@@ -3040,6 +3396,55 @@ document.addEventListener('DOMContentLoaded', function() {
         imageObserver.observe(img);
     });
 
+    // Wishlist functionality
+    const wishlistBtn = document.getElementById('wishlistBtn');
+    if (wishlistBtn) {
+        const courseId = wishlistBtn.dataset.courseId;
+        const wishlistIcon = document.getElementById('wishlistIcon');
+        const wishlistText = document.getElementById('wishlistText');
+        
+        // Vérifier l'état initial de la wishlist
+        fetch(`/courses/${courseId}/wishlist/check`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.isInWishlist) {
+                    wishlistIcon.classList.remove('far');
+                    wishlistIcon.classList.add('fas');
+                    wishlistText.textContent = 'Retirer de mes favoris';
+                }
+            });
+
+        // Gérer le clic sur le bouton
+        wishlistBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            fetch(`/courses/${courseId}/wishlist/toggle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.isInWishlist) {
+                        wishlistIcon.classList.remove('far');
+                        wishlistIcon.classList.add('fas');
+                        wishlistText.textContent = 'Retirer de mes favoris';
+                    } else {
+                        wishlistIcon.classList.remove('fas');
+                        wishlistIcon.classList.add('far');
+                        wishlistText.textContent = 'Ajouter à mes favoris';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        });
+    }
+
     // Enhanced search and filter interactions (if needed for future extensions)
     const searchInputs = document.querySelectorAll('input[type="search"]');
     searchInputs.forEach(input => {
@@ -3093,5 +3498,100 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Modal de prévisualisation vidéo - Attendre que tout soit chargé
+(function() {
+    function initVideoModal() {
+    const previewModal = document.getElementById('previewVideoModal');
+    const videoPlayer = document.getElementById('previewVideoPlayer');
+    const videoTitle = document.getElementById('previewVideoTitle');
+    
+    if (!previewModal || !videoPlayer || !videoTitle) {
+        console.error('Éléments du modal non trouvés');
+        return;
+    }
+    
+    // Fonction pour charger la vidéo
+    function loadVideo(videoUrl, lessonTitle) {
+        // Mettre à jour le titre
+        videoTitle.textContent = lessonTitle || 'Aperçu de la leçon';
+        
+        // Charger la vidéo
+        let embedHtml = '';
+        
+        // YouTube
+        if (videoUrl.includes('youtube.com/watch') || videoUrl.includes('youtu.be/')) {
+            const videoId = videoUrl.includes('youtu.be/') 
+                ? videoUrl.split('youtu.be/')[1].split('?')[0]
+                : videoUrl.split('v=')[1].split('&')[0];
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+            embedHtml = `<iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none;"></iframe>`;
+        }
+        // Vimeo
+        else if (videoUrl.includes('vimeo.com/')) {
+            const videoId = videoUrl.split('vimeo.com/')[1].split('?')[0];
+            const embedUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1`;
+            embedHtml = `<iframe src="${embedUrl}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; border: none;"></iframe>`;
+        }
+        // URL directe (MP4, etc.)
+        else {
+            embedHtml = `<video controls autoplay style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; object-fit: contain;">
+                <source src="${videoUrl}" type="video/mp4">
+                Votre navigateur ne supporte pas la lecture de vidéos.
+            </video>`;
+        }
+        
+        videoPlayer.innerHTML = embedHtml;
+    }
+    
+    // Gestionnaire d'événement Bootstrap modal
+    previewModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        if (button) {
+            const videoUrl = button.getAttribute('data-video-url');
+            const lessonTitle = button.getAttribute('data-lesson-title');
+            if (videoUrl) {
+                loadVideo(videoUrl, lessonTitle);
+            }
+        }
+    });
+    
+    // Gestionnaire de clic direct sur les badges (fallback)
+    document.querySelectorAll('.preview-badge').forEach(function(badge) {
+        badge.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const videoUrl = this.getAttribute('data-video-url');
+            const lessonTitle = this.getAttribute('data-lesson-title');
+            
+            if (videoUrl) {
+                loadVideo(videoUrl, lessonTitle);
+                
+                // Ouvrir le modal avec Bootstrap
+                const modal = new bootstrap.Modal(previewModal);
+                modal.show();
+            } else {
+                console.error('URL vidéo manquante');
+            }
+        });
+    });
+    
+    // Réinitialiser le lecteur vidéo quand le modal est fermé
+    previewModal.addEventListener('hidden.bs.modal', function() {
+        videoPlayer.innerHTML = '';
+    });
+    }
+    
+    // Initialiser quand le DOM est prêt
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVideoModal);
+    } else {
+        initVideoModal();
+    }
+    
+    // Aussi initialiser après un court délai pour s'assurer que Bootstrap est chargé
+    setTimeout(initVideoModal, 100);
+})();
 </script>
 @endpush

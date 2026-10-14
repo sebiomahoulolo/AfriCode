@@ -24,7 +24,7 @@
             <label for="content" class="form-label">Contenu</label>
             <textarea name="content" id="content" class="form-control" rows="6" required>{{ old('content') }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Publier le sujet</button>
+        <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Publier le sujet</button>
         <a href="{{ route('forum.index') }}" class="btn btn-secondary ms-2">Annuler</a>
     </form>
 </div>

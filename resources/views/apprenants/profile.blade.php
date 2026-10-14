@@ -11,7 +11,6 @@
         border-radius: var(--africode-border-radius-lg);
         padding: 3rem 2rem;
         text-align: center;
-        color: white;
         margin-bottom: 2rem;
         position: relative;
         overflow: hidden;

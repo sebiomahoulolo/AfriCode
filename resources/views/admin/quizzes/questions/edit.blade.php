@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
+            <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">
                 <i class="fas fa-edit fa-fw me-1"></i> Modifier la question du quiz "{{ $quiz->title }}"
             </h6>
             <div>
@@ -71,7 +71,7 @@
                         </div>
                         
                         <div>
-                            <button type="button" class="btn btn-sm btn-success add-option">
+                            <button type="button" class="btn btn-sm text-white add-option" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                                 <i class="fas fa-plus fa-fw"></i> Ajouter une option
                             </button>
                         </div>
@@ -126,7 +126,7 @@
                 
                 <div class="d-flex mt-4 justify-content-between">
                     <div>
-                        <button type="submit" class="btn btn-primary me-2">
+                        <button type="submit" class="btn text-white me-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                             <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
                         </button>
                         <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="btn btn-secondary">Annuler</a>

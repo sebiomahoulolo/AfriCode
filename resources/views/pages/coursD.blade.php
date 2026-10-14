@@ -139,7 +139,7 @@
                     <h5 class="card-title">Introduction à la programmation</h5>
                     <p class="card-text">Un cours qui vous présente les bases de la programmation et la logique algorithmique de façon claire et progressive.</p>
                     <p class="text-success"><strong>Gratuit</strong> | Certificat inclus | <span class="text-danger">8h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -152,7 +152,7 @@
                     <h5 class="card-title">Les bases du Web</h5>
                     <p class="card-text">Apprenez HTML, CSS et JavaScript pour construire vos premières pages web de manière interactive.</p>
                     <p class="text-success"><strong>Gratuit</strong> | Pas de certificat | <span class="text-danger">12h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -165,7 +165,7 @@
                     <h5 class="card-title">Initiation à Laravel</h5>
                     <p class="card-text">Découvrez ce framework PHP puissant et facile à apprendre pour développer des applications web.</p>
                     <p class="text-success"><strong>25$</strong> | Certificat inclus | <span class="text-danger">20h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -193,7 +193,7 @@
                     <h5 class="card-title" style="font-size: 1.1rem; height: 50px; overflow: hidden;">{{ $cours[0] }}</h5> 
                     <p class="card-text" style="font-size: 0.9rem; height: 60px; overflow: hidden;;" title="{{ $cours[1] }}">{{ $cours[1] }}</p> 
                     <p class="text-success" style="font-size: 1rem;"><strong>{{ $cours[3] }}</strong> | {{ $cours[4] }} | <span class="text-danger"> {{ $cours[5] }}</span></p>
-                    <a href="#" class="btn btn-primary btn-hover mt-auto" style="font-size: 0.9rem;">S'inscrire</a> 
+                    <a href="#" class="btn btn-hover text-white mt-auto" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;font-size:0.9rem;">S'inscrire</a> 
                 </div>
             </div>
         </div>

@@ -10,10 +10,10 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1EA38B; /* Vert émeraude */
-            --secondary-color: #FF8E2A; /* Orange */
-            --accent-color: #E32D31; /* Rouge */
-            --highlight-color: #27B371; /* Vert clair */
+            --primary-color: #27B371; /* Vert émeraude */
+            --secondary-color: #fea837; /* Orange */
+            --accent-color: #fa1c39; /* Rouge */
+            --highlight-color: #1EA38B; /* Vert clair */
             --background-color: #f4f7f6;
             --light-accent: #ECF0F1;
             --text-color: #333333;
@@ -260,7 +260,7 @@
          .chat-input-area input[type="text"]:focus {
              outline: none;
              border-color: var(--primary-color);
-             box-shadow: 0 0 0 2px rgba(30, 163, 139, 0.2);
+             box-shadow: 0 0 0 2px rgba(17, 192, 109, 0.2);
          }
          .chat-input-area button {
              border-radius: 50%;
@@ -377,7 +377,7 @@
                                  <label for="replyText" class="form-label visually-hidden">Votre réponse</label>
                                  <textarea class="form-control" id="replyText" rows="3" placeholder="Écrivez votre réponse ici..."></textarea>
                              </div>
-                             <button type="submit" class="btn btn-primary btn-sm" style="background-color: var(--primary-color); border-color: var(--primary-color);">
+                             <button type="submit" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                  <i class="fas fa-paper-plane me-1"></i> Envoyer la réponse
                              </button>
                          </form>
@@ -398,7 +398,7 @@
                      </div>
                      <div class="chat-input-area">
                          <input type="text" class="form-control" id="chat-message-input" placeholder="Écrivez votre message...">
-                         <button class="btn btn-primary" id="send-message-btn" type="button">
+                         <button class="btn text-white" id="send-message-btn" type="button" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                              <i class="fas fa-paper-plane"></i>
                          </button>
                      </div>
@@ -486,7 +486,6 @@
             }
 
             function displayForumTopic(topicId) {
-                console.log("Displaying forum topic:", topicId);
                 const topic = sampleForumTopics.find(t => t.id === topicId);
                 if (!topic) return;
 
@@ -497,6 +496,9 @@
                 contentPlaceholder.style.display = 'none';
                 chatView.style.display = 'none';
                 forumView.style.display = 'flex'; // Use flex
+                
+                // Stocker le topicId dans le forum-view pour le formulaire de réponse
+                forumView.dataset.topicId = topicId;
 
                 // Populate forum view
                 document.getElementById('forum-topic-title').textContent = topic.title;
@@ -536,7 +538,6 @@
             }
 
             function displayChat(contactId) {
-                console.log("Displaying chat with:", contactId);
                 const conversation = sampleMessages.find(m => m.contactId === contactId);
                 if (!conversation) return;
 
@@ -572,7 +573,7 @@
                  // Scroll to bottom
                  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-                 // TODO: Associate send button logic with this specific contactId
+                 // Associate send button logic with this specific contactId
                  document.getElementById('send-message-btn').dataset.contactId = contactId;
                  document.getElementById('chat-message-input').focus();
             }
@@ -606,23 +607,36 @@
                      input.value = '';
                      input.focus();
 
-                     // 3. TODO: Send message to backend API
-                     console.log(`Sending message to ${contactId}: ${text}`);
-
-                     // 4. Simulate a reply (for demo)
-                     setTimeout(() => {
-                         const replyText = "Message reçu ! L'expert vous répondra bientôt.";
-                         const replyTime = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-                         appendChatMessage('received', replyText, replyTime);
-                         // Update last message in sidebar list (simulation)
-                         const convo = sampleMessages.find(m => m.contactId === contactId);
-                         if(convo) {
-                            convo.lastMessage = replyText;
-                            convo.timestamp = replyTime;
-                           // convo.unread = true; // If expert replies
-                           // loadMessageList();
+                     // 3. Send message to backend API
+                     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
+                                      document.querySelector('input[name="_token"]')?.value;
+                     
+                     fetch(`/api/forum/topic/${contactId}/reply`, {
+                         method: 'POST',
+                         headers: {
+                             'Content-Type': 'application/json',
+                             'X-CSRF-TOKEN': csrfToken,
+                             'Accept': 'application/json'
+                         },
+                         body: JSON.stringify({
+                             content: text
+                         })
+                     })
+                     .then(response => response.json())
+                     .then(data => {
+                         if (data.success) {
+                             // Message sent successfully
+                             // Optionally update UI or show success message
+                         } else {
+                             // Handle error
+                             console.error('Erreur lors de l\'envoi:', data.message || 'Erreur inconnue');
+                             // Optionally show error message to user
                          }
-                     }, 1500);
+                     })
+                     .catch(error => {
+                         console.error('Erreur réseau:', error);
+                         // Optionally show error message to user
+                     });
                  }
              }
 
@@ -672,15 +686,88 @@
                  }
              });
 
-             // Reply form submission (simulation)
+             // Reply form submission (pour répondre aux sujets du forum)
              document.getElementById('replyForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const replyText = document.getElementById('replyText').value.trim();
-                if (replyText) {
-                     console.log("Submitting reply:", replyText);
-                    // TODO: Append reply visually & send to backend
+                // Récupérer le topicId depuis l'élément actif de la sidebar ou depuis un attribut data
+                const activeTopicId = document.querySelector('.sidebar-list-item.active')?.dataset.topicId || 
+                                     document.querySelector('#forum-view')?.dataset.topicId;
+                
+                if (replyText && activeTopicId) {
+                    // Afficher visuellement la réponse immédiatement dans la liste des réponses
+                    const repliesContainer = document.getElementById('replies-list');
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    
+                    // Créer une carte de réponse temporaire
+                    const tempReplyDiv = document.createElement('div');
+                    tempReplyDiv.className = 'reply-card';
+                    tempReplyDiv.innerHTML = `
+                        <div class="reply-header">
+                            <img src="{{ auth()->user()->profile_image_path ?? 'https://via.placeholder.com/30/1EA38B/FFFFFF?text=' . substr(auth()->user()->first_name ?? 'U', 0, 1) }}" alt="{{ auth()->user()->first_name ?? 'Utilisateur' }}">
+                            <span class="author">{{ auth()->user()->first_name ?? 'Utilisateur' }} {{ auth()->user()->last_name ?? '' }}</span>
+                            <span class="date">${timeString}</span>
+                        </div>
+                        <div class="reply-content">${escapeHtml(replyText)}</div>
+                    `;
+                    repliesContainer.appendChild(tempReplyDiv);
+                    
+                    // Envoyer au backend
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
+                                     document.querySelector('input[name="_token"]')?.value;
+                    
+                    fetch(`/api/forum/topic/${activeTopicId}/reply`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: replyText
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Réponse envoyée avec succès
                      document.getElementById('replyText').value = '';
-                    alert("Réponse envoyée (simulation) !");
+                            
+                            // Mettre à jour la réponse avec les données du serveur
+                            if (data.reply) {
+                                tempReplyDiv.innerHTML = `
+                                    <div class="reply-header">
+                                        <img src="https://via.placeholder.com/30/1EA38B/FFFFFF?text=${data.reply.user.first_name.charAt(0).toUpperCase()}" alt="${escapeHtml(data.reply.user.first_name)}">
+                                        <span class="author">${escapeHtml(data.reply.user.first_name)} ${escapeHtml(data.reply.user.last_name)}</span>
+                                        <span class="date">${data.reply.created_at}</span>
+                                    </div>
+                                    <div class="reply-content">${escapeHtml(data.reply.content)}</div>
+                                `;
+                            }
+                            
+                            // Scroll vers la nouvelle réponse
+                            tempReplyDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        } else {
+                            // Gérer l'erreur
+                            console.error('Erreur lors de l\'envoi:', data.message || 'Erreur inconnue');
+                            alert('Erreur lors de l\'envoi de la réponse. Veuillez réessayer.');
+                            // Retirer la réponse temporaire en cas d'erreur
+                            tempReplyDiv.remove();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur réseau:', error);
+                        alert('Erreur de connexion. Veuillez réessayer.');
+                        // Retirer la réponse temporaire en cas d'erreur
+                        tempReplyDiv.remove();
+                    });
+                } else {
+                    if (!replyText) {
+                        alert('Veuillez saisir une réponse.');
+                    } else if (!activeTopicId) {
+                        alert('Veuillez sélectionner un sujet pour répondre.');
+                    }
                  }
              });
 

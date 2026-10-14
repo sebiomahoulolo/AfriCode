@@ -4,13 +4,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
+use Illuminate\Support\Facades\DB;
+
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
 
 class Course extends Model implements AuditableContract
 {
-    use HasFactory, SoftDeletes, Searchable, Auditable;
+    use HasFactory, SoftDeletes,  Auditable;
 
     protected $fillable = [
         'title', 
@@ -30,18 +31,49 @@ class Course extends Model implements AuditableContract
         'category_id',
         'published_at',
         'is_certifying',
-        'is_premium'
+        'is_premium',
+        'is_promotional',
+        'discount_percentage',
+        'original_price',
+        'promotion_start_date',
+        'promotion_end_date'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'original_price' => 'decimal:2',
         'published_at' => 'datetime',
+        'promotion_start_date' => 'datetime',
+        'promotion_end_date' => 'datetime',
         'deleted_at' => 'datetime',
+        'validated_at' => 'datetime',
+        'submitted_for_validation_at' => 'datetime',
         'learning_objectives' => 'array',
         'prerequisites' => 'array',
         'faq' => 'array',
-        'testimonials' => 'array'
+        'testimonials' => 'array',
+        'is_promotional' => 'boolean'
     ];
+
+    /**
+     * Accessor pour obtenir l'URL complète de l'image de couverture
+     */
+    public function getCoverImageUrlAttribute()
+    {
+        if (!$this->cover_image_path) {
+            return asset('assets/images/course-placeholder.jpg');
+        }
+
+        // Normaliser le chemin - enlever le préfixe storage/ s'il existe déjà
+        $path = $this->cover_image_path;
+        if (str_starts_with($path, 'storage/')) {
+            // Le chemin contient déjà storage/, utiliser tel quel
+            return asset($path);
+        }
+        
+        // Si le chemin ne commence pas par storage/, l'ajouter
+        return asset('storage/' . $path);
+    }
 
     // --- Relations ---
     public function formateur() {
@@ -93,6 +125,15 @@ class Course extends Model implements AuditableContract
     }
 
     /**
+     * Les utilisateurs qui ont ce cours dans leur wishlist.
+     */
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')
+            ->withTimestamps();
+    }
+
+    /**
      * Les prérequis de ce cours.
      */
     public function prerequisites()
@@ -113,7 +154,25 @@ class Course extends Model implements AuditableContract
      */
     public function canBeAccessedBy(User $user): bool
     {
-        return CoursePrerequisite::canAccessCourse($user, $this);
+        // Vérifier les prérequis
+        if (!CoursePrerequisite::canAccessCourse($user, $this)) {
+            return false;
+        }
+
+        // Vérifier l'inscription
+        $enrollment = $user->enrollments()->where('course_id', $this->id)->first();
+        if (!$enrollment) {
+            return false;
+        }
+
+        // Vérifier le paiement pour les cours payants
+        if ($this->price > 0) {
+            if (!$enrollment->payment || $enrollment->payment->status !== 'succeeded') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -161,8 +220,18 @@ class Course extends Model implements AuditableContract
         return $this->hasManyThrough(Lesson::class, Module::class)->count();
     }
     
+    /**
+     * Calcule la durée totale du cours en additionnant toutes les durées des leçons
+     * 
+     * @return int Durée totale en minutes
+     */
     public function getEstimatedDuration() {
-        return $this->hasManyThrough(Lesson::class, Module::class)->sum('duration_minutes');
+        // Utiliser une requête optimisée pour calculer la somme
+        return (int) DB::table('lessons')
+            ->join('modules', 'lessons.module_id', '=', 'modules.id')
+            ->where('modules.course_id', $this->id)
+            ->whereNotNull('lessons.duration_minutes')
+            ->sum('lessons.duration_minutes');
     }
     
     // Vérifier si tous les modules sont complétés (leçons + quiz)
@@ -196,5 +265,78 @@ class Course extends Model implements AuditableContract
     public function canUserAccessFinalQuiz($userId)
     {
         return $this->allModulesCompletedByUser($userId);
+    }
+
+    // --- Méthodes pour les promotions ---
+    
+    /**
+     * Vérifier si le cours est actuellement en promotion
+     */
+    public function isCurrentlyOnPromotion()
+    {
+        if (!$this->is_promotional) {
+            return false;
+        }
+
+        $now = now();
+        
+        // Vérifier si la promotion est active dans la période définie
+        if ($this->promotion_start_date && $this->promotion_end_date) {
+            return $now->between($this->promotion_start_date, $this->promotion_end_date);
+        }
+
+        // Si pas de dates définies, considérer comme toujours active si is_promotional = true
+        return true;
+    }
+
+    /**
+     * Obtenir le prix avec remise appliquée
+     */
+    public function getDiscountedPrice()
+    {
+        if (!$this->isCurrentlyOnPromotion()) {
+            return $this->price;
+        }
+
+        if ($this->discount_percentage > 0) {
+            return $this->price * (1 - $this->discount_percentage / 100);
+        }
+
+        return $this->price;
+    }
+
+    /**
+     * Obtenir le pourcentage d'économie
+     */
+    public function getSavingsPercentage()
+    {
+        if (!$this->isCurrentlyOnPromotion()) {
+            return 0;
+        }
+
+        if ($this->original_price && $this->original_price > $this->price) {
+            return round((($this->original_price - $this->price) / $this->original_price) * 100);
+        }
+
+        return $this->discount_percentage ?? 0;
+    }
+
+    /**
+     * Scope pour récupérer les cours en promotion
+     */
+    public function scopePromotional($query)
+    {
+        return $query->where('is_promotional', true)
+                    ->where(function($q) {
+                        $q->where(function($subQ) {
+                            $subQ->whereNotNull('promotion_start_date')
+                                 ->whereNotNull('promotion_end_date')
+                                 ->where('promotion_start_date', '<=', now())
+                                 ->where('promotion_end_date', '>=', now());
+                        })->orWhere(function($subQ) {
+                            $subQ->whereNull('promotion_start_date')
+                                 ->whereNull('promotion_end_date');
+                        });
+                    });
     }
 }

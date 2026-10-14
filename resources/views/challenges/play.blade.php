@@ -46,7 +46,7 @@
                         </div>
                     @endforeach
                     @if(!$submitted)
-                        <button type="submit" class="btn btn-primary">Soumettre le quiz</button>
+                        <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Soumettre le quiz</button>
                     @endif
                 </form>
             </div>

@@ -22,14 +22,23 @@ class TutoringSession extends Model
         'duration_minutes',
         'price',
         'meeting_link',
-        'notes'
+        'session_code',
+        'notes',
+        'feedback',
+        'started_at',
+        'completed_at',
+        'cancelled_at',
+        'cancellation_reason'
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'duration_minutes' => 'integer',
-        'price' => 'decimal:2'
+        'price' => 'decimal:2',
+        'started_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'cancelled_at' => 'datetime'
     ];
 
     public function tutor()
@@ -60,6 +69,16 @@ class TutoringSession extends Model
     public function learningObjectives()
     {
         return $this->hasMany(TutoringLearningObjective::class, 'session_id');
+    }
+
+    public function sessionResources()
+    {
+        return $this->hasMany(TutoringSessionResource::class, 'session_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(TutoringSessionMessage::class, 'session_id');
     }
 
     public function scopeUpcoming($query)
@@ -131,11 +150,10 @@ class TutoringSession extends Model
         return false;
     }
 
-    public function addParticipant($userId, $role = 'student')
+    public function addParticipant($userId)
     {
         return $this->participants()->create([
-            'user_id' => $userId,
-            'role' => $role
+            'user_id' => $userId
         ]);
     }
 

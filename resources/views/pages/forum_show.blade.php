@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <title>{{ $forum->title }} - Forum AfriCode</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1EA38B;
-            --secondary-color: #FF8E2A;
-            --accent-color: #E32D31;
-            --highlight-color: #27B371;
+            --primary-color: #27B371;
+            --secondary-color: #fea837;
+            --accent-color: #fa1c39;
+            --highlight-color: #1EA38B;
             --background-color: #f4f7f6;
             --light-accent: #ECF0F1;
             --text-color: #333333;
@@ -207,7 +208,7 @@
                 <div class="topic-title">{{ $forum->title }}</div>
                 <div class="topic-meta">
                     <i class="fas fa-user me-1"></i>
-                    Par <a href="/profil/{{ $forum->user->id }}" class="text-white">{{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}</a>
+                    Par <a href="{{ route('profile.show', $forum->user->id) }}" class="text-white">{{ $forum->user->first_name ?? 'Utilisateur' }} {{ $forum->user->last_name ?? '' }}</a>
                     <span class="mx-2">•</span>
                     <i class="fas fa-calendar me-1"></i>
                     {{ $forum->created_at->format('d/m/Y à H:i') }}
@@ -233,7 +234,7 @@
                     <div class="reply-header">
                         <div class="reply-author">
                             <i class="fas fa-user me-1"></i>
-                            <a href="/profil/{{ $post->user->id }}" class="text-decoration-none">{{ $post->user->first_name ?? 'Utilisateur' }} {{ $post->user->last_name ?? '' }}</a>
+                            <a href="{{ route('profile.show', $post->user->id) }}" class="text-decoration-none">{{ $post->user->first_name ?? 'Utilisateur' }} {{ $post->user->last_name ?? '' }}</a>
                         </div>
                         <div class="reply-date">
                             <i class="fas fa-clock me-1"></i>
@@ -252,7 +253,7 @@
                                     <div class="reply-header">
                                         <div class="reply-author">
                                             <i class="fas fa-reply me-1"></i>
-                                            <a href="/profil/{{ $reply->user->id }}" class="text-decoration-none">{{ $reply->user->first_name ?? 'Utilisateur' }} {{ $reply->user->last_name ?? '' }}</a>
+                                            <a href="{{ route('profile.show', $reply->user->id) }}" class="text-decoration-none">{{ $reply->user->first_name ?? 'Utilisateur' }} {{ $reply->user->last_name ?? '' }}</a>
                                         </div>
                                         <div class="reply-date">
                                             {{ $reply->created_at->format('d/m/Y à H:i') }}
@@ -299,7 +300,7 @@
                     <i class="fas fa-lock fa-2x mb-3 text-muted"></i>
                     <h5>Connexion requise</h5>
                     <p>Vous devez être connecté pour répondre à ce sujet.</p>
-                    <a href="{{ route('login') }}" class="btn btn-primary">
+                    <a href="{{ route('login') }}" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-sign-in-alt me-1"></i> Se connecter
                     </a>
                 </div>
@@ -321,6 +322,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Fonction helper pour générer l'URL du profil
+        function getProfileUrl(userId) {
+            return `/profil/${userId}`;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             // Gestion du formulaire de réponse en AJAX
             const replyForm = document.getElementById('replyForm');
@@ -416,7 +422,7 @@
                     <div class="reply-header">
                         <div class="reply-author">
                             <i class="fas fa-user me-1"></i>
-                            <a href="/profil/${reply.user.id}" class="text-decoration-none">${reply.user.first_name} ${reply.user.last_name}</a>
+                            <a href="${getProfileUrl(reply.user.id)}" class="text-decoration-none">${reply.user.first_name} ${reply.user.last_name}</a>
                         </div>
                         <div class="reply-date">
                             <i class="fas fa-clock me-1"></i>

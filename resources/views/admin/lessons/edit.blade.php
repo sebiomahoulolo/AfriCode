@@ -1,217 +1,245 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Modifier une Leçon')
+@section('breadcrumb', 'Modifier la leçon')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-edit fa-fw me-1"></i> Modifier la leçon: {{ $lesson->title }}
-            </h6>
+<div class="fade-in">
+    <!-- Header -->
+    <div class="admin-card" data-aos="fade-up">
+        <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <a href="{{ route('admin.modules.edit', $module->id) }}" class="btn btn-sm btn-secondary">
-                    <i class="fas fa-arrow-left fa-fw"></i> Retour au module
+                <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-edit"></i> Modifier la leçon: {{ $lesson->title }}
+                </h1>
+                <p class="admin-card-subtitle">
+                    Module: {{ $module->title }} - Cours: {{ $course->title }}
+                </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="{{ route('admin.courses.show', $course->id) }}" 
+                   style="background: #6C757D; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; display: inline-block;">
+                    <i class="fas fa-arrow-left"></i> Retour au cours
                 </a>
             </div>
         </div>
-        <div class="card-body">
+    </div>
+
+    <!-- Formulaire -->
+    <div class="admin-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="admin-card-body">
             <form action="{{ route('admin.lessons.update', $lesson->id) }}" method="POST" enctype="multipart/form-data" id="lessonForm">
                 @csrf
                 @method('PUT')
 
-                <!-- Informations générales de la leçon -->
-                <div class="mb-4">
-                    <h5 class="border-bottom pb-2">Informations générales</h5>
+                <!-- Informations générales -->
+                <div style="margin-bottom: 2rem;">
+                    <h3 class="admin-card-title" style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #E9ECEF;">
+                        <i class="fas fa-info-circle"></i> Informations générales
+                    </h3>
                     
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Titre de la leçon <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $lesson->title) }}" required>
-                        @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="title" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">
+                            Titre de la leçon <span style="color: #E32D31;">*</span>
+                        </label>
+                        <input type="text" id="title" name="title" value="{{ old('title', $lesson->title) }}" required
+                               style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s;"
+                               onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                               onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                        @error('title')
+                            <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="content_type" class="form-label">Type de contenu <span class="text-danger">*</span></label>
-                            <select class="form-select @error('content_type') is-invalid @enderror" id="content_type" name="content_type" required>
-                                <option value="video" {{ old('content_type', $lesson->content_type) === 'video' ? 'selected' : '' }}>Vidéo</option>
-                                <option value="text" {{ old('content_type', $lesson->content_type) === 'text' ? 'selected' : '' }}>Texte</option>
-                                <option value="pdf" {{ old('content_type', $lesson->content_type) === 'pdf' ? 'selected' : '' }}>PDF</option>
-                                <option value="external" {{ old('content_type', $lesson->content_type) === 'external' ? 'selected' : '' }}>Lien externe</option>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <label for="type" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">
+                                Type de contenu <span style="color: #E32D31;">*</span>
+                            </label>
+                            <select id="type" name="type" required
+                                    style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; background: white; transition: all 0.3s;"
+                                    onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                    onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                                <option value="video" {{ old('type', $lesson->type) === 'video' ? 'selected' : '' }}>Vidéo</option>
+                                <option value="text" {{ old('type', $lesson->type) === 'text' ? 'selected' : '' }}>Texte</option>
+                                <option value="pdf" {{ old('type', $lesson->type) === 'pdf' ? 'selected' : '' }}>PDF</option>
                             </select>
-                            @error('content_type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            @error('type')
+                                <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="order" class="form-label">Ordre</label>
-                            <input type="number" class="form-control @error('order') is-invalid @enderror" id="order" name="order" value="{{ old('order', $lesson->order) }}" min="1">
-                            <div class="form-text">Position de la leçon dans le module</div>
-                            @error('order') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        
+                        <div>
+                            <label for="order" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">Ordre</label>
+                            <input type="number" id="order" name="order" value="{{ old('order', $lesson->order) }}" min="1"
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s;"
+                                   onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                   onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                            <div style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Position dans le module</div>
+                            @error('order')
+                                <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                            @enderror
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="duration_minutes" class="form-label">Durée (minutes)</label>
-                            <input type="number" class="form-control @error('duration_minutes') is-invalid @enderror" id="duration_minutes" name="duration_minutes" value="{{ old('duration_minutes', $lesson->duration_minutes) }}" min="1">
-                            @error('duration_minutes') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        
+                        <div>
+                            <label for="duration" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">Durée (minutes)</label>
+                            <input type="number" id="duration" name="duration" value="{{ old('duration', $lesson->duration) }}" min="1"
+                                   style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s;"
+                                   onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                   onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                            @error('duration')
+                                <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
 
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="is_previewable" name="is_previewable" {{ old('is_previewable', $lesson->is_previewable) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="is_previewable">Prévisualisable gratuitement</label>
-                        <div class="form-text">Si coché, cette leçon sera visible sans inscription ou paiement</div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="is_previewable" name="is_previewable" {{ old('is_previewable', $lesson->is_previewable) ? 'checked' : '' }}
+                                   style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-weight: 500; color: #333;">Prévisualisable gratuitement</span>
+                        </label>
+                        <div style="font-size: 0.85rem; color: #6C757D; margin-top: 0.25rem; margin-left: 1.75rem;">
+                            Si coché, cette leçon sera visible sans inscription ou paiement
+                        </div>
                     </div>
                 </div>
 
-                <!-- Contenu de la leçon - changement dynamique selon le type -->
-                <div class="mb-4">
-                    <h5 class="border-bottom pb-2">Contenu de la leçon</h5>
+                <!-- Contenu de la leçon -->
+                <div style="margin-bottom: 2rem;">
+                    <h3 class="admin-card-title" style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 2px solid #E9ECEF;">
+                        <i class="fas fa-file-alt"></i> Contenu de la leçon
+                    </h3>
                     
-                    <!-- Contenu de type Vidéo -->
-                    <div id="video-content" class="content-section">
-                        <div class="card mb-3">
-                            <div class="card-header bg-danger text-white">
-                                <i class="fas fa-video me-2"></i> Contenu Vidéo
+                    <!-- Contenu Vidéo -->
+                    <div id="video-content" class="content-section" style="display: {{ old('type', $lesson->type) === 'video' ? 'block' : 'none' }};">
+                        <div style="background: #F8F9FA; border-radius: 8px; padding: 1.5rem; border-left: 4px solid #E32D31;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <i class="fas fa-video" style="color: #E32D31; font-size: 1.5rem;"></i>
+                                <h4 style="margin: 0; color: #333;">Contenu Vidéo</h4>
                             </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="video_url" class="form-label">URL de la vidéo (YouTube ou Vimeo) <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control @error('video_url') is-invalid @enderror" id="video_url" name="video_url" value="{{ old('video_url', $lesson->video_url) }}" placeholder="https://www.youtube.com/watch?v=...">
-                                    <div class="form-text">Collez le lien direct vers la vidéo YouTube ou Vimeo</div>
-                                    @error('video_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                
-                                <div id="video-preview" style="display:none;">
-                                    <label class="form-label">Aperçu de la vidéo:</label>
-                                    <div class="ratio ratio-16x9">
-                                        <iframe id="video-iframe" src="" title="Aperçu de la vidéo" allowfullscreen></iframe>
-                                    </div>
+                            <div style="margin-bottom: 1rem;">
+                                <label for="video_url" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">
+                                    URL de la vidéo (YouTube ou Vimeo) <span style="color: #E32D31;">*</span>
+                                </label>
+                                <input type="url" id="video_url" name="video_url" value="{{ old('video_url', $lesson->type === 'video' ? $lesson->content : '') }}" 
+                                       placeholder="https://www.youtube.com/watch?v=..."
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s;"
+                                       onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                       onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                                <div style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Collez le lien direct vers la vidéo YouTube ou Vimeo</div>
+                                @error('video_url')
+                                    <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            <div id="video-preview" style="display: none; margin-top: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">Aperçu de la vidéo:</label>
+                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000;">
+                                    <iframe id="video-iframe" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contenu de type Texte -->
-                    <div id="text-content" class="content-section">
-                        <div class="card mb-3">
-                            <div class="card-header bg-success text-white">
-                                <i class="fas fa-file-alt me-2"></i> Contenu Texte
+                    <!-- Contenu Texte -->
+                    <div id="text-content" class="content-section" style="display: {{ old('type', $lesson->type) === 'text' ? 'block' : 'none' }};">
+                        <div style="background: #F8F9FA; border-radius: 8px; padding: 1.5rem; border-left: 4px solid #27B371;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <i class="fas fa-file-alt" style="color: #27B371; font-size: 1.5rem;"></i>
+                                <h4 style="margin: 0; color: #333;">Contenu Texte</h4>
                             </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="text_content" class="form-label">Contenu texte <span class="text-danger">*</span></label>
-                                    <textarea class="form-control tinymce-editor @error('text_content') is-invalid @enderror" id="text_content" name="text_content" rows="10">{{ old('text_content', $lesson->text_content) }}</textarea>
-                                    @error('text_content') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
+                            <div>
+                                <label for="text_content" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">
+                                    Contenu texte <span style="color: #E32D31;">*</span>
+                                </label>
+                                <textarea id="text_content" name="text_content" rows="10"
+                                          style="width: 100%; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s; resize: vertical;"
+                                          onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                          onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">{{ old('text_content', $lesson->type === 'text' ? $lesson->content : '') }}</textarea>
+                                @error('text_content')
+                                    <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
 
-                    <!-- Contenu de type PDF -->
-                    <div id="pdf-content" class="content-section">
-                        <div class="card mb-3">
-                            <div class="card-header bg-warning">
-                                <i class="fas fa-file-pdf me-2"></i> Document PDF
+                    <!-- Contenu PDF -->
+                    <div id="pdf-content" class="content-section" style="display: {{ old('type', $lesson->type) === 'pdf' ? 'block' : 'none' }};">
+                        <div style="background: #F8F9FA; border-radius: 8px; padding: 1.5rem; border-left: 4px solid #FF8E2A;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                                <i class="fas fa-file-pdf" style="color: #FF8E2A; font-size: 1.5rem;"></i>
+                                <h4 style="margin: 0; color: #333;">Document PDF</h4>
                             </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="pdf_file" class="form-label">Fichier PDF</label>
-                                    <div class="input-group mb-3">
-                                        <input type="file" class="form-control @error('pdf_file') is-invalid @enderror" id="pdf_file" name="pdf_file" accept="application/pdf">
-                                        <button class="btn btn-outline-secondary" type="button" id="clear-pdf-btn">Effacer</button>
-                                    </div>
-                                    <div class="form-text">Laissez vide pour conserver le fichier PDF existant</div>
-                                    <div id="pdf-file-feedback" class="form-text"></div>
-                                    @error('pdf_file') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div style="margin-bottom: 1rem;">
+                                <label for="pdf_file" style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333;">Fichier PDF</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="file" id="pdf_file" name="pdf_file" accept="application/pdf"
+                                           style="flex: 1; padding: 0.75rem; border: 1px solid #E9ECEF; border-radius: 8px; font-size: 0.9rem; transition: all 0.3s;"
+                                           onfocus="this.style.borderColor='#1EA38B'; this.style.boxShadow='0 0 0 3px rgba(30, 163, 139, 0.1)';"
+                                           onblur="this.style.borderColor='#E9ECEF'; this.style.boxShadow='none';">
+                                    <button type="button" id="clear-pdf-btn" 
+                                            style="background: #6C757D; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                                        Effacer
+                                    </button>
                                 </div>
-                                
-                                @if($lesson->content_type === 'pdf' && $lesson->pdf_path)
-                                <div class="card mt-3">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0"><i class="fas fa-file-pdf text-danger me-2"></i>Document PDF actuel</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
-                                                <div>
-                                                    <h5 class="mb-1">{{ basename($lesson->pdf_path) }}</h5>
-                                                </div>
-                                            </div>
+                                <div style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Laissez vide pour conserver le fichier PDF existant</div>
+                                <div id="pdf-file-feedback" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+                                @error('pdf_file')
+                                    <div style="color: #E32D31; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            
+                            @if($lesson->type === 'pdf' && $lesson->content)
+                                <div style="background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #E9ECEF;">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem;">
+                                        <i class="fas fa-file-pdf" style="color: #E32D31; font-size: 2rem;"></i>
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; color: #333; margin-bottom: 0.25rem;">Document PDF actuel</div>
+                                            <div style="font-size: 0.85rem; color: #6C757D;">{{ basename($lesson->content) }}</div>
                                         </div>
                                     </div>
-                                    <div class="card-footer">
-                                        <a href="{{ Storage::url($lesson->pdf_path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye fa-fw"></i> Visualiser
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <a href="{{ Storage::url($lesson->content) }}" target="_blank" 
+                                           style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">
+                                            <i class="fas fa-eye"></i> Visualiser
                                         </a>
-                                        <a href="{{ Storage::url($lesson->pdf_path) }}" download class="btn btn-sm btn-secondary">
-                                            <i class="fas fa-download fa-fw"></i> Télécharger
+                                        <a href="{{ Storage::url($lesson->content) }}" download 
+                                           style="background: #6C757D; color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.9rem;">
+                                            <i class="fas fa-download"></i> Télécharger
                                         </a>
                                     </div>
                                 </div>
-                                @endif
-                                
-                                <div id="pdf-preview" class="mt-3" style="display:none;">
-                                    <div class="card">
-                                        <div class="card-header bg-light">
-                                            <h6 class="mb-0">Nouveau fichier PDF</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center">
-                                                <i class="fas fa-file-pdf fa-3x text-danger me-3"></i>
-                                                <div>
-                                                    <h5 class="mb-1" id="pdf-filename">document.pdf</h5>
-                                                    <div class="small text-muted" id="pdf-filesize">0 Ko</div>
-                                                </div>
-                                            </div>
-                                        </div>
+                            @endif
+                            
+                            <div id="pdf-preview" style="display: none; background: white; border-radius: 8px; padding: 1rem; border: 1px solid #E9ECEF;">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 0.75rem;">Nouveau fichier PDF</div>
+                                <div style="display: flex; align-items: center; gap: 1rem;">
+                                    <i class="fas fa-file-pdf" style="color: #E32D31; font-size: 2rem;"></i>
+                                    <div>
+                                        <div style="font-weight: 500; color: #333; margin-bottom: 0.25rem;" id="pdf-filename">document.pdf</div>
+                                        <div style="font-size: 0.85rem; color: #6C757D;" id="pdf-filesize">0 Ko</div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Contenu de type Lien externe -->
-                    <div id="external-content" class="content-section">
-                        <div class="card mb-3">
-                            <div class="card-header bg-info text-white">
-                                <i class="fas fa-external-link-alt me-2"></i> Lien externe
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label for="external_url" class="form-label">Lien externe <span class="text-danger">*</span></label>
-                                    <input type="url" class="form-control @error('external_url') is-invalid @enderror" id="external_url" name="external_url" value="{{ old('external_url', $lesson->external_url) }}" placeholder="https://...">
-                                    <div class="form-text">URL d'une ressource externe (documentation, article, etc.)</div>
-                                    @error('external_url') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                                </div>
-                                
-                                <div id="external-preview" style="display:none;">
-                                    <label class="form-label">Aperçu du lien:</label>
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5 class="card-title" id="external-title">Titre de la page</h5>
-                                            <p class="card-text" id="external-description">Chargement de l'aperçu du lien...</p>
-                                            <div class="small text-muted" id="external-url-display"></div>
-                                        </div>
-                                        <div class="card-footer">
-                                            <a href="" id="external-preview-link" target="_blank" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-external-link-alt fa-fw"></i> Visiter le lien
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mt-2 small text-muted">Note: L'aperçu peut être limité selon les restrictions du site externe.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="d-flex mt-4">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
-                    </button>
-                    <a href="{{ route('admin.modules.edit', $module->id) }}" class="btn btn-secondary">Annuler</a>
-                    
-                    <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteLessonModal">
-                        <i class="fas fa-trash fa-fw"></i> Supprimer la leçon
+                <!-- Actions -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; border-top: 2px solid #E9ECEF;">
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button type="submit" 
+                                style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                        <a href="{{ route('admin.courses.show', $course->id) }}" 
+                           style="background: #6C757D; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s; display: inline-block;">
+                            Annuler
+                        </a>
+                    </div>
+                    <button type="button" onclick="openModal('deleteLessonModal')" 
+                            style="background: linear-gradient(135deg, #E32D31, #FF6B6B); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.3s;">
+                        <i class="fas fa-trash"></i> Supprimer la leçon
                     </button>
                 </div>
             </form>
@@ -219,79 +247,72 @@
     </div>
 </div>
 
-<!-- Modal de suppression de la leçon -->
-<div class="modal fade" id="deleteLessonModal" tabindex="-1" aria-labelledby="deleteLessonModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteLessonModalLabel">Confirmation de suppression</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+<!-- Modal de suppression -->
+<div id="deleteLessonModal" class="admin-confirm-modal" style="display: none;">
+    <div class="admin-confirm-backdrop" onclick="closeModal('deleteLessonModal')"></div>
+    <div class="admin-confirm-dialog" style="max-width: 500px;">
+        <div class="admin-confirm-header">
+            <h6>Confirmation de suppression</h6>
+        </div>
+        <div class="admin-confirm-body">
+            <div style="background: #FFEBEE; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 4px solid #E32D31;">
+                <div style="font-size: 0.9rem; font-weight: 600; color: #333; margin-bottom: 0.25rem;">{{ $lesson->title }}</div>
+                <div style="font-size: 0.85rem; color: #6C757D;">Êtes-vous sûr de vouloir supprimer cette leçon ?</div>
             </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer cette leçon ?</p>
-                <p class="text-danger">Cette action est irréversible.</p>
+            <div style="color: #E32D31; font-size: 0.9rem; font-weight: 500;">
+                <i class="fas fa-exclamation-triangle"></i> Cette action est irréversible.
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form action="{{ route('admin.lessons.destroy', $lesson->id) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
-                </form>
-            </div>
+        </div>
+        <div class="admin-confirm-footer">
+            <button type="button" onclick="closeModal('deleteLessonModal')" class="admin-btn admin-btn-secondary">Annuler</button>
+            <form action="{{ route('admin.lessons.destroy', $lesson->id) }}" method="POST" style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="admin-btn admin-btn-primary" style="background: linear-gradient(135deg, #E32D31, #FF6B6B);">Supprimer définitivement</button>
+            </form>
         </div>
     </div>
 </div>
 @endsection
 
-@section('scripts')
-<!-- Inclure TinyMCE depuis CDN -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+@push('scripts')
 <script>
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Script de gestion des formulaires de leçon chargé');
-        
-        // Configuration initiale
-        const contentTypeSelect = document.getElementById('content_type');
+        const contentTypeSelect = document.getElementById('type');
         const initialContentType = contentTypeSelect.value;
         
-        console.log('Type de contenu initial:', initialContentType);
-        
-        // Initialiser l'affichage selon le type de contenu initial
+        // Initialiser l'affichage
         updateContentDisplay(initialContentType);
-        
-        // Initialiser TinyMCE si nécessaire
-        if (initialContentType === 'text') {
-            setTimeout(initTinyMCE, 100);
-        }
         
         // Gestionnaire de changement du type de contenu
         contentTypeSelect.addEventListener('change', function() {
-            const newType = this.value;
-            console.log('Changement du type de contenu vers:', newType);
-            updateContentDisplay(newType);
+            updateContentDisplay(this.value);
         });
         
         function updateContentDisplay(contentType) {
-            console.log('Mise à jour de l\'affichage pour le type:', contentType);
-            
             const videoContent = document.getElementById('video-content');
             const textContent = document.getElementById('text-content');
             const pdfContent = document.getElementById('pdf-content');
-            const externalContent = document.getElementById('external-content');
             
             // Masquer tous les contenus
             videoContent.style.display = 'none';
             textContent.style.display = 'none';
             pdfContent.style.display = 'none';
-            externalContent.style.display = 'none';
             
             // Afficher le contenu approprié
             switch(contentType) {
                 case 'video':
                     videoContent.style.display = 'block';
-                    console.log('Affichage du contenu vidéo');
-                    // Initialiser la prévisualisation vidéo si une URL existe
                     const videoUrl = document.getElementById('video_url').value;
                     if (videoUrl) {
                         updateVideoPreview(videoUrl);
@@ -299,61 +320,11 @@
                     break;
                 case 'text':
                     textContent.style.display = 'block';
-                    console.log('Affichage du contenu texte');
-                    // Réinitialiser TinyMCE après un court délai
-                    setTimeout(initTinyMCE, 100);
                     break;
                 case 'pdf':
                     pdfContent.style.display = 'block';
-                    console.log('Affichage du contenu PDF');
                     break;
-                case 'external':
-                    externalContent.style.display = 'block';
-                    console.log('Affichage du contenu lien externe');
-                    // Initialiser la prévisualisation du lien externe si une URL existe
-                    const externalUrl = document.getElementById('external_url').value;
-                    if (externalUrl) {
-                        updateExternalPreview(externalUrl);
-                    }
-                    break;
-                default:
-                    console.log('Type de contenu non reconnu:', contentType);
             }
-        }
-        
-        // Initialisation TinyMCE
-        function initTinyMCE() {
-            console.log('Initialisation de TinyMCE');
-            
-            // Détruire l'instance existante si elle existe
-            tinymce.remove('#text_content');
-            
-            tinymce.init({
-                selector: '#text_content',
-                height: 400,
-                plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount code',
-                toolbar: 'undo redo | blocks | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | code | removeformat',
-                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }',
-                codesample_languages: [
-                    { text: 'HTML/XML', value: 'markup' },
-                    { text: 'JavaScript', value: 'javascript' },
-                    { text: 'CSS', value: 'css' },
-                    { text: 'PHP', value: 'php' },
-                    { text: 'Python', value: 'python' },
-                    { text: 'Java', value: 'java' },
-                    { text: 'C', value: 'c' },
-                    { text: 'C++', value: 'cpp' },
-                    { text: 'C#', value: 'csharp' },
-                    { text: 'Ruby', value: 'ruby' },
-                    { text: 'Bash', value: 'bash' },
-                    { text: 'SQL', value: 'sql' }
-                ],
-                setup: function(editor) {
-                    editor.on('change', function() {
-                        editor.save();
-                    });
-                }
-            });
         }
         
         // Gestion de la prévisualisation vidéo
@@ -417,40 +388,6 @@
             return match ? match[1] : null;
         }
         
-        // Gestion de la prévisualisation des liens externes
-        const externalUrlInput = document.getElementById('external_url');
-        if (externalUrlInput) {
-            externalUrlInput.addEventListener('input', function() {
-                updateExternalPreview(this.value);
-            });
-        }
-        
-        function updateExternalPreview(url) {
-            const externalPreview = document.getElementById('external-preview');
-            const externalTitle = document.getElementById('external-title');
-            const externalDescription = document.getElementById('external-description');
-            const externalUrlDisplay = document.getElementById('external-url-display');
-            const externalPreviewLink = document.getElementById('external-preview-link');
-            
-            if (!url) {
-                externalPreview.style.display = 'none';
-                return;
-            }
-            
-            externalUrlDisplay.textContent = url;
-            externalPreviewLink.href = url;
-            externalPreview.style.display = 'block';
-            
-            try {
-                const domain = new URL(url).hostname;
-                externalTitle.textContent = domain;
-                externalDescription.textContent = "Lien vers une ressource externe sur " + domain;
-            } catch (e) {
-                externalTitle.textContent = "URL invalide";
-                externalDescription.textContent = "Veuillez entrer une URL valide commençant par http:// ou https://";
-            }
-        }
-        
         // Gestion du fichier PDF
         const pdfFileInput = document.getElementById('pdf_file');
         const clearPdfBtn = document.getElementById('clear-pdf-btn');
@@ -485,7 +422,7 @@
             
             if (file.type !== 'application/pdf') {
                 pdfFileFeedback.textContent = 'Le fichier doit être au format PDF.';
-                pdfFileFeedback.className = 'text-danger small';
+                pdfFileFeedback.style.color = '#E32D31';
                 pdfPreview.style.display = 'none';
                 return;
             }
@@ -493,7 +430,7 @@
             const maxSize = 10 * 1024 * 1024; // 10MB
             if (file.size > maxSize) {
                 pdfFileFeedback.textContent = 'Le fichier est trop volumineux. Taille maximale: 10MB';
-                pdfFileFeedback.className = 'text-danger small';
+                pdfFileFeedback.style.color = '#E32D31';
                 pdfPreview.style.display = 'none';
                 return;
             }
@@ -502,7 +439,7 @@
             pdfFilesize.textContent = formatFileSize(file.size);
             pdfPreview.style.display = 'block';
             pdfFileFeedback.textContent = 'Fichier PDF valide';
-            pdfFileFeedback.className = 'text-success small';
+            pdfFileFeedback.style.color = '#27B371';
         }
         
         function formatFileSize(bytes) {
@@ -510,6 +447,30 @@
             else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + ' Ko';
             else return (bytes / 1048576).toFixed(2) + ' Mo';
         }
+        
+        // Fermer avec Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.admin-confirm-modal').forEach(modal => {
+                    if (modal.style.display === 'flex') {
+                        closeModal(modal.id);
+                    }
+                });
+            }
+        });
+        
+        // Hover effects pour les boutons
+        document.querySelectorAll('button[style*="background: linear-gradient"], a[style*="background: linear-gradient"]').forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
     });
 </script>
-@endsection
+@endpush

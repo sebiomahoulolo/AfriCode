@@ -3,16 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @laravelPWA
     <title>@yield('title', 'AfriCode - Espace Formateur')</title>
     <!-- Bootstrap CSS -->
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <!-- Styles AfriCode Formateur -->
-    @vite(['resources/css/formateur.css'])
-    
+
+    <!-- Styles AfriCode Formateur -->
+@vite(['resources/css/formateur.css', 'resources/js/components/formateur.js'])
+
+    @livewireStyles
+
+    {{-- ── Remap Bootstrap colors → AfriCode brand ── --}}
+    <style>
+    :root {
+        --bs-primary:         #1EA38B;
+        --bs-primary-rgb:     30,163,139;
+        --bs-success:         #27B371;
+        --bs-success-rgb:     39,179,113;
+        --bs-info:            #1EA38B;
+        --bs-info-rgb:        30,163,139;
+        --bs-warning:         #FF8E2A;
+        --bs-warning-rgb:     255,142,42;
+        --bs-danger:          #E32D31;
+        --bs-danger-rgb:      227,45,49;
+        --bs-link-color:      #1EA38B;
+        --bs-link-hover-color:#27B371;
+    }
+    /* btn-primary override */
+    .btn-primary { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-primary:hover,.btn-primary:focus { background-color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-outline-primary { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-primary:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-success { background-color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-outline-success { color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-outline-success:hover { background-color:#27B371 !important; color:#fff !important; }
+    .btn-info { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-outline-info { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-info:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-warning { background-color:#FF8E2A !important; border-color:#FF8E2A !important; color:#fff !important; }
+    .btn-outline-warning { color:#FF8E2A !important; border-color:#FF8E2A !important; }
+    .btn-outline-warning:hover { background-color:#FF8E2A !important; color:#fff !important; }
+    .text-primary { color:#1EA38B !important; }
+    .text-success { color:#27B371 !important; }
+    .text-info    { color:#1EA38B !important; }
+    .text-warning { color:#FF8E2A !important; }
+    .text-danger  { color:#E32D31 !important; }
+    .bg-primary   { background-color:#1EA38B !important; }
+    .bg-success   { background-color:#27B371 !important; }
+    .bg-info      { background-color:#1EA38B !important; }
+    .bg-warning   { background-color:#FF8E2A !important; }
+    .bg-danger    { background-color:#E32D31 !important; }
+    .badge.bg-primary { background-color:#1EA38B !important; }
+    .badge.bg-success { background-color:#27B371 !important; }
+    .badge.bg-info    { background-color:#1EA38B !important; }
+    .progress-bar.bg-primary { background-color:#1EA38B !important; }
+    .progress-bar.bg-success { background-color:#27B371 !important; }
+    .progress-bar.bg-info    { background-color:#1EA38B !important; }
+    a { color:#1EA38B; } a:hover { color:#27B371; }
+    /* Fallback : si AOS JS ne charge pas, montrer les éléments normalement */
+    body:not(.aos-init) [data-aos] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    </style>
+    {{-- ── Responsive booster (supplément au build compilé) ── --}}
+    <style>
+    /* Header : flex-wrap pour que les actions ne débordent pas */
+    .header-content { flex-wrap: wrap; gap: 10px; }
+    .header-content > div:nth-child(2) { flex: 1; min-width: 0; }
+    .page-title {
+        font-size: clamp(1rem, 4vw, 1.75rem);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    .page-subtitle { font-size: clamp(.78rem, 2vw, .9rem); }
+    .header-actions { flex-wrap: wrap; gap: 8px; }
+
+    /* Tables : scroll horizontal sur mobile */
+    .content-body table {
+        min-width: 540px;
+    }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+
+    /* Input-group sur petits écrans */
+    @media (max-width: 576px) {
+        .input-group { flex-wrap: wrap; }
+        .input-group .form-select { border-radius: 8px !important; margin-top: 6px; }
+        .input-group .form-control { border-radius: 8px !important; }
+    }
+
+    /* Amélioration course-grid */
+    @media (max-width: 640px) {
+        .course-grid { grid-template-columns: 1fr !important; }
+    }
+
+    /* Mobile ≤ 768px */
+    @media (max-width: 768px) {
+        .header-content { padding: 0; }
+        .page-title { font-size: 1.2rem; }
+        .page-subtitle { font-size: .8rem; }
+        .header-actions { width: 100%; justify-content: flex-end; }
+        .content-body table { display: block; overflow-x: auto; white-space: nowrap; }
+        .card-body-modern { padding: 1rem !important; }
+        .filters-section { padding: 1rem; }
+        /* Forcer les grids à s'empiler */
+        .row > [class*="col-md-"] { width: 100%; }
+        .admin-grid-3, .admin-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+
+    /* Mobile ≤ 480px */
+    @media (max-width: 480px) {
+        .content-body { padding: .75rem !important; }
+        .admin-grid-3, .admin-grid-4 { grid-template-columns: 1fr !important; }
+        .course-grid { grid-template-columns: 1fr !important; }
+        .page-title { font-size: 1rem; }
+        .btn-primary-africode, .btn-secondary-africode {
+            font-size: .8rem;
+            padding: .5rem .875rem;
+        }
+        .content-header { padding: .75rem 1rem; }
+    }
+
+    /* Notification bell — compact sur mobile */
+    @media (max-width: 400px) {
+        .nb-dropdown { right: -50px !important; width: 300px !important; }
+    }
+    </style>
+
     @yield('styles')
 </head>
 <body>
@@ -20,13 +145,13 @@
         <!-- Sidebar -->
         <aside class="formateur-sidebar" id="sidebar">
             <!-- Toggle Button -->
-            <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <button class="sidebar-toggle" onclick="var s=document.getElementById('sidebar'),ic=document.getElementById('toggleIcon');if(!s)return;var c=s.classList.toggle('collapsed');document.body.classList.toggle('sidebar-collapsed',c);if(ic){ic.className=c?'fas fa-chevron-right':'fas fa-chevron-left';}try{localStorage.setItem('sidebarCollapsed',c);}catch(e){}">
                 <i class="fas fa-chevron-left" id="toggleIcon"></i>
             </button>
             
             <!-- Logo Section -->
             <div class="sidebar-brand">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img" style="height: 35px;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%234ade80' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img" style="height: 35px;">
                 <span class="logo-text">AFRICODE</span>
             </div>
             
@@ -53,6 +178,59 @@
                         <a href="{{ route('formateur.courses.create') }}" class="nav-link {{ request()->routeIs('formateur.courses.create') ? 'active' : '' }}">
                             <i class="fas fa-plus-circle"></i>
                             <span class="nav-link-text">Créer un cours</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('formateur.earnings.index') }}" class="nav-link {{ request()->routeIs('formateur.earnings.*') ? 'active' : '' }}">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span class="nav-link-text">Mes revenus</span>
+                        </a>
+                    </div>
+                     <div class="nav-item">
+                        <a href="{{ route('formateur.guide') }}" class="nav-link {{ request()->routeIs('formateur.guide') ? 'active' : '' }}">
+                         
+                            <i class="fas fa-question-circle"></i>
+                            <span class="nav-link-text">MON GUIDE</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Mentorat</div>
+                    <div class="nav-item">
+                        <a href="{{ route('mentorship.index') }}" class="nav-link {{ request()->routeIs('mentorship.index') ? 'active' : '' }}">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span class="nav-link-text">Mes Mentorats</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('mentorship.requests') }}" class="nav-link {{ request()->routeIs('mentorship.requests') ? 'active' : '' }}">
+                            <i class="fas fa-bell"></i>
+                            <span class="nav-link-text">Demandes</span>
+                            @php
+                                $pendingRequests = \App\Models\Mentorship::where('mentor_id', Auth::id())
+                                    ->where('status', 'pending_mentor_approval')
+                                    ->count();
+                            @endphp
+                            @if($pendingRequests > 0)
+                                <span class="nav-badge">{{ $pendingRequests }}</span>
+                            @endif
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Tutorat</div>
+                    <div class="nav-item">
+                        <a href="{{ route('tutoring.sessions.index') }}" class="nav-link {{ request()->routeIs('tutoring.sessions.*') ? 'active' : '' }}">
+                            <i class="fas fa-video"></i>
+                            <span class="nav-link-text">Mes Sessions</span>
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="{{ route('tutoring.sessions.create') }}" class="nav-link {{ request()->routeIs('tutoring.sessions.create') ? 'active' : '' }}">
+                            <i class="fas fa-plus-circle"></i>
+                            <span class="nav-link-text">Créer Session</span>
                         </a>
                     </div>
                 </div>
@@ -95,7 +273,8 @@
                         <h1 class="page-title">@yield('page-title', 'Tableau de bord')</h1>
                         <p class="page-subtitle">@yield('page-subtitle', 'Bienvenue dans votre espace formateur')</p>
                     </div>
-                    <div class="header-actions">
+                    <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
+                        <x-notification-bell />
                         @yield('header-actions')
                     </div>
                 </div>
@@ -133,12 +312,31 @@
         </main>
     </div>
     
+    {{-- AfriCode AI Assistant - Popup flottant --}}
+    {{-- @livewire('ai-assistant-chat') --}}
+    
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <!-- Scripts AfriCode Formateur -->
-    @vite(['resources/js/components/formateur.js'])
-    
-    @yield('scripts')
+    <script>
+        if (typeof AOS !== 'undefined') {
+            AOS.init({ duration: 600, easing: 'ease-out-cubic', once: true });
+        }
+        /* Fallback : si formateur.js (Vite) n'a pas initialisé FormateurInterface */
+        if (!window.formateurInterface && typeof FormateurInterface !== 'undefined') {
+            window.formateurInterface = new FormateurInterface();
+        }
+    </script>
+
+{{-- formateur.js inclus via @vite() dans le <head> --}}
+
+@livewireScripts
+@stack('scripts')
+@yield('scripts')
+
+<!-- Alpine.js pour l'AI Assistant - Chargé après les scripts pour que aiAssistant() soit disponible -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+{{-- ═══ PROTECTION GLOBALE (clic droit + DevTools + raccourcis) ══════ --}}
+@include('partials.security-lock')
 </body>
 </html>

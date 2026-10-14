@@ -18,8 +18,13 @@ class SocialAuthController extends Controller
      * @param string $provider
      * @return \Illuminate\Http\Response
      */
+    private const ALLOWED_PROVIDERS = ['google', 'facebook', 'github', 'linkedin'];
+
     public function redirectToProvider($provider)
     {
+        if (!in_array($provider, self::ALLOWED_PROVIDERS, true)) {
+            abort(404);
+        }
         return Socialite::driver($provider)->redirect();
     }
 
@@ -31,6 +36,9 @@ class SocialAuthController extends Controller
      */
     public function handleProviderCallback($provider)
     {
+        if (!in_array($provider, self::ALLOWED_PROVIDERS, true)) {
+            abort(404);
+        }
         try {
             $socialUser = Socialite::driver($provider)->user();
             

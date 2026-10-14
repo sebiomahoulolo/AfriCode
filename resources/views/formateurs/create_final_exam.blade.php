@@ -1,6 +1,6 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.create_final_exam_title'))
+@section('title')
 
 @section('page-heading', __('messages.create_final_exam'))
 @section('page-subheading', __('messages.course_for', ['course' => $course->title]))
@@ -154,7 +154,7 @@
                                             </div>
                                         @endforeach
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                                    <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                                         <i class="fas fa-plus me-1"></i> Ajouter une réponse
                                     </button>
                                 </div>
@@ -170,7 +170,7 @@
                 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Créer l'examen final</button>
+                    <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Créer l'examen final</button>
                 </div>
             </form>
         </div>
@@ -268,7 +268,7 @@
                     <div class="answers-container">
                         <!-- Answers will be added here -->
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2 add-answer-btn">
+                    <button type="button" class="btn btn-sm mt-2 add-answer-btn" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-plus me-1"></i> Ajouter une réponse
                     </button>
                 </div>

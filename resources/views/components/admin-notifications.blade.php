@@ -35,7 +35,7 @@
             @endforeach
         @endif
         
-        <a class="dropdown-item text-center small text-primary" href="{{ route('admin.notifications.index') }}">
+        <a class="dropdown-item text-center small" style="color:#1EA38B;" href="{{ route('admin.notifications.index') }}">
             Voir toutes les notifications
         </a>
     </div>

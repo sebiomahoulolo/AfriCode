@@ -15,8 +15,9 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:255'],
+        $rules = [
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -25,6 +26,18 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'country' => ['nullable', 'string', 'max:100'],
         ];
+        
+        // Ajouter les règles pour les informations de paiement si l'utilisateur est formateur
+        if ($this->user()->role === 'formateur') {
+            $rules['payment_method'] = ['nullable', 'in:mobile_money,card,bank_transfer'];
+            $rules['payment_account'] = ['nullable', 'string', 'max:255'];
+        }
+        
+        return $rules;
     }
 }

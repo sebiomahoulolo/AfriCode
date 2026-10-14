@@ -85,7 +85,7 @@
                                 <div class="border rounded-lg p-4">
                                     <div class="flex justify-between items-start">
                                         <div class="flex-1">
-                                            <h4 class="font-medium">{{ $question->question_text }}</h4>
+                                            <h4 class="font-medium">{{ $question->text }}</h4>
                                             <p class="text-sm text-gray-600 mt-1">
                                                 Type: {{ ucfirst(str_replace('_', ' ', $question->type)) }} | 
                                                 Points: {{ $question->points }}
@@ -104,10 +104,6 @@
                                                         </div>
                                                     @endforeach
                                                 </div>
-                                            @elseif($question->type === 'true_false')
-                                                <p class="text-sm text-gray-600 mt-1">
-                                                    Réponse correcte: {{ $question->correct_answer ? 'Vrai' : 'Faux' }}
-                                                </p>
                                             @endif
                                         </div>
                                         

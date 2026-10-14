@@ -1,165 +1,166 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Modifier le Module')
+@section('breadcrumb', 'Modifier le module')
+@section('title', 'Modifier le module')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
-                <i class="fas fa-edit fa-fw me-1"></i> Modifier le module
-            </h6>
+<div class="fade-in">
+    <!-- En-tête : titre + retour -->
+    <div class="admin-card" data-aos="fade-up">
+        <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
-                <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-sm btn-secondary">
-                    <i class="fas fa-arrow-left fa-fw"></i> Retour au cours
-                </a>
+                <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">
+                    <i class="fas fa-edit" style="color: #1EA38B;"></i> Modifier le module
+                </h1>
+                <p class="admin-card-subtitle mb-0">Cours : {{ $course->title }}</p>
             </div>
+            <a href="{{ route('admin.courses.show', $course->id) }}" style="background: linear-gradient(135deg, #6C757D, #95A5A6); color: white; padding: 0.6rem 1.25rem; border-radius: 8px; text-decoration: none; font-weight: 500;">
+                <i class="fas fa-arrow-left me-1"></i> Retour au cours
+            </a>
         </div>
-        <div class="card-body">
+    </div>
+
+    <!-- Formulaire de modification (style formateur : une carte, champs clairs) -->
+    <div class="admin-card" data-aos="fade-up" data-aos-delay="50" style="margin-bottom: 1.5rem;">
+        <div class="admin-card-body">
+            <div style="background: linear-gradient(135deg, rgba(30, 163, 139, 0.08), rgba(39, 179, 113, 0.08)); padding: 1rem 1.25rem; border-radius: 8px; border-left: 4px solid #1EA38B; margin-bottom: 1.5rem;">
+                <i class="fas fa-info-circle" style="color: #1EA38B;"></i>
+                <strong>Module {{ $module->order }}</strong> — Modifiez les informations du module ci-dessous.
+            </div>
+
             <form action="{{ route('admin.modules.update', $module->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="mb-3">
-                    <label for="title" class="form-label">Titre du module <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" value="{{ old('title', $module->title) }}" required>
-                    @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="admin-form-group" style="margin-bottom: 1.25rem;">
+                    <label for="title" class="admin-form-label">Titre du module <span class="text-danger">*</span></label>
+                    <input type="text" class="admin-form-input @error('title') error @enderror" id="title" name="title" value="{{ old('title', $module->title) }}" required>
+                    <div class="form-text" style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Donnez un titre clair qui décrit le contenu du module.</div>
+                    @error('title') <span class="admin-form-error">{{ $message }}</span> @enderror
                 </div>
-                
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description', $module->description) }}</textarea>
-                    @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                <div class="admin-form-group" style="margin-bottom: 1.25rem;">
+                    <label for="description" class="admin-form-label">Description</label>
+                    <textarea class="admin-form-input @error('description') error @enderror" id="description" name="description" rows="4">{{ old('description', $module->description) }}</textarea>
+                    <div class="form-text" style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Une brève description du contenu et des objectifs du module.</div>
+                    @error('description') <span class="admin-form-error">{{ $message }}</span> @enderror
                 </div>
-                
-                <div class="mb-3">
-                    <label for="order" class="form-label">Ordre</label>
-                    <input type="number" class="form-control @error('order') is-invalid @enderror" id="order" name="order" value="{{ old('order', $module->order) }}" min="1">
-                    <div class="form-text">Position du module dans la liste des modules du cours</div>
-                    @error('order') <div class="invalid-feedback">{{ $message }}</div> @enderror
+
+                <div class="admin-form-group" style="margin-bottom: 1.25rem;">
+                    <label for="order" class="admin-form-label">Ordre</label>
+                    <input type="number" class="admin-form-input @error('order') error @enderror" id="order" name="order" value="{{ old('order', $module->order) }}" min="1">
+                    <div class="form-text" style="font-size: 0.8rem; color: #6C757D; margin-top: 0.25rem;">Position du module dans la liste. Plus le nombre est petit, plus le module apparaît tôt.</div>
+                    @error('order') <span class="admin-form-error">{{ $message }}</span> @enderror
                 </div>
-                
-                <div class="d-flex mt-3">
-                    <button type="submit" class="btn btn-primary me-2">
-                        <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
+
+                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <h6 style="margin: 0 0 0.5rem 0; color: #1EA38B;"><i class="fas fa-info-circle me-1"></i> Informations du module</h6>
+                    <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                        <li><strong>Cours :</strong> {{ $course->title }}</li>
+                        <li><strong>Nombre de leçons :</strong> {{ $module->lessons->count() }}</li>
+                        <li><strong>Quiz :</strong> {{ $module->quizzes->count() > 0 ? 'Oui' : 'Non' }}</li>
+                        <li><strong>Créé le :</strong> {{ $module->created_at->format('d/m/Y à H:i') }}</li>
+                        <li><strong>Modifié le :</strong> {{ $module->updated_at->format('d/m/Y à H:i') }}</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                    <button type="submit" style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.6rem 1.25rem; border: none; border-radius: 8px; font-weight: 500;">
+                        <i class="fas fa-save me-1"></i> Enregistrer les modifications
                     </button>
-                    <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-secondary">Annuler</a>
-                    
-                    <button type="button" class="btn btn-danger ms-auto" data-bs-toggle="modal" data-bs-target="#deleteModuleModal">
-                        <i class="fas fa-trash fa-fw"></i> Supprimer le module
+                    <a href="{{ route('admin.courses.show', $course->id) }}" style="color: #6C757D; padding: 0.6rem 1.25rem; text-decoration: none;">Annuler</a>
+                    <button type="button" style="margin-left: auto; background: linear-gradient(135deg, #E32D31, #FF6B6B); color: white; padding: 0.6rem 1.25rem; border: none; border-radius: 8px; font-weight: 500;" data-bs-toggle="modal" data-bs-target="#deleteModuleModal">
+                        <i class="fas fa-trash me-1"></i> Supprimer le module
                     </button>
                 </div>
             </form>
         </div>
     </div>
-    
-    <!-- Contenu du module -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Leçons</h6>
-                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addLessonModal">
-                        <i class="fas fa-plus fa-fw"></i> Ajouter une leçon
-                    </button>
-                </div>
-                <div class="card-body">
-                    @if($module->lessons->count() > 0)
-                        <div class="list-group">
-                            @foreach($module->lessons->sortBy('order') as $lesson)
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="badge bg-secondary me-2">{{ $lesson->order }}</span>
-                                        {{ $lesson->title }}
-                                        <small class="text-muted ms-2">
-                                            @if($lesson->type === 'video')
-                                                <i class="fas fa-video me-1"></i> Vidéo
-                                            @elseif($lesson->type === 'pdf')
-                                                <i class="fas fa-file-pdf me-1"></i> PDF
-                                            @elseif($lesson->type === 'text')
-                                                <i class="fas fa-file-alt me-1"></i> Texte
-                                            @endif
-                                        </small>
-                                    </div>
-                                    <div>
-                                        <a href="{{ route('admin.lessons.edit', $lesson->id) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger lesson-delete-btn" 
-                                                data-lesson-id="{{ $lesson->id }}" 
-                                                data-lesson-title="{{ $lesson->title }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
+
+    <!-- Leçons et Quiz (2 colonnes, style formateur / admin) -->
+    <div class="admin-grid admin-grid-2" style="gap: 1.25rem;">
+        <div class="admin-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="admin-card-title" style="font-size: 1.1rem; margin: 0;"><i class="fas fa-book me-2" style="color: #1EA38B;"></i> Leçons</h3>
+                <button type="button" class="admin-button admin-button-primary" style="padding: 0.4rem 0.9rem; font-size: 0.9rem;" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+                    <i class="fas fa-plus me-1"></i> Ajouter une leçon
+                </button>
+            </div>
+            <div class="admin-card-body">
+                @if($module->lessons->count() > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($module->lessons->sortBy('order') as $lesson)
+                            <div class="list-group-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <span style="background: #E9ECEF; color: #495057; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.8rem; margin-right: 0.5rem;">{{ $lesson->order }}</span>
+                                    {{ $lesson->title }}
+                                    <small class="text-muted ms-2">
+                                        @if(($lesson->content_type ?? $lesson->type ?? '') === 'video') <i class="fas fa-video"></i> Vidéo
+                                        @elseif(($lesson->content_type ?? $lesson->type ?? '') === 'pdf') <i class="fas fa-file-pdf"></i> PDF
+                                        @elseif(($lesson->content_type ?? $lesson->type ?? '') === 'text') <i class="fas fa-file-alt"></i> Texte
+                                        @endif
+                                    </small>
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-info">
-                            Ce module n'a pas encore de leçons. Ajoutez-en une en cliquant sur le bouton ci-dessus.
-                        </div>
-                    @endif
-                </div>
+                                <div>
+                                    <a href="{{ route('admin.lessons.edit', $lesson->id) }}" style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.35rem 0.7rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem;"><i class="fas fa-edit"></i></a>
+                                    <button type="button" class="btn btn-sm btn-danger ms-1 lesson-delete-btn" data-lesson-id="{{ $lesson->id }}" data-lesson-title="{{ $lesson->title }}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i> Aucune leçon. Cliquez sur « Ajouter une leçon ».</p>
+                @endif
             </div>
         </div>
-        
-        <div class="col-md-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-warning">Quiz</h6>
-                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addQuizModal">
-                        <i class="fas fa-plus fa-fw"></i> Ajouter un quiz
-                    </button>
-                </div>
-                <div class="card-body">
-                    @if($module->quizzes->count() > 0)
-                        <div class="list-group">
-                            @foreach($module->quizzes as $quiz)
-                                <div class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <i class="fas fa-question-circle text-warning me-2"></i>
-                                        {{ $quiz->title }}
-                                        <span class="badge bg-info ms-2">{{ $quiz->questions->count() }} question(s)</span>
-                                    </div>
-                                    <div>
-                                        <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button type="button" class="btn btn-sm btn-danger quiz-delete-btn" 
-                                                data-quiz-id="{{ $quiz->id }}" 
-                                                data-quiz-title="{{ $quiz->title }}">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
+
+        <div class="admin-card" data-aos="fade-up" data-aos-delay="150">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 class="admin-card-title" style="font-size: 1.1rem; margin: 0;"><i class="fas fa-question-circle me-2" style="color: #FF8E2A;"></i> Quiz</h3>
+                <button type="button" class="admin-button" style="background: linear-gradient(135deg, #FF8E2A, #FFB366); color: white; padding: 0.4rem 0.9rem; font-size: 0.9rem; border: none; border-radius: 8px;" data-bs-toggle="modal" data-bs-target="#addQuizModal">
+                    <i class="fas fa-plus me-1"></i> Ajouter un quiz
+                </button>
+            </div>
+            <div class="admin-card-body">
+                @if($module->quizzes->count() > 0)
+                    <div class="list-group list-group-flush">
+                        @foreach($module->quizzes as $quiz)
+                            <div class="list-group-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <i class="fas fa-question-circle text-warning me-2"></i>
+                                    {{ $quiz->title }}
+                                    <span style="background: #E3F2FD; color: #1976D2; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.8rem; margin-left: 0.5rem;">{{ $quiz->questions->count() }} question(s)</span>
                                 </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div class="alert alert-info">
-                            Ce module n'a pas encore de quiz. Ajoutez-en un en cliquant sur le bouton ci-dessus.
-                        </div>
-                    @endif
-                </div>
+                                <div>
+                                    <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.35rem 0.7rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem;"><i class="fas fa-edit"></i></a>
+                                    <button type="button" class="btn btn-sm btn-danger ms-1 quiz-delete-btn" data-quiz-id="{{ $quiz->id }}" data-quiz-title="{{ $quiz->title }}"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-1"></i> Aucun quiz. Cliquez sur « Ajouter un quiz ».</p>
+                @endif
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de suppression du module -->
-<div class="modal fade" id="deleteModuleModal" tabindex="-1" aria-labelledby="deleteModuleModalLabel" aria-hidden="true">
+<!-- Modal suppression module -->
+<div class="modal fade" id="deleteModuleModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModuleModalLabel">Confirmation de suppression</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <h5 class="modal-title">Confirmation de suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>Êtes-vous sûr de vouloir supprimer ce module et tout son contenu (leçons et quiz) ?</p>
-                <p class="text-danger">Cette action est irréversible.</p>
+                <p class="text-danger mb-0">Cette action est irréversible.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form action="{{ route('admin.modules.destroy', $module->id) }}" method="POST">
+                <form action="{{ route('admin.modules.destroy', $module->id) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
@@ -169,20 +170,20 @@
     </div>
 </div>
 
-<!-- Modal pour ajouter une leçon -->
-<div class="modal fade" id="addLessonModal" tabindex="-1" aria-labelledby="addLessonModalLabel" aria-hidden="true">
+<!-- Modal ajouter leçon -->
+<div class="modal fade" id="addLessonModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addLessonModalLabel">Ajouter une leçon</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <h5 class="modal-title">Ajouter une leçon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.lessons.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="module_id" value="{{ $module->id }}">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="lesson-title" class="form-label">Titre de la leçon</label>
+                        <label for="lesson-title" class="form-label">Titre de la leçon <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="lesson-title" name="title" required>
                     </div>
                     <div class="mb-3">
@@ -191,7 +192,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="lesson-type" class="form-label">Type de contenu</label>
+                            <label for="lesson-type" class="form-label">Type de contenu <span class="text-danger">*</span></label>
                             <select class="form-select" id="lesson-type" name="type" required>
                                 <option value="video">Vidéo</option>
                                 <option value="text">Texte</option>
@@ -206,10 +207,9 @@
                     <div class="mb-3" id="video-content">
                         <label for="lesson-video-url" class="form-label">URL de la vidéo (YouTube ou Vimeo)</label>
                         <input type="url" class="form-control" id="lesson-video-url" name="video_url" placeholder="https://www.youtube.com/watch?v=...">
-                        <div class="form-text">Collez le lien direct vers la vidéo YouTube ou Vimeo</div>
                     </div>
                     <div class="mb-3 d-none" id="text-content">
-                        <label for="lesson-text-content" class="form-label">Contenu texte (supporte le Markdown)</label>
+                        <label for="lesson-text-content" class="form-label">Contenu texte (Markdown)</label>
                         <textarea class="form-control" id="lesson-text-content" name="text_content" rows="6"></textarea>
                     </div>
                     <div class="mb-3 d-none" id="pdf-content">
@@ -223,20 +223,20 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Ajouter la leçon</button>
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #1EA38B, #27B371); border: none;">Ajouter la leçon</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal pour ajouter un quiz -->
-<div class="modal fade" id="addQuizModal" tabindex="-1" aria-labelledby="addQuizModalLabel" aria-hidden="true">
+<!-- Modal ajouter quiz -->
+<div class="modal fade" id="addQuizModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addQuizModalLabel">Ajouter un quiz</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <h5 class="modal-title">Ajouter un quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.quizzes.store') }}" method="POST">
                 @csrf
@@ -245,7 +245,7 @@
                 <input type="hidden" name="related_id" value="{{ $module->id }}">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="quiz-title" class="form-label">Titre du quiz</label>
+                        <label for="quiz-title" class="form-label">Titre du quiz <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="quiz-title" name="title" required>
                     </div>
                     <div class="mb-3">
@@ -259,46 +259,39 @@
                         </div>
                         <div class="col-md-6">
                             <label for="quiz-time-limit" class="form-label">Limite de temps (minutes)</label>
-                            <input type="number" class="form-control" id="quiz-time-limit" name="time_limit" min="0">
-                            <div class="form-text">Laisser vide pour aucune limite de temps</div>
+                            <input type="number" class="form-control" id="quiz-time-limit" name="time_limit" min="0" placeholder="0 = illimitée">
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="quiz-is-required" name="is_required" value="1" checked>
-                            <label class="form-check-label" for="quiz-is-required">
-                                Obligatoire pour compléter le module
-                            </label>
-                        </div>
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" type="checkbox" id="quiz-is-required" name="is_required" value="1" checked>
+                        <label class="form-check-label" for="quiz-is-required">Obligatoire pour compléter le module</label>
                     </div>
-                    <div class="alert alert-info">
-                        Après avoir créé le quiz, vous pourrez y ajouter des questions dans l'écran d'édition.
-                    </div>
+                    <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i> Vous pourrez ajouter les questions après la création.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Créer le quiz</button>
+                    <button type="submit" class="btn" style="background: linear-gradient(135deg, #1EA38B, #27B371); border: none;">Créer le quiz</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Modal de suppression de leçon (template) -->
-<div class="modal fade" id="deleteLessonModal" tabindex="-1" aria-labelledby="deleteLessonModalLabel" aria-hidden="true">
+<!-- Modal suppression leçon -->
+<div class="modal fade" id="deleteLessonModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteLessonModalLabel">Supprimer la leçon</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <h5 class="modal-title">Supprimer la leçon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>Êtes-vous sûr de vouloir supprimer la leçon <strong id="lesson-title-to-delete"></strong> ?</p>
-                <p class="text-danger">Cette action est irréversible.</p>
+                <p class="text-danger mb-0">Cette action est irréversible.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="delete-lesson-form" action="" method="POST">
+                <form id="delete-lesson-form" action="" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
@@ -308,21 +301,21 @@
     </div>
 </div>
 
-<!-- Modal de suppression de quiz (template) -->
-<div class="modal fade" id="deleteQuizModal" tabindex="-1" aria-labelledby="deleteQuizModalLabel" aria-hidden="true">
+<!-- Modal suppression quiz -->
+<div class="modal fade" id="deleteQuizModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteQuizModalLabel">Supprimer le quiz</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                <h5 class="modal-title">Supprimer le quiz</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>Êtes-vous sûr de vouloir supprimer le quiz <strong id="quiz-title-to-delete"></strong> ?</p>
-                <p class="text-danger">Toutes les questions associées seront également supprimées. Cette action est irréversible.</p>
+                <p class="text-danger mb-0">Toutes les questions seront supprimées. Cette action est irréversible.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                <form id="delete-quiz-form" action="" method="POST">
+                <form id="delete-quiz-form" action="" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
@@ -333,59 +326,34 @@
 </div>
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Gestion de l'affichage des champs selon le type de leçon
-        const lessonType = document.getElementById('lesson-type');
-        
-        if (lessonType) {
-            lessonType.addEventListener('change', function() {
-                const videoContent = document.getElementById('video-content');
-                const textContent = document.getElementById('text-content');
-                const pdfContent = document.getElementById('pdf-content');
-                
-                // Cacher tous les contenus
-                videoContent.classList.add('d-none');
-                textContent.classList.add('d-none');
-                pdfContent.classList.add('d-none');
-                
-                // Afficher le contenu correspondant au type sélectionné
-                if (this.value === 'video') {
-                    videoContent.classList.remove('d-none');
-                } else if (this.value === 'text') {
-                    textContent.classList.remove('d-none');
-                } else if (this.value === 'pdf') {
-                    pdfContent.classList.remove('d-none');
-                }
-            });
-        }
-        
-        // Gestion des modals de suppression de leçon
-        document.querySelectorAll('.lesson-delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const lessonId = this.getAttribute('data-lesson-id');
-                const lessonTitle = this.getAttribute('data-lesson-title');
-                
-                document.getElementById('lesson-title-to-delete').textContent = lessonTitle;
-                document.getElementById('delete-lesson-form').action = `/admin/lessons/${lessonId}`;
-                
-                new bootstrap.Modal(document.getElementById('deleteLessonModal')).show();
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    var lessonType = document.getElementById('lesson-type');
+    if (lessonType) {
+        lessonType.addEventListener('change', function() {
+            document.getElementById('video-content').classList.add('d-none');
+            document.getElementById('text-content').classList.add('d-none');
+            document.getElementById('pdf-content').classList.add('d-none');
+            if (this.value === 'video') document.getElementById('video-content').classList.remove('d-none');
+            else if (this.value === 'text') document.getElementById('text-content').classList.remove('d-none');
+            else if (this.value === 'pdf') document.getElementById('pdf-content').classList.remove('d-none');
         });
-        
-        // Gestion des modals de suppression de quiz
-        document.querySelectorAll('.quiz-delete-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const quizId = this.getAttribute('data-quiz-id');
-                const quizTitle = this.getAttribute('data-quiz-title');
-                
-                document.getElementById('quiz-title-to-delete').textContent = quizTitle;
-                document.getElementById('delete-quiz-form').action = `/admin/quizzes/${quizId}`;
-                
-                new bootstrap.Modal(document.getElementById('deleteQuizModal')).show();
-            });
+    }
+    document.querySelectorAll('.lesson-delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('lesson-title-to-delete').textContent = this.getAttribute('data-lesson-title');
+            document.getElementById('delete-lesson-form').action = '/admin/lessons/' + this.getAttribute('data-lesson-id');
+            new bootstrap.Modal(document.getElementById('deleteLessonModal')).show();
         });
     });
+    document.querySelectorAll('.quiz-delete-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.getElementById('quiz-title-to-delete').textContent = this.getAttribute('data-quiz-title');
+            document.getElementById('delete-quiz-form').action = '/admin/quizzes/' + this.getAttribute('data-quiz-id');
+            new bootstrap.Modal(document.getElementById('deleteQuizModal')).show();
+        });
+    });
+});
 </script>
-@endsection
+@endpush

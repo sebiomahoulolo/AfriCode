@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
+            <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">
                 <i class="fas fa-plus fa-fw me-1"></i> Créer une nouvelle leçon
             </h6>
             <div>
@@ -96,7 +96,7 @@
                     <!-- Contenu de type Texte -->
                     <div id="text-content" class="content-section" style="display:none;">
                         <div class="card mb-3">
-                            <div class="card-header bg-success text-white">
+                            <div class="card-header text-white" style="background:#27B371;">
                                 <i class="fas fa-file-alt me-2"></i> Contenu Texte
                             </div>
                             <div class="card-body">
@@ -146,7 +146,7 @@
                     <!-- Contenu de type Lien externe -->
                     <div id="external-content" class="content-section" style="display:none;">
                         <div class="card mb-3">
-                            <div class="card-header bg-primary text-white">
+                            <div class="card-header text-white" style="background:#1EA38B;">
                                 <i class="fas fa-external-link-alt me-2"></i> Lien Externe
                             </div>
                             <div class="card-body">
@@ -163,7 +163,7 @@
                                             <h6 class="card-title" id="external-title">Titre de la page</h6>
                                             <p class="card-text small" id="external-description">Chargement de l'aperçu du lien...</p>
                                             <p class="small text-muted" id="external-url-display"></p>
-                                            <a href="#" id="external-preview-link" target="_blank" class="btn btn-sm btn-primary">
+                                            <a href="#" id="external-preview-link" target="_blank" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                                 <i class="fas fa-external-link-alt fa-fw"></i> Visiter le lien
                                             </a>
                                         </div>
@@ -175,7 +175,7 @@
                 </div>
 
                 <div class="d-flex mt-4">
-                    <button type="submit" class="btn btn-success me-2">
+                    <button type="submit" class="btn text-white me-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                         <i class="fas fa-plus fa-fw"></i> Créer la leçon
                     </button>
                     <a href="{{ route('admin.modules.edit', $module->id) }}" class="btn btn-secondary">Annuler</a>
@@ -204,7 +204,6 @@
             
             // Gestion du changement
             contentTypeSelect.addEventListener('change', function() {
-                console.log("Type de contenu sélectionné:", this.value);
                 updateContentSection(this.value);
             });
         }

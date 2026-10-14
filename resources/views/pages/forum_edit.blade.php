@@ -16,7 +16,7 @@
             <label for="content" class="form-label">Contenu</label>
             <textarea name="content" id="content" class="form-control" rows="6" required>{{ old('content', $forum->content) }}</textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Enregistrer les modifications</button>
         <a href="{{ route('forum.show', $forum->id) }}" class="btn btn-secondary ms-2">Annuler</a>
     </form>
 </div>

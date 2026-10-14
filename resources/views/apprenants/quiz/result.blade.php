@@ -61,7 +61,7 @@
                 
                 <p class="h5 mb-4">
                     @if($passed)
-                        🎉 Félicitations ! Quiz réussi
+                        <i class="fas fa-star me-2" style="color:#1EA38B;"></i>Félicitations ! Quiz réussi
                     @else
                         Quiz échoué
                     @endif
@@ -144,8 +144,8 @@
             <div class="text-center" data-aos="fade-up" data-aos-delay="200">
                 @if(!$passed)
                     @if($quiz->canBeAttemptedByUser($user->id))
-                        <a href="{{ route('apprenant.quiz.show', $quiz->id) }}" 
-                           class="btn btn-primary btn-lg mx-2">
+                        <a href="{{ route('apprenant.quiz.show', $quiz->id) }}"
+                           class="btn text-white btn-lg mx-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                            <i class="fas fa-redo-alt me-2"></i>Retenter le quiz
                         </a>
                         @if($quiz->isCourseQuiz() && $quiz->max_attempts > 0)
@@ -167,19 +167,19 @@
                 @if($passed)
                     @if($quiz->isModuleQuiz())
                         <a href="{{ route($backRoute, $backId) }}" 
-                           class="btn btn-success btn-lg mx-2">
+                           class="btn text-white btn-lg mx-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                             <i class="fas fa-arrow-right me-2"></i>
                             Continuer vers le module suivant
                         </a>
                     @elseif($quiz->isCourseQuiz() && $certification)
                         <a href="{{ route($backRoute, $backId) }}" 
-                           class="btn btn-success btn-lg mx-2">
+                           class="btn text-white btn-lg mx-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                             <i class="fas fa-certificate me-2"></i>
                             Voir mon certificat
                         </a>
                     @else
                         <a href="{{ route($backRoute, $backId) }}" 
-                           class="btn btn-success btn-lg mx-2">
+                           class="btn text-white btn-lg mx-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                             <i class="fas fa-check-circle me-2"></i>
                             Terminer le cours
                         </a>

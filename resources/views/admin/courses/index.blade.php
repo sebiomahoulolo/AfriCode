@@ -11,11 +11,11 @@
                 <h1 class="admin-card-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Gestion des cours</h1>
                 <p class="admin-card-subtitle">Gérer tous les cours de la plateforme</p>
             </div>
-            <div class="admin-card-actions">
+            {{-- <div class="admin-card-actions">
                 <a href="{{ route('admin.courses.create') }}" style="background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.3s;">
                     <i class="fas fa-plus-circle"></i> Nouveau cours
                 </a>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -26,7 +26,7 @@
                 <i class="fas fa-book"></i>
             </div>
             <div class="admin-stats-number">{{ $stats['total'] ?? 0 }}</div>
-            <div class="admin-stats-label">Total des cours</div>
+            <div class="admin-stats-label">Total des cours sur la plateforme</div>
         </div>
         
         <div class="admin-stats-card" data-aos="fade-up" data-aos-delay="200">
@@ -50,7 +50,7 @@
                 <i class="fas fa-users"></i>
             </div>
             <div class="admin-stats-number">{{ $stats['enrollments'] ?? 0 }}</div>
-            <div class="admin-stats-label">Inscriptions</div>
+            <div class="admin-stats-label">Inscriptions apprenant au total</div>
         </div>
     </div>
 
@@ -113,8 +113,8 @@
     <div class="admin-grid admin-grid-3" data-aos="fade-up" data-aos-delay="200">
         @forelse ($courses as $course)
             <div class="admin-card" style="overflow: hidden;">
-                @if($course->image)
-                    <div style="height: 180px; background-image: url('{{ asset('storage/' . $course->image) }}'); background-size: cover; background-position: center; position: relative;">
+                @if($course->cover_image_path)
+                    <div style="height: 180px; background-image: url('{{ $course->cover_image_url }}'); background-size: cover; background-position: center; position: relative;">
                         <div style="position: absolute; top: 1rem; right: 1rem;">
                             @if ($course->status === 'published')
                                 <span style="background: rgba(39, 179, 113, 0.9); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; backdrop-filter: blur(10px);">
@@ -174,7 +174,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <div style="font-weight: 600; color: #1EA38B; font-size: 1.1rem;">
                             @if($course->price > 0)
-                                {{ number_format($course->price, 0, ',', ' ') }} €
+                                {{ number_format($course->price, 0, ',', ' ') }} FCFA
                             @else
                                 Gratuit
                             @endif
@@ -188,16 +188,9 @@
                         <a href="{{ route('admin.courses.show', $course) }}" style="flex: 1; background: linear-gradient(135deg, #1EA38B, #27B371); color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; text-align: center; font-size: 0.9rem; font-weight: 500; transition: all 0.3s;">
                             <i class="fas fa-eye"></i> Voir
                         </a>
-                        <a href="{{ route('admin.courses.edit', $course) }}" style="flex: 1; background: linear-gradient(135deg, #FF8E2A, #FFB366); color: white; padding: 0.5rem; border-radius: 6px; text-decoration: none; text-align: center; font-size: 0.9rem; font-weight: 500; transition: all 0.3s;">
-                            <i class="fas fa-edit"></i> Modifier
-                        </a>
-                        <button onclick="confirmAdminAction('Êtes-vous sûr de vouloir supprimer ce cours ?', () => document.getElementById('delete-course-{{ $course->id }}').submit())" style="background: linear-gradient(135deg, #E32D31, #FF6B6B); color: white; padding: 0.5rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                        <form id="delete-course-{{ $course->id }}" action="{{ route('admin.courses.destroy', $course) }}" method="POST" style="display: none;">
-                            @csrf
-                            @method('DELETE')
-                        </form>
+                       
+                        
+                        
                     </div>
                 </div>
             </div>
@@ -213,9 +206,64 @@
         @endforelse
     </div>
     
-    @if($courses->hasPages())
-        <div style="margin-top: 2rem; display: flex; justify-content: center;" data-aos="fade-up" data-aos-delay="300">
-            {{ $courses->links() }}
+    @if($courses->hasPages() || $courses->total() > 0)
+        <div style="margin-top: 2rem;" data-aos="fade-up" data-aos-delay="300">
+            @if($courses->total() > 0)
+                <div style="text-align: center; margin-bottom: 1rem; color: #6C757D; font-size: 0.9rem;">
+                    Affichage de <strong>{{ $courses->firstItem() }}</strong> à <strong>{{ $courses->lastItem() }}</strong> 
+                    sur <strong>{{ $courses->total() }}</strong> résultat{{ $courses->total() > 1 ? 's' : '' }}
+                </div>
+            @endif
+            @if($courses->hasPages())
+                <div style="display: flex; justify-content: center;">
+                    <nav aria-label="Navigation des pages">
+                    <ul class="pagination" style="justify-content: center; margin: 0; padding: 0; list-style: none; display: flex; gap: 0.5rem;">
+                        <!-- Bouton Précédent -->
+                        @if($courses->onFirstPage())
+                            <li class="page-item disabled" style="margin: 0;">
+                                <span class="page-link" style="color: #6c757d; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; cursor: not-allowed; opacity: 0.65; display: flex; align-items: center; justify-content: center; min-width: 38px;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </span>
+                            </li>
+                        @else
+                            <li class="page-item" style="margin: 0;">
+                                <a class="page-link" href="{{ $courses->appends(request()->except('page'))->previousPageUrl() }}" aria-label="Précédent" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; min-width: 38px;">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                        @endif
+
+                        <!-- Numéros de pages -->
+                        @foreach($courses->getUrlRange(max(1, $courses->currentPage() - 2), min($courses->lastPage(), $courses->currentPage() + 2)) as $page => $url)
+                            @if($page == $courses->currentPage())
+                                <li class="page-item active" style="margin: 0;">
+                                    <span class="page-link" style="color: white; background-color: #1EA38B; border: 1px solid #1EA38B; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-weight: 600; display: flex; align-items: center; justify-content: center; min-width: 38px;">{{ $page }}</span>
+                                </li>
+                            @else
+                                <li class="page-item" style="margin: 0;">
+                                    <a class="page-link" href="{{ $courses->appends(request()->except('page'))->url($page) }}" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; min-width: 38px;">{{ $page }}</a>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        <!-- Bouton Suivant -->
+                        @if($courses->hasMorePages())
+                            <li class="page-item" style="margin: 0;">
+                                <a class="page-link" href="{{ $courses->appends(request()->except('page'))->nextPageUrl() }}" aria-label="Suivant" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; min-width: 38px;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        @else
+                            <li class="page-item disabled" style="margin: 0;">
+                                <span class="page-link" style="color: #6c757d; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; cursor: not-allowed; opacity: 0.65; display: flex; align-items: center; justify-content: center; min-width: 38px;">
+                                    <i class="fas fa-chevron-right"></i>
+                                </span>
+                            </li>
+                        @endif
+                    </ul>
+                    </nav>
+                </div>
+            @endif
         </div>
     @endif
 </div>

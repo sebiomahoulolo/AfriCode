@@ -5,14 +5,33 @@
 @section('content')
 <style>
     :root {
-        --primary-color: #1EA38B;
+        --primary-color: #27B371;
         --secondary-color: #FF8E2A;
         --accent-color: #E32D31;
-        --highlight-color: #27B371;
+        --highlight-color: #1EA38B;
         --background-color: #f4f7f6;
         --light-accent: #ECF0F1;
         --text-color: #333333;
         --card-bg: #ffffff;
+    }
+
+    /* Override Bootstrap blue → AfriCode */
+    .btn-primary {
+        background: linear-gradient(135deg,#1EA38B,#27B371) !important;
+        border-color: #1EA38B !important;
+        color: #fff !important;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background: linear-gradient(135deg,#0d7a63,#1EA38B) !important;
+        border-color: #0d7a63 !important;
+    }
+    .btn-outline-primary {
+        color: #1EA38B !important;
+        border-color: #1EA38B !important;
+    }
+    .btn-outline-primary:hover {
+        background-color: #1EA38B !important;
+        color: #fff !important;
     }
 
     body {
@@ -153,11 +172,66 @@
         border: 1px solid #d8dcdf;
         cursor: pointer;
         transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .answer-options label.answer-correct {
+        background-color: #d4edda;
+        border-color: #239e79;
+        border-width: 2px;
+    }
+
+    .answer-options label.answer-correct::after {
+        content: " ✓";
+        color: #239e79;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .answer-options label.answer-incorrect {
+        background-color: #f8d7da;
+        border-color: #fa1c39;
+        border-width: 2px;
+    }
+
+    .answer-options label.answer-incorrect::after {
+        content: " ✗";
+        color: #fa1c39;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .answer-options label.answer-disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .answer-options label.answer-disabled input[type="radio"] {
+        cursor: not-allowed;
+    }
+
+    .correct-answer-indicator {
+        margin-top: 15px;
+        padding: 12px;
+        background-color: #d1ecf1;
+        border-left: 4px solid var(--primary-color);
+        border-radius: 4px;
+        display: none;
+    }
+
+    .correct-answer-indicator.show {
+        display: block;
+    }
+
+    .correct-answer-indicator strong {
+        color: var(--primary-color);
     }
 
     .navigation-buttons {
         margin-top: 20px;
-        flex-direction: column-reverse;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 10px;
     }
 
@@ -184,6 +258,7 @@
         .navigation-buttons {
             flex-direction: row;
             justify-content: space-between;
+            align-items: center;
         }
         
         .course-card-img {
@@ -257,8 +332,8 @@
                         <button id="prev-btn" class="btn btn-outline-secondary">
                             <i class="fas fa-arrow-left me-1"></i>Précédent
                         </button>
-                        <div>
-                            <button id="next-btn" class="btn text-white me-2" style="background-color: var(--primary-color);">
+                        <div class="d-flex gap-2">
+                            <button id="next-btn" class="btn text-white" style="background-color: var(--primary-color);">
                                 Suivant <i class="fas fa-arrow-right ms-1"></i>
                             </button>
                             <button id="submit-btn" class="btn btn-success" style="display: none;">
@@ -271,9 +346,9 @@
                 <!-- Section Résultats -->
                 <div id="results-area">
                     <h2>Résultats du Test</h2>
-                    <p>Votre score est de <strong id="score-percentage">--%</strong>.</p>
-                    <p>Votre niveau estimé est :</p>
-                    <div id="level-badge" class="level-badge mb-3">NIVEAU ESTIMÉ</div>
+                    <p>Votre score est de  <strong id="score-percentage">--%</strong>.</p>
+                    <p>Votre niveau estimé est : <div id="level-badge" class="level-badge mb-3">NIVEAU ESTIMÉ</div></p>
+                    
                     <p id="level-description">Description du niveau...</p>
 
                     <div class="mt-4">
@@ -294,6 +369,12 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+<!-- Données des cours depuis le contrôleur -->
+<script>
+    window.coursesData = @json($coursesData);
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Configuration du Test
@@ -424,6 +505,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (index < 0 || index >= questions.length) return;
 
         const question = questions[index];
+        const userAnswer = userAnswers[index];
+        const hasAnswered = userAnswer !== null;
+        
         elements.questionText.textContent = question.question;
         elements.answerOptions.innerHTML = '';
 
@@ -434,21 +518,45 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
+        // Ajouter l'indicateur de bonne réponse
+        // elements.answerOptions.innerHTML += `
+        //     <div class="correct-answer-indicator" id="correct-answer-indicator-${index}">
+        //         <strong><i class="fas fa-check-circle me-1"></i>Bonne réponse :</strong> 
+        //         <span id="correct-answer-text-${index}"></span>
+        //     </div>
+        // `;
+
         question.options.forEach((option, optionIndex) => {
             const label = document.createElement('label');
+            const isCorrect = optionIndex === question.correctAnswerIndex;
+            const isUserAnswer = userAnswer === optionIndex;
+            
             label.innerHTML = `
                 <input type="radio" name="question-${question.id}" value="${optionIndex}" 
-                    ${userAnswers[index] === optionIndex ? 'checked' : ''}>
+                    ${isUserAnswer ? 'checked' : ''} 
+                    ${hasAnswered ? 'disabled' : ''}>
                 <span>${escapeHtml(option)}</span>
             `;
-            label.querySelector('input').addEventListener('change', () => {
-                userAnswers[index] = optionIndex;
-                answeredQuestions[index] = true;
-                // Masquer la notification si elle était visible
-                document.getElementById(`required-notification-${index}`).style.display = 'none';
-            });
+            
+            // Ajouter l'événement seulement si la question n'a pas encore été répondue
+            if (!hasAnswered) {
+                label.querySelector('input').addEventListener('change', () => {
+                    userAnswers[index] = optionIndex;
+                    answeredQuestions[index] = true;
+                    // Masquer la notification si elle était visible
+                    document.getElementById(`required-notification-${index}`).style.display = 'none';
+                    // Afficher immédiatement la bonne réponse
+                    showCorrectAnswer(index);
+                });
+            }
+            
             elements.answerOptions.appendChild(label);
         });
+
+        // Afficher la bonne réponse si déjà répondu
+        if (hasAnswered) {
+            showCorrectAnswer(index);
+        }
 
         elements.questionNumber.textContent = `Question ${index + 1}/${TOTAL_QUESTIONS}`;
         const progress = ((index + 1) / TOTAL_QUESTIONS) * 100;
@@ -457,6 +565,34 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.prevBtn.disabled = index === 0;
         elements.nextBtn.style.display = index === TOTAL_QUESTIONS - 1 ? 'none' : 'inline-block';
         elements.submitBtn.style.display = index === TOTAL_QUESTIONS - 1 ? 'inline-block' : 'none';
+    }
+
+    function showCorrectAnswer(index) {
+        const question = questions[index];
+        const correctAnswerText = question.options[question.correctAnswerIndex];
+        const indicator = document.getElementById(`correct-answer-indicator-${index}`);
+        const answerText = document.getElementById(`correct-answer-text-${index}`);
+        
+        if (indicator && answerText) {
+            answerText.textContent = correctAnswerText;
+            indicator.classList.add('show');
+        }
+        
+        // Désactiver tous les inputs radio et appliquer les styles
+        const labels = elements.answerOptions.querySelectorAll('label');
+        labels.forEach((label, optionIndex) => {
+            const input = label.querySelector('input[type="radio"]');
+            if (input) {
+                input.disabled = true;
+                label.classList.add('answer-disabled');
+                
+                if (optionIndex === question.correctAnswerIndex) {
+                    label.classList.add('answer-correct');
+                } else if (optionIndex === userAnswers[index] && optionIndex !== question.correctAnswerIndex) {
+                    label.classList.add('answer-incorrect');
+                }
+            }
+        });
     }
 
     function nextQuestion() {
@@ -512,7 +648,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById(`required-notification-${currentQuestionIndex}`).style.display = 'block';
             
             // Faire défiler jusqu'à la question non répondue
-            elements.questionContent.scrollIntoView({ behavior: 'smooth' });
+            elements.testArea.scrollIntoView({ behavior: 'smooth' });
             return;
         }
         
@@ -547,10 +683,39 @@ document.addEventListener('DOMContentLoaded', function() {
         recommendedCourses.forEach(course => {
             const courseCard = document.createElement('div');
             courseCard.className = 'col-md-6 col-lg-4';
+            
+            // Image du cours ou icône par défaut
+            const courseImage = course.cover_image ? 
+                `<img src="${course.cover_image}" alt="${course.title}" style="width: 100%; height: 100%; object-fit: cover;">` :
+                `<i class="${course.icon} fa-3x" style="color: ${course.color};"></i>`;
+            
+            // Informations supplémentaires si disponibles
+            const additionalInfo = course.price !== undefined ? `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">
+                        <i class="fas fa-user me-1"></i>${course.instructor || 'Équipe AfriCode'}
+                    </small>
+                    <small class="text-muted">
+                        <i class="fas fa-star text-warning me-1"></i>${course.rating ? course.rating.toFixed(1) : '4.5'}
+                    </small>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-success">
+                        ${course.price > 0 ? course.price + 'FCFA' : 'Gratuit'}
+                    </span>
+                    <small class="text-muted">
+                        ${course.modules_count || 0} modules
+                    </small>
+                </div>
+            ` : '';
+            
             courseCard.innerHTML = `
                 <div class="course-card h-100">
-                    <div class="course-card-img">
-                        <i class="${course.icon} fa-3x" style="color: ${course.color};"></i>
+                    <div class="course-card-img" style="display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; position: relative; overflow: hidden; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                        ${course.cover_image ? 
+                            `<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(17, 192, 109, 0.8), rgba(254, 168, 55, 0.8)); display: flex; align-items: center; justify-content: center;">${courseImage}</div>` :
+                            courseImage
+                        }
                     </div>
                     <div class="course-card-body">
                         <h5 class="course-card-title">${course.title}</h5>
@@ -558,9 +723,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="mb-2">
                             ${course.technologies.map(tech => `<span class="badge-tech">${tech}</span>`).join('')}
                         </div>
+                        ${additionalInfo}
                     </div>
                     <div class="course-card-footer text-end">
-                        <a href="${course.link}" class="btn btn-sm btn-primary">Voir le cours</a>
+                        <a href="${course.link}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
+                            <i class="fas fa-info-circle me-1"></i>Voir le cours
+                        </a>
                     </div>
                 </div>
             `;
@@ -585,90 +753,68 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getRecommendedCourses(level) {
-        const allCourses = {
-            beginner: [
-                {
-                    title: "HTML/CSS Fondamentaux",
-                    description: "Apprenez à créer des sites web avec HTML5 et CSS3",
-                    technologies: ["HTML", "CSS"],
-                    icon: "fas fa-code",
-                    color: "#E44D26",
-                    link: "/cours/html-css"
-                },
-                {
-                    title: "JavaScript pour Débutants",
-                    description: "Découvrez les bases de la programmation avec JavaScript",
-                    technologies: ["JavaScript"],
-                    icon: "fab fa-js",
-                    color: "#F0DB4F",
-                    link: "/cours/javascript-debutant"
-                },
-                {
-                    title: "Introduction à Python",
-                    description: "Premiers pas avec le langage Python",
-                    technologies: ["Python"],
-                    icon: "fab fa-python",
-                    color: "#3776AB",
-                    link: "/cours/python-intro"
-                }
-            ],
-            intermediate: [
-                {
-                    title: "PHP et MySQL",
-                    description: "Créez des applications web dynamiques avec PHP et MySQL",
-                    technologies: ["PHP", "MySQL"],
-                    icon: "fab fa-php",
-                    color: "#777BB4",
-                    link: "/cours/php-mysql"
-                },
-                {
-                    title: "React JS Fondamentaux",
-                    description: "Développez des interfaces utilisateur modernes avec React",
-                    technologies: ["React", "JavaScript"],
-                    icon: "fab fa-react",
-                    color: "#61DAFB",
-                    link: "/cours/react-js"
-                },
-                {
-                    title: "Laravel pour Débutants",
-                    description: "Initiation au framework PHP Laravel",
-                    technologies: ["Laravel", "PHP"],
-                    icon: "fab fa-laravel",
-                    color: "#FF2D20",
-                    link: "/cours/laravel-debutant"
-                }
-            ],
-            advanced: [
-                {
-                    title: "Architecture Logicielle en C++",
-                    description: "Concevez des applications performantes en C++",
-                    technologies: ["C++", "OOP"],
-                    icon: "fas fa-microchip",
-                    color: "#00599C",
-                    link: "/cours/cpp-avance"
-                },
-                {
-                    title: "Optimisation SQL Avancée",
-                    description: "Techniques avancées pour des bases de données performantes",
-                    technologies: ["SQL", "Performance"],
-                    icon: "fas fa-database",
-                    color: "#4479A1",
-                    link: "/cours/sql-avance"
-                },
-                {
-                    title: "Microservices avec Python",
-                    description: "Développez des architectures microservices avec Python",
-                    technologies: ["Python", "Microservices"],
-                    icon: "fas fa-server",
-                    color: "#3776AB",
-                    link: "/cours/python-microservices"
-                }
-            ]
+        // Utiliser les données dynamiques depuis le contrôleur
+        const dynamicCourses = window.coursesData;
+        
+        // Si pas de données dynamiques, utiliser des cours par défaut
+        if (!dynamicCourses || !dynamicCourses.beginner || dynamicCourses.beginner.length === 0) {
+            const defaultCourses = {
+                beginner: [
+                    {
+                        title: "HTML/CSS Fondamentaux",
+                        description: "Apprenez à créer des sites web avec HTML5 et CSS3",
+                        technologies: ["HTML", "CSS"],
+                        icon: "fas fa-code",
+                        color: "#E44D26",
+                        link: "/cours"
+                    }
+                ],
+                intermediate: [
+                    {
+                        title: "PHP et MySQL",
+                        description: "Créez des applications web dynamiques avec PHP et MySQL",
+                        technologies: ["PHP", "MySQL"],
+                        icon: "fab fa-php",
+                        color: "#777BB4",
+                        link: "/cours"
+                    }
+                ],
+                advanced: [
+                    {
+                        title: "Architecture Logicielle Avancée",
+                        description: "Concevez des applications performantes et évolutives",
+                        technologies: ["Architecture", "Performance"],
+                        icon: "fas fa-microchip",
+                        color: "#00599C",
+                        link: "/cours"
+                    }
+                ]
+            };
+            return level === "Débutant" ? defaultCourses.beginner : 
+                   level === "Intermédiaire" ? defaultCourses.intermediate : 
+                   defaultCourses.advanced;
+        }
+        
+        // Convertir les données dynamiques au format attendu
+        const formatCourses = (courses) => {
+            return courses.map(course => ({
+                title: course.title,
+                description: course.description,
+                technologies: [course.category],
+                icon: "fas fa-graduation-cap",
+                color: "#11c06d",
+                link: `/cours/${course.slug}`,
+                price: course.price,
+                instructor: course.instructor,
+                rating: course.rating,
+                modules_count: course.modules_count,
+                cover_image: course.cover_image
+            }));
         };
-
-        return level === "Débutant" ? allCourses.beginner : 
-               level === "Intermédiaire" ? allCourses.intermediate : 
-               allCourses.advanced;
+        
+        return level === "Débutant" ? formatCourses(dynamicCourses.beginner) : 
+               level === "Intermédiaire" ? formatCourses(dynamicCourses.intermediate) : 
+               formatCourses(dynamicCourses.advanced);
     }
 
     function escapeHtml(unsafe) {

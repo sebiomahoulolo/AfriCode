@@ -131,7 +131,7 @@
                     <h5 class="card-title">Excel Avancé</h5>
                     <p class="card-text">Maîtrisez les fonctionnalités avancées d'Excel comme les tableaux croisés dynamiques, les macros et les graphiques interactifs.</p>
                     <p class="text-success"><strong>20$</strong> | Certificat inclus | <span class="text-danger">15h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
                     <h5 class="card-title">Word Avancé</h5>
                     <p class="card-text">Apprenez les outils avancés de Word comme la gestion des styles, les sommaires automatiques et les options de mise en page complexes.</p>
                     <p class="text-success"><strong>18$</strong> | Certificat inclus | <span class="text-danger">10h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
                     <h5 class="card-title">Cours pour Freelancers</h5>
                     <p class="card-text">Découvrez comment réussir en tant que freelance, gérer des projets, communiquer efficacement avec des clients et développer une carrière autonome.</p>
                     <p class="text-success"><strong>30$</strong> | Certificat inclus | <span class="text-danger">20h</span></p>
-                    <a href="#" class="btn btn-primary btn-hover">S'inscrire</a>
+                    <a href="#" class="btn btn-hover text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">S'inscrire</a>
                 </div>
             </div>
         </div>
@@ -192,7 +192,7 @@
                     <h5 class="card-title" style="font-size: 1.1rem; height: 50px; overflow: hidden;">{{ $cours[0] }}</h5> 
                     <p class="card-text" style="font-size: 0.9rem; height: 60px; overflow: hidden;;" title="{{ $cours[1] }}">{{ $cours[1] }}</p> 
                     <p class="text-success" style="font-size: 1rem;"><strong>{{ $cours[3] }}</strong> | {{ $cours[4] }} | <span class="text-danger"> {{ $cours[5] }}</span></p>
-                    <a href="#" class="btn btn-primary btn-hover mt-auto" style="font-size: 0.9rem;">S'inscrire</a> 
+                    <a href="#" class="btn btn-hover text-white mt-auto" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;font-size:0.9rem;">S'inscrire</a> 
                 </div>
             </div>
         </div>

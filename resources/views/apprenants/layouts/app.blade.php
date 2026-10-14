@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @laravelPWA
     <title>@yield('title', 'AfriCode - Plateforme d\'apprentissage')</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -19,39 +21,87 @@
     <!-- AOS Animation -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
-    <!-- AfriCode Theme CSS -->
-    <link href="{{ asset('css/africode-learner-theme.css') }}" rel="stylesheet">
-    
-    <!-- AfriCode Visibility Fixes - Corrections critiques -->
-    <link href="{{ asset('css/africode-fixes.css') }}" rel="stylesheet">
+    {{-- Styles définis dans le bloc <style> ci-dessous --}}
     
     <style>
+    /* ── Remap Bootstrap colors → AfriCode brand ── */
+    :root {
+        --bs-primary:     #1EA38B; --bs-primary-rgb:  30,163,139;
+        --bs-success:     #27B371; --bs-success-rgb:  39,179,113;
+        --bs-info:        #1EA38B; --bs-info-rgb:     30,163,139;
+        --bs-warning:     #FF8E2A; --bs-warning-rgb:  255,142,42;
+        --bs-danger:      #E32D31; --bs-danger-rgb:   227,45,49;
+        --bs-link-color:  #1EA38B; --bs-link-hover-color:#27B371;
+    }
+    .btn-primary { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-primary:hover { background-color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-outline-primary { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-primary:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-success,.btn-outline-success:hover { background-color:#27B371 !important; border-color:#27B371 !important; color:#fff !important; }
+    .btn-outline-success { color:#27B371 !important; border-color:#27B371 !important; }
+    .btn-info { background-color:#1EA38B !important; border-color:#1EA38B !important; color:#fff !important; }
+    .btn-outline-info { color:#1EA38B !important; border-color:#1EA38B !important; }
+    .btn-outline-info:hover { background-color:#1EA38B !important; color:#fff !important; }
+    .btn-warning { background-color:#FF8E2A !important; border-color:#FF8E2A !important; color:#fff !important; }
+    .text-primary { color:#1EA38B !important; } .text-success { color:#27B371 !important; }
+    .text-info    { color:#1EA38B !important; } .text-warning { color:#FF8E2A !important; }
+    .text-danger  { color:#E32D31 !important; }
+    .bg-primary   { background-color:#1EA38B !important; } .bg-success { background-color:#27B371 !important; }
+    .bg-info      { background-color:#1EA38B !important; } .bg-warning { background-color:#FF8E2A !important; }
+    .bg-danger    { background-color:#E32D31 !important; }
+    .badge.bg-primary,.badge.bg-info { background-color:#1EA38B !important; }
+    .badge.bg-success { background-color:#27B371 !important; }
+    .progress-bar { background-color:#1EA38B !important; }
+    a { color:#1EA38B; } a:hover { color:#27B371; }
+
         :root {
-            --africode-background: #F8F9FA;
+            --africode-background: #f7fbff;
+            --africode-primary: #1EA38B;
+            --africode-primary-dark: #198572;
+            --africode-secondary: #27B371;
+            --africode-accent: #FF8E2A;
+            --africode-danger: #E32D31;
+            --africode-text-primary: #2D3748;
+            --africode-text-secondary: #718096;
+            --africode-border: #E2E8F0;
+            --africode-surface: #FFFFFF;
+            --africode-hover-bg: #F7FAFC;
+            --africode-gradient-primary: linear-gradient(135deg, #1EA38B 0%, #27B371 100%);
+            --africode-border-radius: 12px;
+            --africode-border-radius-sm: 8px;
+            --africode-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --africode-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --africode-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --africode-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Application équilibrée de la charte AfriCode aux pages apprenants */
         
         body {
-            background: #F8F9FA !important;
-            color: #333 !important;
-            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--africode-background) !important;
+            color: var(--africode-text-primary) !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 1rem;
             font-weight: 400;
+            line-height: 1.6;
         }
+        
         h1, h2, h3, h4, h5, h6 {
-            color: #1EA38B;
+            color: var(--africode-text-primary);
             font-weight: 700;
+            margin-bottom: 0.75rem;
         }
+        
         a, .link {
-            color: #1EA38B;
+            color: var(--africode-primary);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: var(--africode-transition);
         }
+        
         a:hover, .link:hover {
-            color: #27B371;
+            color: var(--africode-primary-dark);
         }
+        
         .fa, .fas, .far, .fal, .fab {
-            color: #1EA38B;
+            color: var(--africode-primary);
             font-size: 1.1em;
             vertical-align: middle;
             margin-right: 0.5em;
@@ -64,15 +114,15 @@
             left: 0;
             width: 280px;
             height: 100vh;
-            background: linear-gradient(180deg, var(--africode-primary) 0%, var(--africode-primary-dark) 100%);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--africode-surface);
+            border-right: 1px solid var(--africode-border);
             z-index: 1000;
             transition: var(--africode-transition);
             transform: translateX(0);
             display: flex;
             flex-direction: column;
-            box-shadow: var(--africode-shadow-lg);
+            box-shadow: var(--africode-shadow-md);
+            overflow-y: auto;
         }
 
         .app-sidebar.collapsed {
@@ -82,8 +132,9 @@
         /* Sidebar brand et logo */
         .sidebar-brand {
             padding: 1.5rem 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--africode-border);
             flex-shrink: 0;
+            background: var(--africode-gradient-primary);
         }
 
         .sidebar-brand h3 {
@@ -94,19 +145,19 @@
             display: flex;
             align-items: center;
             transition: var(--africode-transition);
+            justify-content: center;
         }
 
         /* Logo AfriCode - Normal */
         .africode-logo {
             transition: var(--africode-transition);
             flex-shrink: 0;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         
         /* Styles pour le nouveau logo avec les trois bandes */
         .africode-logo-img {
             transition: transform 0.2s ease;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            height: 35px;
         }
         
         .sidebar-brand:hover .africode-logo-img {
@@ -114,19 +165,14 @@
         }
 
         .logo-text {
-            background: linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 0.9) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
             font-weight: 800;
             font-size: 1.2rem;
             transition: var(--africode-transition);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .sidebar-brand:hover .logo-text {
-            color: var(--africode-secondary) !important;
-            -webkit-text-fill-color: var(--africode-secondary);
+            color: rgba(255, 255, 255, 0.9);
         }
 
         /* Mode réduit */
@@ -165,7 +211,7 @@
         }
 
         .nav-link {
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--africode-text-secondary);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -182,32 +228,25 @@
             margin-right: 0.875rem;
             font-size: 1.1rem;
             text-align: center;
+            color: var(--africode-primary);
         }
 
         .nav-link:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
+            background: var(--africode-hover-bg);
+            color: var(--africode-primary);
             transform: translateX(4px);
             box-shadow: var(--africode-shadow-sm);
         }
 
         .nav-link.active {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.35) 100%) !important;
+            background: var(--africode-gradient-primary) !important;
             color: white !important;
-            font-weight: 700 !important;
+            font-weight: 600 !important;
             box-shadow: var(--africode-shadow-md) !important;
-            border-left: 4px solid var(--africode-secondary) !important;
         }
 
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: var(--africode-secondary);
-            border-radius: 0 4px 4px 0;
+        .nav-link.active i {
+            color: white !important;
         }
 
         /* Mode réduit - navigation */
@@ -240,7 +279,6 @@
             background: var(--africode-surface);
             border-bottom: 1px solid var(--africode-border);
             box-shadow: var(--africode-shadow-sm);
-            backdrop-filter: blur(20px);
             padding: 0.75rem 1.5rem;
             display: flex;
             align-items: center;
@@ -263,41 +301,14 @@
             transition: var(--africode-transition);
             box-shadow: var(--africode-shadow-sm);
             margin-right: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar-toggle-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--africode-gradient-primary);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-toggle-btn:hover::before {
-            opacity: 1;
         }
 
         .sidebar-toggle-btn:hover {
+            background: var(--africode-primary);
             color: white;
             transform: scale(1.05);
             box-shadow: var(--africode-shadow-md);
             border-color: var(--africode-primary);
-        }
-
-        .sidebar-toggle-btn i {
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-toggle-btn:hover i {
-            transform: rotate(180deg);
         }
 
         /* Tooltip styles */
@@ -316,10 +327,10 @@
             left: 70px;
             top: 50%;
             transform: translateY(-50%);
-            background: var(--gray-900);
+            background: var(--africode-text-primary);
             color: white;
             padding: 0.5rem 0.75rem;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--africode-border-radius-sm);
             font-size: 0.875rem;
             white-space: nowrap;
             z-index: 1001;
@@ -335,28 +346,28 @@
             top: 50%;
             transform: translateY(-50%);
             border: 5px solid transparent;
-            border-right-color: var(--gray-900);
+            border-right-color: var(--africode-text-primary);
             z-index: 1001;
         }
 
         /* Sidebar footer adjustments */
         .sidebar-footer {
             padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--africode-border);
         }
 
         .sidebar-footer .btn-outline-modern {
-            background: rgba(255, 255, 255, 0.1) !important;
-            border: 2px solid rgba(255, 255, 255, 0.3) !important;
-            color: rgba(255, 255, 255, 0.9) !important;
+            background: transparent !important;
+            border: 2px solid var(--africode-danger) !important;
+            color: var(--africode-danger) !important;
             font-weight: 600 !important;
             padding: 0.75rem 1rem !important;
             transition: var(--africode-transition) !important;
         }
 
         .sidebar-footer .btn-outline-modern:hover {
-            background: rgba(227, 45, 49, 0.9) !important;
-            border-color: rgba(227, 45, 49, 1) !important;
+            background: var(--africode-danger) !important;
+            border-color: var(--africode-danger) !important;
             color: white !important;
             transform: translateY(-2px) !important;
             box-shadow: var(--africode-shadow-md) !important;
@@ -376,9 +387,9 @@
         }
 
         .sidebar-brand {
-            padding: 2rem;
+            padding: 1.5rem;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--africode-border);
             transition: all 0.3s ease;
         }
 
@@ -408,9 +419,9 @@
             display: flex;
             align-items: center;
             padding: 0.875rem 1.25rem;
-            color: var(--gray-700);
+            color: var(--africode-text-secondary);
             text-decoration: none;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--africode-border-radius-sm);
             transition: all 0.2s ease;
             font-weight: 500;
             position: relative;
@@ -418,26 +429,15 @@
         }
 
         .nav-link:hover {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            color: var(--primary-color);
+            background: rgba(30, 163, 139, 0.1);
+            color: var(--africode-primary);
             transform: translateX(4px);
         }
 
         .nav-link.active {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--africode-gradient-primary);
             color: white;
-            box-shadow: var(--shadow);
-        }
-
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
-            pointer-events: none;
+            box-shadow: var(--africode-shadow-md);
         }
 
         .nav-link i {
@@ -458,10 +458,23 @@
             margin-left: 80px;
         }
 
+        /* Mode "focus" pour les pages de leçon : cacher le menu latéral global */
+        .lesson-view .app-sidebar {
+            display: none;
+        }
+
+        .lesson-view .main-content {
+            margin-left: 0 !important;
+        }
+
+        /* Cacher aussi le header global sur les pages de leçon */
+        .lesson-view .top-header {
+            display: none;
+        }
+
         /* Top Header avec charte AfriCode */
         .top-header {
             background: var(--africode-surface);
-            backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--africode-border);
             padding: 1rem 2rem;
             position: sticky;
@@ -477,14 +490,10 @@
         }
 
         .page-title {
-            font-size: 1.875rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--africode-text-primary);
             margin: 0;
-            background: var(--africode-gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .header-actions {
@@ -516,7 +525,7 @@
             position: absolute;
             top: -2px;
             right: -2px;
-            background: var(--danger-color);
+            background: var(--africode-danger);
             color: white;
             border-radius: 50%;
             width: 18px;
@@ -533,7 +542,7 @@
             height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--primary-color);
+            border: 2px solid var(--africode-primary);
             margin-left: 0.5rem;
         }
 
@@ -545,10 +554,10 @@
         /* Cards */
         .modern-card {
             background: white;
-            border-radius: var(--border-radius);
+            border-radius: var(--africode-border-radius);
             padding: 1.5rem;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-200);
+            box-shadow: var(--africode-shadow-sm);
+            border: 1px solid var(--africode-border);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -561,65 +570,50 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--africode-gradient-primary);
         }
 
         .modern-card:hover {
             transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--africode-shadow-lg);
         }
 
         /* Buttons */
         .btn-modern {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--africode-gradient-primary);
             border: none;
             color: white;
             padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--africode-border-radius-sm);
             font-weight: 600;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
 
-        .btn-modern::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-modern:hover::before {
-            left: 100%;
-        }
-
         .btn-modern:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow);
+            box-shadow: var(--africode-shadow-md);
         }
 
         .btn-outline-modern {
             background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
+            border: 2px solid var(--africode-primary);
+            color: var(--africode-primary);
             padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius-sm);
+            border-radius: var(--africode-border-radius-sm);
             font-weight: 600;
             transition: all 0.3s ease;
         }
 
         .btn-outline-modern:hover {
-            background: var(--primary-color);
+            background: var(--africode-primary);
             color: white;
             transform: translateY(-2px);
         }
 
         /* Mobile Styles */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .app-sidebar {
                 transform: translateX(-100%);
                 width: 280px;
@@ -634,7 +628,7 @@
             }
 
             .content-wrapper {
-                padding: 1rem;
+                padding: 1.5rem;
             }
 
             .top-header {
@@ -642,15 +636,45 @@
             }
 
             .page-title {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
 
             .sidebar-toggle-btn {
                 display: flex;
             }
+            
+            .header-actions {
+                gap: 0.5rem;
+            }
+            
+            .notification-btn, .profile-btn {
+                padding: 0.5rem;
+            }
+            
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-wrapper {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                /* flex-direction: column; */
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
 
-        @media (min-width: 769px) {
+        @media (min-width: 993px) {
             .mobile-toggle {
                 display: none;
             }
@@ -676,46 +700,163 @@
         .progress-modern {
             height: 8px;
             border-radius: 4px;
-            background: var(--gray-200);
+            background: var(--africode-border);
             overflow: hidden;
         }
 
         .progress-bar-modern {
             height: 100%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: var(--africode-gradient-primary);
             border-radius: 4px;
             transition: width 0.6s ease;
         }
 
-        /* Badges */
-        .badge-modern {
-            padding: 0.375rem 0.75rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+/* Badges */
+.badge-modern {
+    padding: 0.5rem 0.875rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+    vertical-align: middle;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
 
-        .badge-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-        }
+.badge-primary {
+    background: var(--africode-gradient-primary);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
 
-        .badge-success {
-            background: var(--success-color);
-            color: white;
-        }
+.badge-success {
+    background: var(--africode-secondary);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
 
-        .badge-warning {
-            background: var(--warning-color);
-            color: white;
-        }
+.badge-warning {
+    background: var(--africode-accent);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
 
-        .badge-danger {
-            background: var(--danger-color);
-            color: white;
-        }
+.badge-danger {
+    background: var(--africode-danger);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Badge avec icône */
+.badge-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.badge-with-icon i {
+    font-size: 0.7rem;
+    margin-right: 0;
+}
+
+/* Tailles de badges */
+.badge-sm {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.6875rem;
+}
+
+.badge-lg {
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+}
+
+/* Badges outline */
+.badge-outline {
+    background: transparent;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.badge-outline.badge-primary {
+    color: var(--africode-primary);
+    border-color: var(--africode-primary);
+}
+
+.badge-outline.badge-success {
+    color: var(--africode-secondary);
+    border-color: var(--africode-secondary);
+}
+
+.badge-outline.badge-warning {
+    color: var(--africode-accent);
+    border-color: var(--africode-accent);
+}
+
+.badge-outline.badge-danger {
+    color: var(--africode-danger);
+    border-color: var(--africode-danger);
+}
+
+/* Effet au survol */
+.badge-modern:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge dans les boutons et autres éléments */
+.btn .badge-modern {
+    margin-left: 0.5rem;
+    position: relative;
+    top: -1px;
+}
+
+/* Badge avec compteur */
+.badge-counter {
+    position: relative;
+}
+
+.badge-counter::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 16px;
+    height: 16px;
+    background: var(--africode-danger);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.625rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+}
+
+/* Pour les utilisations spécifiques */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--africode-danger);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid white;
+}
 
         /* Overlay for mobile sidebar */
         .sidebar-overlay {
@@ -738,32 +879,70 @@
 
         /* Scrollbar customization */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
-            background: var(--gray-100);
+            background: var(--africode-background);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--gray-400);
-            border-radius: 3px;
+            background: var(--africode-border);
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-500);
+            background: var(--africode-text-secondary);
+        }
+        
+        /* Amélioration de la lisibilité */
+        p, li, td {
+            color: var(--africode-text-primary);
+            line-height: 1.6;
+        }
+        
+        .text-muted {
+            color: var(--africode-text-secondary) !important;
+        }
+        
+        /* Contraste amélioré pour l'accessibilité */
+        .contrast-high {
+            color: var(--africode-text-primary);
+            font-weight: 500;
+        }
+        
+        /* Espacement amélioré */
+        .section-spacing {
+            margin-bottom: 2rem;
+        }
+        
+        /* Cartes avec meilleur contraste */
+        .card-title {
+            color: var(--africode-text-primary);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-text {
+            color: var(--africode-text-secondary);
+        }
+        /* Fallback : si AOS JS ne charge pas, montrer les éléments normalement */
+        body:not(.aos-init) [data-aos] {
+            opacity: 1 !important;
+            transform: none !important;
+            transition: none !important;
         }
     </style>
 
     @stack('styles')
 </head>
-<body>
+<body class="{{ request()->routeIs('apprenant.lesson') ? 'lesson-view' : '' }}">
     <!-- Sidebar -->
     <aside class="app-sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="d-flex flex-column align-items-center">
                 <!-- Logo AfriCode avec les trois bandes -->
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%2327B371' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img mb-2" style="height: 35px;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 25'%3E%3Cg transform='translate(10 2)' fill='white'%3E%3Cpath d='M0 0 H8 V20 H0 Z' fill='%23FF8E2A' transform='skewX(-15)'/%3E%3Cpath d='M10 0 H18 V20 H10 Z' fill='%23E32D31' transform='skewX(-15)'/%3E%3Cpath d='M20 0 H28 V20 H20 Z' fill='%234ade80' stroke='white' stroke-width='0.5' transform='skewX(-15)'/%3E%3C/g%3E%3C/svg%3E" alt="AfriCode Logo" class="africode-logo-img mb-2">
                 <!-- Texte AFRICODE en dessous -->
                 <span class="logo-text text-white fw-bold text-uppercase" style="font-size: 0.9rem; letter-spacing: 1px;">AFRICODE</span>
             </div>
@@ -771,7 +950,7 @@
         
         <nav class="sidebar-nav">
             <div class="nav-item">
-                <a href="{{ route('apprenant.dashboard') }}" 
+                <a href="{{ route('apprenant.dashboard') }}"  
                    class="nav-link {{ request()->routeIs('apprenant.dashboard') ? 'active' : '' }}"
                    data-title="Tableau de bord">
                     <i class="fas fa-home"></i>
@@ -788,14 +967,14 @@
                 </a>
             </div>
             
-            <div class="nav-item">
+            {{-- <div class="nav-item">
                 <a href="{{ route('badges.index') }}" 
                    class="nav-link"
                    data-title="Progression">
                     <i class="fas fa-chart-line"></i>
                     <span>Progression</span>
                 </a>
-            </div>
+            </div> --}}
             
             <div class="nav-item">
                 <a href="{{ route('apprenant.certifications') }}" 
@@ -803,6 +982,15 @@
                    data-title="Certifications">
                     <i class="fas fa-certificate"></i>
                     <span>Certifications</span>
+                </a>
+            </div>
+            
+            <div class="nav-item">
+                <a href="{{ route('mentorship.index') }}" 
+                   class="nav-link {{ request()->routeIs('mentorship.*') ? 'active' : '' }}"
+                   data-title="Mentorat">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Mentorat</span>
                 </a>
             </div>
             
@@ -818,7 +1006,7 @@
             <div class="nav-item">
                 <a href="{{ route('pages.compdisp') }}" 
                    class="nav-link"
-                   data-title="Défis">
+                   data-title="Défis" >
                     <i class="fas fa-trophy"></i>
                     <span>Défis</span>
                 </a>
@@ -854,8 +1042,17 @@
         <header class="top-header">
             <div class="header-content">
                 <div class="d-flex align-items-center">
+                    <!-- Bouton Desktop -->
                     <button class="sidebar-toggle-btn d-none d-md-flex" id="sidebarToggleDesktop"
-                            title="Basculer la sidebar">
+                            title="Basculer la sidebar"
+                            onclick="var s=document.getElementById('sidebar'),mc=document.getElementById('mainContent');if(!s)return;var c=s.classList.toggle('collapsed');if(mc)mc.classList.toggle('sidebar-collapsed',c);try{localStorage.setItem('sidebarCollapsed',c);}catch(e){}">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <!-- Bouton Mobile -->
+                    <button class="sidebar-toggle-btn d-md-none" id="sidebarToggleMobile"
+                            title="Ouvrir le menu"
+                            onclick="var s=document.getElementById('sidebar'),ov=document.getElementById('sidebarOverlay');if(!s)return;s.classList.toggle('mobile-open');if(ov)ov.classList.toggle('active');document.body.style.overflow=s.classList.contains('mobile-open')?'hidden':'';">
                         <i class="fas fa-bars"></i>
                     </button>
 
@@ -863,17 +1060,12 @@
                 </div>
                 
                 <div class="header-actions">
-                    <button class="notification-btn" data-bs-toggle="dropdown">
-                        <i class="fas fa-bell"></i>
-                        @if(isset($notifications) && $notifications->count() > 0)
-                            <span class="notification-badge">{{ $notifications->count() }}</span>
-                        @endif
-                    </button>
-                    
+                    <x-notification-bell />
+
                     <div class="dropdown">
                         <button class="profile-btn dropdown-toggle" data-bs-toggle="dropdown">
-                            <span class="d-none d-md-inline me-2">{{ Auth::user()->first_name }}</span>
-                            <img src="{{ Auth::user()->profile_image_path ? asset(Auth::user()->profile_image_path) : asset('assets/images/default-avatar.svg') }}" 
+                            <span class="d-none d-md-inline me-2">{{ Auth::user()?->first_name }}</span>
+                            <img src="{{ Auth::user()?->profile_image_path ? asset(Auth::user()?->profile_image_path) : asset('assets/images/default-avatar.svg') }}"
                                  alt="Avatar" class="user-avatar">
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -911,12 +1103,14 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
-        // Initialize AOS
-        AOS.init({
-            duration: 600,
-            easing: 'ease-out-cubic',
-            once: true
-        });
+        // Initialize AOS (guard: CDN peut échouer)
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 600,
+                easing: 'ease-out-cubic',
+                once: true
+            });
+        }
 
         // Sidebar Toggle
         document.addEventListener('DOMContentLoaded', function() {
@@ -1071,5 +1265,7 @@
     </script>
 
     @stack('scripts')
+    {{-- ═══ PROTECTION GLOBALE (clic droit + DevTools + raccourcis) ══════ --}}
+    @include('partials.security-lock')
 </body>
 </html>

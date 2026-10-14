@@ -260,10 +260,10 @@
                             <label for="level" class="form-label">Niveau <span class="text-danger">*</span></label>
                             <select class="form-select @error('level') is-invalid @enderror" id="level" name="level" required>
                                 <option value="">Sélectionner un niveau</option>
-                                <option value="débutant" {{ old('level', $course->level) == 'débutant' ? 'selected' : '' }}>Débutant</option>
-                                <option value="intermédiaire" {{ old('level', $course->level) == 'intermédiaire' ? 'selected' : '' }}>Intermédiaire</option>
-                                <option value="avancé" {{ old('level', $course->level) == 'avancé' ? 'selected' : '' }}>Avancé</option>
-                                <option value="expert" {{ old('level', $course->level) == 'expert' ? 'selected' : '' }}>Expert</option>
+                                <option value="debutant" {{ old('level', $course->level) == 'debutant' ? 'selected' : '' }}>Débutant</option>
+                                <option value="intermediaire" {{ old('level', $course->level) == 'intermediaire' ? 'selected' : '' }}>Intermédiaire</option>
+                                <option value="avance" {{ old('level', $course->level) == 'avance' ? 'selected' : '' }}>Avancé</option>
+                                <option value="tous_niveaux" {{ old('level', $course->level) == 'tous_niveaux' ? 'selected' : '' }}>Tous niveaux</option>
                             </select>
                             @error('level')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -277,9 +277,7 @@
                             <div class="input-group">
                                 <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $course->price) }}" min="0" step="0.01" required>
                                 <select class="form-select @error('currency') is-invalid @enderror" id="currency" name="currency" required>
-                                    <option value="EUR" {{ old('currency', $course->currency) == 'EUR' ? 'selected' : '' }}>EUR</option>
-                                    <option value="USD" {{ old('currency', $course->currency) == 'USD' ? 'selected' : '' }}>USD</option>
-                                    <option value="XOF" {{ old('currency', $course->currency) == 'XOF' ? 'selected' : '' }}>XOF</option>
+                                    <option value="XOF" {{ old('currency', $course->currency) == 'XOF' ? 'selected' : '' }}>XOF (CFAO)</option>
                                 </select>
                             </div>
                             <div class="form-text">Mettez 0 pour un cours gratuit.</div>
@@ -313,7 +311,7 @@
                 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('formateur.manage.course', ['courseId' => $course->id]) }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Mettre à jour le cours</button>
+                    <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Mettre à jour le cours</button>
                 </div>
             </form>
         </div>

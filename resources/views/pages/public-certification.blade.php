@@ -10,8 +10,8 @@
 <style>
     :root {
         --primary-color: #1EA38B; /* Vert émeraude */
-        --secondary-color: #FF8E2A; /* Orange */
-        --accent-color: #E32D31; /* Rouge */
+        --secondary-color: #fea837; /* Orange */
+        --accent-color: #fa1c39; /* Rouge */
         --highlight-color: #27B371; /* Vert clair */
         --background-color: #F8F9FA;
         --light-accent: #ECF0F1;

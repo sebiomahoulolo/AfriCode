@@ -179,14 +179,54 @@
             </table>
         </div>
         
-        @if($users->hasPages())
-            <div style="padding: 1.5rem; border-top: 1px solid #E9ECEF; display: flex; justify-content: center;">
-                {{ $users->links() }}
+        @if($users->hasPages() || $users->total() > 0)
+            <div class="admin-table-pagination" style="padding: 1.5rem; border-top: 1px solid #E9ECEF;">
+                @if($users->hasPages())
+                    <nav aria-label="Navigation des pages" style="display: flex; justify-content: center;">
+                        <ul class="pagination" style="justify-content: center; margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            @if($users->onFirstPage())
+                                <li style="margin: 0;">
+                                    <span style="color: #6c757d; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; cursor: not-allowed; opacity: 0.65; display: inline-flex; align-items: center; min-width: 38px;"><i class="fas fa-chevron-left"></i> Précédent</span>
+                                </li>
+                            @else
+                                <li style="margin: 0;">
+                                    <a href="{{ $users->appends(request()->except('page'))->previousPageUrl() }}" aria-label="Précédent" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: inline-flex; align-items: center; min-width: 38px;"><i class="fas fa-chevron-left"></i> Précédent</a>
+                                </li>
+                            @endif
+                            @foreach($users->getUrlRange(max(1, $users->currentPage() - 2), min($users->lastPage(), $users->currentPage() + 2)) as $page => $url)
+                                @if($page == $users->currentPage())
+                                    <li style="margin: 0;">
+                                        <span style="color: white; background-color: #1EA38B; border: 1px solid #1EA38B; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; min-width: 38px;">{{ $page }}</span>
+                                    </li>
+                                @else
+                                    <li style="margin: 0;">
+                                        <a href="{{ $users->appends(request()->except('page'))->url($page) }}" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; min-width: 38px;">{{ $page }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+                            @if($users->hasMorePages())
+                                <li style="margin: 0;">
+                                    <a href="{{ $users->appends(request()->except('page'))->nextPageUrl() }}" aria-label="Suivant" style="color: #1EA38B; background-color: white; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; text-decoration: none; transition: all 0.2s ease; display: inline-flex; align-items: center; min-width: 38px;">Suivant <i class="fas fa-chevron-right"></i></a>
+                                </li>
+                            @else
+                                <li style="margin: 0;">
+                                    <span style="color: #6c757d; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 0.5rem 0.75rem; border-radius: 0.375rem; cursor: not-allowed; opacity: 0.65; display: inline-flex; align-items: center; min-width: 38px;">Suivant <i class="fas fa-chevron-right"></i></span>
+                                </li>
+                            @endif
+                        </ul>
+                    </nav>
+                @endif
             </div>
         @endif
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+.admin-table-pagination ul a:hover { background-color: rgba(30, 163, 139, 0.1) !important; border-color: #1EA38B !important; }
+</style>
+@endpush
 
 @push('scripts')
 <script>

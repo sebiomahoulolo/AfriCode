@@ -47,31 +47,31 @@
           
           <div class="contact-cards">
             <div class="contact-card">
-              <div class="contact-icon">📧</div>
+              <div class="contact-icon"><i class="fas fa-envelope"></i></div>
               <div class="contact-details">
                 <h5>Email</h5>
                 <p>contact@africode.tech</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">📱</div>
+              <div class="contact-icon"><i class="fas fa-mobile-alt"></i></div>
               <div class="contact-details">
                 <h5>Téléphone</h5>
                 <p>+229 90 00 00 00</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">📍</div>
+              <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
               <div class="contact-details">
                 <h5>Adresse</h5>
                 <p>Parakou, Bénin</p>
               </div>
             </div>
-            
+
             <div class="contact-card">
-              <div class="contact-icon">⏰</div>
+              <div class="contact-icon"><i class="fas fa-clock"></i></div>
               <div class="contact-details">
                 <h5>Horaires</h5>
                 <p>Lun - Ven : 8h - 18h</p>
@@ -157,28 +157,28 @@
     
     <div class="social-cards-container">
       <div class="social-card">
-        <div class="social-icon linkedin">💼</div>
+        <div class="social-icon linkedin"><i class="fab fa-linkedin"></i></div>
         <h5>LinkedIn</h5>
         <p>Actualités professionnelles</p>
         <a href="#" class="social-link">Suivre</a>
       </div>
       
       <div class="social-card">
-        <div class="social-icon twitter">🐦</div>
+        <div class="social-icon twitter"><i class="fab fa-twitter"></i></div>
         <h5>Twitter</h5>
         <p>Actualités en temps réel</p>
         <a href="#" class="social-link">Suivre</a>
       </div>
       
       <div class="social-card">
-        <div class="social-icon youtube">📺</div>
+        <div class="social-icon youtube"><i class="fab fa-youtube"></i></div>
         <h5>YouTube</h5>
         <p>Tutoriels et formations</p>
         <a href="#" class="social-link">S'abonner</a>
       </div>
       
       <div class="social-card">
-        <div class="social-icon github">💻</div>
+        <div class="social-icon github"><i class="fab fa-github"></i></div>
         <h5>GitHub</h5>
         <p>Projets open source</p>
         <a href="#" class="social-link">Explorer</a>
@@ -198,28 +198,28 @@
     <div class="row g-4">
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>🚀 Comment rejoindre AfriCode ?</h5>
+          <h5><i class="fas fa-rocket me-2" style="color:#1EA38B"></i>Comment rejoindre AfriCode ?</h5>
           <p>Inscrivez-vous simplement sur notre plateforme et choisissez les formations qui vous intéressent.</p>
         </div>
       </div>
       
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>💰 Les formations sont-elles gratuites ?</h5>
+          <h5><i class="fas fa-tag me-2" style="color:#1EA38B"></i>Les formations sont-elles gratuites ?</h5>
           <p>Oui, la plupart de nos formations de base sont entièrement gratuites pour tous les participants.</p>
         </div>
       </div>
       
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>🌍 Où se déroulent les formations ?</h5>
+          <h5><i class="fas fa-globe-africa me-2" style="color:#1EA38B"></i>Où se déroulent les formations ?</h5>
           <p>Nos formations sont disponibles en ligne et en présentiel dans plusieurs villes d'Afrique.</p>
         </div>
       </div>
       
       <div class="col-md-6">
         <div class="faq-quick-card">
-          <h5>📜 Y a-t-il des certifications ?</h5>
+          <h5><i class="fas fa-certificate me-2" style="color:#1EA38B"></i>Y a-t-il des certifications ?</h5>
           <p>Oui, nous délivrons des certifications reconnues à la fin de chaque parcours de formation.</p>
         </div>
       </div>
@@ -418,14 +418,15 @@
 }
 
 .contact-icon {
-  font-size: 2.5rem;
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1EA38B, #27B371);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gradient);
-  border-radius: 50%;
+  font-size: 1.3rem;
+  color: white;
   flex-shrink: 0;
 }
 

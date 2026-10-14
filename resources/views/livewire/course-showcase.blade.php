@@ -210,11 +210,27 @@
         </div>
     </div>
 
-    <div wire:loading.delay.long class="text-center my-4">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Chargement...</span>
+    {{-- Skeleton loader : remplace le spinner pendant le rechargement Livewire --}}
+    <div wire:loading.delay.long class="row g-4 mb-4">
+        @for($sk = 0; $sk < 4; $sk++)
+        <div class="col-12 col-sm-6 col-lg-3 d-flex">
+            <div class="skeleton-card w-100">
+                <div class="sk sk-image"></div>
+                <div class="sk-body">
+                    <div class="sk sk-title"></div>
+                    <div class="sk sk-line" style="width:80%"></div>
+                    <div class="sk-row">
+                        <div class="sk sk-line" style="width:45%"></div>
+                    </div>
+                    <div class="sk-row">
+                        <div class="sk sk-line" style="width:30%"></div>
+                        <div class="sk sk-line" style="width:30%"></div>
+                    </div>
+                    <div class="sk sk-btn"></div>
+                </div>
+            </div>
         </div>
-        <p>Chargement des cours...</p>
+        @endfor
     </div>
 
     <div class="courses-container" wire:loading.remove>
@@ -235,9 +251,9 @@
                                 @endphp
                                 
                                 @if($isBestseller)
-                                    <span class="badge bg-warning text-dark position-absolute bottom-0 start-0 m-2 bestseller-badge">Meilleure vente</span>
+                                    <span class="badge position-absolute bottom-0 start-0 m-2 bestseller-badge" style="background:#FF8E2A;color:#fff;">Meilleure vente</span>
                                 @elseif($isNew)
-                                    <span class="badge bg-info text-white position-absolute bottom-0 start-0 m-2">Nouveau</span>
+                                    <span class="badge text-white position-absolute bottom-0 start-0 m-2" style="background:#1EA38B;">Nouveau</span>
                                 @endif
                             </div>
                             <div class="card-body d-flex flex-column p-3">

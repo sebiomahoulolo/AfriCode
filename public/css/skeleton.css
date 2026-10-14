@@ -1,0 +1,114 @@
+/* ════════════════════════════════════════════════════════
+   AfriCode — Global Skeleton Loader CSS
+   Inclus dans layouts/layout.blade.php et layouts/app.blade.php
+   ════════════════════════════════════════════════════════ */
+
+/* ── Animation shimmer ────────────────────────────────── */
+@keyframes sk-shimmer {
+  0%   { background-position: -900px 0; }
+  100% { background-position:  900px 0; }
+}
+
+/* ── Classe de base ───────────────────────────────────── */
+.sk {
+  background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
+  background-size: 900px 100%;
+  animation: sk-shimmer 1.4s infinite linear;
+  border-radius: 6px;
+  display: block;
+}
+
+/* ── Carte cours ──────────────────────────────────────── */
+.skeleton-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  height: 100%;
+}
+.sk-image  { height: 200px; border-radius: 0; }
+.sk-body   { padding: 1.5rem; display: flex; flex-direction: column; gap: .65rem; }
+.sk-title  { height: 16px; width: 100%; }
+.sk-line   { height: 12px; }
+.sk-line-sm{ height: 10px; }
+.sk-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+.sk-btn    { height: 40px; border-radius: 20px; margin-top: .4rem; }
+.sk-row    { display: flex; align-items: center; gap: .75rem; }
+
+/* ── Carte mentor / profil ────────────────────────────── */
+.skeleton-mentor-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  padding: 1.5rem;
+}
+.sk-avatar-lg {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  margin: 0 auto .75rem;
+}
+.sk-center { margin-left: auto; margin-right: auto; }
+.sk-badge  { height: 20px; border-radius: 10px; }
+.sk-stars  { height: 14px; width: 100px; border-radius: 6px; margin: .3rem auto; }
+
+/* ── Ligne de tableau ─────────────────────────────────── */
+.skeleton-table-row {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  gap: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+.sk-circle { border-radius: 50%; }
+.sk-cell   { flex: 1; height: 14px; }
+
+/* ── Ligne de classement ──────────────────────────────── */
+.skeleton-rank-row {
+  display: flex;
+  align-items: center;
+  padding: .75rem 1rem;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: .5rem;
+  border: 1px solid #f0f0f0;
+  gap: 1rem;
+}
+.sk-rank-num { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Carte achievement/badge ──────────────────────────── */
+.skeleton-achievement-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e9ecef;
+  padding: 1.25rem;
+  text-align: center;
+}
+.sk-icon { width: 48px; height: 48px; border-radius: 12px; margin: 0 auto .75rem; }
+
+/* ── Cartes stats ─────────────────────────────────────── */
+.skeleton-stat-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0,0,0,.05);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.sk-stat-icon { width: 52px; height: 52px; border-radius: 12px; flex-shrink: 0; }
+.sk-stat-body { flex: 1; display: flex; flex-direction: column; gap: .4rem; }
+
+/* ── Barre de progression ─────────────────────────────── */
+.sk-progress { height: 8px; border-radius: 4px; margin-top: .25rem; }
+
+/* ── Reveal animation pour pages server-rendered ──────── */
+@keyframes sk-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sk-reveal {
+  animation: sk-fade-in .35s ease both;
+}

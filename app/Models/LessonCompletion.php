@@ -13,11 +13,15 @@ class LessonCompletion extends Model
         'user_id',
         'lesson_id',
         'enrollment_id',
-        'completed_at'
+        'completed_at',
+        'watch_time_seconds',
+        'can_complete'
     ];
 
     protected $casts = [
-        'completed_at' => 'datetime'
+        'completed_at' => 'datetime',
+        'watch_time_seconds' => 'integer',
+        'can_complete' => 'boolean'
     ];
 
     public function user()
@@ -39,18 +43,33 @@ class LessonCompletion extends Model
     {
         parent::boot();
         
-        // When a lesson is marked as completed, update the enrollment progress
+        // When a lesson is marked as completed, update the enrollment progress 
         static::created(function ($completion) {
             if ($completion->enrollment) {
                 $completion->enrollment->updateProgress();
             }
         });
-        
-        // When a lesson completion is deleted, update the enrollment progress
+
+        // When a lesson completion is updated, update the enrollment progress
+        static::updated(function ($completion) {
+            if ($completion->enrollment) {
+                $completion->enrollment->updateProgress();
+            }
+        });
+
+        // When a lesson completion is deleted, update the enrollment progress  
         static::deleted(function ($completion) {
             if ($completion->enrollment) {
                 $completion->enrollment->updateProgress();
             }
         });
+    }
+    
+    /**
+     * Vérifier si la leçon est vraiment complétée (avec completed_at)
+     */
+    public function isActuallyCompleted()
+    {
+        return $this->completed_at !== null;
     }
 }

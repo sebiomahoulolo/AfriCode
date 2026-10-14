@@ -11,7 +11,7 @@
                                    type="search" 
                                    placeholder="Rechercher une formation..." 
                                    aria-label="Recherche">
-                            <button class="btn btn-primary btn-lg px-4" type="button">
+                            <button class="btn btn-lg px-4 text-white" type="button" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
@@ -306,19 +306,19 @@
                         <h5 class="mb-0">
                             <span class="text-muted">Résultats pour:</span> 
                             @if(!empty($search))
-                                <span class="badge bg-primary me-2">"{{ $search }}"</span>
+                                <span class="badge me-2" style="background:#1EA38B;">"{{ $search }}"</span>
                             @endif
                             @if($selectedCategory)
                                 <span class="badge bg-secondary me-2">{{ $categories->firstWhere('id', $selectedCategory)->name }}</span>
                             @endif
                             @if($level !== 'all')
-                                <span class="badge bg-info text-dark me-2">
+                                <span class="badge text-white me-2" style="background:#1EA38B;">
                                     {{ $level === 'beginner' ? 'Débutant' : 
                                       ($level === 'intermediate' ? 'Intermédiaire' : 'Avancé') }}
                                 </span>
                             @endif
                             @if($priceRange !== 'all')
-                                <span class="badge bg-success me-2">
+                                <span class="badge me-2" style="background:#27B371;">
                                     {{ $priceRange === 'free' ? 'Gratuit' : 'Payant' }}
                                 </span>
                             @endif
@@ -331,12 +331,29 @@
                 </p>
             </div>
 
-            <!-- Indicateur de chargement -->
-            <div wire:loading.delay.long class="text-center py-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Chargement...</span>
+            {{-- Skeleton loader pour la recherche/filtrage Livewire --}}
+            <div wire:loading.delay.long class="row g-4">
+                @for($sk = 0; $sk < 8; $sk++)
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex">
+                    <div class="skeleton-card w-100">
+                        <div class="sk sk-image"></div>
+                        <div class="sk-body">
+                            <div class="sk sk-line" style="width:55%"></div>
+                            <div class="sk sk-title"></div>
+                            <div class="sk sk-title" style="width:72%"></div>
+                            <div class="sk-row">
+                                <div class="sk sk-avatar"></div>
+                                <div class="sk sk-line" style="flex:1"></div>
+                            </div>
+                            <div class="sk-row" style="padding-top:.5rem; border-top:1px solid #f0f0f0;">
+                                <div class="sk sk-line" style="width:28%"></div>
+                                <div class="sk sk-line" style="width:32%"></div>
+                            </div>
+                            <div class="sk sk-btn"></div>
+                        </div>
+                    </div>
                 </div>
-                <p class="mt-2">Chargement des formations...</p>
+                @endfor
             </div>
 
             <!-- Liste des cours -->
@@ -356,9 +373,9 @@
                                         $isNew = $course->created_at && $course->created_at->diffInDays(now()) < 30; // Cours de moins de 30 jours
                                     @endphp
                                     @if($isBestseller)
-                                        <span class="badge bg-warning text-dark position-absolute bottom-0 start-0 m-2 bestseller-badge">Meilleure vente</span>
+                                        <span class="badge position-absolute bottom-0 start-0 m-2 bestseller-badge" style="background:#FF8E2A;color:#fff;">Meilleure vente</span>
                                     @elseif($isNew)
-                                        <span class="badge bg-info text-white position-absolute bottom-0 start-0 m-2">Nouveau</span>
+                                        <span class="badge text-white position-absolute bottom-0 start-0 m-2" style="background:#1EA38B;">Nouveau</span>
                                     @endif
                                     
                                     @if($course->level)
@@ -374,7 +391,7 @@
                                     @endif
                                 </div>
                                 <div class="card-body d-flex flex-column p-3">
-                                    <div class="small mb-2 text-primary">{{ $course->category?->name ?? 'Sans catégorie' }}</div>
+                                    <div class="small mb-2" style="color:#1EA38B;">{{ $course->category?->name ?? 'Sans catégorie' }}</div>
                                     
                                     <h5 class="card-title fw-bold ud-text-md mb-1 course-title-ellipsis">
                                         {{ $course->title ?: 'Titre du cours indisponible' }}
@@ -437,7 +454,7 @@
                         </div>
                         <h4 class="mb-3">Aucune formation trouvée</h4>
                         <p class="text-muted">Essayez de modifier vos filtres ou votre recherche.</p>
-                        <button wire:click="resetFilters" class="btn btn-primary mt-3">
+                        <button wire:click="resetFilters" class="btn text-white mt-3" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                             <i class="fas fa-sync-alt me-2"></i> Réinitialiser tous les filtres
                         </button>
                     </div>

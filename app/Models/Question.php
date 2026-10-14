@@ -13,15 +13,15 @@ class Question extends Model
 
     protected $fillable = [
         'quiz_id',
-        'question',
+        'text',
         'type',
         'points',
-        'required'
+        'order',
     ];
 
     protected $casts = [
         'points' => 'integer',
-        'required' => 'boolean'
+        'order' => 'integer'
     ];
 
     public function quiz(): BelongsTo
@@ -31,7 +31,7 @@ class Question extends Model
 
     public function options(): HasMany
     {
-        return $this->hasMany(QuestionOption::class);
+        return $this->hasMany(Answer::class);
     }
 
     public function answers(): HasMany

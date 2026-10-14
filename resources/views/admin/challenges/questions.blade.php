@@ -161,6 +161,15 @@ addAnotherBtn.addEventListener('click', function() {
 
 <style>
 /* Styles spécifiques pour la page QCM */
+.admin-button-primary {
+    background: linear-gradient(135deg,#1EA38B,#27B371) !important;
+    color: #fff !important;
+}
+.admin-button-primary:hover {
+    background: linear-gradient(135deg,#0d7a63,#1EA38B) !important;
+    color: #fff !important;
+}
+
 .admin-options-list {
     margin-bottom: 15px;
 }

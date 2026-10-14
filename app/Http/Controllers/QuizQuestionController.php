@@ -30,7 +30,7 @@ class QuizQuestionController extends Controller
 
         $request->validate([
             'question_text' => 'required|string|max:1000',
-            'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'type' => 'required|in:multiple_choice,true_false,open_text,short_answer,essay',
             'points' => 'required|integer|min:1',
             'options' => 'required_if:type,multiple_choice|array',
             'options.*' => 'required_if:type,multiple_choice|string|max:255',
@@ -40,11 +40,13 @@ class QuizQuestionController extends Controller
         try {
             DB::beginTransaction();
 
+            // Harmoniser les types avec l'énum de la base (open_text au lieu de short_answer/essay)
+            $normalizedType = in_array($request->type, ['short_answer', 'essay']) ? 'open_text' : $request->type;
+
             $question = $quiz->questions()->create([
-                'question_text' => $request->question_text,
-                'type' => $request->type,
+                'text' => $request->question_text,
+                'type' => $normalizedType,
                 'points' => $request->points,
-                'correct_answer' => $request->type === 'true_false' ? $request->correct_option : null,
             ]);
 
             if ($request->type === 'multiple_choice') {
@@ -78,7 +80,7 @@ class QuizQuestionController extends Controller
 
         $request->validate([
             'question_text' => 'required|string|max:1000',
-            'type' => 'required|in:multiple_choice,true_false,short_answer,essay',
+            'type' => 'required|in:multiple_choice,true_false,open_text,short_answer,essay',
             'points' => 'required|integer|min:1',
             'options' => 'required_if:type,multiple_choice|array',
             'options.*' => 'required_if:type,multiple_choice|string|max:255',
@@ -88,11 +90,12 @@ class QuizQuestionController extends Controller
         try {
             DB::beginTransaction();
 
+            $normalizedType = in_array($request->type, ['short_answer', 'essay']) ? 'open_text' : $request->type;
+
             $question->update([
-                'question_text' => $request->question_text,
-                'type' => $request->type,
+                'text' => $request->question_text,
+                'type' => $normalizedType,
                 'points' => $request->points,
-                'correct_answer' => $request->type === 'true_false' ? $request->correct_option : null,
             ]);
 
             if ($request->type === 'multiple_choice') {

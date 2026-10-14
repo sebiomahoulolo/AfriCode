@@ -9,6 +9,7 @@ export default defineConfig({
                 'resources/css/formateur.css',
                 'resources/css/admin.css',
                 'resources/css/homepage.css',
+                'resources/css/mentorship.css',
                 'resources/js/app.js',
                 'resources/js/components/formateur.js',
                 'resources/js/components/admin.js',

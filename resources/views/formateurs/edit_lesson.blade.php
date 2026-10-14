@@ -1,9 +1,17 @@
 @extends('formateurs.layouts.app')
 
-@section('title', __('messages.edit_lesson_title'))
+@section('title', 'AfriCode - Modifier une leçon')
+@section('page-title', 'Modifier la leçon')
+@section('page-subtitle', 'Module: ' . $lesson->module->title)
 
-@section('page-heading', __('messages.edit_lesson'))
-@section('page-subheading', __('messages.module_for', ['module' => $lesson->module->title]))
+@section('header-actions')
+    <a href="{{ route('formateur.manage.module', ['moduleId' => $lesson->module_id]) }}" class="btn btn-outline-secondary me-2">
+        <i class="fas fa-arrow-left me-2"></i>Retour au module
+    </a>
+    <button type="submit" form="edit-lesson-form" class="btn-primary-africode">
+        <i class="fas fa-save me-2"></i>Mettre à jour la leçon
+    </button>
+@endsection
 
 @section('styles')
 <style>
@@ -38,13 +46,162 @@
     .ck-editor__editable {
         min-height: 300px;
     }
+    
+    /* Responsive amélioré */
+    @media (max-width: 992px) {
+        .content-type-card i {
+            font-size: 1.75rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 250px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .content-type-card {
+            margin-bottom: 1rem;
+        }
+        
+        .content-type-card:hover {
+            transform: none;
+        }
+        
+        .content-type-card i {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .content-type-card h6 {
+            font-size: 0.9rem;
+        }
+        
+        .content-type-card p {
+            font-size: 0.8rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 200px;
+        }
+        
+        .form-label {
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            font-size: 0.9rem;
+        }
+        
+        .form-text {
+            font-size: 0.75rem;
+        }
+        
+        .btn {
+            font-size: 0.875rem;
+            padding: 0.625rem 1rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .content-type-card {
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .content-type-card i {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-type-card h6 {
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-type-card p {
+            font-size: 0.75rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 150px;
+        }
+        
+        .form-label {
+            font-size: 0.85rem;
+            margin-bottom: 0.375rem;
+        }
+        
+        .form-control {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .form-text {
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+        
+        .btn {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+        }
+        
+        .card-body {
+            padding: 0.75rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Amélioration des sélecteurs de type de contenu */
+        .row .col-md-4 {
+            margin-bottom: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .content-type-card {
+            padding: 0.75rem;
+        }
+        
+        .content-type-card i {
+            font-size: 1rem;
+        }
+        
+        .ck-editor__editable {
+            min-height: 120px;
+        }
+        
+        .form-control {
+            font-size: 0.8rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .btn {
+            font-size: 0.75rem;
+            padding: 0.45rem 0.65rem;
+        }
+        
+        .card-body {
+            padding: 0.5rem;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-body">
-            <form method="POST" action="{{ route('formateur.lessons.update', ['lessonId' => $lesson->id]) }}" enctype="multipart/form-data">
+    <div class="card-modern" data-aos="fade-up">
+        <div class="card-body-modern">
+            <form id="edit-lesson-form" method="POST" action="{{ route('formateur.lessons.update', ['lessonId' => $lesson->id]) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 
@@ -63,7 +220,7 @@
                         <div class="col-md-3 mb-3">
                             <div class="content-type-card card text-center p-3 {{ old('content_type', $lesson->content_type) == 'video' ? 'selected' : '' }}" data-type="video">
                                 <div>
-                                    <i class="fas fa-video text-primary"></i>
+                                    <i class="fas fa-video" style="color:#1EA38B;"></i>
                                     <h6 class="mt-2">Vidéo</h6>
                                     <p class="text-muted small mb-0">Lien YouTube, Vimeo, etc.</p>
                                 </div>
@@ -136,8 +293,8 @@
                         <label for="pdf_file" class="form-label">Fichier PDF</label>
                         @if($lesson->pdf_path)
                             <div class="mb-2">
-                                <span class="badge bg-success">Fichier PDF actuel : {{ basename($lesson->pdf_path) }}</span>
-                                <a href="{{ asset($lesson->pdf_path) }}" target="_blank" class="btn btn-sm btn-info ms-2">
+                                <span class="badge text-white" style="background:#27B371;">Fichier PDF actuel : {{ basename($lesson->pdf_path) }}</span>
+                                <a href="{{ asset($lesson->pdf_path) }}" target="_blank" class="btn btn-sm text-white ms-2" style="background:linear-gradient(135deg,#1EA38B,#0d7a63);border:none;">
                                     <i class="fas fa-eye"></i> Voir
                                 </a>
                             </div>
@@ -189,12 +346,11 @@
                 </div>
                 
                 <div class="d-flex justify-content-between mt-4">
-                    <div>
-                        <a href="{{ route('formateur.manage.module', ['moduleId' => $lesson->module_id]) }}" class="btn btn-outline-secondary me-2">Annuler</a>
-                        <button type="submit" class="btn btn-primary">Mettre à jour la leçon</button>
-                    </div>
+                    <a href="{{ route('formateur.manage.module', ['moduleId' => $lesson->module_id]) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Annuler
+                    </a>
                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteLessonModal">
-                        <i class="fas fa-trash-alt"></i> Supprimer la leçon
+                        <i class="fas fa-trash-alt me-2"></i>Supprimer la leçon
                     </button>
                 </div>
             </form>
@@ -279,17 +435,101 @@
                 if (contentType === 'text') {
                     const textContentElement = document.querySelector('#text_content');
                     if (textContentElement && !textEditorInstance) {
+                        // Resolve CSRF token robustly (meta tag, hidden input, or backend fallback)
+                        const csrfToken = (function() {
+                            const meta = document.querySelector('meta[name="csrf-token"]');
+                            if (meta) return meta.getAttribute('content');
+                            const input = document.querySelector('input[name="_token"]');
+                            if (input) return input.value;
+                            return '{{ csrf_token() }}';
+                        })();
+
+                        // Custom upload adapter for CKEditor 5
+                        class LaravelUploadAdapter {
+                            constructor(loader) {
+                                this.loader = loader;
+                                this.xhr = null;
+                            }
+                            upload() {
+                                return this.loader.file.then(file => new Promise((resolve, reject) => {
+                                    this._initRequest();
+                                    this._initListeners(resolve, reject, file);
+                                    this._sendFile(file);
+                                }));
+                            }
+                            abort() {
+                                if (this.xhr) {
+                                    this.xhr.abort();
+                                }
+                            }
+                            _initRequest() {
+                                const xhr = this.xhr = new XMLHttpRequest();
+                                xhr.open('POST', '{{ route('formateur.upload.image') }}', true);
+                                xhr.responseType = 'json';
+                                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                                if (csrfToken) {
+                                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                                }
+                            }
+                            _initListeners(resolve, reject, file) {
+                                const xhr = this.xhr;
+                                const genericErrorText = `Impossible de téléverser le fichier: ${file.name}.`;
+                                xhr.addEventListener('error', () => reject(genericErrorText));
+                                xhr.addEventListener('abort', () => reject());
+                                xhr.addEventListener('load', () => {
+                                    const response = xhr.response || {};
+                                    if (!response || xhr.status < 200 || xhr.status >= 300) {
+                                        return reject((response && response.error) ? response.error : genericErrorText);
+                                    }
+                                    // CKEditor expects an object with a 'default' url
+                                    resolve({ default: response.url || response.location });
+                                });
+                                if (xhr.upload) {
+                                    xhr.upload.addEventListener('progress', evt => {
+                                        if (evt.lengthComputable) {
+                                            this.loader.uploadTotal = evt.total;
+                                            this.loader.uploaded = evt.loaded;
+                                        }
+                                    });
+                                }
+                            }
+                            _sendFile(file) {
+                                const data = new FormData();
+                                // Support CKEditor 5 field name 'upload'
+                                data.append('upload', file);
+                                this.xhr.send(data);
+                            }
+                        }
+
+                        function LaravelUploadAdapterPlugin(editor) {
+                            editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                                return new LaravelUploadAdapter(loader);
+                            };
+                        }
+
                         ClassicEditor
-                            .create(textContentElement)
+                            .create(textContentElement, {
+                                extraPlugins: [ LaravelUploadAdapterPlugin ],
+                                removePlugins: [ 'MediaEmbedToolbar' ]
+                            })
                             .then(editor => {
                                 textEditorInstance = editor;
-                                console.log('CKEditor initialisé pour #text_content');
                             })
                             .catch(error => {
                                 console.error('Erreur CKEditor pour #text_content:', error);
-                                textEditorInstance = null;
+                                textEditorInstance = null; 
                             });
                     }
+                } else {
+                    // If switching away from text, and you prefer to destroy the editor:
+                    // if (textEditorInstance) {
+                    //     textEditorInstance.destroy()
+                    //         .then(() => {
+                    //             textEditorInstance = null;
+                    //             console.log('CKEditor instance destroyed.');
+                    //         })
+                    //         .catch(error => console.error('Error destroying CKEditor:', error));
+                    // }
                 }
             } else {
                 console.warn(`Section non trouvée pour le type de contenu: ${contentType}-section`);

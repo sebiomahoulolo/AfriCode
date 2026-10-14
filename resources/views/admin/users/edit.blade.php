@@ -49,13 +49,25 @@
             <div class="admin-form-grid">
                 <div class="admin-form-group">
                     <label for="password" class="admin-form-label">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
-                    <input type="password" class="admin-form-input @error('password') error @enderror" id="password" name="password">
+                    <div style="position:relative;">
+                        <input type="password" class="admin-form-input @error('password') error @enderror" id="password" name="password" style="padding-right:2.8rem;">
+                        <button type="button" tabindex="-1" onclick="togglePwd('password','eye_pwd_edit')"
+                                style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                            <i class="fas fa-eye" id="eye_pwd_edit"></i>
+                        </button>
+                    </div>
                     @error('password') <span class="admin-form-error">{{ $message }}</span> @enderror
                 </div>
                 
                 <div class="admin-form-group">
                     <label for="password_confirmation" class="admin-form-label">Confirmer le mot de passe</label>
-                    <input type="password" class="admin-form-input" id="password_confirmation" name="password_confirmation">
+                    <div style="position:relative;">
+                        <input type="password" class="admin-form-input" id="password_confirmation" name="password_confirmation" style="padding-right:2.8rem;">
+                        <button type="button" tabindex="-1" onclick="togglePwd('password_confirmation','eye_pwdc_edit')"
+                                style="position:absolute;top:50%;right:0.75rem;transform:translateY(-50%);background:none;border:none;padding:0;line-height:1;color:#6c757d;cursor:pointer;">
+                            <i class="fas fa-eye" id="eye_pwdc_edit"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -123,6 +135,16 @@
         </form>
     </div>
 </div>
+@push('scripts')
+<script>
+function togglePwd(inputId, eyeId) {
+    const input = document.getElementById(inputId);
+    const eye   = document.getElementById(eyeId);
+    if (input.type === 'password') { input.type = 'text'; eye.classList.replace('fa-eye','fa-eye-slash'); }
+    else { input.type = 'password'; eye.classList.replace('fa-eye-slash','fa-eye'); }
+}
+</script>
+@endpush
 @endsection
                     </div>
                 </div>
@@ -186,7 +208,7 @@
                 <hr>
 
                 <div class="d-flex">
-                    <button type="submit" class="btn btn-primary me-2">
+                    <button type="submit" class="btn text-white me-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
                     </button>
                     <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Annuler</a>

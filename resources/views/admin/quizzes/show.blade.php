@@ -18,7 +18,7 @@
                                 <i class="fas fa-arrow-left me-1"></i> Retour au cours
                             </a>
                         @endif
-                        <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="btn btn-primary">
+                        <a href="{{ route('admin.quizzes.edit', $quiz->id) }}" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                             <i class="fas fa-edit me-1"></i> Modifier
                         </a>
                     </div>
@@ -40,12 +40,12 @@
                             <h6 class="text-muted">Paramètres</h6>
                             <div class="mb-3">
                                 <strong>Score minimum pour réussir :</strong> 
-                                <span class="badge bg-info">{{ $quiz->passing_score }}%</span>
+                                <span class="badge" style="background:#1EA38B;">{{ $quiz->passing_score }}%</span>
                             </div>
                             <div class="mb-3">
                                 <strong>Temps limite :</strong> 
                                 @if($quiz->time_limit_minutes)
-                                    <span class="badge bg-warning">{{ $quiz->time_limit_minutes }} minutes</span>
+                                    <span class="badge" style="background:#FF8E2A;">{{ $quiz->time_limit_minutes }} minutes</span>
                                 @else
                                     <span class="text-muted">Aucune limite</span>
                                 @endif
@@ -55,7 +55,7 @@
                                 @if($quiz->is_required ?? false)
                                     <span class="badge bg-danger">Obligatoire</span>
                                 @else
-                                    <span class="badge bg-success">Optionnel</span>
+                                    <span class="badge" style="background:#27B371;">Optionnel</span>
                                 @endif
                             </div>
                         </div>
@@ -66,7 +66,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="text-muted">Questions ({{ $quiz->questions->count() }})</h6>
                                 @if($quiz->questions->count() > 0)
-                                    <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;">
                                         <i class="fas fa-plus me-1"></i> Ajouter une question
                                     </a>
                                 @endif
@@ -80,7 +80,7 @@
                                             <span class="badge bg-light text-dark ms-2">{{ $question->points ?? 1 }} point(s)</span>
                                         </h6>
                                         <div>
-                                            <a href="{{ route('admin.questions.edit', $question->id) }}" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{ route('admin.questions.edit', $question->id) }}" class="btn btn-sm" style="color:#1EA38B;border:1px solid #1EA38B;">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form action="{{ route('admin.questions.destroy', $question->id) }}" method="POST" 
@@ -103,7 +103,7 @@
                                                     <div class="list-group-item d-flex justify-content-between align-items-center {{ $answer->is_correct ? 'border-success' : '' }}">
                                                         <span>{{ $answer->text }}</span>
                                                         @if($answer->is_correct)
-                                                            <span class="badge bg-success">Correct</span>
+                                                            <span class="badge" style="background:#27B371;">Correct</span>
                                                         @endif
                                                     </div>
                                                 @endforeach
@@ -116,7 +116,7 @@
                                     <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
                                     <h6 class="text-muted">Aucune question n'a été ajoutée</h6>
                                     <p class="text-muted">Commencez par ajouter des questions à ce quiz.</p>
-                                    <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn btn-primary">
+                                    <a href="{{ route('admin.quiz.questions.create', $quiz->id) }}" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                         <i class="fas fa-plus me-1"></i> Ajouter la première question
                                     </a>
                                 </div>

@@ -46,14 +46,20 @@ class CategorySeeder extends Seeder
                 'name' => 'Data Science',
                 'description' => 'Analysez et visualisez des données complexes pour en extraire des informations précieuses.',
             ],
+            [
+                'name' => 'Marketing',
+                'description' => 'Apprenez les stratégies de marketing digital, le marketing sur les réseaux sociaux, le SEO, le marketing de contenu et bien plus.',
+            ],
         ];
 
         foreach ($categories as $category) {
-            Category::create([
-                'name' => $category['name'],
-                'slug' => Str::slug($category['name']),
-                'description' => $category['description'],
-            ]);
+            Category::firstOrCreate(
+                ['name' => $category['name']],
+                [
+                    'slug' => Str::slug($category['name']),
+                    'description' => $category['description'],
+                ]
+            );
         }
     }
 }

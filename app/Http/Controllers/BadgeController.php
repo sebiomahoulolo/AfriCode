@@ -27,8 +27,8 @@ class BadgeController extends Controller
         $userBadges = auth()->user()->badges()
             ->withPivot('earned_at')
             ->get();
-
-        return view('badges.index', compact('badges', 'userBadges'));
+    $totalPoints = $userBadges->sum('points_reward');
+        return view('badges.index', compact('badges', 'userBadges', 'totalPoints'));
     }
 
     /**

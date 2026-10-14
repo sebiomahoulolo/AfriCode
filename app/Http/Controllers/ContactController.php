@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Services\ContactMailService;
 
 class ContactController extends Controller
 {
-    private $mailService;
+    private ContactMailService $mailService;
 
     public function __construct(ContactMailService $mailService)
     {
@@ -18,23 +19,32 @@ class ContactController extends Controller
     {
         // Validation des données du formulaire
         $request->validate([
-            'firstName' => 'required|string|max:255',
-            'lastName' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|max:2000',
-            'newsletter' => 'nullable|boolean'
+            'firstName'  => 'required|string|max:255',
+            'lastName'   => 'required|string|max:255',
+            'email'      => 'required|email|max:255',
+            'subject'    => 'required|string|max:255',
+            'message'    => 'required|string|max:2000',
+            'newsletter' => 'nullable|boolean',
+            'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,gif,webp|max:5120',
         ]);
 
         try {
             // Préparer les données de contact
             $contactData = [
                 'firstName' => $request->firstName,
-                'lastName' => $request->lastName,
-                'email' => $request->email,
-                'subject' => $request->subject,
-                'message' => $request->message
+                'lastName'  => $request->lastName,
+                'email'     => $request->email,
+                'subject'   => $request->subject,
+                'message'   => $request->message,
             ];
+
+            // Gérer la pièce jointe si présente
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $contactData['attachmentData'] = base64_encode(file_get_contents($file->getRealPath()));
+                $contactData['attachmentName'] = $file->getClientOriginalName();
+                $contactData['attachmentMime'] = $file->getMimeType();
+            }
 
             // Envoyer l'email de contact
             $emailSent = $this->mailService->sendContactEmail($contactData);
@@ -61,7 +71,7 @@ class ContactController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Erreur formulaire contact: ' . $e->getMessage());
+            Log::error('Erreur formulaire contact: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,

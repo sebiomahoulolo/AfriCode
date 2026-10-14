@@ -13,12 +13,16 @@ use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Models\Rating;
 use App\Models\User;
+use App\Models\FormateurEarning;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreQuizRequest;
+use App\Http\Requests\UpdateQuizRequest;
 
 class FormateurController extends Controller
 {
@@ -41,72 +45,206 @@ class FormateurController extends Controller
     {
         $user = Auth::user();
         
-        // Récupérer les cours créés par le formateur
-        $courses = Course::where('formateur_id', $user->id)
-            ->withCount('students')
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-        // Calculer les revenus totaux (si applicable)
-        $totalRevenue = Payment::where('payable_type', \App\Models\Course::class)
-            ->whereIn('payable_id', $courses->pluck('id'))
-            ->where('status', 'succeeded')
-            ->sum('amount');
-            
-        // Récupérer le nombre total d'inscriptions aux cours du formateur
-        $totalEnrollments = Enrollment::whereIn('course_id', $courses->pluck('id'))->count();
-        
-        // Récupérer la note moyenne des cours du formateur
-        $averageRating = Rating::whereIn('course_id', $courses->pluck('id'))->avg('rating') ?? 0;
-        
-        // Récupérer les activités récentes liées aux cours du formateur
+        // Initialiser les variables avec des valeurs par défaut
+        $courses = collect();
+        $totalRevenue = 0;
+        $totalEnrollments = 0;
+        $averageRating = 0;
         $recentActivities = collect();
         
-        // Récupérer les inscriptions récentes
-        $recentEnrollments = Enrollment::whereIn('course_id', $courses->pluck('id'))
-            ->with(['user', 'course'])
-            ->orderBy('enrolled_at', 'desc')
-            ->take(5)
-            ->get();
+        try {
+            // Vérifier que l'utilisateur est bien un formateur
+            if (!$user || $user->role !== 'formateur') {
+                \Log::warning('Tentative d\'accès au dashboard formateur par un utilisateur non-formateur: ' . ($user ? $user->id : 'null'));
+                return redirect()->route('dashboard')->with('error', 'Accès non autorisé.');
+            }
             
-        foreach ($recentEnrollments as $enrollment) {
-            $recentActivities->push([
-                'type' => 'enrollment',
-                'user' => $enrollment->user,
-                'course' => $enrollment->course,
-                'date' => $enrollment->enrolled_at,
-                'message' => 'Nouvel étudiant inscrit à '
-            ]);
-        }
-        
-        // Récupérer les notes récentes
-        $recentRatings = Rating::whereIn('course_id', $courses->pluck('id'))
-            ->with(['user', 'course'])
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get();
+            // Vérifier si le profil est complet
+            $isProfileComplete = $this->checkProfileCompletion($user);
+            $missingFields = $this->getMissingProfileFields($user);
             
-        foreach ($recentRatings as $rating) {
-            $recentActivities->push([
-                'type' => 'rating',
-                'user' => $rating->user,
-                'course' => $rating->course,
-                'rating' => $rating->rating,
-                'date' => $rating->created_at,
-                'message' => 'Nouvelle évaluation ' . $rating->rating . ' étoiles pour '
+            // Récupérer les cours créés par le formateur
+            $courses = Course::where('formateur_id', $user->id)
+                ->withCount('students')
+                ->with(['modules', 'category'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Récupérer les cours avec des messages de validation (corrections, rejets, ou en attente)
+            // Exclure les cours déjà validés et publiés
+            $coursesWithMessages = $courses->filter(function($course) {
+                // Exclure les cours déjà validés et publiés
+                if ($course->validation_status === 'approved' && $course->status === 'published') {
+                    return false;
+                }
+                
+                // Inclure seulement les cours qui nécessitent une action
+                return ($course->validation_status === 'needs_revision' && $course->revision_notes) ||
+                       ($course->validation_status === 'rejected') ||
+                       ($course->validation_status === 'pending_validation');
+            });
+            
+            // Calculer les revenus totaux (si applicable)
+            if ($courses->isNotEmpty()) {
+                $courseIds = $courses->pluck('id');
+                
+                // Méthode 1 : Depuis les paiements directs (77% du montant total)
+                $earningsFromPayments = Payment::where('payable_type', \App\Models\Course::class)
+                    ->whereIn('payable_id', $courseIds)
+                    ->where('status', 'succeeded')
+                    ->sum('amount');
+                // Calculer 77% pour le formateur
+                $formateurShareFromPayments = $earningsFromPayments * 0.77;
+                
+                // Méthode 2 : Depuis formateur_earnings (si disponible)
+                $earningsFromFormateurEarnings = FormateurEarning::where('formateur_id', $user->id)
+                    ->whereIn('course_id', $courseIds)
+                    ->where('payment_status', 'paid')
+                    ->sum('total_earnings');
+                
+                // Utiliser la méthode qui donne le meilleur résultat
+                $totalRevenue = max($formateurShareFromPayments, $earningsFromFormateurEarnings);
+                
+                // Si aucune méthode ne fonctionne, utiliser la valeur stockée dans le profil
+                if ($totalRevenue == 0) {
+                    $totalRevenue = $user->total_earnings ?? 0;
+                }
+                    
+                // Récupérer le nombre total d'inscriptions aux cours du formateur
+                $totalEnrollments = Enrollment::whereIn('course_id', $courses->pluck('id'))->count();
+                
+                // Récupérer la note moyenne des cours du formateur
+                $averageRating = Rating::whereIn('course_id', $courses->pluck('id'))->avg('rating') ?? 0;
+                
+                // Récupérer les activités récentes liées aux cours du formateur
+                $recentActivities = collect();
+                
+                // Récupérer les inscriptions récentes
+                $recentEnrollments = Enrollment::whereIn('course_id', $courses->pluck('id'))
+                    ->with(['user', 'course'])
+                    ->orderBy('enrolled_at', 'desc')
+                    ->take(5)
+                    ->get();
+                    
+                foreach ($recentEnrollments as $enrollment) {
+                    $recentActivities->push([
+                        'type' => 'enrollment',
+                        'user' => $enrollment->user,
+                        'course' => $enrollment->course,
+                        'date' => $enrollment->enrolled_at,
+                        'message' => 'Nouvel étudiant inscrit à '
+                    ]);
+                }
+                
+                // Récupérer les notes récentes
+                $recentRatings = Rating::whereIn('course_id', $courses->pluck('id'))
+                    ->with(['user', 'course'])
+                    ->orderBy('created_at', 'desc')
+                    ->take(5)
+                    ->get();
+                    
+                foreach ($recentRatings as $rating) {
+                    $recentActivities->push([
+                        'type' => 'rating',
+                        'user' => $rating->user,
+                        'course' => $rating->course,
+                        'rating' => $rating->rating,
+                        'date' => $rating->created_at,
+                        'message' => 'Nouvelle évaluation ' . $rating->rating . ' étoiles pour '
+                    ]);
+                }
+                
+                // Trier toutes les activités par date
+                $recentActivities = $recentActivities->sortByDesc('date')->take(5);
+            }
+            
+            return view('formateurs.dashboard', compact(
+                'courses', 
+                'totalRevenue', 
+                'totalEnrollments', 
+                'averageRating', 
+                'recentActivities',
+                'coursesWithMessages',
+                'isProfileComplete',
+                'missingFields'
+            ));
+            
+        } catch (\Exception $e) {
+            // Log l'erreur avec plus de détails
+            \Log::error('Erreur dans FormateurController::index: ' . $e->getMessage(), [
+                'user_id' => $user ? $user->id : 'null',
+                'user_role' => $user ? $user->role : 'null',
+                'trace' => $e->getTraceAsString()
             ]);
+            
+            // Retourner la vue avec des données par défaut et un message d'erreur
+            $coursesWithMessages = collect();
+            $isProfileComplete = false;
+            $missingFields = [];
+            return view('formateurs.dashboard', compact(
+                'courses', 
+                'totalRevenue', 
+                'totalEnrollments',
+                'coursesWithMessages', 
+                'averageRating', 
+                'recentActivities',
+                'isProfileComplete',
+                'missingFields'
+            ))->with('error', 'Erreur lors du chargement des données: ' . $e->getMessage());
         }
-        
-        // Trier toutes les activités par date
-        $recentActivities = $recentActivities->sortByDesc('date')->take(5);
-        
-        return view('formateurs.dashboard', compact(
-            'courses', 
-            'totalRevenue', 
-            'totalEnrollments', 
-            'averageRating', 
-            'recentActivities'
-        ));
+    }
+    
+    /**
+     * Vérifier si le profil du formateur est complet
+     */
+    private function checkProfileCompletion($user)
+    {
+        $requiredFields = [
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'bio',
+            'city',
+            'country',
+            'payment_method',
+            'payment_account'
+        ];
+
+        foreach ($requiredFields as $field) {
+            if (empty($user->$field)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    /**
+     * Obtenir la liste des champs manquants dans le profil
+     */
+    private function getMissingProfileFields($user)
+    {
+        $requiredFields = [
+            'first_name' => 'Prénom',
+            'last_name' => 'Nom',
+            'email' => 'Email',
+            'phone' => 'Téléphone',
+            'bio' => 'Biographie',
+            'city' => 'Ville',
+            'country' => 'Pays',
+            'payment_method' => 'Méthode de paiement',
+            'payment_account' => 'Compte de paiement'
+        ];
+
+        $missing = [];
+        foreach ($requiredFields as $field => $label) {
+            if (empty($user->$field)) {
+                $missing[] = $label;
+            }
+        }
+
+        return $missing;
     }
     
     /**
@@ -152,6 +290,17 @@ class FormateurController extends Controller
      */
     public function createCourse()
     {
+        $user = Auth::user();
+        
+        // Vérifier si le profil est complet
+        $isProfileComplete = $this->checkProfileCompletion($user);
+        
+        if (!$isProfileComplete) {
+            $missingFields = $this->getMissingProfileFields($user);
+            return redirect()->route('formateur.dashboard')
+                ->with('error', 'Veuillez compléter votre profil avant de créer un cours. Informations manquantes: ' . implode(', ', $missingFields));
+        }
+        
         $categories = Category::all();
         return view('formateurs.create_course', compact('categories'));
     }
@@ -164,19 +313,42 @@ class FormateurController extends Controller
      */
     public function storeCourse(Request $request)
     {
+        $user = Auth::user();
+        
+        // Vérifier si le profil est complet
+        $isProfileComplete = $this->checkProfileCompletion($user);
+        
+        if (!$isProfileComplete) {
+            $missingFields = $this->getMissingProfileFields($user);
+            return redirect()->route('formateur.dashboard')
+                ->with('error', 'Veuillez compléter votre profil avant de créer un cours. Informations manquantes: ' . implode(', ', $missingFields));
+        }
+        
         $request->validate([
             'title' => 'required|string|max:255',
             'short_description' => 'required|string|max:500',
             'full_description' => 'required|string',
-            'level' => 'required|string|in:débutant,intermédiaire,avancé,expert',
+            'level' => 'required|string|in:debutant,intermediaire,avance,tous_niveaux',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
+            'cover_image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:2048',
+            ],
             'currency' => 'required|string|size:3',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_certifying' => 'nullable|boolean',
         ]);
         
-        $user = Auth::user();
+        // Validation supplémentaire du type MIME
+        if ($request->hasFile('cover_image')) {
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            $mimeType = $request->file('cover_image')->getMimeType();
+            if (!in_array($mimeType, $allowedMimes)) {
+                return back()->withErrors(['cover_image' => 'Type de fichier non autorisé. Formats acceptés: JPEG, PNG, GIF, WebP.'])->withInput();
+            }
+        }
         
         $slug = Str::slug($request->title);
         $uniqueSlug = $slug;
@@ -190,32 +362,43 @@ class FormateurController extends Controller
         // Gérer l'upload de l'image de couverture
         $coverImagePath = null;
         if ($request->hasFile('cover_image')) {
-            $image = $request->file('cover_image');
-            $imageName = time() . '_' . $uniqueSlug . '.' . $image->extension();
-            $image->move(public_path('storage/courses'), $imageName);
-            $coverImagePath = 'storage/courses/' . $imageName;
+            try {
+                $file = $request->file('cover_image');
+                $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+                
+                $coverImagePath = $file->storeAs('courses', $filename, 'public');
+            } catch (\Exception $e) {
+                return back()->withErrors(['cover_image' => 'Erreur lors de l\'upload de l\'image: ' . $e->getMessage()])->withInput();
+            }
         }
         
         // Créer le cours
-        $course = Course::create([
-            'title' => $request->title,
-            'slug' => $uniqueSlug,
-            'short_description' => $request->short_description,
-            'full_description' => $request->full_description,
-            'learning_objectives' => $request->learning_objectives ? json_decode($request->learning_objectives) : [],
-            'prerequisites' => $request->prerequisites ? json_decode($request->prerequisites) : [],
-            'level' => $request->level,
-            'price' => $request->price,
-            'currency' => $request->currency,
-            'cover_image_path' => $coverImagePath,
-            'status' => 'draft',
-            'formateur_id' => $user->id,
-            'category_id' => $request->category_id,
-            'is_certifying' => $request->has('is_certifying'),
-        ]);
-        
-        return redirect()->route('formateur.modules.create', ['courseId' => $course->id])
-            ->with('success', 'Le cours a été créé avec succès. Vous pouvez maintenant ajouter des modules.');
+        try {
+            $course = Course::create([
+                'title' => $request->title,
+                'slug' => $uniqueSlug,
+                'short_description' => $request->short_description,
+                'full_description' => $request->full_description,
+                'learning_objectives' => $request->learning_objectives ? json_decode($request->learning_objectives) : [],
+                'prerequisites' => $request->prerequisites ? json_decode($request->prerequisites) : [],
+                'level' => $request->level,
+                'price' => $request->price,
+                'currency' => $request->currency,
+                'cover_image_path' => $coverImagePath,
+                'status' => 'draft',
+                'formateur_id' => $user->id,
+                'category_id' => $request->category_id,
+                'is_certifying' => $request->has('is_certifying'),
+            ]);
+            
+            // Déclencher l'événement CourseCreated
+            event(new \App\Events\CourseCreated($course));
+            
+            return redirect()->route('formateur.modules.create', ['courseId' => $course->id])
+                ->with('success', 'Le cours a été créé avec succès. Vous pouvez maintenant ajouter des modules.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Erreur lors de la création du cours: ' . $e->getMessage()])->withInput();
+        }
     }
     
     /**
@@ -252,13 +435,28 @@ class FormateurController extends Controller
             'title' => 'required|string|max:255',
             'short_description' => 'required|string|max:500',
             'full_description' => 'required|string',
-            'level' => 'required|string|in:débutant,intermédiaire,avancé,expert',
+            'level' => 'required|string|in:debutant,intermediaire,avance,tous_niveaux',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'currency' => 'required|string|size:3',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:2048',
+                'dimensions:min_width=400,min_height=300,max_width=2000,max_height=1500'
+            ],
             'is_certifying' => 'nullable|boolean',
         ]);
+        
+        // Validation supplémentaire du type MIME
+        if ($request->hasFile('cover_image')) {
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            $mimeType = $request->file('cover_image')->getMimeType();
+            if (!in_array($mimeType, $allowedMimes)) {
+                return back()->withErrors(['cover_image' => 'Type de fichier non autorisé. Formats acceptés: JPEG, PNG, GIF, WebP.'])->withInput();
+            }
+        }
         
         $user = Auth::user();
         $course = Course::findOrFail($courseId);
@@ -285,14 +483,26 @@ class FormateurController extends Controller
         // Gérer l'upload de l'image de couverture
         if ($request->hasFile('cover_image')) {
             // Supprimer l'ancienne image si elle existe
-            if ($course->cover_image_path && file_exists(public_path($course->cover_image_path))) {
-                unlink(public_path($course->cover_image_path));
+            if ($course->cover_image_path) {
+                $oldPath = public_path($course->cover_image_path);
+                if (File::exists($oldPath)) {
+                    File::delete($oldPath);
+                }
             }
             
-            $image = $request->file('cover_image');
-            $imageName = time() . '_' . $course->slug . '.' . $image->extension();
-            $image->move(public_path('storage/courses'), $imageName);
-            $course->cover_image_path = 'storage/courses/' . $imageName;
+            // Sauvegarder la nouvelle image
+            $file = $request->file('cover_image');
+            $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            
+            // Créer le dossier s'il n'existe pas
+            $destinationPath = public_path('storage/courses');
+            if (!File::exists($destinationPath)) {
+                File::makeDirectory($destinationPath, 0755, true);
+            }
+            
+            // Déplacer le fichier vers public/storage/courses
+            $file->move($destinationPath, $filename);
+            $course->cover_image_path = 'storage/courses/' . $filename;
         }
         
         // Mettre à jour le cours
@@ -310,6 +520,85 @@ class FormateurController extends Controller
         
         return redirect()->route('formateur.manage.course', ['courseId' => $course->id])
             ->with('success', 'Le cours a été mis à jour avec succès.');
+    }
+    
+    /**
+     * Soumettre un cours pour validation
+     * 
+     * @param  int  $courseId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function submitForValidation($courseId)
+    {
+        $user = Auth::user();
+        $course = Course::with('modules.lessons')->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce cours');
+        }
+        
+        // Vérifier que le cours a au moins un module avec des leçons
+        if ($course->modules->isEmpty() || $course->modules->every(function($module) {
+            return $module->lessons->isEmpty();
+        })) {
+            return back()->with('error', 'Le cours doit contenir au moins un module avec des leçons avant d\'être soumis pour validation.');
+        }
+        
+        // Sauvegarder l'ancien statut pour le message
+        $previousStatus = $course->validation_status;
+        
+        // Vérifier l'onboarding seulement pour la première soumission (pas pour les resoumissions)
+        // Si le cours a déjà été soumis une fois (rejected, needs_revision, ou même draft avec submitted_for_validation_at),
+        // on considère que l'onboarding a été complété
+        $isResubmission = in_array($previousStatus, ['rejected', 'needs_revision']) || 
+                         ($course->submitted_for_validation_at !== null);
+        
+        if (!$isResubmission && !$user->onboarding_completed) {
+            return back()->with('error', 'Vous devez compléter l\'onboarding avant de soumettre un cours.');
+        }
+        
+        // Si le cours est déjà publié et validé, ne pas permettre la resoumission
+        if ($course->status === 'published' && $course->validation_status === 'approved') {
+            return back()->with('error', 'Ce cours est déjà publié et validé.');
+        }
+        
+        // Si le cours est déjà en attente de validation, ne pas permettre une nouvelle soumission
+        if ($course->validation_status === 'pending_validation') {
+            return back()->with('error', 'Ce cours est déjà en attente de validation.');
+        }
+        
+        // Utiliser DB::table() pour mettre à jour directement et contourner le problème de fillable
+        $updated = DB::table('courses')
+            ->where('id', $courseId)
+            ->update([
+                'validation_status' => 'pending_validation',
+                'submitted_for_validation_at' => now(),
+                'status' => 'draft', // S'assurer que le statut reste en brouillon jusqu'à validation
+                'updated_at' => now()
+            ]);
+        
+        if ($updated === false) {
+            return back()->with('error', 'Erreur lors de la soumission du cours. Veuillez réessayer.');
+        }
+
+        // Recharger le cours pour avoir submitted_for_validation_at
+        $course->refresh();
+
+        // Notifier les administrateurs par email
+        try {
+            app(\App\Services\CourseMailService::class)->sendCourseSubmittedToAdmins($course);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Notification admin (cours soumis) non envoyée: ' . $e->getMessage());
+        }
+        
+        // Message selon le contexte
+        $message = 'Cours soumis pour validation. Vous recevrez une réponse sous 24h.';
+        if ($previousStatus === 'rejected' || $previousStatus === 'needs_revision') {
+            $message = 'Cours resoumis pour validation. Il sera examiné à nouveau.';
+        }
+        
+        return back()->with('success', $message);
     }
     
     /**
@@ -369,6 +658,61 @@ class FormateurController extends Controller
     }
     
     /**
+     * Afficher le formulaire de modification d'un module
+     * 
+     * @param  int  $moduleId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function editModule($moduleId)
+    {
+        $user = Auth::user();
+        $module = Module::with(['course', 'lessons', 'quiz'])->findOrFail($moduleId);
+        $course = $module->course;
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à modifier ce module');
+        }
+        
+        return view('formateurs.edit_module', compact('module', 'course'));
+    }
+    
+    /**
+     * Mettre à jour un module existant
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $moduleId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function updateModule(Request $request, $moduleId)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer|min:1',
+        ]);
+        
+        $user = Auth::user();
+        $module = Module::findOrFail($moduleId);
+        $course = $module->course;
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce module');
+        }
+        
+        // Mettre à jour le module
+        $module->update([
+            'title' => $request->title,
+            'description' => $request->description,
+            'order' => $request->order ?? $module->order,
+        ]);
+        
+        return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
+            ->with('success', 'Le module a été modifié avec succès.');
+    }
+    
+    /**
      * Afficher la page de gestion d'un module
      * 
      * @param  int  $moduleId
@@ -402,9 +746,14 @@ class FormateurController extends Controller
         if ($module->course->formateur_id !== $user->id && $user->role !== 'admin') {
             return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à gérer ce module');
         }
-        
-        return view('formateurs.create_lesson', compact('module'));
+          // Récupérer le cours lié au module
+    $course = $module->course;
+        return view('formateurs.create_lesson', compact('module', 'course'));
     }
+    
+
+
+
     
     /**
      * Enregistrer une nouvelle leçon
@@ -446,6 +795,9 @@ class FormateurController extends Controller
             $pdfPath = 'storage/lessons/' . $pdfName;
         }
         
+        // Récupérer les images temporaires de la session
+        $images = session('temp_lesson_images', []);
+        
         // Créer la leçon
         $lesson = Lesson::create([
             'module_id' => $moduleId,
@@ -458,7 +810,11 @@ class FormateurController extends Controller
             'duration_minutes' => $request->duration_minutes,
             'order' => $order,
             'is_previewable' => $request->has('is_previewable'),
+            'images' => $images,
         ]);
+        
+        // Nettoyer la session des images temporaires
+        session()->forget('temp_lesson_images');
         
         return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
             ->with('success', 'La leçon a été ajoutée avec succès.');
@@ -484,9 +840,10 @@ class FormateurController extends Controller
         if ($module->quiz) {
             return redirect()->route('formateur.manage.module', ['moduleId' => $moduleId])
                 ->with('error', 'Ce module a déjà un quiz. Vous pouvez le modifier ou le supprimer.');
-        }
+        } 
+        $course = $module->course; 
         
-        return view('formateurs.create_quiz', compact('module'));
+        return view('formateurs.create_quiz', compact('module', 'course'));
     }
     
     /**
@@ -496,28 +853,9 @@ class FormateurController extends Controller
      * @param  int  $moduleId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeQuiz(Request $request, $moduleId)
+    public function storeQuiz(StoreQuizRequest $request, $moduleId)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'questions' => 'required|array|min:1',
-            'questions.*.text' => 'required|string',
-            'questions.*.answers' => 'required|array|min:2',
-            'questions.*.answers.*.text' => 'required|string',
-            'questions.*.answers.*.is_correct' => 'required|boolean',
-        ]);
-        
-        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
-        foreach ($request->questions as $index => $question) {
-            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
-            if (!$hasCorrectAnswer) {
-                return back()->withErrors([
-                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
-                ])->withInput();
-            }
-        }
+        $validated = $request->validated();
         
         $user = Auth::user();
         $module = Module::with(['course', 'quiz'])->findOrFail($moduleId);
@@ -540,14 +878,14 @@ class FormateurController extends Controller
             $quiz = Quiz::create([
                 'module_id' => $moduleId,
                 'quiz_type' => 'module_end',
-                'title' => $request->title,
-                'description' => $request->description,
-                'passing_score' => $request->passing_score,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'passing_score' => $validated['passing_score'],
                 'is_required' => true, // Les quiz de module sont obligatoires par défaut
             ]);
             
             // Créer les questions et les réponses
-            foreach ($request->questions as $questionData) {
+            foreach ($validated['questions'] as $questionData) {
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'text' => $questionData['text'],
@@ -608,13 +946,8 @@ class FormateurController extends Controller
                 ->with('error', 'Le cours doit avoir au moins une leçon ou un quiz pour être publié');
         }
         
-        // Publier le cours
-        $course->status = 'published';
-        $course->published_at = now();
-        $course->save();
-        
-        return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
-            ->with('success', 'Le cours a été publié avec succès.');
+        // Utiliser la méthode submitForValidation pour la cohérence
+        return $this->submitForValidation($courseId);
     }
     
     /**
@@ -642,8 +975,28 @@ class FormateurController extends Controller
     }
     
     /**
+     * Retirer un étudiant d'un cours (supprimer l'inscription)
+     */
+    public function deleteEnrollment(int $enrollmentId)
+    {
+        $enrollment = Enrollment::with('course')->findOrFail($enrollmentId);
+        $course = $enrollment->course;
+
+        // Sécurité : seul le formateur propriétaire peut retirer un étudiant
+        if ($course->formateur_id !== Auth::id()) {
+            abort(403, 'Action non autorisée.');
+        }
+
+        $courseId = $course->id;
+        $enrollment->delete();
+
+        return redirect()->route('formateur.courses.students', $courseId)
+            ->with('success', 'L\'étudiant a été retiré du cours avec succès.');
+    }
+
+    /**
      * Liste des évaluations d'un cours
-     * 
+     *
      * @param  int  $courseId
      * @return \Illuminate\Contracts\Support\Renderable
      */
@@ -662,7 +1015,10 @@ class FormateurController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(15);
         
-        return view('formateurs.course_ratings', compact('course', 'ratings'));
+        // Calculer la note moyenne
+        $averageRating = Rating::where('course_id', $courseId)->avg('rating') ?? 0;
+        
+        return view('formateurs.course_ratings', compact('course', 'ratings', 'averageRating'));
     }
     
     /**
@@ -825,8 +1181,11 @@ class FormateurController extends Controller
         DB::beginTransaction();
         try {
             // 1. Supprimer l'image de couverture du cours
-            if ($course->cover_image_path && Storage::disk('public')->exists(str_replace('storage/', '', $course->cover_image_path))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $course->cover_image_path));
+            if ($course->cover_image_path) {
+                $imagePath = public_path($course->cover_image_path);
+                if (File::exists($imagePath)) {
+                    File::delete($imagePath);
+                }
             }
 
             // 2. Supprimer les modules, leçons, quiz, questions, réponses
@@ -951,10 +1310,21 @@ class FormateurController extends Controller
             $lesson->external_url = $request->external_url;
         }
         
+        // Récupérer les images temporaires de la session
+        $images = session('temp_lesson_images', []);
+        
+        // Fusionner avec les images existantes si elles existent
+        $existingImages = $lesson->images ?? [];
+        $allImages = array_merge($existingImages, $images);
+        
         $lesson->content_type = $request->content_type;
         $lesson->duration_minutes = $request->duration_minutes;
         $lesson->is_previewable = $request->has('is_previewable');
+        $lesson->images = $allImages;
         $lesson->save();
+        
+        // Nettoyer la session des images temporaires
+        session()->forget('temp_lesson_images');
         
         return redirect()->route('formateur.manage.module', ['moduleId' => $lesson->module_id])
             ->with('success', 'La leçon a été mise à jour avec succès.');
@@ -1031,30 +1401,9 @@ class FormateurController extends Controller
      * @param  int  $quizId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateQuiz(Request $request, $quizId)
+    public function updateQuiz(UpdateQuizRequest $request, $quizId)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'questions' => 'required|array|min:1',
-            'questions.*.id' => 'nullable|exists:questions,id',
-            'questions.*.text' => 'required|string',
-            'questions.*.answers' => 'required|array|min:2',
-            'questions.*.answers.*.id' => 'nullable|exists:answers,id',
-            'questions.*.answers.*.text' => 'required|string',
-            'questions.*.answers.*.is_correct' => 'required|boolean',
-        ]);
-        
-        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
-        foreach ($request->questions as $index => $question) {
-            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
-            if (!$hasCorrectAnswer) {
-                return back()->withErrors([
-                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
-                ])->withInput();
-            }
-        }
+        $validated = $request->validated();
         
         $user = Auth::user();
         $quiz = Quiz::with(['questions.answers', 'module.course'])->findOrFail($quizId);
@@ -1249,28 +1598,9 @@ class FormateurController extends Controller
      * @param  int  $courseId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function storeFinalExam(Request $request, $courseId)
+    public function storeFinalExam(StoreQuizRequest $request, $courseId)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'questions' => 'required|array|min:1',
-            'questions.*.text' => 'required|string',
-            'questions.*.answers' => 'required|array|min:2',
-            'questions.*.answers.*.text' => 'required|string',
-            'questions.*.answers.*.is_correct' => 'required|boolean',
-        ]);
-        
-        // Validation supplémentaire : s'assurer qu'au moins une réponse est correcte par question
-        foreach ($request->questions as $index => $question) {
-            $hasCorrectAnswer = collect($question['answers'])->contains('is_correct', true);
-            if (!$hasCorrectAnswer) {
-                return back()->withErrors([
-                    "questions.{$index}" => "La question " . ($index + 1) . " doit avoir au moins une réponse correcte."
-                ])->withInput();
-            }
-        }
+        $validated = $request->validated();
         
         $user = Auth::user();
         $course = Course::with('finalQuiz')->findOrFail($courseId);
@@ -1293,14 +1623,14 @@ class FormateurController extends Controller
             $quiz = Quiz::create([
                 'course_id' => $courseId,
                 'quiz_type' => 'course_final',
-                'title' => $request->title,
-                'description' => $request->description,
-                'passing_score' => $request->passing_score,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'passing_score' => $validated['passing_score'],
                 'is_required' => true, // Les examens finaux sont toujours requis
             ]);
             
             // Créer les questions et les réponses
-            foreach ($request->questions as $questionData) {
+            foreach ($validated['questions'] as $questionData) {
                 $question = Question::create([
                     'quiz_id' => $quiz->id,
                     'text' => $questionData['text'],
@@ -1360,20 +1690,9 @@ class FormateurController extends Controller
      * @param  int  $courseId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateFinalExam(Request $request, $courseId)
+    public function updateFinalExam(UpdateQuizRequest $request, $courseId)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'passing_score' => 'required|integer|min:0|max:100',
-            'questions' => 'required|array|min:1',
-            'questions.*.id' => 'nullable|exists:questions,id',
-            'questions.*.text' => 'required|string',
-            'questions.*.answers' => 'required|array|min:2',
-            'questions.*.answers.*.id' => 'nullable|exists:answers,id',
-            'questions.*.answers.*.text' => 'required|string',
-            'questions.*.answers.*.is_correct' => 'required|boolean',
-        ]);
+        $validated = $request->validated();
         
         $user = Auth::user();
         $course = Course::with('finalQuiz.questions.answers')->findOrFail($courseId);
@@ -1396,13 +1715,13 @@ class FormateurController extends Controller
         
         try {
             // Mettre à jour les informations du quiz
-            $quiz->title = $request->title;
-            $quiz->description = $request->description;
-            $quiz->passing_score = $request->passing_score;
+            $quiz->title = $validated['title'];
+            $quiz->description = $validated['description'] ?? null;
+            $quiz->passing_score = $validated['passing_score'];
             $quiz->save();
             
             // Liste des IDs de questions à conserver
-            $questionIds = collect($request->questions)
+            $questionIds = collect($validated['questions'])
                 ->filter(function ($q) {
                     return !empty($q['id']);
                 })
@@ -1420,7 +1739,7 @@ class FormateurController extends Controller
             }
             
             // Mettre à jour ou créer les questions
-            foreach ($request->questions as $index => $questionData) {
+            foreach ($validated['questions'] as $index => $questionData) {
                 if (!empty($questionData['id'])) {
                     // Mise à jour d'une question existante
                     $question = Question::find($questionData['id']);
@@ -1566,9 +1885,16 @@ class FormateurController extends Controller
             $query->where('status', $request->status);
         }
         
-        // Filtre par niveau
+        // Filtre par niveau (mapper les valeurs de la vue vers la BDD)
         if ($request->filled('level')) {
-            $query->where('level', $request->level);
+            $levelMap = [
+                'beginner' => 'débutant',
+                'intermediate' => 'intermédiaire',
+                'advanced' => 'avancé',
+                'expert' => 'expert'
+            ];
+            $level = $levelMap[$request->level] ?? $request->level;
+            $query->where('level', $level);
         }
         
         // Tri
@@ -1592,14 +1918,135 @@ class FormateurController extends Controller
         }
         
         // Pagination avec conservation des paramètres de recherche
-        $courses = $query->paginate(9)->appends($request->query());
+        $perPage = $request->get('per_page', 9);
+        $courses = $query->paginate($perPage);
         
-        // Ajouter les notes moyennes pour chaque cours
-        $courses->getCollection()->transform(function ($course) {
-            $course->average_rating = Rating::where('course_id', $course->id)->avg('rating') ?? 0;
-            return $course;
-        });
+        // Optimiser le calcul des notes moyennes (éviter N+1)
+        if ($courses->count() > 0) {
+            $courseIds = $courses->pluck('id');
+            $ratings = Rating::whereIn('course_id', $courseIds)
+                ->selectRaw('course_id, AVG(rating) as avg_rating')
+                ->groupBy('course_id')
+                ->pluck('avg_rating', 'course_id');
+            
+            // Ajouter les notes moyennes pour chaque cours
+            $courses->getCollection()->transform(function ($course) use ($ratings) {
+                $course->average_rating = round($ratings[$course->id] ?? 0, 1);
+                return $course;
+            });
+        }
         
         return view('formateurs.courses.index', compact('courses'));
+    }
+    
+    /**
+     * Afficher la page du guide et du contrat
+     * 
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function showGuide()
+    {
+        return view('formateurs.guide');
+    }
+    
+    /**
+     * Voir une leçon comme un étudiant (aperçu formateur)
+     * 
+     * @param int $courseId
+     * @param int $lessonId
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function viewLessonAsStudent($courseId, $lessonId)
+    {
+        $user = Auth::user();
+        $course = Course::with(['modules.lessons', 'modules.quiz', 'finalQuiz'])->findOrFail($courseId);
+        
+        // Vérifier que le formateur est bien le propriétaire du cours
+        if ($course->formateur_id !== $user->id && $user->role !== 'admin') {
+            return redirect()->route('formateur.dashboard')->with('error', 'Vous n\'êtes pas autorisé à voir ce cours');
+        }
+        
+        $lesson = Lesson::with('module')->findOrFail($lessonId);
+        
+        // Vérifier que la leçon appartient bien au cours
+        if ($lesson->module->course_id !== $course->id) {
+            return redirect()->route('formateur.manage.course', ['courseId' => $courseId])
+                ->with('error', 'Cette leçon n\'appartient pas à ce cours');
+        }
+        
+        // Construire la structure du cours (comme pour l'apprenant mais sans les verrous)
+        $courseStructure = [
+            'modules' => [],
+            'final_quiz' => null,
+        ];
+        
+        foreach ($course->modules->sortBy('order') as $module) {
+            $moduleData = [
+                'module' => $module,
+                'lessons' => [],
+                'quiz' => null,
+            ];
+            
+            foreach ($module->lessons->sortBy('order') as $l) {
+                $moduleData['lessons'][] = [
+                    'item' => $l,
+                    'status' => 'available',
+                    'is_completed' => false,
+                ];
+            }
+            
+            if ($module->quiz) {
+                $moduleData['quiz'] = [
+                    'item' => $module->quiz,
+                    'status' => 'available',
+                    'is_completed' => false,
+                ];
+            }
+            
+            $courseStructure['modules'][] = $moduleData;
+        }
+        
+        if ($course->finalQuiz) {
+            $courseStructure['final_quiz'] = [
+                'item' => $course->finalQuiz,
+                'status' => 'available',
+                'is_completed' => false,
+            ];
+        }
+        
+        // Déterminer la leçon précédente et suivante
+        $allLessons = $course->modules->sortBy('order')->flatMap(function ($module) {
+            return $module->lessons->sortBy('order');
+        });
+        
+        $lessonIds = $allLessons->pluck('id')->toArray();
+        $currentIndex = array_search($lesson->id, $lessonIds);
+        
+        $previousLesson = $currentIndex > 0 ? $allLessons->firstWhere('id', $lessonIds[$currentIndex - 1]) : null;
+        $nextLesson = $currentIndex < count($lessonIds) - 1 ? $allLessons->firstWhere('id', $lessonIds[$currentIndex + 1]) : null;
+        
+        // Déterminer si c'est la dernière leçon du module
+        $moduleLessons = $lesson->module->lessons->sortBy('order');
+        $isLastLessonOfModule = $moduleLessons->last()->id === $lesson->id;
+        $moduleQuiz = $lesson->module->quiz;
+        
+        // Première leçon du module suivant
+        $firstLessonNextModule = null;
+        $currentModuleOrder = $lesson->module->order;
+        $nextModule = $course->modules->where('order', '>', $currentModuleOrder)->sortBy('order')->first();
+        if ($nextModule && $nextModule->lessons->count() > 0) {
+            $firstLessonNextModule = $nextModule->lessons->sortBy('order')->first();
+        }
+        
+        return view('formateurs.view_lesson_as_student', compact(
+            'course',
+            'lesson',
+            'courseStructure',
+            'previousLesson',
+            'nextLesson',
+            'isLastLessonOfModule',
+            'moduleQuiz',
+            'firstLessonNextModule'
+        ));
     }
 }

@@ -69,7 +69,7 @@ class Quiz extends Model
 
     public function attempts(): HasMany
     {
-        return $this->hasMany(QuizAttempt::class);
+        return $this->hasMany(QuizAttempt::class, 'quiz_id');
     }
 
     public function media(): HasMany
@@ -347,19 +347,11 @@ class Quiz extends Model
         }
         
         if ($this->isCourseQuiz()) {
-            // Pour un quiz de cours, tous les quiz de modules requis doivent être réussis
+            // Pour un quiz de cours, tous les modules doivent être complétés (leçons + quiz optionnels)
             $course = $this->course;
             if (!$course) return false;
 
-            foreach ($course->modules as $module) {
-                if ($module->quiz && $module->quiz->is_required) {
-                    if (!$module->quiz->isPassedByUser($userId)) {
-                        return false;
-                    }
-                }
-            }
-            
-            return true;
+            return $course->allModulesCompletedByUser($userId);
         }
         
         return false;
@@ -371,7 +363,7 @@ class Quiz extends Model
         if ($this->isPassedByUser($userId)) {
             $attempts = $this->attempts()
                 ->where('user_id', $userId)
-                ->orderBy('completed_at', 'desc')
+                ->orderBy('submitted_at', 'desc')
                 ->get();
             
             $lastAttempt = $attempts->first();

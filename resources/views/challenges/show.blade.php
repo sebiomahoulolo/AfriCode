@@ -21,13 +21,13 @@
     <div class="mb-4">
         @if($isParticipating)
             <div class="alert alert-success">Vous participez déjà à ce défi.</div>
-            <a href="{{ route('challenges.play', $challenge->id) }}" class="btn btn-success mt-2">
+            <a href="{{ route('challenges.play', $challenge->id) }}" class="btn text-white mt-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                 <i class="fas fa-play"></i> Participer maintenant
             </a>
         @else
             <form method="POST" action="{{ route('challenges.participate', $challenge->id) }}">
                 @csrf
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                     <i class="fas fa-sign-in-alt"></i> Participer au défi
                 </button>
             </form>

@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminImageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\SocialAuthController;
@@ -18,6 +19,8 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Volt\Volt;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\MentorshipController;
+use App\Http\Controllers\TutoringSessionController;
 use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\QuizController;
@@ -25,15 +28,20 @@ use App\Http\Controllers\QuizQuestionController;
 use App\Http\Controllers\BadgeController;
 use App\Http\Controllers\CoursePrerequisiteController;
 use App\Http\Controllers\RewardController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\CertificateVerificationController;
+use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminChallengeController;
 use App\Http\Controllers\CompetitionDisplayController;
 use App\Http\Controllers\AdminCompetitionTestCaseController;
+use App\Http\Controllers\AIAssistantController;
+use App\Http\Controllers\AdminFormateurController;
+use App\Http\Controllers\FormateurEarningsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,18 +54,33 @@ use App\Http\Controllers\AdminCompetitionTestCaseController;
 |
 */
 
-// Route pour la page d'accueil
-Route::get('/', [CourseController::class, 'home'])->name('home');
+// Route pour la page d'accueil (sur mobile, redirection vers /cours)
+Route::get('/', [CourseController::class, 'home'])->name('home')->middleware('mobile.redirect.cours');
+
+// PWA : page offline (sans slash pour cohérence avec le cache du service worker)
+Route::get('/offline', function () {
+    return view('laravelpwa::offline');
+})->name('laravelpwa.offline');
 
 // Routes pour les cours
-Route::resource('courses', CourseController::class);
-Route::get('/courses/search', [CourseController::class, 'search'])->name('courses.search'); // Route pour la recherche avancée
-Route::get('/courses-filter', [CourseController::class, 'filter'])->name('courses.filter'); // Route Ajax pour les filtres
-Route::get('/courses-categories', [CourseController::class, 'categories'])->name('courses.categories'); // Route Ajax pour les catégories
+Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{id}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/courses/search', [CourseController::class, 'search'])->name('courses.search')->middleware('throttle:20,1');
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('/courses-filter', [CourseController::class, 'filter'])->name('courses.filter');
+    Route::get('/courses-categories', [CourseController::class, 'categories'])->name('courses.categories');
+});
+
+// Routes pour la wishlist (favoris)
+Route::middleware('auth')->group(function () {
+    Route::post('/courses/{course}/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::get('/courses/{course}/wishlist/check', [WishlistController::class, 'check'])->name('wishlist.check');
+    Route::get('/courses/wishlist/check-batch', [WishlistController::class, 'checkBatch'])->name('wishlist.checkBatch');
+});
 
 // Ces routes sont nécessaires pour la compatibilité avec le code existant
-Route::get('/cours', [CourseController::class, 'index'])->name('courses.index');
-Route::get('/cours/{slug}', [CourseController::class, 'show'])->name('courses.show');
+Route::get('/cours', [CourseController::class, 'index'])->name('cours.index');
+Route::get('/cours/{slug}', [CourseController::class, 'show'])->name('cours.show');
 Route::get('/categories/{category:slug}', [CourseController::class, 'byCategory'])->name('courses.category');
 
 // Routes pour l'authentification sociale (Breeze)
@@ -65,6 +88,23 @@ Route::middleware('guest')->group(function () {
     Route::get('auth/{provider}', [AuthSocialAuthController::class, 'redirectToProvider'])
         ->name('social.login');
     Route::get('auth/{provider}/callback', [AuthSocialAuthController::class, 'handleProviderCallback']);
+});
+
+// Vérification disponibilité email (inscription)
+Route::post('/check-email', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'checkEmail'])
+    ->name('register.checkEmail')
+    ->middleware('throttle:20,1');
+
+// Routes protégées par rate limiting (protection contre force brute)
+Route::middleware(['throttle:5,1'])->group(function () {
+    Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store']);
+    Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store']);
+    Route::post('/forgot-password', [\App\Http\Controllers\Auth\PasswordResetLinkController::class, 'store']);
+});
+
+// Routes de paiement protégées
+Route::middleware(['auth', 'throttle:10,1'])->group(function () {
+    Route::post('/payment/initiate/{course}', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
 });
 
 // Routes pour la complétion du profil
@@ -88,6 +128,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('payment.success');
     Route::get('/payment/failed', [\App\Http\Controllers\EnrollmentController::class, 'paymentFailed'])
         ->name('payment.failed');
+    Route::post('/payment/cleanup-failed', [\App\Http\Controllers\EnrollmentController::class, 'cleanupFailedPayments'])
+        ->name('payment.cleanup-failed');
+    Route::post('/enrollment/cleanup-orphaned', [\App\Http\Controllers\EnrollmentController::class, 'cleanupOrphanedEnrollments'])
+        ->name('enrollment.cleanup-orphaned');
     
     // Traitement paiement Stripe côté client
     Route::post('/payment/stripe/process', [\App\Http\Controllers\EnrollmentController::class, 'processStripePayment'])
@@ -95,10 +139,20 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Webhooks et callbacks (pas de middleware auth)
-Route::post('/webhook/stripe', [\AppHttp\Controllers\EnrollmentController::class, 'stripeWebhook'])
+Route::post('/webhook/stripe', [\App\Http\Controllers\EnrollmentController::class, 'stripeWebhook'])
     ->name('webhook.stripe');
-Route::post('/callback/fadapay', [\App\Http\Controllers\EnrollmentController::class, 'fadapayCallback'])
-    ->name('payment.fadapay.callback');
+
+// Retour Moneroo après paiement (GET — redirection depuis la page de paiement Moneroo)
+Route::get('/payment/moneroo/return', [\App\Http\Controllers\EnrollmentController::class, 'monerooReturn'])
+    ->name('payment.moneroo.return');
+
+// Routes PayPal
+Route::get('/payment/paypal/success/{payment_id}', [\App\Http\Controllers\EnrollmentController::class, 'paypalSuccess'])
+    ->name('payment.paypal.success');
+Route::get('/payment/paypal/cancel/{payment_id}', [\App\Http\Controllers\EnrollmentController::class, 'paypalCancel'])
+    ->name('payment.paypal.cancel');
+Route::post('/webhook/paypal', [\App\Http\Controllers\EnrollmentController::class, 'paypalWebhook'])
+    ->name('webhook.paypal');
 
 // Dashboard central avec redirection intelligente
 Route::get('/dashboard', [DashboardController::class, 'index'])
@@ -124,7 +178,7 @@ Route::prefix('admin')
 
         // Tableau de Bord
         Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard'); // Les deux routes utilisent la même méthode
+        Route::get('/dashboard', [AdminController::class, 'dashboard']); // Alias sans nom pour éviter le doublon
 
         // --- Utilisateurs ---
         Route::get('/users', [AdminController::class, 'usersIndex'])->name('users.index');
@@ -145,11 +199,23 @@ Route::prefix('admin')
         Route::put('/courses/{course}', [AdminController::class, 'coursesUpdate'])->name('courses.update');
         Route::delete('/courses/{course}', [AdminController::class, 'coursesDestroy'])->name('courses.destroy');
         
+        // --- Campagnes Email ---
+        Route::get('/email-campaigns', [AdminController::class, 'emailCampaigns'])->name('email-campaigns.index');
+        Route::post('/email-campaigns/{course}/send', [AdminController::class, 'sendEmailCampaign'])->name('email-campaigns.send');
+
+        // --- Recrutement (postes + candidatures) ---
+        Route::get('/recruitment', [\App\Http\Controllers\AdminRecruitmentController::class, 'index'])->name('recruitment.index');
+        Route::get('/recruitment/positions/{position}/edit', [\App\Http\Controllers\AdminRecruitmentController::class, 'positionEdit'])->name('recruitment.positions.edit');
+        Route::put('/recruitment/positions/{position}', [\App\Http\Controllers\AdminRecruitmentController::class, 'positionUpdate'])->name('recruitment.positions.update');
+        Route::get('/recruitment/applications', [\App\Http\Controllers\AdminRecruitmentController::class, 'applications'])->name('recruitment.applications.index');
+        Route::get('/recruitment/applications/{application}/document/{type}', [\App\Http\Controllers\AdminRecruitmentController::class, 'document'])->name('recruitment.applications.document')->where('type', 'cv|lettre|diplome');
+        Route::get('/recruitment/applications/{application}', [\App\Http\Controllers\AdminRecruitmentController::class, 'applicationShow'])->name('recruitment.applications.show');
+        
         // --- Modules ---
-        Route::post('/modules', [AdminController::class, 'modulesStore'])->name('modules.store');
-        Route::get('/modules/{module}/edit', [AdminController::class, 'modulesEdit'])->name('modules.edit');
-        Route::put('/modules/{module}', [AdminController::class, 'modulesUpdate'])->name('modules.update');
-        Route::delete('/modules/{module}', [AdminController::class, 'modulesDestroy'])->name('modules.destroy');
+        Route::post('/modules', [\App\Http\Controllers\ModuleLessonController::class, 'modulesStore'])->name('modules.store');
+        Route::get('/modules/{module}/edit', [\App\Http\Controllers\ModuleLessonController::class, 'modulesEdit'])->name('modules.edit');
+        Route::put('/modules/{module}', [\App\Http\Controllers\ModuleLessonController::class, 'modulesUpdate'])->name('modules.update');
+        Route::delete('/modules/{module}', [\App\Http\Controllers\ModuleLessonController::class, 'modulesDestroy'])->name('modules.destroy');
         
         // --- Leçons ---
         Route::get('/lessons/create', [AdminController::class, 'lessonsCreate'])->name('lessons.create');
@@ -181,6 +247,9 @@ Route::prefix('admin')
 
         // --- Statistiques ---
         Route::get('/statistics', [AdminController::class, 'statisticsIndex'])->name('statistics.index');
+
+        // --- Tracking / Analytics (où voir les résultats) ---
+        Route::get('/tracking', [AdminController::class, 'trackingIndex'])->name('tracking.index');
 
         // --- Paiements ---
         Route::get('/payments', [AdminController::class, 'paymentsIndex'])->name('payments.index');
@@ -222,58 +291,129 @@ Route::prefix('admin')
 
         // --- Paramètres ---
         Route::get('/settings', [AdminController::class, 'settingsEdit'])->name('settings.edit');
-        Route::put('/settings', [AdminController::class, 'settingsUpdate'])->name('settings.update');
+        Route::match(['put', 'post'], '/settings', [AdminController::class, 'settingsUpdate'])->name('settings.update');
+        
+        // --- Gestion des formateurs ---
+        Route::prefix('formateurs')->name('formateurs.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\AdminFormateurController::class, 'index'])->name('index');
+            
+            // Retraits (DOIT être avant /{id} pour éviter les conflits)
+            Route::get('/withdrawals', [\App\Http\Controllers\AdminFormateurController::class, 'withdrawals'])->name('withdrawals');
+            Route::post('/withdrawals/{id}/process', [\App\Http\Controllers\AdminFormateurController::class, 'processWithdrawal'])->name('withdrawals.process');
+            Route::post('/withdrawals/{id}/complete', [\App\Http\Controllers\AdminFormateurController::class, 'completeWithdrawal'])->name('withdrawals.complete');
+            
+            // Validation des cours
+            Route::post('/courses/{courseId}/validate', [\App\Http\Controllers\AdminFormateurController::class, 'validateCourse'])->name('courses.validate');
+            Route::post('/courses/{courseId}/revision', [\App\Http\Controllers\AdminFormateurController::class, 'requestRevision'])->name('courses.revision');
+            Route::post('/courses/{courseId}/reject', [\App\Http\Controllers\AdminFormateurController::class, 'rejectCourse'])->name('courses.reject');
+            
+            // Routes avec paramètre {id} (DOIT être en dernier)
+            Route::get('/{id}', [\App\Http\Controllers\AdminFormateurController::class, 'show'])->name('show');
+            Route::post('/{id}/approve', [\App\Http\Controllers\AdminFormateurController::class, 'approve'])->name('approve');
+            Route::post('/{id}/reject', [\App\Http\Controllers\AdminFormateurController::class, 'reject'])->name('reject');
+            Route::post('/{id}/suspend', [\App\Http\Controllers\AdminFormateurController::class, 'suspend'])->name('suspend');
+            Route::post('/{id}/unsuspend', [\App\Http\Controllers\AdminFormateurController::class, 'unsuspend'])->name('unsuspend');
+            Route::post('/{id}/warn', [\App\Http\Controllers\AdminFormateurController::class, 'warn'])->name('warn');
+        });
+
+        // --- Campagnes Push ---
+        Route::prefix('push-campaigns')->name('push-campaigns.')->group(function () {
+            Route::get('/',                                        [\App\Http\Controllers\Admin\PushCampaignController::class, 'index'])->name('index');
+            Route::get('/create',                                  [\App\Http\Controllers\Admin\PushCampaignController::class, 'create'])->name('create');
+            Route::post('/',                                       [\App\Http\Controllers\Admin\PushCampaignController::class, 'store'])->name('store');
+            Route::get('/{pushCampaign}',                          [\App\Http\Controllers\Admin\PushCampaignController::class, 'show'])->name('show');
+            Route::post('/{pushCampaign}/send',                    [\App\Http\Controllers\Admin\PushCampaignController::class, 'send'])->name('send');
+            Route::delete('/{pushCampaign}',                       [\App\Http\Controllers\Admin\PushCampaignController::class, 'destroy'])->name('destroy');
+        });
+
+        // --- Support (tickets) — même accès que le reste de l'admin ---
+        Route::get('/support/tickets', [SupportController::class, 'adminTickets'])->name('support.tickets.index');
+        Route::post('/support/tickets/{ticket}/assign', [SupportController::class, 'assignTicket'])->name('support.tickets.assign');
+        Route::patch('/support/tickets/{ticket}/status', [SupportController::class, 'updateTicketStatus'])->name('support.tickets.status');
     }); 
 
 // Routes pour formateurs
-Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->prefix('formateur')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\FormateurMiddleware::class])->prefix('formateur')->name('formateur.')->group(function () {
     // Tableau de bord principal
-    Route::get('/dashboard', [FormateurController::class, 'index'])->name('formateur.dashboard');
+    Route::get('/dashboard', [FormateurController::class, 'index'])->name('dashboard');
     
     // Liste des cours
-    Route::get('/cours', [FormateurController::class, 'coursesList'])->name('formateur.courses.index');
+    Route::get('/cours', [FormateurController::class, 'coursesList'])->name('courses.index');
     
     // Gestion des cours
-    Route::get('/cours/creer', [FormateurController::class, 'createCourse'])->name('formateur.courses.create');
-    Route::post('/cours/creer', [FormateurController::class, 'storeCourse'])->name('formateur.courses.store');
-    Route::get('/cours/{courseId}/modifier', [FormateurController::class, 'editCourse'])->name('formateur.courses.edit');
-    Route::put('/cours/{courseId}/modifier', [FormateurController::class, 'updateCourse'])->name('formateur.courses.update');
-    Route::get('/cours/{courseId}/gerer', [FormateurController::class, 'manageCourse'])->name('formateur.manage.course');
-    Route::post('/cours/{courseId}/publier', [FormateurController::class, 'publishCourse'])->name('formateur.courses.publish');
-    Route::delete('/cours/{courseId}', [FormateurController::class, 'destroyCourse'])->name('formateur.courses.destroy');
+    Route::get('/cours/creer', [FormateurController::class, 'createCourse'])->name('courses.create');
+    Route::post('/cours/creer', [FormateurController::class, 'storeCourse'])->name('courses.store');
+    Route::get('/cours/{courseId}/modifier', [FormateurController::class, 'editCourse'])->name('courses.edit');
+    Route::put('/cours/{courseId}/modifier', [FormateurController::class, 'updateCourse'])->name('courses.update');
+    Route::get('/cours/{courseId}/gerer', [FormateurController::class, 'manageCourse'])->name('manage.course');
+    Route::post('/cours/{courseId}/publier', [FormateurController::class, 'publishCourse'])->name('courses.publish');
+    Route::post('/cours/{courseId}/submit', [FormateurController::class, 'submitForValidation'])->name('courses.submit');
+    Route::delete('/cours/{courseId}', [FormateurController::class, 'destroyCourse'])->name('courses.destroy');
+    
+    // Gestion des revenus
+    Route::prefix('earnings')->name('earnings.')->group(function () {
+        Route::get('/', [FormateurEarningsController::class, 'index'])->name('index');
+        Route::post('/withdraw', [FormateurEarningsController::class, 'requestWithdrawal'])->name('withdraw');
+        Route::get('/{id}', [FormateurEarningsController::class, 'show'])->name('show');
+    });
+    
+    // Guide et documents
+    Route::get('/guide', [FormateurController::class, 'showGuide'])->name('guide');
     
     // Gestion des modules
-    Route::get('/cours/{courseId}/modules/creer', [FormateurController::class, 'createModule'])->name('formateur.modules.create');
-    Route::post('/cours/{courseId}/modules/creer', [FormateurController::class, 'storeModule'])->name('formateur.modules.store');
-    Route::get('/modules/{moduleId}/gerer', [FormateurController::class, 'manageModule'])->name('formateur.manage.module');
+    Route::get('/cours/{courseId}/modules/creer', [FormateurController::class, 'createModule'])->name('modules.create');
+    Route::post('/cours/{courseId}/modules/creer', [FormateurController::class, 'storeModule'])->name('modules.store');
+    Route::get('/modules/{moduleId}/modifier', [FormateurController::class, 'editModule'])->name('modules.edit');
+    Route::put('/modules/{moduleId}', [FormateurController::class, 'updateModule'])->name('modules.update');
+    Route::get('/modules/{moduleId}/gerer', [FormateurController::class, 'manageModule'])->name('manage.module');
     
     // Gestion des leçons
-    Route::get('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'createLesson'])->name('formateur.lessons.create');
-    Route::post('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'storeLesson'])->name('formateur.lessons.store');
-    Route::get('/lecons/{lessonId}/editer', [FormateurController::class, 'editLesson'])->name('formateur.lessons.edit');
-    Route::put('/lecons/{lessonId}/editer', [FormateurController::class, 'updateLesson'])->name('formateur.lessons.update');
-    Route::delete('/lecons/{lessonId}', [FormateurController::class, 'destroyLesson'])->name('formateur.lessons.destroy');
+    Route::get('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'createLesson'])->name('lessons.create');
+    Route::post('/modules/{moduleId}/lecons/creer', [FormateurController::class, 'storeLesson'])->name('lessons.store');
+    Route::get('/lecons/{lessonId}/editer', [FormateurController::class, 'editLesson'])->name('lessons.edit');
+    Route::put('/lecons/{lessonId}/editer', [FormateurController::class, 'updateLesson'])->name('lessons.update');
+    Route::delete('/lecons/{lessonId}', [FormateurController::class, 'destroyLesson'])->name('lessons.destroy');
+    
+    // Voir la leçon comme un étudiant
+    Route::get('/cours/{courseId}/lecon/{lessonId}/apercu', [FormateurController::class, 'viewLessonAsStudent'])->name('view.lesson');
+    
+    // Upload d'images pour CKEditor
+    Route::post('/upload/image', [AdminImageController::class, 'upload'])->name('upload.image');
+    
+    // Route pour servir les images des leçons
+    Route::get('/lesson-images/{filename}', function ($filename) {
+        $path = storage_path('app/public/lesson_images/' . $filename);
+        if (file_exists($path)) {
+            $mimeType = mime_content_type($path);
+            return response()->file($path, [
+                'Content-Type' => $mimeType,
+                'Cache-Control' => 'public, max-age=31536000'
+            ]);
+        }
+        abort(404);
+    })->name('lesson.images');
     
     // Gestion des quiz
-    Route::get('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'createQuiz'])->name('formateur.quizzes.create');
-    Route::post('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'storeQuiz'])->name('formateur.quizzes.store');
-    Route::get('/quiz/{quizId}/editer', [FormateurController::class, 'editQuiz'])->name('formateur.quizzes.edit');
-    Route::put('/quiz/{quizId}/editer', [FormateurController::class, 'updateQuiz'])->name('formateur.quizzes.update');
-    Route::delete('/quiz/{quizId}', [FormateurController::class, 'destroyQuiz'])->name('formateur.quizzes.destroy');
+    Route::get('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'createQuiz'])->name('quizzes.create');
+    Route::post('/modules/{moduleId}/quiz/creer', [FormateurController::class, 'storeQuiz'])->name('quizzes.store');
+    Route::get('/quiz/{quizId}/editer', [FormateurController::class, 'editQuiz'])->name('quizzes.edit');
+    Route::put('/quiz/{quizId}/editer', [FormateurController::class, 'updateQuiz'])->name('quizzes.update');
+    Route::delete('/quiz/{quizId}', [FormateurController::class, 'destroyQuiz'])->name('quizzes.destroy');
     
     // Gestion des examens finaux
-    Route::get('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'createFinalExam'])->name('formateur.final-exam.create');
-    Route::post('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'storeFinalExam'])->name('formateur.final-exam.store');
-    Route::get('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'editFinalExam'])->name('formateur.final-exam.edit');
-    Route::put('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'updateFinalExam'])->name('formateur.final-exam.update');
-    Route::delete('/cours/{courseId}/examen-final', [FormateurController::class, 'destroyFinalExam'])->name('formateur.final-exam.destroy');
+    Route::get('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'createFinalExam'])->name('final-exam.create');
+    Route::post('/cours/{courseId}/examen-final/creer', [FormateurController::class, 'storeFinalExam'])->name('final-exam.store');
+    Route::get('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'editFinalExam'])->name('final-exam.edit');
+    Route::put('/cours/{courseId}/examen-final/editer', [FormateurController::class, 'updateFinalExam'])->name('final-exam.update');
+    Route::delete('/cours/{courseId}/examen-final', [FormateurController::class, 'destroyFinalExam'])->name('final-exam.destroy');
     
     // Gestion des étudiants et statistiques
-    Route::get('/cours/{courseId}/etudiants', [FormateurController::class, 'courseStudents'])->name('formateur.courses.students');
-    Route::get('/cours/{courseId}/evaluations', [FormateurController::class, 'courseRatings'])->name('formateur.courses.ratings');
-    Route::post('/cours/evaluations/{ratingId}/repondre', [FormateurController::class, 'replyToRating'])->name('formateur.courses.ratings.reply');
-    Route::get('/cours/{courseId}/revenus', [FormateurController::class, 'courseRevenues'])->name('formateur.courses.revenues');
-    Route::get('/cours/{courseId}/revenus/exporter', [FormateurController::class, 'exportRevenues'])->name('formateur.courses.revenues.export');
+    Route::get('/cours/{courseId}/etudiants', [FormateurController::class, 'courseStudents'])->name('courses.students');
+    Route::delete('/enrollments/{enrollmentId}/delete', [FormateurController::class, 'deleteEnrollment'])->name('enrollments.delete');
+    Route::get('/cours/{courseId}/evaluations', [FormateurController::class, 'courseRatings'])->name('courses.ratings');
+    Route::post('/cours/evaluations/{ratingId}/repondre', [FormateurController::class, 'replyToRating'])->name('courses.ratings.reply');
+    Route::get('/cours/{courseId}/revenus', [FormateurController::class, 'courseRevenues'])->name('courses.revenues');
+    Route::get('/cours/{courseId}/revenus/exporter', [FormateurController::class, 'exportRevenues'])->name('courses.revenues.export');
 });
 
 // Routes pour apprenants
@@ -292,6 +432,7 @@ Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->pr
     Route::get('/course/{courseId}', [EtudiantController::class, 'accessCourse'])->name('apprenant.course.access');
     Route::get('/lesson/{lessonId}', [EtudiantController::class, 'showLesson'])->name('apprenant.lesson');
     Route::post('/lesson/{lessonId}/complete', [EtudiantController::class, 'completeLesson'])->name('apprenant.lesson.complete');
+    Route::post('/lesson/{lessonId}/watch-time', [EtudiantController::class, 'updateWatchTime'])->name('apprenant.lesson.watch-time');
     
     // Quiz
     Route::get('/quiz/{quizId}', [EtudiantController::class, 'showQuiz'])->name('apprenant.quiz.show');
@@ -304,6 +445,19 @@ Route::middleware(['auth', \App\Http\Middleware\ApprenantMiddleware::class])->pr
     Route::get('/certification/{certificationId}', [EtudiantController::class, 'downloadCertification'])->name('apprenant.certification.download');
     Route::get('/apprenant/certification/{certificationId}/view', [EtudiantController::class, 'showCertification'])->name('apprenant.certification.view');
 });
+
+// Public route to serve lesson images (accessible by apprenants and non-formateurs)
+Route::get('/lesson-images/{filename}', function ($filename) {
+    $path = storage_path('app/public/lesson_images/' . $filename);
+    if (file_exists($path)) {
+        $mimeType = mime_content_type($path);
+        return response()->file($path, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=31536000'
+        ]);
+    }
+    abort(404);
+})->name('lesson.images');
 
 Route::get('/apprenants', [EtudiantController::class, 'index']);
 
@@ -324,12 +478,15 @@ Route::get('/courses/free', [CoursController::class, 'free'])->name('courses.fre
 Route::get('/courses/premium', [CoursController::class, 'premium'])->name('courses.premium');
 
 //les fonctionnalites 
-Route::get('/les-compétitions-disponibles', [\App\Http\Controllers\CompetitionDisplayController::class, 'index'])->name('pages.compdisp');
-Route::get('/api/leaderboard', [\App\Http\Controllers\CompetitionDisplayController::class, 'getLeaderboard'])->name('api.leaderboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/les-compétitions-disponibles', [\App\Http\Controllers\CompetitionDisplayController::class, 'index'])->name('pages.compdisp');
+    Route::get('/api/leaderboard', [\App\Http\Controllers\CompetitionDisplayController::class, 'getLeaderboard'])->name('api.leaderboard');
+});
 Route::get('/test-de-niveau', [CoursController::class, 'test'])->name('pages.test');
 Route::get('/vérifier-un-certificat', [CoursController::class, 'verifier'])->name('pages.verifier');
-Route::get('/le-forum-des-experts', [CoursController::class, 'forumexp'])->name('pages.forumexp');
-Route::get('/le-forum-des-apprenants', [CoursController::class, 'forumapp'])->name('pages.forumapp');
+// Forum experts : redirection vers la liste (route nommée pour les liens)
+// Route supprimée - gérée par CourseForumController à la ligne 631
+// Route::get('/le-forum-des-apprenants', [CoursController::class, 'forumapp'])->name('pages.forumapp');
 Route::get('/a-propos-de-AfriCode', [CoursController::class, 'apropos'])->name('pages.apropos');
 
 // Routes de profil (Breeze)
@@ -337,7 +494,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
 });
+
+// Route pour le profil public d'un utilisateur
+Route::get('/profil/{id}', [ProfileController::class, 'show'])->name('profile.show');
 
 // Routes paramétrages (Volt)
 Route::middleware(['auth'])->group(function () {
@@ -354,6 +515,43 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/payment/callback', [PaymentController::class, 'handleCallback'])->name('payment.callback');
     Route::post('/payment/{payment}/refund', [PaymentController::class, 'refund'])->name('payment.refund');
     Route::get('/payment/history', [PaymentController::class, 'paymentHistory'])->name('payment.history');
+});
+
+// Routes pour le système de mentorat
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('mentorship')->name('mentorship.')->group(function () {
+        // Routes principales
+        Route::get('/', [MentorshipController::class, 'index'])->name('index');
+        Route::get('/mentors', [MentorshipController::class, 'mentors'])->name('mentors');
+        Route::get('/requests/pending', [MentorshipController::class, 'requests'])->name('requests');
+        Route::get('/create', [MentorshipController::class, 'create'])->name('create');
+        Route::post('/', [MentorshipController::class, 'store'])->name('store');
+        Route::get('/{mentorship}', [MentorshipController::class, 'show'])->name('show');
+
+        // Actions sur les mentorats
+        Route::post('/{mentorship}/approve', [MentorshipController::class, 'approve'])->name('approve');
+        Route::post('/{mentorship}/decline', [MentorshipController::class, 'decline'])->name('decline');
+        Route::post('/{mentorship}/end', [MentorshipController::class, 'end'])->name('end');
+    });
+
+    // Routes pour le système de tutorat
+    Route::prefix('tutoring')->name('tutoring.')->group(function () {
+        // Routes principales
+        Route::get('/sessions', [TutoringSessionController::class, 'index'])->name('sessions.index');
+        Route::get('/sessions/create', [TutoringSessionController::class, 'create'])->name('sessions.create');
+        Route::post('/sessions', [TutoringSessionController::class, 'store'])->name('sessions.store');
+        Route::get('/sessions/{session}', [TutoringSessionController::class, 'show'])->name('sessions.show');
+        
+        // Actions sur les sessions
+        Route::post('/sessions/join', [TutoringSessionController::class, 'join'])->name('sessions.join');
+        Route::get('/sessions/{session}/room', [TutoringSessionController::class, 'joinRoom'])->name('sessions.join-room');
+        Route::post('/sessions/{session}/start', [TutoringSessionController::class, 'start'])->name('sessions.start');
+        Route::post('/sessions/{session}/complete', [TutoringSessionController::class, 'complete'])->name('sessions.complete');
+        Route::post('/sessions/{session}/cancel', [TutoringSessionController::class, 'cancel'])->name('sessions.cancel');
+        
+        // Messagerie
+        Route::post('/sessions/{session}/message', [TutoringSessionController::class, 'sendMessage'])->name('sessions.send-message');
+    });
 });
 
 // Routes pour le chat
@@ -373,6 +571,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/leaderboard', [AchievementController::class, 'leaderboard'])->name('achievements.leaderboard');
 });
 
+// API IA Assistant (optionnel)
+Route::middleware('auth')->prefix('api/ai-assistant')->group(function () {
+    Route::post('/chat', [AIAssistantController::class, 'chat'])->name('ai.chat');
+});
+
 // Routes pour le support
 Route::middleware(['auth'])->group(function () {
     // Tickets de support
@@ -388,12 +591,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/support/faq/{article}/helpful', [SupportController::class, 'markFaqHelpful'])->name('support.faq.helpful');
     Route::post('/support/faq/{article}/not-helpful', [SupportController::class, 'markFaqNotHelpful'])->name('support.faq.not-helpful');
 
-    // Administration du support
-    Route::middleware(['can:manageSupport'])->group(function () {
-        Route::get('/admin/support/tickets', [SupportController::class, 'adminTickets'])->name('admin.support.tickets.index');
-        Route::post('/admin/support/tickets/{ticket}/assign', [SupportController::class, 'assignTicket'])->name('admin.support.tickets.assign');
-        Route::patch('/admin/support/tickets/{ticket}/status', [SupportController::class, 'updateTicketStatus'])->name('admin.support.tickets.status');
-    });
 });
 
 // Routes pour les quiz
@@ -449,27 +646,33 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Forum de discussion (accessible à tous les utilisateurs connectés)
-Route::middleware(['auth'])->prefix('forum')->name('forum.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('index');
-    Route::get('/creer', [\App\Http\Controllers\CourseForumController::class, 'create'])->name('create');
-    Route::post('/', [\App\Http\Controllers\CourseForumController::class, 'store'])->name('store');
-    Route::get('/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('show');
-    Route::get('/{id}/editer', [\App\Http\Controllers\CourseForumController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [\App\Http\Controllers\CourseForumController::class, 'update'])->name('update');
-    Route::delete('/{id}', [\App\Http\Controllers\CourseForumController::class, 'destroy'])->name('destroy');
-    Route::post('/{id}/repondre', [\App\Http\Controllers\CourseForumController::class, 'reply'])->name('reply');
+Route::middleware(['auth'])->prefix('forum')->name('forum.')->group(function () {                                                                               
+    Route::get('/', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('index');                                                              
+    Route::get('/creer', [\App\Http\Controllers\CourseForumController::class, 'create'])->name('create');                                                       
+    Route::post('/', [\App\Http\Controllers\CourseForumController::class, 'store'])->name('store');                                                             
+    Route::get('/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('show');                                                            
+    Route::get('/{id}/editer', [\App\Http\Controllers\CourseForumController::class, 'edit'])->name('edit');                                                     
+    Route::put('/{id}', [\App\Http\Controllers\CourseForumController::class, 'update'])->name('update');                                                        
+    Route::delete('/{id}', [\App\Http\Controllers\CourseForumController::class, 'destroy'])->name('destroy');                                                   
+    Route::post('/{id}/repondre', [\App\Http\Controllers\CourseForumController::class, 'reply'])->name('reply');                                                
+});
+
+// Système de votes pour le forum
+Route::middleware(['auth'])->prefix('votes')->name('votes.')->group(function () {
+    Route::post('/post/{post}', [\App\Http\Controllers\VoteController::class, 'votePost'])->name('post');
+    Route::get('/post/{post}/score', [\App\Http\Controllers\VoteController::class, 'getScore'])->name('score');
 });
 
 // Route personnalisée pour le forum des apprenants (accès direct)
 Route::get('/le-forum-des-apprenants', [\App\Http\Controllers\CourseForumController::class, 'index'])->name('pages.forumapp');
 
-// Route personnalisée pour afficher un sujet du forum des experts
-Route::get('/le-forum-des-experts/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('pages.forumexp');
-
-// Redirection automatique de /le-forum-des-experts vers la liste des sujets du forum
+// Liste du forum des experts (URL /le-forum-des-experts)
 Route::get('/le-forum-des-experts', function () {
-    return redirect()->route('forum.index'); // ou 'pages.forumapp' si tu préfères
-});
+    return redirect()->route('forum.index');
+})->name('pages.forumexp');
+
+// Détail d'un sujet du forum des experts (URL /le-forum-des-experts/{id})
+Route::get('/le-forum-des-experts/{id}', [\App\Http\Controllers\CourseForumController::class, 'show'])->name('pages.forumexp.show');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/forum/ajax-store', [\App\Http\Controllers\CourseForumController::class, 'storeAjax'])->name('forum.ajaxStore');
@@ -498,7 +701,7 @@ Route::get('/api/forum/leaderboard', function () {
                     
                     // Générer l'avatar comme dans CompetitionDisplayController
                     $initials = strtoupper(substr($name, 0, 2));
-                    $colors = ['#1EA38B', '#FF8E2A', '#E32D31', '#27B371', '#9B59B6'];
+                    $colors = ['#11c06d', '#fea837', '#fa1c39', '#239e79', '#9B59B6'];
                     $color = $colors[array_rand($colors)];
                     $avatar = "https://via.placeholder.com/35/{$color}/FFFFFF?text=" . urlencode($initials);
                     
@@ -554,22 +757,40 @@ Route::get('/api/forum/leaderboard', function () {
 
         return response()->json(['success' => true, 'leaderboard' => $leaderboardData]);
     } catch (\Exception $e) {
-        \Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
+        Log::error('Erreur API leaderboard forum: ' . $e->getMessage());
         return response()->json(['success' => false, 'error' => 'Erreur serveur'], 500);
     }
 })->name('api.forum.leaderboard');
 
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+Route::redirect('/faq', '/support/faq')->name('faq');
 
 Route::post('/contact/submit', [ContactController::class, 'submit'])->name('contact.submit');
 
+// Recrutement AfriCode
+Route::get('/recrute', [\App\Http\Controllers\RecruitmentController::class, 'index'])->name('recruitment.index');
+Route::get('/recrute/{slug}/candidater', [\App\Http\Controllers\RecruitmentController::class, 'form'])->name('recruitment.form');
+Route::post('/recrute/{slug}/candidater', [\App\Http\Controllers\RecruitmentController::class, 'storeForm'])->name('recruitment.store');
+Route::get('/recrute/{slug}/test/{token}', [\App\Http\Controllers\RecruitmentController::class, 'test'])->name('recruitment.test');
+Route::post('/recrute/{slug}/test/{token}', [\App\Http\Controllers\RecruitmentController::class, 'submitTest'])->name('recruitment.submit-test');
+Route::get('/recrute/{slug}/resultats/{token}', [\App\Http\Controllers\RecruitmentController::class, 'results'])->name('recruitment.results');
+Route::get('/recrute/merci', [\App\Http\Controllers\RecruitmentController::class, 'thankYou'])->name('recruitment.thank-you');
+
+Route::view('/nos-services', 'pages.services')->name('pages.services');
 Route::view('/conditions-utilisation', 'pages.terms')->name('pages.terms');
 Route::view('/politique-confidentialite', 'pages.privacy')->name('pages.privacy');
 Route::view('/confidentialite', 'pages.confidentialite')->name('confidentialite');
 Route::view('/parametres-cookies', 'pages.parametres-cookies')->name('parametres.cookies');
 Route::post('/parametres-cookies', function(Request $request) {
-    // Ici, tu pourrais traiter les préférences cookies (en session, en base, etc.)
+    $request->validate([
+        'preferences' => 'nullable|array',
+        'preferences.*' => 'boolean'
+    ]);
+    
+    // Stocker les préférences en session
+    session(['cookie_preferences' => $request->input('preferences', [])]);
+    
     return redirect()->route('parametres.cookies')->with('success', 'Préférences enregistrées !');
 })->name('parametres.cookies.save');
 
@@ -591,7 +812,7 @@ Route::get('/competitions/{slug}/play', [\App\Http\Controllers\CompetitionDispla
 Route::middleware(['auth'])->post('/competitions/{slug}/run-code', [\App\Http\Controllers\CompetitionController::class, 'runCode'])->name('competitions.runCode');
 Route::post('/competitions/{slug}/evaluate', [App\Http\Controllers\CompetitionController::class, 'evaluateSubmission'])->name('competitions.evaluate');
 
-Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'index'])->name('admin.competitions.testcases.index');
     Route::get('competitions/{competition}/test-cases/create', [AdminCompetitionTestCaseController::class, 'create'])->name('admin.competitions.testcases.create');
     Route::post('competitions/{competition}/test-cases', [AdminCompetitionTestCaseController::class, 'store'])->name('admin.competitions.testcases.store');
@@ -599,4 +820,121 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
     Route::put('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'update'])->name('admin.competitions.testcases.update');
     Route::delete('competitions/{competition}/test-cases/{testcase}', [AdminCompetitionTestCaseController::class, 'destroy'])->name('admin.competitions.testcases.destroy');
 });
+
+// Routes Push Notifications (VAPID)
+Route::middleware(['auth'])->group(function () {
+    Route::post('/push-subscription', [\App\Http\Controllers\PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::delete('/push-subscription', [\App\Http\Controllers\PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+});
+
+// Routes Notifications (cloche — partagées entre tous les rôles)
+Route::middleware(['auth'])->prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/count',    [\App\Http\Controllers\NotificationController::class, 'count'])->name('count');
+    Route::post('/read-all',[\App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('readAll');
+    Route::post('/{id}/read',[\App\Http\Controllers\NotificationController::class, 'markRead'])->name('read');
+    // Pages liste par rôle
+    Route::get('/apprenant', [\App\Http\Controllers\NotificationController::class, 'apprenantIndex'])->name('apprenant');
+    Route::get('/formateur', [\App\Http\Controllers\NotificationController::class, 'formateurIndex'])->name('formateur');
+});
+
+// Routes pour le système marketing
+Route::prefix('marketing')->group(function () {
+    Route::get('promotional-courses', [MarketingController::class, 'getPromotionalCourses'])->name('marketing.promotional-courses');
+    Route::get('test-eligibility', [MarketingController::class, 'checkTestEligibility'])->name('marketing.test-eligibility');
+    Route::post('mark-test-seen', [MarketingController::class, 'markTestSeen'])->name('marketing.mark-test-seen');
+    Route::post('mark-promotion-seen', [MarketingController::class, 'markPromotionSeen'])->name('marketing.mark-promotion-seen');
+    Route::get('stats', [MarketingController::class, 'getMarketingStats'])->name('marketing.stats');
+});
+
+// Prévisualisation des emails (local uniquement)
+if (app()->isLocal()) {
+    Route::prefix('email-preview')->name('email-preview.')->group(function () {
+
+        Route::get('/inactive-reminder', function () {
+            return view('emails.notifications.inactive-reminder', [
+                'firstName'    => 'Kouamé',
+                'dashboardUrl' => url('/dashboard'),
+            ]);
+        })->name('inactive-reminder');
+
+        Route::get('/learning-help', function () {
+            return view('emails.notifications.learning-help', [
+                'firstName' => 'Kouamé',
+                'helpUrl'   => url('/support/faq'),
+            ]);
+        })->name('learning-help');
+
+        Route::get('/badge-unlocked', function () {
+            return view('emails.notifications.badge-unlocked', [
+                'firstName' => 'Kouamé',
+                'badgesUrl' => url('/badges'),
+            ]);
+        })->name('badge-unlocked');
+
+        Route::get('/progression-milestone', function () {
+            return view('emails.notifications.progression-milestone', [
+                'firstName'    => 'Kouamé',
+                'dashboardUrl' => url('/dashboard'),
+            ]);
+        })->name('progression-milestone');
+
+        Route::get('/newsletter-welcome', function () {
+            return view('emails.newsletter.welcome', [
+                'coursesUrl'     => url('/courses'),
+                'unsubscribeUrl' => url('/newsletter/unsubscribe/TOKEN'),
+            ]);
+        })->name('newsletter-welcome');
+
+        Route::get('/registration-welcome', function () {
+            $user = (object) [
+                'first_name' => 'Kouamé',
+                'last_name'  => 'Diallo',
+                'email'      => 'kouame@example.com',
+                'created_at' => now(),
+            ];
+            return view('emails.registration.welcome', [
+                'user'         => $user,
+                'roleText'     => 'Apprenant',
+                'dashboardUrl' => url('/dashboard'),
+            ]);
+        })->name('registration-welcome');
+
+        Route::get('/enrollment-confirmed', function () {
+            $user   = \App\Models\User::first();
+            $course = \App\Models\Course::first();
+            return view('emails.enrollment.confirmed', [
+                'user'      => $user,
+                'course'    => $course,
+                'isFree'    => true,
+                'payment'   => null,
+                'courseUrl' => url('/courses'),
+            ]);
+        })->name('enrollment-confirmed');
+
+        Route::get('/contact-admin', function () {
+            return view('emails.contact.admin', [
+                'contactData' => [
+                    'firstName'      => 'Kouamé',
+                    'lastName'       => 'Diallo',
+                    'email'          => 'kouame@example.com',
+                    'subject'        => 'Question sur les formations',
+                    'message'        => "Bonjour,\n\nJe souhaite en savoir plus sur vos formations en développement web.\n\nMerci.",
+                    'attachmentName' => null,
+                ],
+            ]);
+        })->name('contact-admin');
+
+        Route::get('/contact-confirmation', function () {
+            return view('emails.contact.confirmation', [
+                'contactData' => [
+                    'firstName' => 'Kouamé',
+                    'subject'   => 'Question sur les formations',
+                    'message'   => "Bonjour,\n\nJe souhaite en savoir plus sur vos formations en développement web.\n\nMerci.",
+                ],
+                'coursesUrl' => url('/courses'),
+            ]);
+        })->name('contact-confirmation');
+
+    });
+}
 

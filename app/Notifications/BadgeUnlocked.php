@@ -35,11 +35,11 @@ class BadgeUnlocked extends Notification
     public function toMail($notifiable)
     {
         return (new \Illuminate\Notifications\Messages\MailMessage)
-            ->subject('Nouveau badge débloqué !')
-            ->greeting('Félicitations ' . $notifiable->first_name . ' !')
-            ->line('Vous venez de débloquer un nouveau badge sur AfriCode.')
-            ->action('Voir mes badges', url('/badges'))
-            ->line('Continuez comme ça !');
+            ->subject("Nouveau badge débloqué !")
+            ->view('emails.notifications.badge-unlocked', [
+                'firstName' => $notifiable->first_name,
+                'badgesUrl' => url('/badges'),
+            ]);
     }
 
     /**

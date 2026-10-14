@@ -12,9 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modifier l'enum content_type pour accepter 'external' au lieu de 'external_link'
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
-        
+        // Exécuter la modification uniquement si la base n'est pas SQLite
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
+        }
         // Mettre à jour les valeurs existantes si nécessaire
         DB::table('lessons')
             ->where('content_type', 'external_link')
@@ -31,8 +32,9 @@ return new class extends Migration
     public function down(): void
     {
         // Restaurer l'ancien enum
-        DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
-        
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE lessons MODIFY COLUMN content_type ENUM('video', 'text', 'pdf', 'external', 'quiz_link') NOT NULL");
+        }
         // Restaurer les valeurs
         DB::table('lessons')
             ->where('content_type', 'external')

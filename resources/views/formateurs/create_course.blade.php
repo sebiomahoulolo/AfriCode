@@ -181,11 +181,23 @@
 @section('content')
     <div class="card-modern" data-aos="fade-up">
         <div class="card-body-modern">
+            @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fas fa-exclamation-triangle me-2"></i>Erreurs de validation :</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+            
             <form id="create-course-form" class="course-form" method="POST" action="{{ route('formateur.courses.store') }}" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="mb-4">
-                    <h5 class="text-primary">
+                    <h5 class="" style="color:#1EA38B;">
                         <i class="fas fa-info-circle me-2"></i>Informations générales
                     </h5>
                     <hr>
@@ -227,7 +239,7 @@
                 
                 <div class="mb-4">
                     <label for="full_description" class="form-label">Description complète <span class="text-danger">*</span></label>
-                    <textarea class="form-control @error('full_description') is-invalid @enderror" id="full_description" name="full_description" rows="6" required>{{ old('full_description') }}</textarea>
+                    <textarea class="form-control @error('full_description') is-invalid @enderror" id="full_description" name="full_description" rows="6">{{ old('full_description') }}</textarea>
                     <div class="form-text">Décrivez en détail ce que les étudiants apprendront dans votre cours.</div>
                     @error('full_description')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -238,7 +250,17 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="learning_objectives" class="form-label">Objectifs d'apprentissage</label>
-                            <textarea class="form-control @error('learning_objectives') is-invalid @enderror" id="learning_objectives" name="learning_objectives" rows="4" placeholder="Un objectif par ligne">{{ old('learning_objectives') }}</textarea>
+                            @php
+                                $learningObjectivesValue = old('learning_objectives');
+                                // Si c'est du JSON, le convertir en texte
+                                if ($learningObjectivesValue) {
+                                    $decoded = json_decode($learningObjectivesValue, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                        $learningObjectivesValue = implode("\n", $decoded);
+                                    }
+                                }
+                            @endphp
+                            <textarea class="form-control @error('learning_objectives') is-invalid @enderror" id="learning_objectives" name="learning_objectives" rows="4" placeholder="Un objectif par ligne">{{ $learningObjectivesValue }}</textarea>
                             <div class="form-text">Ce que les apprenants maîtriseront à la fin du cours (un objectif par ligne).</div>
                             @error('learning_objectives')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -249,7 +271,17 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label for="prerequisites" class="form-label">Prérequis</label>
-                            <textarea class="form-control @error('prerequisites') is-invalid @enderror" id="prerequisites" name="prerequisites" rows="4" placeholder="Un prérequis par ligne">{{ old('prerequisites') }}</textarea>
+                            @php
+                                $prerequisitesValue = old('prerequisites');
+                                // Si c'est du JSON, le convertir en texte
+                                if ($prerequisitesValue) {
+                                    $decoded = json_decode($prerequisitesValue, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                        $prerequisitesValue = implode("\n", $decoded);
+                                    }
+                                }
+                            @endphp
+                            <textarea class="form-control @error('prerequisites') is-invalid @enderror" id="prerequisites" name="prerequisites" rows="4" placeholder="Un prérequis par ligne">{{ $prerequisitesValue }}</textarea>
                             <div class="form-text">Connaissances ou compétences requises pour suivre ce cours (un prérequis par ligne).</div>
                             @error('prerequisites')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -284,10 +316,10 @@
                             <label for="level" class="form-label">Niveau <span class="text-danger">*</span></label>
                             <select class="form-select @error('level') is-invalid @enderror" id="level" name="level" required>
                                 <option value="">Sélectionner un niveau</option>
-                                <option value="débutant" {{ old('level') == 'débutant' ? 'selected' : '' }}>Débutant</option>
-                                <option value="intermédiaire" {{ old('level') == 'intermédiaire' ? 'selected' : '' }}>Intermédiaire</option>
-                                <option value="avancé" {{ old('level') == 'avancé' ? 'selected' : '' }}>Avancé</option>
-                                <option value="expert" {{ old('level') == 'expert' ? 'selected' : '' }}>Expert</option>
+                                <option value="debutant" {{ old('level') == 'debutant' ? 'selected' : '' }}>Débutant</option>
+                                <option value="intermediaire" {{ old('level') == 'intermediaire' ? 'selected' : '' }}>Intermédiaire</option>
+                                <option value="avance" {{ old('level') == 'avance' ? 'selected' : '' }}>Avancé</option>
+                                <option value="tous_niveaux" {{ old('level') == 'tous_niveaux' ? 'selected' : '' }}>Tous niveaux</option>
                             </select>
                             @error('level')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -301,9 +333,7 @@
                             <div class="input-group">
                                 <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', 0) }}" min="0" step="0.01" required>
                                 <select class="form-select @error('currency') is-invalid @enderror" id="currency" name="currency" required>
-                                    <option value="EUR" {{ old('currency', 'EUR') == 'EUR' ? 'selected' : '' }}>EUR</option>
-                                    <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>USD</option>
-                                    <option value="XOF" {{ old('currency') == 'XOF' ? 'selected' : '' }}>XOF</option>
+                                    <option value="XOF" {{ old('currency', 'XOF') == 'XOF' ? 'selected' : '' }}>XOF (CFAO)</option>
                                 </select>
                             </div>
                             <div class="form-text">Mettez 0 pour un cours gratuit.</div>
@@ -337,7 +367,10 @@
                 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ route('formateur.dashboard') }}" class="btn btn-outline-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-primary">Créer le cours</button>
+                    <button type="submit" id="submit-course-btn" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
+                        <span id="submit-text">Créer le cours</span>
+                        <span id="submit-spinner" class="spinner-border spinner-border-sm d-none ms-2" role="status" aria-hidden="true"></span>
+                    </button>
                 </div>
             </form>
         </div>
@@ -347,6 +380,8 @@
 @section('scripts')
 <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
 <script>
+    let fullDescriptionEditor;
+    
     // Image preview
     document.getElementById('cover_image').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -363,37 +398,79 @@
     // Initialize CKEditor for full description
     ClassicEditor
         .create(document.querySelector('#full_description'))
+        .then(editor => {
+            fullDescriptionEditor = editor;
+        })
         .catch(error => {
             console.error('Erreur CKEditor pour #full_description:', error);
         });
         
     // Handle learning objectives and prerequisites as JSON
     const courseForm = document.querySelector('form.course-form');
+    const submitBtn = document.getElementById('submit-course-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+    
     if (courseForm) {
         courseForm.addEventListener('submit', function(e) {
             try {
+                // Afficher l'indicateur de chargement
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    if (submitText) submitText.textContent = 'Création en cours...';
+                    if (submitSpinner) submitSpinner.classList.remove('d-none');
+                }
+                
+                // Récupérer le contenu de CKEditor si disponible
+                if (fullDescriptionEditor) {
+                    const fullDescriptionEl = document.getElementById('full_description');
+                    if (fullDescriptionEl) {
+                        fullDescriptionEl.value = fullDescriptionEditor.getData();
+                    }
+                }
+                
                 const learningObjectivesEl = document.getElementById('learning_objectives');
                 if (learningObjectivesEl) {
-                    const learningObjectives = learningObjectivesEl.value
-                        .split('\\n')
-                        .map(line => line.trim()) // Trim each line
-                        .filter(line => line !== ''); // Filter out empty lines
-                    learningObjectivesEl.value = JSON.stringify(learningObjectives);
+                    // Vérifier si la valeur est déjà en JSON
+                    let learningObjectives;
+                    try {
+                        learningObjectives = JSON.parse(learningObjectivesEl.value);
+                    } catch (e) {
+                        // Si ce n'est pas du JSON, traiter comme du texte
+                        learningObjectives = learningObjectivesEl.value
+                            .split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line !== '');
+                    }
+                    learningObjectivesEl.value = learningObjectives.length > 0 ? JSON.stringify(learningObjectives) : JSON.stringify([]);
                 }
 
                 const prerequisitesEl = document.getElementById('prerequisites');
                 if (prerequisitesEl) {
-                    const prerequisites = prerequisitesEl.value
-                        .split('\\n')
-                        .map(line => line.trim()) // Trim each line
-                        .filter(line => line !== ''); // Filter out empty lines
-                    prerequisitesEl.value = JSON.stringify(prerequisites);
+                    // Vérifier si la valeur est déjà en JSON
+                    let prerequisites;
+                    try {
+                        prerequisites = JSON.parse(prerequisitesEl.value);
+                    } catch (e) {
+                        // Si ce n'est pas du JSON, traiter comme du texte
+                        prerequisites = prerequisitesEl.value
+                            .split('\n')
+                            .map(line => line.trim())
+                            .filter(line => line !== '');
+                    }
+                    prerequisitesEl.value = prerequisites.length > 0 ? JSON.stringify(prerequisites) : JSON.stringify([]);
                 }
+                
+                // Le formulaire va se soumettre normalement
             } catch (error) {
-                console.error('Erreur lors de la préparation des données du formulaire (cours) avant soumission:', error);
-                // Décommentez les lignes suivantes pour empêcher la soumission et alerter en cas d'erreur critique
-                // e.preventDefault();
-                // alert('Une erreur est survenue lors de la préparation des données du formulaire. Veuillez vérifier la console.');
+                console.error('Erreur lors de la préparation des données du formulaire:', error);
+                // Réactiver le bouton en cas d'erreur
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    if (submitText) submitText.textContent = 'Créer le cours';
+                    if (submitSpinner) submitSpinner.classList.add('d-none');
+                }
+                // Ne pas empêcher la soumission, laisser le serveur gérer les erreurs
             }
         });
     } else {

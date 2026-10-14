@@ -367,7 +367,7 @@
     <!-- Hero Section -->
     <div class="certifications-hero">
         <div class="hero-content">
-            <h1 class="hero-title">🏆 Mes Certifications</h1>
+            <h1 class="hero-title"><i class="fas fa-trophy me-2"></i>Mes Certifications</h1>
             <p class="hero-subtitle">Découvrez et gérez toutes vos certifications AfriCode</p>
             
             <div class="certification-stats">

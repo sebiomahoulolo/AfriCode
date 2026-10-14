@@ -1,0 +1,208 @@
+/* AfriCode - Header Admin */
+
+/* Header moderne */
+.admin-header {
+    background: var(--africode-white);
+    box-shadow: var(--africode-shadow-sm);
+    border-bottom: 1px solid var(--africode-gray-medium);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.admin-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-mobile-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--africode-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: var(--africode-transition);
+}
+
+.admin-mobile-toggle:hover {
+    background: var(--africode-gray-light);
+}
+
+.admin-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--africode-gray-dark);
+    font-size: 0.9rem;
+}
+
+.admin-breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-breadcrumb-separator {
+    color: var(--africode-gray-medium);
+}
+
+.admin-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-search-input {
+    background: var(--africode-gray-light);
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    width: 300px;
+    font-size: 0.9rem;
+    transition: var(--africode-transition);
+}
+
+.admin-search-input:focus {
+    outline: none;
+    background: var(--africode-white);
+    box-shadow: 0 0 0 2px var(--africode-primary);
+    width: 350px;
+}
+
+.admin-search-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--africode-gray-dark);
+    font-size: 0.9rem;
+}
+
+.admin-notifications {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--africode-gray-dark);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 50%;
+    transition: var(--africode-transition);
+}
+
+.admin-notifications:hover {
+    background: var(--africode-gray-light);
+    color: var(--africode-primary);
+}
+
+.admin-notification-badge {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    background: var(--africode-accent-red);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1;
+}
+
+.admin-user-menu {
+    position: relative;
+}
+
+.admin-user-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--africode-border-radius);
+    cursor: pointer;
+    transition: var(--africode-transition);
+}
+
+.admin-user-button:hover {
+    background: var(--africode-gray-light);
+}
+
+.admin-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--africode-gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.admin-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.admin-user-name {
+    font-weight: 600;
+    color: var(--africode-dark-text);
+    font-size: 0.9rem;
+}
+
+.admin-user-role {
+    color: var(--africode-gray-dark);
+    font-size: 0.8rem;
+}
+
+.admin-user-chevron {
+    color: var(--africode-gray-dark);
+    font-size: 0.8rem;
+    transition: var(--africode-transition);
+}
+
+.admin-user-button:hover .admin-user-chevron {
+    color: var(--africode-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-header {
+        padding: 1rem;
+    }
+    
+    .admin-mobile-toggle {
+        display: block;
+    }
+    
+    .admin-search-box {
+        display: none;
+    }
+    
+    .admin-breadcrumb {
+        display: none;
+    }
+    
+    .admin-user-info {
+        display: none;
+    }
+}

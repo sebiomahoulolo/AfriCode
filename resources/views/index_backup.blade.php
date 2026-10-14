@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="#000000">
     <title>AfriCode : apprenez la cybersécurité, Python et plus encore</title>
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     
     <meta name="title" content="AfriCode : apprenez la cybersécurité, Python et plus encore">
     <meta name="description" content="AfriCode est un programme de formation professionnelle qui façonne la main-d'œuvre de demain. Depuis 2024, nous avons eu un impact sur des milliers d'apprenants en Afrique.">
@@ -346,7 +347,7 @@
                             <div class="col-lg-6 order-lg-1">
                                 <div class="marketBanner">
                                     <div class="d-flex align-items-center">
-                                        <span class="fireIcon">🔥</span>
+                                        <span class="fireIcon"><i class="fas fa-fire"></i></span>
                                         <div>
                                             <div class="mBtitle">Le marché de l'emploi de la tech recrute à tour de bras !</div>
                                             <div class="mBdesc">Découvrez pourquoi des milliers de personnes se sont inscrites à nos <a href="{{ route('courses.index') }}">cours gratuits de programmation</a></div>
@@ -417,19 +418,19 @@
                         <h2 class="sectionTitle text-center mb-5">Domaines de formation</h2>
                         <div class="subjectAreaBlock">
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'cybersecurity']) }}">
-                                <div class="subjectAreaIcon">🛡️</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-shield-alt"></i></div>
                                 <div class="subjectAreaTitle">Cybersécurité</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'networking']) }}">
-                                <div class="subjectAreaIcon">🌐</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-globe"></i></div>
                                 <div class="subjectAreaTitle">Réseau</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'ai']) }}">
-                                <div class="subjectAreaIcon">🤖</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-robot"></i></div>
                                 <div class="subjectAreaTitle">IA et science des données</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'programming']) }}">
-                                <div class="subjectAreaIcon">💻</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-laptop-code"></i></div>
                                 <div class="subjectAreaTitle">Programmation</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'it']) }}">
@@ -437,15 +438,15 @@
                                 <div class="subjectAreaTitle">Technologies de l'information</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'digital']) }}">
-                                <div class="subjectAreaIcon">📱</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-tablet-alt"></i></div>
                                 <div class="subjectAreaTitle">Compétences numériques</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'professional']) }}">
-                                <div class="subjectAreaIcon">👔</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-briefcase"></i></div>
                                 <div class="subjectAreaTitle">Compétences professionnelles</div>
                             </a>
                             <a class="subjectAreaCard" href="{{ route('courses.index', ['category' => 'mobile']) }}">
-                                <div class="subjectAreaIcon">📱</div>
+                                <div class="subjectAreaIcon"><i class="fas fa-mobile-alt"></i></div>
                                 <div class="subjectAreaTitle">Développement mobile</div>
                             </a>
                         </div>
@@ -500,10 +501,10 @@
                         </div>
                         <div class="col-md-6 text-md-end">
                             <div style="font-size: 24px;">
-                                <a href="#" style="color: #ccc; margin: 0 10px;">📧</a>
-                                <a href="#" style="color: #ccc; margin: 0 10px;">🐦</a>
-                                <a href="#" style="color: #ccc; margin: 0 10px;">📘</a>
-                                <a href="#" style="color: #ccc; margin: 0 10px;">💼</a>
+                                <a href="#" style="color: #ccc; margin: 0 10px;"><i class="fas fa-envelope"></i></a>
+                                <a href="#" style="color: #ccc; margin: 0 10px;"><i class="fab fa-twitter"></i></a>
+                                <a href="#" style="color: #ccc; margin: 0 10px;"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" style="color: #ccc; margin: 0 10px;"><i class="fab fa-linkedin"></i></a>
                             </div>
                         </div>
                     </div>

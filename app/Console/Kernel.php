@@ -89,5 +89,15 @@ class Kernel extends ConsoleKernel
                 }
             });
         })->dailyAt('09:00');
+
+        // ── Push Notifications planifiées ──────────────────────────
+        // Campagnes avec date planifiée → vérifie toutes les minutes
+        $schedule->command('push:send-scheduled')->everyMinute()->withoutOverlapping(5);
+
+        // Rappel d'inactivité push (7 jours) → tous les jours à 10h
+        $schedule->command('push:inactivity-reminder 7')->dailyAt('10:00');
+
+        // Rappel hebdomadaire (3 jours) → chaque lundi à 08h30
+        $schedule->command('push:inactivity-reminder 3')->weeklyOn(1, '08:30');
     }
 } 

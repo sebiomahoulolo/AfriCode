@@ -8,14 +8,14 @@
         <h1 class="h2"><i class="fas fa-trophy me-2"></i>Compétition : {{ $competition->title }}</h1>
         <p class="lead">{{ $competition->description }}</p>
     </div>
-    
+
     <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i> <strong>Énoncé du défi :</strong>
         <div class="mt-2">{!! nl2br(e($competition->description ?? 'Aucun énoncé fourni pour cette compétition.')) !!}</div>
     </div>
-    
+
     <div class="card mt-4 shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header text-white" style="background:#1EA38B;">
             <i class="fas fa-code me-2"></i>Éditeur de code AfriCode
         </div>
         <div class="card-body">
@@ -34,35 +34,35 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-6 text-md-end">
-                    <button id="run-btn" class="btn btn-success">
+                    <button id="run-btn" class="btn text-white" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                         <i class="fas fa-play me-1"></i> Exécuter
                     </button>
-                    <button id="evaluate-btn" class="btn btn-primary ms-2">
+                    <button id="evaluate-btn" class="btn text-white ms-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-clipboard-check me-1"></i> Évaluer ma solution
                     </button>
                 </div>
             </div>
-            
+
             <div id="editor" class="border rounded" style="height: 300px; width: 100%;"></div>
-            
+
             <div id="loading-indicator" class="mt-3 text-center" style="display:none;">
-                <div class="spinner-border text-primary" role="status">
+                <div class="spinner-border" role="status" style="color:#1EA38B;">
                     <span class="visually-hidden">Chargement...</span>
                 </div>
                 <p class="mt-2 mb-0">Exécution en cours...</p>
             </div>
-            
+
             <div id="output-container" class="mt-4" style="display:none;">
                 <div class="alert alert-success d-flex align-items-center d-none" id="output-success">
                     <i class="fas fa-check-circle me-2"></i>
                     <div>Code exécuté avec succès</div>
                 </div>
-                
+
                 <div class="alert alert-danger d-flex align-items-center d-none" id="output-error">
                     <i class="fas fa-times-circle me-2"></i>
                     <div>Erreur lors de l'exécution</div>
                 </div>
-                
+
                 <div class="row g-3">
                     <div class="col-12 col-lg-6">
                         <div class="card h-100">
@@ -74,7 +74,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-12 col-lg-6" id="error-col">
                         <div class="card h-100">
                             <div class="card-header bg-danger text-white">
@@ -87,11 +87,11 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Preview pour HTML/PHP -->
             <div id="html-preview-container" class="mt-4 d-none">
                 <div class="card">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header text-white" style="background:#1EA38B;">
                         <i class="fas fa-eye me-2"></i>Prévisualisation
                     </div>
                     <div class="card-body p-0">
@@ -101,9 +101,9 @@
             </div>
         </div>
     </div>
-    
+
     <div class="mt-3">
-        <a href="{{ route('competitions.show', $competition->slug) }}" class="btn btn-outline-primary">
+        <a href="{{ route('competitions.show', $competition->slug) }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
             <i class="fas fa-arrow-left me-1"></i> Retour à la compétition
         </a>
     </div>
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
     runBtn.addEventListener('click', function() {
         const code = editor.getValue();
         let language = languageSelect.value;
-        
+
         if (!language) {
             alert('Veuillez sélectionner un langage de programmation');
             return;
@@ -178,9 +178,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cas particulier pour HTML/PHP
         if (language === 'html' || language === 'php') {
             htmlPreviewContainer.classList.remove('d-none');
-            
+
             if (code.includes('<?php')) {
-                // PHP - besoin d'exécution côté serveur
                 executeCode(code, 'php').then(data => {
                     displayResult(data);
                     htmlPreview.srcdoc = data.output || '<div style="padding:1em;color:red">Aucune sortie</div>';
@@ -274,9 +273,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({ 
-                code: code, 
-                language: language 
+            body: JSON.stringify({
+                code: code,
+                language: language
             })
         }).then(response => {
             if (!response.ok) {
@@ -290,10 +289,10 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayResult(data) {
         loadingIndicator.style.display = 'none';
         outputContainer.style.display = '';
-        
+
         const resultOutput = data.output || data.stdout || data.run?.output || data.run?.stdout || 'Aucune sortie';
         const resultError = data.error || data.stderr || data.run?.stderr || '';
-        
+
         output.textContent = resultOutput;
         errorOutput.textContent = resultError;
 

@@ -183,7 +183,7 @@ class QuizController extends Controller
     {
         $this->authorize('view', $attempt);
 
-        if ($attempt->completed_at) {
+        if ($attempt->submitted_at) {
             return redirect()->route('quizzes.results', $attempt);
         }
 
@@ -203,7 +203,7 @@ class QuizController extends Controller
     {
         $this->authorize('update', $attempt);
 
-        if ($attempt->completed_at) {
+        if ($attempt->submitted_at) {
             return redirect()->route('quizzes.results', $attempt);
         }
 

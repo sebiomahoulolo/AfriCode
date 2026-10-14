@@ -38,40 +38,45 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('APP_URL') . '/auth/google/callback',
-
-        
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'https://africode.tech/auth/google/callback'),
     ],
 
     'facebook' => [
         'client_id' => env('FACEBOOK_CLIENT_ID'),
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
-        'redirect' => env('APP_URL') . '/auth/facebook/callback',
+        'redirect' => env('FACEBOOK_REDIRECT_URI', 'https://africode.tech/auth/facebook/callback'),
     ],
 
     'github' => [
         'client_id' => env('GITHUB_CLIENT_ID'),
         'client_secret' => env('GITHUB_CLIENT_SECRET'),
-        'redirect' => env('APP_URL') . '/auth/github/callback',
+        'redirect' => 'https://africode.tech/auth/github/callback',
     ],
-    'linkedin' => [
-    'client_id' => env('LINKEDIN_CLIENT_ID'),
-    'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
-    'redirect' => env('LINKEDIN_REDIRECT'),
-],
 
+    'linkedin' => [
+        'client_id' => env('LINKEDIN_CLIENT_ID'),
+        'client_secret' => env('LINKEDIN_CLIENT_SECRET'),
+        'redirect' => 'https://africode.tech/auth/linkedin/callback',
+    ],
+
+
+    'paypal' => [
+        'client_id' => env('PAYPAL_CLIENT_ID'),
+        'client_secret' => env('PAYPAL_CLIENT_SECRET'),
+        'mode' => env('PAYPAL_MODE', 'sandbox'), // sandbox ou live
+        'webhook_id' => env('PAYPAL_WEBHOOK_ID'),
+    ],
 
     'stripe' => [
-        'key' => env('STRIPE_PUBLISHABLE_KEY'),
         'secret' => env('STRIPE_SECRET_KEY'),
+        'key'    => env('STRIPE_PUBLISHABLE_KEY'),
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
-    'fadapay' => [
-        'api_key' => env('FADAPAY_API_KEY'),
-        'merchant_id' => env('FADAPAY_MERCHANT_ID'),
-        'secret' => env('FADAPAY_SECRET'),
-        'base_url' => env('FADAPAY_BASE_URL', 'https://api.fadapay.com'),
+    'vapid' => [
+        'public_key'  => env('VAPID_PUBLIC_KEY',  ''),
+        'private_key' => env('VAPID_PRIVATE_KEY', ''),
+        'subject'     => env('VAPID_SUBJECT', 'mailto:contact@africode.tech'),
     ],
 
 ];

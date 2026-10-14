@@ -5,13 +5,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Scout\Searchable;
+
 use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
 use OwenIt\Auditing\Auditable;
 
 class User extends Authenticatable implements MustVerifyEmail, AuditableContract
 {
-    use HasFactory, Notifiable, SoftDeletes, Searchable, Auditable;
+    use HasFactory, Notifiable, SoftDeletes,  Auditable;
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\VerifyEmailNotification());
+    }
 
     protected $fillable = [
         'first_name',
@@ -27,7 +37,14 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
         'country',
         'is_active',
         'password_reset_token',
-        'password_reset_expires_at'
+        'password_reset_expires_at',
+        'payment_method',
+        'payment_account',
+        'formateur_status',
+        'badge_level',
+        'onboarding_completed',
+        'onboarding_completed_at',
+        'notification_preferences',
     ];
 
     protected $hidden = ['password', 'remember_token', 'password_reset_token'];
@@ -38,10 +55,16 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
         'is_active' => 'boolean',
         'password' => 'hashed',
         'password_reset_expires_at' => 'datetime',
-        'deleted_at' => 'datetime'
+        'deleted_at' => 'datetime',
+        'notification_preferences' => 'array',
     ];
 
     // --- Relations ---
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
     public function coursesInstructed() {
         return $this->hasMany(Course::class, 'formateur_id');
     }
@@ -91,6 +114,28 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     public function forumPosts() {
         return $this->hasMany(ForumPost::class);
     }
+
+    public function forumNotifications() {
+        return $this->hasMany(ForumNotification::class);
+    }
+
+    public function mentions() {
+        return $this->hasMany(Mention::class);
+    }
+
+    public function mentionsReceived() {
+        return $this->hasMany(Mention::class, 'user_id');
+    }
+
+    public function votes() {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function achievements() {
+        return $this->belongsToMany(Achievement::class, 'user_achievements')
+            ->withPivot('earned_at')
+            ->withTimestamps();
+    }
     
     public function mentorships() {
         return $this->hasMany(Mentorship::class, 'mentor_id');
@@ -129,6 +174,23 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     {
         return $this->belongsToMany(Reward::class)
             ->withPivot('claimed_at', 'status')
+            ->withTimestamps();
+    }
+
+    /**
+     * Les cours favoris de l'utilisateur (wishlist).
+     */
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Les cours dans la wishlist de l'utilisateur.
+     */
+    public function wishlistCourses()
+    {
+        return $this->belongsToMany(Course::class, 'wishlists')
             ->withTimestamps();
     }
 
@@ -230,7 +292,15 @@ class User extends Authenticatable implements MustVerifyEmail, AuditableContract
     // --- Role Checks ---
     public function isAdmin()
     {
-        return $this->role === 'administrateur';
+        return in_array($this->role, ['admin', 'administrateur'], true);
+    }
+
+    /**
+     * Indique si l'utilisateur fait partie du staff (admin) pour le support.
+     */
+    public function isStaff()
+    {
+        return $this->isAdmin();
     }
 
     public function isFormateur()

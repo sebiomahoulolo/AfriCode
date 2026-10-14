@@ -34,6 +34,7 @@ class DashboardController extends Controller
             }
         }
 
-        return redirect('/');
+        // Si pas connecté ou rôle non reconnu, afficher la page dashboard par défaut
+        return view('pages.dashboard');
     }
 }

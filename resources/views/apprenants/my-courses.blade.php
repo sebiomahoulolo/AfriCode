@@ -312,7 +312,7 @@
             <h1 class="h3 mb-0">Mes Cours</h1>
             <p class="text-muted mb-0">Suivez votre progression et continuez votre apprentissage</p>
         </div>
-        <a href="{{ route('courses.index') }}" class="btn btn-outline-primary">
+        <a href="{{ route('courses.index') }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
             <i class="fas fa-plus me-2"></i>Découvrir plus de cours
         </a>
     </div>
@@ -464,7 +464,7 @@
             </div>
             <h4>Aucun cours inscrit</h4>
             <p class="mb-4">Vous n'êtes inscrit à aucun cours pour le moment. Découvrez notre catalogue de formations pour commencer votre apprentissage.</p>
-            <a href="{{ route('courses.index') }}" class="btn btn-primary btn-lg">
+            <a href="{{ route('courses.index') }}" class="btn text-white btn-lg" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                 <i class="fas fa-search me-2"></i>Découvrir les cours
             </a>
         </div>

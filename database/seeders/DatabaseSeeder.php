@@ -30,6 +30,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             CompetitionSeeder::class,
             MentorshipSeeder::class,
+            TutoringSeeder::class,
+            TutoringSystemSeeder::class, // Seeder complet avec messages
             CertificationSeeder::class,
             BadgeSeeder::class,
             RewardSeeder::class,
@@ -40,5 +42,8 @@ class DatabaseSeeder extends Seeder
 
         // Autres seeders
         $this->call(CompetitionTestCaseSeeder::class);
+
+        // Recrutement (postes et questions QCM)
+        $this->call(RecruitmentSeeder::class);
     }
 }

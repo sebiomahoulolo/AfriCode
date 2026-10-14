@@ -18,7 +18,10 @@ class QuizAttempt extends Model
         'submitted_at',
         'score',
         'answers',
-        'anti_cheat_data'
+        'anti_cheat_data',
+        'status',
+        'completed_at',
+        'passed'
     ];
 
     protected $casts = [
@@ -26,7 +29,6 @@ class QuizAttempt extends Model
         'submitted_at' => 'datetime',
         'answers' => 'array',
         'anti_cheat_data' => 'array',
-        'completed_at' => 'datetime',
         'score' => 'float',
         'passed' => 'boolean'
     ];
@@ -61,6 +63,11 @@ class QuizAttempt extends Model
     public function isInProgress(): bool
     {
         return !$this->submitted_at;
+    }
+
+    public function answers()
+    {
+        return $this->hasMany(UserQuizAnswer::class);
     }
 
     /**
@@ -197,8 +204,8 @@ class QuizAttempt extends Model
     // Accesseur pour obtenir le temps pris
     public function getTimeTakenAttribute()
     {
-        if ($this->started_at && $this->completed_at) {
-            return $this->started_at->diffInSeconds($this->completed_at);
+        if ($this->started_at && $this->submitted_at) {
+            return $this->started_at->diffInSeconds($this->submitted_at);
         }
         return 0;
     }

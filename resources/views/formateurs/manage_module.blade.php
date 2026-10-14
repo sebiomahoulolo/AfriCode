@@ -43,6 +43,11 @@
     .lesson-card .lesson-type i {
         margin-right: 0.5rem;
     }
+    
+    /* Style pour les formulaires de suppression inline */
+    form.d-inline {
+        display: inline-block;
+    }
 </style>
 @endsection
 
@@ -52,15 +57,15 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <span class="badge bg-secondary mb-2">Module {{ $module->order }}</span>
-                    <h4 class="text-primary">{{ $module->title }}</h4>
+                    <h4 class="" style="color:#1EA38B;">{{ $module->title }}</h4>
                     @if($module->description)
                         <p class="mb-0 text-muted">{{ $module->description }}</p>
                     @endif
                 </div>
                 <div>
-                    <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                    <a href="{{ route('formateur.modules.edit', ['moduleId' => $module->id]) }}" class="btn btn-sm me-2" style="color:#1EA38B;border:1px solid #1EA38B;">
                         <i class="fas fa-edit me-1"></i> Modifier
-                </a>
+                    </a>
                 <a href="{{ route('formateur.manage.course', ['courseId' => $module->course->id]) }}" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-arrow-left me-1"></i> Retour au cours
                 </a>
@@ -72,11 +77,11 @@
         <div class="col-12 d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">Contenu du module</h5>
             <div>
-                <a href="{{ route('formateur.lessons.create', ['moduleId' => $module->id]) }}" class="btn btn-success btn-sm me-2">
+                <a href="{{ route('formateur.lessons.create', ['moduleId' => $module->id]) }}" class="btn btn-sm text-white me-2" style="background:linear-gradient(135deg,#27B371,#1EA38B);border:none;">
                     <i class="fas fa-plus me-1"></i> Ajouter une leçon
                 </a>
                 @if(!$module->quiz)
-                    <a href="{{ route('formateur.quizzes.create', ['moduleId' => $module->id]) }}" class="btn btn-warning btn-sm">
+                    <a href="{{ route('formateur.quizzes.create', ['moduleId' => $module->id]) }}" class="btn btn-sm text-white" style="background:linear-gradient(135deg,#FF8E2A,#e07820);border:none;">
                         <i class="fas fa-question-circle me-1"></i> Ajouter le quiz
                     </a>
                 @endif
@@ -98,7 +103,7 @@
                                 <div>
                                     <div class="d-flex align-items-center">
                                         @if($lesson->content_type === 'video')
-                                            <i class="fas fa-video text-primary me-2"></i>
+                                            <i class="fas fa-video me-2" style="color:#1EA38B;"></i>
                                         @elseif($lesson->content_type === 'text')
                                             <i class="fas fa-file-alt text-info me-2"></i>
                                         @elseif($lesson->content_type === 'pdf')
@@ -108,7 +113,7 @@
                                         @endif
                                         <strong>{{ $lesson->title }}</strong>
                                         @if($lesson->is_previewable)
-                                            <span class="badge bg-info ms-2">Prévisualisable</span>
+                                            <span class="badge ms-2" style="background:#1EA38B;">Prévisualisable</span>
                                         @endif
                                     </div>
                                     <div class="small text-muted mt-1">
@@ -119,12 +124,16 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{{ route('formateur.lessons.edit', ['lessonId' => $lesson->id]) }}" class="btn btn-sm btn-outline-primary me-2">
+                                    <a href="{{ route('formateur.lessons.edit', ['lessonId' => $lesson->id]) }}" class="btn btn-sm me-2" style="color:#1EA38B;border:1px solid #1EA38B;">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteLesson{{ $lesson->id }}Modal">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <form action="{{ route('formateur.lessons.destroy', ['lessonId' => $lesson->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette leçon ? Cette action est irréversible.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @endforeach
@@ -136,7 +145,7 @@
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-clipboard-check text-warning me-2" style="font-size: 1.2em;"></i>
                                         <strong>{{ $module->quiz->title }}</strong>
-                                        <span class="badge bg-warning text-dark ms-2">QUIZ DE MODULE</span>
+                                        <span class="badge ms-2" style="background:#FF8E2A;color:#fff;">QUIZ DE MODULE</span>
                                     </div>
                                     <div class="small text-muted mt-1">
                                         {{ $module->quiz->questions->count() }} question(s) • Score minimum: {{ $module->quiz->passing_score }}%
@@ -146,12 +155,16 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{{ route('formateur.quizzes.edit', ['quizId' => $module->quiz->id]) }}" class="btn btn-sm btn-outline-primary me-2" title="Modifier le quiz">
+                                    <a href="{{ route('formateur.quizzes.edit', ['quizId' => $module->quiz->id]) }}" class="btn btn-sm me-2" style="color:#1EA38B;border:1px solid #1EA38B;" title="Modifier le quiz">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteQuiz{{ $module->quiz->id }}Modal" title="Supprimer le quiz">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <form action="{{ route('formateur.quizzes.destroy', ['quizId' => $module->quiz->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce quiz ? Cette action supprimera également toutes les questions et réponses associées. Cette action est irréversible.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer le quiz">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @endif
@@ -162,60 +175,8 @@
     </div>
     
     <div class="d-flex justify-content-between">
-        <a href="{{ route('formateur.manage.course', ['courseId' => $module->course->id]) }}" class="btn btn-outline-primary">
+        <a href="{{ route('formateur.manage.course', ['courseId' => $module->course->id]) }}" class="btn" style="color:#1EA38B;border:1px solid #1EA38B;">
             <i class="fas fa-arrow-left me-1"></i> Retour au cours
         </a>
     </div>
-
-    {{-- Modals de suppression pour les leçons --}}
-    @foreach($module->lessons as $lesson)
-        <div class="modal fade" id="deleteLesson{{ $lesson->id }}Modal" tabindex="-1" aria-labelledby="deleteLesson{{ $lesson->id }}ModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="deleteLesson{{ $lesson->id }}ModalLabel">Confirmation de suppression</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Êtes-vous sûr de vouloir supprimer cette leçon ?</p>
-                        <p class="fw-bold">{{ $lesson->title }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <form action="{{ route('formateur.lessons.destroy', ['lessonId' => $lesson->id]) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Supprimer</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endforeach
-
-    {{-- Modal de suppression pour le quiz --}}
-    @if($module->quiz)
-        <div class="modal fade" id="deleteQuiz{{ $module->quiz->id }}Modal" tabindex="-1" aria-labelledby="deleteQuiz{{ $module->quiz->id }}ModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title" id="deleteQuiz{{ $module->quiz->id }}ModalLabel">Confirmation de suppression</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Êtes-vous sûr de vouloir supprimer ce quiz ? Cette action supprimera également toutes les questions et réponses associées ainsi que les tentatives des étudiants.</p>
-                        <p class="fw-bold">{{ $module->quiz->title }}</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                        <form action="{{ route('formateur.quizzes.destroy', ['quizId' => $module->quiz->id]) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
 @endsection

@@ -22,7 +22,7 @@ class BadgeSeeder extends Seeder
                     ['type' => 'first_exercise', 'value' => 1]
                 ]),
                 'points_reward' => 50,
-                'color' => '#1EA38B',
+                'color' => '#11c06d',
                 'is_locked' => false,
                 'unlock_order' => 1
             ],
@@ -35,7 +35,7 @@ class BadgeSeeder extends Seeder
                     ['type' => 'html_css_completed', 'value' => 1]
                 ]),
                 'points_reward' => 100,
-                'color' => '#FF8E2A',
+                'color' => '#fea837',
                 'is_locked' => false,
                 'unlock_order' => 2
             ],
@@ -48,7 +48,7 @@ class BadgeSeeder extends Seeder
                     ['type' => 'js_advanced', 'value' => 1]
                 ]),
                 'points_reward' => 150,
-                'color' => '#E32D31',
+                'color' => '#fa1c39',
                 'is_locked' => false,
                 'unlock_order' => 3
             ],
@@ -61,7 +61,7 @@ class BadgeSeeder extends Seeder
                     ['type' => 'php_mysql_completed', 'value' => 1]
                 ]),
                 'points_reward' => 200,
-                'color' => '#27B371',
+                'color' => '#239e79',
                 'is_locked' => true,
                 'unlock_order' => 4
             ],

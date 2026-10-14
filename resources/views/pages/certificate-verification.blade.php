@@ -6,8 +6,8 @@
 <style>
     :root {
         --primary-color: #1EA38B;
-        --secondary-color: #FF8E2A;
-        --accent-color: #E32D31;
+        --secondary-color: #fea837;
+        --accent-color: #fa1c39;
         --highlight-color: #27B371;
         --background-color: #F0F4F7;
         --text-color: #333;
@@ -338,7 +338,7 @@
     }
 
     .course-level {
-        background: rgba(255, 142, 42, 0.1);
+        background: rgba(254, 168, 55, 0.1);
         color: var(--secondary-color);
     }
 
@@ -637,7 +637,7 @@
         <div class="col-lg-8">
             <div class="verification-card" data-aos="fade-up">
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold text-primary">
+                    <h3 class="fw-bold" style="color:#1EA38B;">
                         <i class="fas fa-search me-2"></i>
                         Entrez le code de vérification
                     </h3>
@@ -650,7 +650,7 @@
                     @csrf
                     <div class="mb-4">
                         <label for="verification_code" class="form-label fw-semibold">
-                            <i class="fas fa-key me-2 text-primary"></i>
+                            <i class="fas fa-key me-2" style="color:#1EA38B;"></i>
                             Code de vérification
                         </label>
                         <input type="text" 
@@ -759,17 +759,17 @@
                     </div>
 
                     <!-- Actions -->
-                    <div class="certificate-actions">
-                        <a href="{{ route('public.certificate.show', ['certification' => $certification->verification_code]) }}" 
-                           class="btn btn-view-certificate">
-                            <i class="fas fa-external-link-alt me-2"></i>
-                            Voir le certificat complet
-                        </a>
-                        <button class="btn btn-share" onclick="shareCertificate('{{ $certification->verification_code }}')">
-                            <i class="fas fa-share-alt me-2"></i>
-                            Partager
-                        </button>
-                    </div>
+                    <!--<div class="certificate-actions">-->
+                    <!--    <a href="{{ route('public.certificate.show', ['certification' => $certification->verification_code]) }}" -->
+                    <!--       class="btn btn-view-certificate">-->
+                    <!--        <i class="fas fa-external-link-alt me-2"></i>-->
+                    <!--        Voir le certificat complet-->
+                    <!--    </a>-->
+                    <!--    <button class="btn btn-share" onclick="shareCertificate('{{ $certification->verification_code }}')">-->
+                    <!--        <i class="fas fa-share-alt me-2"></i>-->
+                    <!--        Partager-->
+                    <!--    </button>-->
+                    <!--</div>-->
                 </div>
                 
             @elseif(isset($error) && $error)
@@ -777,7 +777,7 @@
                     <div class="d-flex align-items-center">
                         <i class="fas fa-times-circle fa-2x text-danger me-3"></i>
                         <div>
-                            <h5 class="alert-heading mb-1">❌ Certificat non trouvé</h5>
+                            <h5 class="alert-heading mb-1"><i class="fas fa-times-circle text-danger me-2"></i>Certificat non trouvé</h5>
                             <p class="mb-0">{{ $error }}</p>
                         </div>
                     </div>
@@ -868,13 +868,13 @@
             <div class="card border-0 shadow-lg" data-aos="fade-up" data-aos-delay="500">
                 <div class="card-body p-4">
                     <h5 class="card-title text-center mb-4">
-                        <i class="fas fa-question-circle me-2 text-primary"></i>
+                        <i class="fas fa-question-circle me-2" style="color:#1EA38B;"></i>
                         Besoin d'aide ?
                     </h5>
                     
                     <div class="row text-center">
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-envelope fa-2x text-primary mb-3"></i>
+                            <i class="fas fa-envelope fa-2x mb-3" style="color:#1EA38B;"></i>
                             <h6>Contactez-nous</h6>
                             <a href="{{ route('pages.contact') }}" class="text-decoration-none">
                                 support@africode.tech
@@ -882,13 +882,13 @@
                         </div>
                         
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-phone fa-2x text-primary mb-3"></i>
+                            <i class="fas fa-phone fa-2x mb-3" style="color:#1EA38B;"></i>
                             <h6>Appelez-nous</h6>
                             <span class="text-muted">+225 XX XX XX XX</span>
                         </div>
                         
                         <div class="col-md-4 mb-3">
-                            <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                            <i class="fas fa-clock fa-2x mb-3" style="color:#1EA38B;"></i>
                             <h6>Disponibilité</h6>
                             <span class="text-muted">Lun-Ven 8h-18h</span>
                         </div>

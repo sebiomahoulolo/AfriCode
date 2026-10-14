@@ -283,20 +283,8 @@ document.addEventListener("DOMContentLoaded", function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             // Recalculer les positions si nécessaire
-            console.log('Window resized - recalculating positions');
         }, 250);
     });
-    
-    // Performance monitoring (dev only)
-    if (window.location.hostname === 'localhost') {
-        const perfObserver = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                console.log(`${entry.name}: ${entry.duration}ms`);
-            });
-        });
-        
-        perfObserver.observe({ entryTypes: ['navigation', 'paint'] });
-    }
 });
 
 // CSS supplémentaire pour les animations

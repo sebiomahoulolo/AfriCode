@@ -84,7 +84,7 @@
                             <a href="{{ route('admin.courses.show', $module->course_id) }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-1"></i> Annuler
                             </a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn text-white" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                                 <i class="fas fa-plus me-1"></i> Créer le quiz
                             </button>
                         </div>

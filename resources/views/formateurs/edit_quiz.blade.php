@@ -51,7 +51,7 @@
     }
     
     .add-btn {
-        color: #0d6efd;
+        color: #1EA38B;
         background: transparent;
         border: none;
         cursor: pointer;
@@ -178,14 +178,14 @@
                 @endforeach
             </div>
             
-            <button type="button" class="btn btn-outline-primary mb-4" id="add-question">
+            <button type="button" class="btn mb-4" id="add-question" style="color:#1EA38B;border:1px solid #1EA38B;">
                 <i class="fas fa-plus-circle me-1"></i> Ajouter une question
             </button>
             
             <div class="d-flex justify-content-between mt-4">
                 <div>
                     <a href="{{ route('formateur.manage.module', ['moduleId' => $module->id]) }}" class="btn btn-outline-secondary me-2">Annuler</a>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">Mettre à jour le quiz</button>
+                    <button type="submit" class="btn text-white" id="submitBtn" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">Mettre à jour le quiz</button>
                 </div>
                 <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteQuizModal">
                     <i class="fas fa-trash-alt"></i> Supprimer le quiz

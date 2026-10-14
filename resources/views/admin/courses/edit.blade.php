@@ -6,11 +6,11 @@
 <div class="container-fluid">
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">
+            <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">
                 <i class="fas fa-edit fa-fw me-1"></i> Modifier le cours
             </h6>
             <div>
-                <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-sm btn-info me-2">
+                <a href="{{ route('admin.courses.show', $course->id) }}" class="btn btn-sm text-white me-2" style="background:linear-gradient(135deg,#1EA38B,#0d7a63);border:none;">
                     <i class="fas fa-eye fa-fw"></i> Voir le cours
                 </a>
                 <a href="{{ route('admin.courses.index') }}" class="btn btn-sm btn-secondary">
@@ -28,7 +28,7 @@
                         <!-- Informations générales du cours -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Informations générales</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Informations générales</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -102,7 +102,7 @@
                         <!-- Contenu du cours -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Contenu détaillé</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Contenu détaillé</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -129,7 +129,7 @@
                         <!-- SEO et Métadonnées -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">SEO et Métadonnées</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">SEO et Métadonnées</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -159,7 +159,7 @@
                         <!-- Images et médias -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Images et médias</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Images et médias</h6>
                             </div>
                             <div class="card-body">
                                 @if($course->thumbnail)
@@ -196,7 +196,7 @@
                         <!-- Paramètres de publication -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Paramètres de publication</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Paramètres de publication</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -258,7 +258,7 @@
                         <!-- Prix et promotions -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Prix et promotions</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Prix et promotions</h6>
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
@@ -293,7 +293,7 @@
                         <!-- Statistiques -->
                         <div class="card mb-4">
                             <div class="card-header py-3">
-                                <h6 class="m-0 font-weight-bold text-primary">Statistiques</h6>
+                                <h6 class="m-0 font-weight-bold" style="color:#1EA38B;">Statistiques</h6>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -328,7 +328,7 @@
                 </div>
                 
                 <div class="d-flex mt-3">
-                    <button type="submit" class="btn btn-primary me-2">
+                    <button type="submit" class="btn text-white me-2" style="background:linear-gradient(135deg,#1EA38B,#27B371);border:none;">
                         <i class="fas fa-save fa-fw"></i> Enregistrer les modifications
                     </button>
                     <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary">Annuler</a>
